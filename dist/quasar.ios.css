@@ -2140,6 +2140,7 @@ body.desktop button.outline:focus {
   text-align: right;
   position: relative;
   padding: 0;
+  background: rgba(0,0,0,0.1);
 }
 .q-datetime-mask {
   position: absolute;
@@ -2206,32 +2207,13 @@ body.desktop .q-datetime-col-wrapper {
   height: 36px;
   position: absolute;
   left: 0;
+  right: 0;
   width: 100%;
   top: 50%;
   margin-top: -18px;
   pointer-events: none;
-  transition: background 0.9s;
-}
-.q-datetime-highlight:before,
-.q-datetime-highlight:after {
-  content: '';
-  position: absolute;
-  transform: scaleY(0.5);
-  left: 0;
-  right: auto;
-  height: 1px;
-  width: 100%;
-  background: #bdbdbd;
-  display: block;
-  transform-origin: 50% 0;
-}
-.q-datetime-highlight:before {
-  top: 0;
-  bottom: auto;
-}
-.q-datetime-highlight:after {
-  bottom: 0;
-  top: auto;
+  border-top: 1px solid rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 .q-datetime-highlight.q-datetime-no-selection {
   letter-spacing: 3px;
@@ -2680,7 +2662,6 @@ i.q-icon {
   border: 0;
   outline: 0;
   padding: 0;
-  max-width: 100%;
   background: transparent;
   max-width: 100%;
   width: 100%;
@@ -2777,12 +2758,14 @@ i.q-icon {
 }
 .layout-aside-left {
   left: 0;
+  width: 280px;
 }
 .layout-aside-left.fixed {
   border-right: 1px solid rgba(0,0,0,0.4);
 }
 .layout-aside-right {
   right: 0;
+  width: 280px;
 }
 .layout-aside-right.fixed {
   border-left: 1px solid rgba(0,0,0,0.4);
@@ -4849,9 +4832,6 @@ body.desktop .q-tree-link .q-tree-label:hover {
 .q-uploader .card-content {
   padding: 10px;
 }
-.q-uploader input {
-  display: none;
-}
 .q-uploader .q-progress {
   margin: 0;
   height: 3px !important;
@@ -4864,6 +4844,16 @@ body.desktop .q-tree-link .q-tree-label:hover {
   color: #fff;
   padding: 10px 0;
   text-align: center;
+}
+.q-uploader-input {
+  opacity: 0;
+  max-width: 100%;
+  height: 100%;
+  width: 100%;
+  font-size: 0;
+}
+.q-uploader-pick-button[disabled] .q-uploader-input {
+  display: none;
 }
 .text-primary {
   color: #027be3 !important;
@@ -9534,15 +9524,15 @@ label {
 }
 .q-placeholder::-webkit-input-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .q-placeholder::-moz-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .q-placeholder:-ms-input-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .highlight-and-fade {
   animation: q-highlight 2s;

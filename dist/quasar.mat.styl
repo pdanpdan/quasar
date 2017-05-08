@@ -1536,7 +1536,7 @@ div + .q-datetime-time
         color opposite-non-color($datetime-color)
         background $datetime-color
 .q-datetime-view-year, .q-datetime-view-month
-  .q-btn
+  button
     font-weight normal
     text-transform capitalize
     color rgba(0, 0, 0, .87) !important
@@ -1608,8 +1608,13 @@ body.desktop .q-datetime-clock-position:not(.active):hover
 for $pos in 0..12
   $degree = (270 + 30 * $pos)
   .q-datetime-clock-pos-{$pos}
-    top (((1 + sin($degree * 1deg)) * 100%) / 2)
-    left (((1 + cos($degree * 1deg)) * 100%) / 2)
+    top round(((1 + sin($degree * 1deg)) * 100%) / 2, 2)
+    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2)
+for $pos in 0..23
+  $degree = (270 + 15 * $pos)
+  .q-datetime-clock-pos-{$pos}.fmt24
+    top round(((1 + sin($degree * 1deg)) * 100%) / 2, 2)
+    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2)
 .q-datetime-range
     display flex
     > div
@@ -2008,7 +2013,6 @@ $input-label-color            ?= rgba(0, 0, 0, .54)
     border 0
     outline 0
     padding 0
-    max-width 100%
     color inherit
     background transparent
     
@@ -2067,6 +2071,8 @@ $layout-header-shadow      ?= $shadow-2
 $layout-footer-shadow      ?= $shadow-up-2
 $layout-aside-shadow       ?= $shadow-2
 $layout-aside-background   ?= white
+$layout-aside-left-width   ?= 300px
+$layout-aside-right-width  ?= 300px
 $toolbar-title-font-size   ?= 1.15rem
 $toolbar-padding           ?= 4px 12px
 .layout
@@ -2089,8 +2095,10 @@ $toolbar-padding           ?= 4px 12px
     z-index $z-fixed-side
 .layout-aside-left
   left 0
+  width $layout-aside-left-width
 .layout-aside-right
   right 0
+  width $layout-aside-right-width
 main, .layout, .layout-header, .layout-footer
   position relative
 .layout-header, .layout-footer
@@ -2227,14 +2235,14 @@ maximized-modal()
   .modal.maximized
     &.q-modal-enter, &.q-modal-leave-active
       .modal-content
-        transform translateX(101%)
+        transform translateY(101%)
 @media screen and (max-width $layout-small-max)
   .modal:not(.minimized)
     .modal-content
       maximized-modal()
     &.q-modal-enter, &.q-modal-leave-active
       .modal-content
-        transform translateX(101%)
+        transform translateY(101%)
   .modal.minimized
     &.q-modal-enter .modal-content
       transform scale(1.2)
@@ -3263,8 +3271,6 @@ $uploader-failed-background  ?= $negative
     font-size $uploader-font-size
   .card-content
     padding 10px
-  input
-    display none
   .q-progress
     margin 0
     height $uploader-progressbar-height !important
@@ -3275,6 +3281,14 @@ $uploader-failed-background  ?= $negative
   color $uploader-failed-color
   padding 10px 0
   text-align center
+.q-uploader-input
+  opacity 0
+  max-width 100%
+  height 100%
+  width 100%
+  font-size 0
+.q-uploader-pick-button[disabled] .q-uploader-input
+  display none
 .text-primary
   color $primary !important
 .bg-primary
@@ -4898,13 +4912,13 @@ flex-media-query($type)
 .q-placeholder
   &::-webkit-input-placeholder
     color inherit
-    opacity .8
+    opacity .5
   &::-moz-placeholder
     color inherit
-    opacity .8
+    opacity .5
   &:-ms-input-placeholder
     color inherit
-    opacity .8
+    opacity .5
 @keyframes q-highlight
   0%
     background $lime-6

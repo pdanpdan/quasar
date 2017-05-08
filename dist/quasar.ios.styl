@@ -1502,6 +1502,7 @@ $datetime-range-space    ?= 10px
   text-align right
   position relative
   padding 0
+  background rgba(0, 0, 0, .1)
 .q-datetime-mask
   position absolute
   top 0
@@ -1555,28 +1556,13 @@ body.desktop .q-datetime-col-wrapper
   height 36px
   position absolute
   left 0
+  right 0
   width 100%
   top 50%
   margin-top -18px
   pointer-events none
-  transition background .9s
-  &:before, &:after
-    content ''
-    position absolute
-    transform scaleY(.5)
-    left 0
-    right auto
-    height 1px
-    width 100%
-    background $grey-5
-    display block
-    transform-origin 50% 0
-  &:before
-    top 0
-    bottom auto
-  &:after
-    bottom 0
-    top auto
+  border-top 1px solid rgba(0, 0, 0, .2)
+  border-bottom 1px solid rgba(0, 0, 0, .2)
   &.q-datetime-no-selection
     letter-spacing 3px
     background white
@@ -1938,7 +1924,6 @@ $input-label-color            ?= rgba(0, 0, 0, .54)
     border 0
     outline 0
     padding 0
-    max-width 100%
     background transparent
     
     max-width 100%
@@ -1994,6 +1979,8 @@ $input-label-color            ?= rgba(0, 0, 0, .54)
 $layout-toolbar-min-height ?= 50px
 $layout-border             ?= 1px solid $toolbar-faded-color
 $layout-aside-background   ?= white
+$layout-aside-left-width   ?= 280px
+$layout-aside-right-width  ?= 280px
 $toolbar-title-font-size   ?= .95rem
 $toolbar-padding           ?= 4px 10px
 .layout
@@ -2015,10 +2002,12 @@ $toolbar-padding           ?= 4px 10px
     z-index $z-fixed-side
 .layout-aside-left
   left 0
+  width $layout-aside-left-width
   &.fixed
     border-right $layout-border
 .layout-aside-right
   right 0
+  width $layout-aside-right-width
   &.fixed
     border-left $layout-border
 main, .layout, .layout-header, .layout-footer
@@ -3148,8 +3137,6 @@ $uploader-failed-background  ?= $negative
     font-size $uploader-font-size
   .card-content
     padding 10px
-  input
-    display none
   .q-progress
     margin 0
     height $uploader-progressbar-height !important
@@ -3160,6 +3147,14 @@ $uploader-failed-background  ?= $negative
   color $uploader-failed-color
   padding 10px 0
   text-align center
+.q-uploader-input
+  opacity 0
+  max-width 100%
+  height 100%
+  width 100%
+  font-size 0
+.q-uploader-pick-button[disabled] .q-uploader-input
+  display none
 .text-primary
   color $primary !important
 .bg-primary
@@ -4783,13 +4778,13 @@ flex-media-query($type)
 .q-placeholder
   &::-webkit-input-placeholder
     color inherit
-    opacity .8
+    opacity .5
   &::-moz-placeholder
     color inherit
-    opacity .8
+    opacity .5
   &:-ms-input-placeholder
     color inherit
-    opacity .8
+    opacity .5
 @keyframes q-highlight
   0%
     background $lime-6

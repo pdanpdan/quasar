@@ -9,6 +9,7 @@
     :float-label="floatLabel"
     :stacked-label="stackedLabel"
     :simple="simple"
+    :align="align"
     @click="open"
     @focus="$emit('focus')"
     @blur="__blur"
@@ -20,12 +21,20 @@
       :disable="disable || readonly"
       :anchor-click="false"
     >
-      <q-inline-datetime v-model="model" :type="type" :min="min" :max="max" class="no-border">
+      <q-inline-datetime
+        v-model="model"
+        :type="type"
+        :min="min"
+        :max="max"
+        :format24h="format24h"
+        :monday-first="mondayFirst"
+        class="no-border"
+      >
         <div class="modal-buttons row full-width">
-          <q-btn v-if="!noClear" @click="clear()" class="primary clear" v-html="clearLabel"></q-btn>
+          <q-btn v-if="!noClear && model" @click="clear()" class="primary clear" v-html="clearLabel"></q-btn>
           <div class="auto"></div>
           <q-btn @click="close()" class="primary clear" v-html="cancelLabel"></q-btn>
-          <q-btn @click="close(__update)" class="primary clear" v-html="okLabel"></q-btn>
+          <q-btn v-if="model" @click="close(__update)" class="primary clear" v-html="okLabel"></q-btn>
         </div>
       </q-inline-datetime>
     </q-popover>
@@ -39,12 +48,20 @@
       :position-classes="position"
       :content-css="css"
     >
-      <q-inline-datetime v-model="model" :type="type" :min="min" :max="max" class="no-border full-width">
+      <q-inline-datetime
+        v-model="model"
+        :type="type"
+        :min="min"
+        :max="max"
+        :format24h="format24h"
+        :monday-first="mondayFirst"
+        class="no-border full-width"
+      >
         <div class="modal-buttons row full-width">
-          <q-btn v-if="!noClear" @click="clear()" class="primary clear" v-html="clearLabel"></q-btn>
+          <q-btn v-if="!noClear && model" @click="clear()" class="primary clear" v-html="clearLabel"></q-btn>
           <div class="auto"></div>
           <q-btn @click="close()" class="primary clear" v-html="cancelLabel"></q-btn>
-          <q-btn @click="close(__update)" class="primary clear" v-html="okLabel"></q-btn>
+          <q-btn v-if="model" @click="close(__update)" class="primary clear" v-html="okLabel"></q-btn>
         </div>
       </q-inline-datetime>
     </q-modal>
@@ -52,15 +69,15 @@
 </template>
 
 <script>
-import { moment } from '../../deps'
 import Platform from '../../features/platform'
-import { current as theme } from '../../features/theme'
 import extend from '../../utils/extend'
-import { input as props } from './datetime-props'
+import { current as theme } from '../../features/theme'
+import { input, inline } from './datetime-props'
 import { QInput } from '../input'
 import { QPopover } from '../popover'
 import QInlineDatetime from './QInlineDatetime'
 import { QBtn } from '../btn'
+import { formatDate } from '../../utils/date'
 
 let contentCSS = {
   ios: {
@@ -83,12 +100,7 @@ export default {
     QInlineDatetime,
     QBtn
   },
-  props: extend({
-    value: {
-      type: String,
-      required: true
-    }
-  }, props),
+  props: extend({}, input, inline),
   data () {
     let data = Platform.is.desktop ? {} : {
       css: contentCSS[theme],
@@ -102,6 +114,10 @@ export default {
   },
   computed: {
     actualValue () {
+      if (!this.value) {
+        return ''
+      }
+
       let format
 
       if (this.format) {
@@ -117,15 +133,7 @@ export default {
         format = 'YYYY-MM-DD HH:mm:ss'
       }
 
-      return this.value ? moment(this.value).format(format) : ''
-    }
-  },
-  watch: {
-    min () {
-      this.__normalizeAndEmit()
-    },
-    max () {
-      this.__normalizeAndEmit()
+      return formatDate(this.value, format)
     }
   },
   methods: {
@@ -150,27 +158,11 @@ export default {
         }
       }, 1)
     },
-    __normalizeValue (value) {
-      if (this.min) {
-        value = moment.max(moment(this.min).clone(), value)
-      }
-      if (this.max) {
-        value = moment.min(moment(this.max).clone(), value)
-      }
-      return value
-    },
     __setModel () {
-      this.model = this.value || this.__normalizeValue(moment(this.defaultSelection)).format()
+      this.model = this.value || this.defaultSelection
     },
     __update () {
       this.$emit('input', this.model)
-    },
-    __normalizeAndEmit () {
-      this.$nextTick(() => {
-        if (this.value) {
-          this.$emit('input', this.__normalizeValue(moment(this.value)).format(this.format))
-        }
-      })
     }
   }
 }

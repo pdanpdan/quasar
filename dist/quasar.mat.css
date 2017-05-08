@@ -1999,14 +1999,14 @@ div + .q-datetime-time {
   color: #fff;
   background: #027be3;
 }
-.q-datetime-view-year .q-btn,
-.q-datetime-view-month .q-btn {
+.q-datetime-view-year button,
+.q-datetime-view-month button {
   font-weight: normal;
   text-transform: capitalize;
   color: rgba(0,0,0,0.87) !important;
 }
-.q-datetime-view-year .q-btn.active,
-.q-datetime-view-month .q-btn.active {
+.q-datetime-view-year button.active,
+.q-datetime-view-month button.active {
   font-size: 1.5rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -2085,12 +2085,12 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   left: 50%;
 }
 .q-datetime-clock-pos-1 {
-  top: 6.698729799999997%;
+  top: 6.7%;
   left: 75%;
 }
 .q-datetime-clock-pos-2 {
   top: 25%;
-  left: 93.3012702%;
+  left: 93.3%;
 }
 .q-datetime-clock-pos-3 {
   top: 50%;
@@ -2098,10 +2098,10 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-datetime-clock-pos-4 {
   top: 75%;
-  left: 93.3012702%;
+  left: 93.3%;
 }
 .q-datetime-clock-pos-5 {
-  top: 93.3012702%;
+  top: 93.3%;
   left: 75%;
 }
 .q-datetime-clock-pos-6 {
@@ -2109,12 +2109,12 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   left: 50%;
 }
 .q-datetime-clock-pos-7 {
-  top: 93.3012702%;
+  top: 93.3%;
   left: 25%;
 }
 .q-datetime-clock-pos-8 {
   top: 75%;
-  left: 6.698729799999997%;
+  left: 6.7%;
 }
 .q-datetime-clock-pos-9 {
   top: 50%;
@@ -2122,15 +2122,111 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-datetime-clock-pos-10 {
   top: 25%;
-  left: 6.698729799999997%;
+  left: 6.7%;
 }
 .q-datetime-clock-pos-11 {
-  top: 6.698729799999997%;
+  top: 6.7%;
   left: 25%;
 }
 .q-datetime-clock-pos-12 {
   top: 0%;
   left: 50%;
+}
+.q-datetime-clock-pos-0.fmt24 {
+  top: 0%;
+  left: 50%;
+}
+.q-datetime-clock-pos-1.fmt24 {
+  top: 1.7%;
+  left: 62.94%;
+}
+.q-datetime-clock-pos-2.fmt24 {
+  top: 6.7%;
+  left: 75%;
+}
+.q-datetime-clock-pos-3.fmt24 {
+  top: 14.64%;
+  left: 85.36%;
+}
+.q-datetime-clock-pos-4.fmt24 {
+  top: 25%;
+  left: 93.3%;
+}
+.q-datetime-clock-pos-5.fmt24 {
+  top: 37.06%;
+  left: 98.3%;
+}
+.q-datetime-clock-pos-6.fmt24 {
+  top: 50%;
+  left: 100%;
+}
+.q-datetime-clock-pos-7.fmt24 {
+  top: 62.94%;
+  left: 98.3%;
+}
+.q-datetime-clock-pos-8.fmt24 {
+  top: 75%;
+  left: 93.3%;
+}
+.q-datetime-clock-pos-9.fmt24 {
+  top: 85.36%;
+  left: 85.36%;
+}
+.q-datetime-clock-pos-10.fmt24 {
+  top: 93.3%;
+  left: 75%;
+}
+.q-datetime-clock-pos-11.fmt24 {
+  top: 98.3%;
+  left: 62.94%;
+}
+.q-datetime-clock-pos-12.fmt24 {
+  top: 100%;
+  left: 50%;
+}
+.q-datetime-clock-pos-13.fmt24 {
+  top: 98.3%;
+  left: 37.06%;
+}
+.q-datetime-clock-pos-14.fmt24 {
+  top: 93.3%;
+  left: 25%;
+}
+.q-datetime-clock-pos-15.fmt24 {
+  top: 85.36%;
+  left: 14.64%;
+}
+.q-datetime-clock-pos-16.fmt24 {
+  top: 75%;
+  left: 6.7%;
+}
+.q-datetime-clock-pos-17.fmt24 {
+  top: 62.94%;
+  left: 1.7%;
+}
+.q-datetime-clock-pos-18.fmt24 {
+  top: 50%;
+  left: 0%;
+}
+.q-datetime-clock-pos-19.fmt24 {
+  top: 37.06%;
+  left: 1.7%;
+}
+.q-datetime-clock-pos-20.fmt24 {
+  top: 25%;
+  left: 6.7%;
+}
+.q-datetime-clock-pos-21.fmt24 {
+  top: 14.64%;
+  left: 14.64%;
+}
+.q-datetime-clock-pos-22.fmt24 {
+  top: 6.7%;
+  left: 25%;
+}
+.q-datetime-clock-pos-23.fmt24 {
+  top: 1.7%;
+  left: 37.06%;
 }
 .q-datetime-range {
   display: flex;
@@ -2632,7 +2728,6 @@ i.q-icon {
   border: 0;
   outline: 0;
   padding: 0;
-  max-width: 100%;
   color: inherit;
   background: transparent;
   max-width: 100%;
@@ -2732,9 +2827,11 @@ i.q-icon {
 }
 .layout-aside-left {
   left: 0;
+  width: 300px;
 }
 .layout-aside-right {
   right: 0;
+  width: 300px;
 }
 main,
 .layout,
@@ -2897,7 +2994,7 @@ body.with-modal {
   }
   .modal.maximized.q-modal-enter .modal-content,
   .modal.maximized.q-modal-leave-active .modal-content {
-    transform: translateX(101%);
+    transform: translateY(101%);
   }
 }
 @media screen and (max-width: 600px) {
@@ -2910,7 +3007,7 @@ body.with-modal {
   }
   .modal:not(.minimized).q-modal-enter .modal-content,
   .modal:not(.minimized).q-modal-leave-active .modal-content {
-    transform: translateX(101%);
+    transform: translateY(101%);
   }
   .modal.minimized.q-modal-enter .modal-content {
     transform: scale(1.2);
@@ -5048,9 +5145,6 @@ body.desktop .q-tree-link .q-tree-label:hover {
 .q-uploader .card-content {
   padding: 10px;
 }
-.q-uploader input {
-  display: none;
-}
 .q-uploader .q-progress {
   margin: 0;
   height: 3px !important;
@@ -5063,6 +5157,16 @@ body.desktop .q-tree-link .q-tree-label:hover {
   color: #fff;
   padding: 10px 0;
   text-align: center;
+}
+.q-uploader-input {
+  opacity: 0;
+  max-width: 100%;
+  height: 100%;
+  width: 100%;
+  font-size: 0;
+}
+.q-uploader-pick-button[disabled] .q-uploader-input {
+  display: none;
 }
 .text-primary {
   color: #027be3 !important;
@@ -9733,15 +9837,15 @@ label {
 }
 .q-placeholder::-webkit-input-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .q-placeholder::-moz-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .q-placeholder:-ms-input-placeholder {
   color: inherit;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 .highlight-and-fade {
   animation: q-highlight 2s;

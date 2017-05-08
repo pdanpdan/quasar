@@ -314,13 +314,9 @@ var theme = Object.freeze({
 var version = "0.14.0";
 
 var Vue;
-var moment;
 
 function setVue (_Vue) {
   Vue = _Vue;
-}
-function setDeps (deps) {
-  moment = deps.moment;
 }
 
 var install$$1 = function (_Vue, opts) {
@@ -332,9 +328,6 @@ var install$$1 = function (_Vue, opts) {
   this.installed = true;
 
   setVue(_Vue);
-  if (opts.deps && opts.deps.moment) {
-    setDeps(opts.deps);
-  }
 
   if (opts.directives) {
     Object.keys(opts.directives).forEach(function (key) {
@@ -395,21 +388,25 @@ function humanStorageSize (bytes) {
   return ((bytes.toFixed(1)) + " " + (units[u]))
 }
 
-function between (val, min, max) {
+function capitalize (str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function between (v, min, max) {
   if (max <= min) {
     return min
   }
-  return Math.min(max, Math.max(min, val))
+  return Math.min(max, Math.max(min, v))
 }
 
-function normalizeToInterval (val, min, max) {
+function normalizeToInterval (v, min, max) {
   if (max <= min) {
     return min
   }
 
   var size = (max - min + 1);
 
-  var index = val % size;
+  var index = v % size;
   if (index < min) {
     index = size + index;
   }
@@ -417,11 +414,23 @@ function normalizeToInterval (val, min, max) {
   return index
 }
 
+function pad (v, length, char) {
+  if ( length === void 0 ) length = 2;
+  if ( char === void 0 ) char = '0';
+
+  var val = '' + v;
+  return val.length >= length
+    ? val
+    : new Array(length - val.length + 1).join(char) + val
+}
+
 
 var format = Object.freeze({
 	humanStorageSize: humanStorageSize,
+	capitalize: capitalize,
 	between: between,
-	normalizeToInterval: normalizeToInterval
+	normalizeToInterval: normalizeToInterval,
+	pad: pad
 });
 
 var xhr = XMLHttpRequest;
@@ -737,6 +746,12 @@ function isPrintableChar (v) {
     (v > 218 && v < 223)
 }
 
+
+
+function isDate (v) {
+  return Object.prototype.toString.call(v) === '[object Date]'
+}
+
 var inputTypes = [
   'text', 'textarea', 'email',
   'tel', 'file', 'number',
@@ -747,7 +762,7 @@ function exists (val) {
   return typeof val !== 'undefined' && val !== null
 }
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-input row items-start",class:{ disabled: _vm.disabled, readonly: _vm.readonly, focused: _vm.focused, 'has-error': _vm.hasError, 'has-label': _vm.label, textarea: _vm.isTextarea, dropdown: _vm.isDropdown, simple: _vm.simple, complex: _vm.complex },on:{"click":_vm.__click}},[(_vm.isNumber && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"remove"},on:{"click":function($event){_vm.setNumberByOffset(-_vm.step);}}}):_vm._e(),_vm._t("before"),(_vm.prefix)?_c('span',{staticClass:"q-input-comp",domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_c('div',{staticClass:"q-input-target q-input-comp auto row",class:{ 'relative-position': _vm.floatLabel && !_vm.labelIsAbove, flow: _vm.$slots['flow-before'] || _vm.$slots['flow-after'] }},[_vm._t("flow-before",[(_vm.label)?_c('div',{staticClass:"q-input-label ellipsis full-width",class:{above: _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)},on:{"click":_vm.focus}}):_vm._e()]),(_vm.isTextarea)?_c('textarea',{ref:"input",staticClass:"auto",attrs:{"name":_vm.name,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disabled":_vm.disabled,"readonly":_vm.readonly,"required":_vm.required,"maxlength":_vm.maxlength,"rows":_vm.rows,"tabindex":"0"},domProps:{"value":_vm.model},on:{"input":_vm.setValue,"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}):(_vm.isDropdown)?_c('div',{ref:"input",staticClass:"auto no-outline ellipsis q-input-dropdown",attrs:{"tabindex":"0"},domProps:{"textContent":_vm._s(_vm.model)},on:{"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}):_c('input',{ref:"input",staticClass:"auto q-placeholder",attrs:{"type":_vm.inputType,"name":_vm.name,"pattern":_vm.inputPattern,"placeholder":_vm.placeholder,"disabled":_vm.disabled,"readonly":_vm.readonly || _vm.isDropdown,"required":_vm.required,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.computedStep,"tabindex":"0"},domProps:{"value":_vm.model},on:{"input":_vm.setValue,"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}),_vm._t("flow-after")],2),(_vm.isPassword && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePassVisibility}}):_vm._e(),(_vm.suffix)?_c('span',{staticClass:"q-input-comp",domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e(),(_vm.hasClearIcon)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"clear"},on:{"click":_vm.clear}}):_vm._e(),_vm._t("after"),(_vm.isNumber && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"add"},on:{"click":function($event){_vm.setNumberByOffset(_vm.step);}}}):_vm._e(),(_vm.hasInlineCounter)?_c('span',{staticClass:"q-input-comp q-input-faded q-input-small",domProps:{"innerHTML":_vm._s(_vm.counterLabel)}}):_vm._e(),_vm._v(" "),(_vm.isDropdown)?_c('span',{staticClass:"q-input-comp q-input-button"},[_c('span',{staticClass:"caret"})]):_vm._e(),(!_vm.simple && !_vm.complex)?_c('div',{staticClass:"q-input-border"}):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-input row items-start",class:{ disabled: _vm.disabled, readonly: _vm.readonly, focused: _vm.focused, 'has-error': _vm.hasError, 'has-label': _vm.label, textarea: _vm.isTextarea, dropdown: _vm.isDropdown, simple: _vm.simple, complex: _vm.complex },on:{"click":_vm.__click}},[(_vm.isNumber && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"remove"},on:{"click":function($event){_vm.setNumberByOffset(-_vm.step);}}}):_vm._e(),_vm._t("before"),(_vm.prefix)?_c('span',{staticClass:"q-input-comp",domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_c('div',{staticClass:"q-input-target q-input-comp auto row",class:{ 'relative-position': _vm.floatLabel && !_vm.labelIsAbove, flow: _vm.$slots['flow-before'] || _vm.$slots['flow-after'] }},[_vm._t("flow-before",[(_vm.label)?_c('div',{staticClass:"q-input-label ellipsis full-width",class:{above: _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)},on:{"click":_vm.focus}}):_vm._e()]),(_vm.isTextarea)?_c('textarea',{ref:"input",staticClass:"auto",class:("text-" + (_vm.align)),attrs:{"name":_vm.name,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disabled":_vm.disabled,"readonly":_vm.readonly,"required":_vm.required,"maxlength":_vm.maxlength,"rows":_vm.rows,"tabindex":"0"},domProps:{"value":_vm.model},on:{"input":_vm.setValue,"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}):(_vm.isDropdown)?_c('div',{ref:"input",staticClass:"auto no-outline ellipsis q-input-dropdown",class:("text-" + (_vm.align)),attrs:{"tabindex":"0"},domProps:{"textContent":_vm._s(_vm.model)},on:{"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}):_c('input',{ref:"input",staticClass:"auto q-placeholder",class:("text-" + (_vm.align)),attrs:{"type":_vm.inputType,"name":_vm.name,"pattern":_vm.inputPattern,"placeholder":_vm.placeholder,"disabled":_vm.disabled,"readonly":_vm.readonly || _vm.isDropdown,"required":_vm.required,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.computedStep,"tabindex":"0"},domProps:{"value":_vm.model},on:{"input":_vm.setValue,"focus":_vm.__focus,"blur":_vm.__blur,"mousedown":_vm.__mousedown,"keydown":_vm.__keydown,"keyup":_vm.__keyup}}),_vm._t("flow-after")],2),(_vm.isPassword && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePassVisibility}}):_vm._e(),(_vm.suffix)?_c('span',{staticClass:"q-input-comp",domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e(),(_vm.hasClearIcon)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"clear"},on:{"click":_vm.clear}}):_vm._e(),_vm._t("after"),(_vm.isNumber && _vm.extraIcons)?_c('q-icon',{staticClass:"q-input-comp q-input-button",attrs:{"name":"add"},on:{"click":function($event){_vm.setNumberByOffset(_vm.step);}}}):_vm._e(),(_vm.hasInlineCounter)?_c('span',{staticClass:"q-input-comp q-input-faded q-input-small",domProps:{"innerHTML":_vm._s(_vm.counterLabel)}}):_vm._e(),_vm._v(" "),(_vm.isDropdown)?_c('span',{staticClass:"q-input-comp q-input-button"},[_c('span',{staticClass:"caret"})]):_vm._e(),(!_vm.simple && !_vm.complex)?_c('div',{staticClass:"q-input-border"}):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   components: {
     QIcon: QIcon
@@ -801,6 +816,11 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     rows: {
       type: Number,
       default: 3
+    },
+    align: {
+      type: String,
+      default: 'left',
+      validator: function (v) { return ['left', 'center', 'right'].includes(v); }
     }
   },
   data: function data () {
@@ -1748,42 +1768,6 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var data = {};
-
-function add (name, el, ctx) {
-  var id = uid();
-  el.dataset['q_' + name] = id;
-  if (!data[name]) {
-    data[name] = {};
-  }
-  data[name][id] = ctx;
-}
-
-function get (name, el) {
-  var id = el.dataset['q_' + name];
-  if (!id) {
-    return
-  }
-  if (!data[name]) {
-    return
-  }
-  var ctx = data[name][id];
-  if (!ctx) {
-    return
-  }
-  return ctx
-}
-
-function remove (name, el) {
-  var id = el.dataset['q_' + name];
-  if (!id) {
-    return
-  }
-  if (data[name] && data[name][id]) {
-    delete data[name][id];
-  }
-}
-
 function showRipple (evt, el, stopPropagation) {
   if (stopPropagation) {
     evt.stopPropagation();
@@ -1871,7 +1855,7 @@ var Ripple = {
       ctx.touchcancel = hide;
     }
 
-    add('ripple', el, ctx);
+    el.__qripple = ctx;
     Object.keys(ctx).forEach(function (evt) {
       el.addEventListener(evt, ctx[evt], false);
     });
@@ -1881,11 +1865,11 @@ var Ripple = {
       return
     }
 
-    var ctx = get('ripple', el);
+    var ctx = el.__qripple;
     Object.keys(ctx).forEach(function (evt) {
       el.removeEventListener(evt, ctx[evt], false);
     });
-    remove('ripple', el);
+    delete el.__qripple;
   }
 };
 
@@ -1992,7 +1976,7 @@ function prevent (e) {
   e.stopPropagation();
 }
 
-var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('show');}}},[_c('div',{staticClass:"list no-border",class:{'item-delimiter': _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item',{key:result,attrs:{"cfg":result,"link":"","active":_vm.selectedIndex === index},nativeOn:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
+var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('show');}}},[_c('div',{staticClass:"list no-border",class:{delimiter: _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item',{key:result,attrs:{"cfg":result,"link":"","active":_vm.selectedIndex === index},nativeOn:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
   name: 'q-autocomplete',
   components: {
     QInput: QInput,
@@ -2008,7 +1992,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
       type: Number,
       default: 6
     },
-    delay: {
+    debounce: {
       type: Number,
       default: 500
     },
@@ -2115,7 +2099,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
         this.$nextTick(this.trigger);
         return
       }
-      this.timer = setTimeout(this.trigger, this.delay);
+      this.timer = setTimeout(this.trigger, this.debounce);
     },
     __handleKeypress: function __handleKeypress (e) {
       var key = e.keyCode || e.which;
@@ -2206,7 +2190,7 @@ var QSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   mixins: [mixin],
   computed: {
     name: function name () {
-      return current === 'ios' ? 'ios' : 'mat'
+      return current
     }
   },
   components: {
@@ -2300,7 +2284,7 @@ var QSpinnerTail = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   mixins: [mixin]
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-btn",class:{circular: _vm.circular},on:{"click":_vm.click}},[(_vm.spinning)?_vm._t("spinner",[_c('q-spinner',{attrs:{"color":"currentColor","size":18}})]):_vm._e(),(_vm.icon && !_vm.spinning)?_c('q-icon',{class:{'on-left': !_vm.circular},attrs:{"name":_vm.icon}}):_vm._e(),((_vm.circular && !_vm.spinning) || !_vm.circular)?_vm._t("default"):_vm._e(),(_vm.iconRight && !_vm.circular && !_vm.spinning)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-btn",class:{circular: _vm.circular},on:{"click":_vm.click}},[(_vm.spinning)?_vm._t("spinner",[_c('q-spinner',{attrs:{"color":"currentColor","size":18}})]):_vm._e(),(_vm.icon && !_vm.spinning)?_c('q-icon',{class:{'on-left': !_vm.circular},attrs:{"name":_vm.icon}}):_vm._e(),((_vm.circular && !_vm.spinning) || !_vm.circular)?_vm._t("default"):_vm._e(),(_vm.iconRight && !_vm.circular)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-btn',
   components: {
     QSpinner: QSpinner,
@@ -2339,7 +2323,7 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
       if (this.disable || this.spinning) {
         return
       }
-      if (this.spinner !== false) {
+      if (this.spinner !== false || this.$slots.spinner) {
         this.spinning = true;
         this.$emit('input', true);
       }
@@ -2630,7 +2614,7 @@ function parseSize (padding) {
 }
 
 function toggleSlide (el, showing, done) {
-  var store = get('slidetoggle', el) || {};
+  var store = el.__qslidetoggle || {};
   function anim () {
     store.uid = start$1({
       to: showing ? 100 : 0,
@@ -2650,7 +2634,7 @@ function toggleSlide (el, showing, done) {
         css(el, store.css);
       }
     });
-    add('slidetoggle', el, store);
+    el.__qslidetoggle = store;
   }
 
   if (store.uid) {
@@ -3075,8 +3059,18 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 };
 
-var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"column absolute-full"},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('div',{staticClass:"auto scroll"},[_vm._t("default")],2),_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e()],2)},staticRenderFns: [],
-  name: 'q-modal-layout'
+var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-modal-layout column absolute-full",class:_vm.headerClass,style:(_vm.headerStyle)},[(_vm.$slots.header || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-header"},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e(),_c('div',{staticClass:"q-modal-layout-content auto scroll",class:_vm.contentClass,style:(_vm.contentStyle)},[_vm._t("default")],2),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-footer",class:_vm.footerClass,style:(_vm.footerStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e()])},staticRenderFns: [],
+  name: 'q-modal-layout',
+  props: {
+    headerStyle: [String, Object, Array],
+    headerClass: [String, Object, Array],
+
+    contentStyle: [String, Object, Array],
+    contentClass: [String, Object, Array],
+
+    footerStyle: [String, Object, Array],
+    footerClass: [String, Object, Array]
+  }
 };
 
 var ContextMenuMobile = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",staticClass:"minimized"},[_vm._t("default")],2)},staticRenderFns: [],
@@ -3192,7 +3186,7 @@ var ColumnSelection = {
   }
 };
 
-var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disabled":_vm.disable,"readonly":_vm.readonly,"clearable":"","complex":"","extra-icons":false},on:{"focus":_vm.focus,"blur":_vm.blur,"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__enter($event);}},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('q-icon',{staticClass:"q-input-comp",attrs:{"name":_vm.icon},slot:"before"}),_vm._t("default")],2)},staticRenderFns: [],
+var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disabled":_vm.disable,"readonly":_vm.readonly,"clearable":"","complex":"","extra-icons":false,"align":_vm.align},on:{"focus":_vm.focus,"blur":_vm.blur,"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__enter($event);}},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('q-icon',{staticClass:"q-input-comp",attrs:{"name":_vm.icon},slot:"before"}),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-search',
   components: {
     QIcon: QIcon,
@@ -3221,6 +3215,7 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       default: 'Search'
     },
     autofocus: Boolean,
+    align: String,
     readonly: Boolean,
     disable: Boolean
   },
@@ -3442,7 +3437,7 @@ var TouchSwipe = {
       }
     };
 
-    add('touchswipe', el, ctx);
+    el.__qtouchswipe = ctx;
     updateClasses(el, ctx.direction);
     el.addEventListener('touchstart', ctx.start);
     el.addEventListener('mousedown', ctx.start);
@@ -3451,17 +3446,16 @@ var TouchSwipe = {
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
-      var ctx = get('touchswipe', el);
-      ctx.handler = binding.value;
+      el.__qtouchswipe.handler = binding.value;
     }
   },
   unbind: function unbind (el, binding) {
-    var ctx = get('touchswipe', el);
+    var ctx = el.__qtouchswipe;
     el.removeEventListener('touchstart', ctx.start);
     el.removeEventListener('mousedown', ctx.start);
     el.removeEventListener('touchmove', ctx.move);
     el.removeEventListener('touchend', ctx.end);
-    remove('touchswipe', el);
+    delete el.__qtouchswipe;
   }
 };
 
@@ -3493,7 +3487,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().startsWith(terms)
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[_c('q-popover',{ref:"popover",attrs:{"fit":"","disable":_vm.disable || _vm.readonly,"offset":[0, 4],"anchor-click":false},on:{"close":_vm.__resetFilter}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('div',{staticClass:"list link no-border",class:{delimiter: _vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":!_vm.checkbox && !_vm.toggle && _vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.checkbox)?_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},slot:"primary"}):_vm._e(),(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},slot:"secondary"}):_vm._e()],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":_vm.model === opt.value},nativeOn:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple,"align":_vm.align},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[_c('q-popover',{ref:"popover",attrs:{"fit":"","disable":_vm.disable || _vm.readonly,"offset":[0, 4],"anchor-click":false},on:{"close":_vm.__resetFilter}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('div',{staticClass:"list link no-border",class:{delimiter: _vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":!_vm.checkbox && !_vm.toggle && _vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.checkbox)?_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"primary"}):_vm._e(),(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"secondary"}):_vm._e()],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":_vm.model === opt.value},nativeOn:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   components: {
     QInput: QInput,
@@ -3511,10 +3505,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     options: {
       type: Array,
       required: true,
-      validator: function validator (options) {
-        return !options.some(function (opt) { return typeof opt.label === 'undefined' || typeof opt.value === 'undefined'; }
-        )
-      }
+      validator: function (v) { return v.every(function (o) { return 'label' in o && 'value' in o; }); }
     },
     multiple: Boolean,
     radio: Boolean,
@@ -3530,6 +3521,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     floatLabel: String,
     stackedLabel: String,
     simple: Boolean,
+    align: String,
     readonly: Boolean,
     disable: Boolean,
     delimiter: Boolean
@@ -3906,7 +3898,7 @@ var TouchPan = {
       }
     };
 
-    add('touchpan', el, ctx);
+    el.__qtouchpan = ctx;
     updateClasses$1(el, ctx.direction, ctx.scroll);
     el.addEventListener('touchstart', ctx.start);
     el.addEventListener('mousedown', ctx.mouseStart);
@@ -3915,16 +3907,16 @@ var TouchPan = {
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
-      get('touchpan', el).handler = binding.value;
+      el.__qtouchpan.handler = binding.value;
     }
   },
   unbind: function unbind (el, binding) {
-    var ctx = get('touchpan', el);
+    var ctx = el.__qtouchpan;
     el.removeEventListener('touchstart', ctx.start);
     el.removeEventListener('mousedown', ctx.mouseStart);
     el.removeEventListener('touchmove', ctx.move);
     el.removeEventListener('touchend', ctx.end);
-    remove('touchpan', el);
+    delete el.__qtouchpan;
   }
 };
 
@@ -4445,7 +4437,7 @@ var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 
 var Dialog = Modal(Dialog$1);
 
-var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple},on:{"click":_vm.pick,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}})},staticRenderFns: [],
+var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple,"align":_vm.align},on:{"click":_vm.pick,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}})},staticRenderFns: [],
   name: 'q-dialog-select',
   components: {
     QInput: QInput
@@ -4457,17 +4449,12 @@ var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     options: {
       type: Array,
       required: true,
-      validator: function validator (options) {
-        return !options.some(function (option) { return typeof option.label === 'undefined' || typeof option.value === 'undefined'; }
-        )
-      }
+      validator: function (v) { return v.every(function (o) { return 'label' in o && 'value' in o; }); }
     },
     type: {
       type: String,
       required: true,
-      validator: function validator (value) {
-        return ['radio', 'checkbox', 'toggle'].includes(value)
-      }
+      validator: function (v) { return ['radio', 'checkbox', 'toggle'].includes(v); }
     },
     okLabel: {
       type: String,
@@ -4487,6 +4474,7 @@ var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     floatLabel: String,
     stackedLabel: String,
     simple: Boolean,
+    align: String,
     readonly: Boolean,
     disable: Boolean
   },
@@ -5100,7 +5088,6 @@ var sortMethod = {
   string: function (a, b) { return a.localeCompare(b); },
   number: function (a, b) { return a - b; },
   date: function (a, b) { return (new Date(a)) - (new Date(b)); },
-  moment: function (a, b) { return moment(a) - moment(b); },
   boolean: function (a, b) {
     if (a && !b) { return -1 }
     if (!a && b) { return 1 }
@@ -5405,19 +5392,547 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   }
 };
 
-var input = {
+/* eslint no-fallthrough: 0 */
+
+var MILLISECONDS_IN_DAY = 86400000;
+var MILLISECONDS_IN_HOUR = 360000;
+var MILLISECONDS_IN_MINUTE = 60000;
+var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|[QExX]'/g;
+
+var dayNames = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
+var monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function formatTimezone (offset, delimeter) {
+  delimeter = delimeter || '';
+  var sign = offset > 0 ? '-' : '+';
+  var absOffset = Math.abs(offset);
+  var hours = Math.floor(absOffset / 60);
+  var minutes = absOffset % 60;
+  return sign + pad(hours) + delimeter + pad(minutes)
+}
+
+function getChange (date, mod, add) {
+  var
+    t = new Date(date),
+    sign = (add ? 1 : -1);
+
+  Object.keys(mod).forEach(function (key) {
+    var op = capitalize(key === 'days' ? 'date' : key);
+    t[("set" + op)](t[("get" + op)]() + sign * mod[key]);
+  });
+  return t
+}
+
+function isValid (date) {
+  var t = Date.parse(date);
+  return isNaN(t) === false
+}
+
+function buildDate (mod, utc) {
+  return adjustDate(new Date(), mod, utc)
+}
+
+function getDayOfWeek (date) {
+  var dow = new Date(date).getDay();
+  return dow === 0 ? 7 : dow
+}
+
+function getWeekOfYear (date) {
+  // Remove time components of date
+  var thursday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  // Change date to Thursday same week
+  thursday.setDate(thursday.getDate() - ((thursday.getDay() + 6) % 7) + 3);
+
+  // Take January 4th as it is always in week 1 (see ISO 8601)
+  var firstThursday = new Date(thursday.getFullYear(), 0, 4);
+
+  // Change date to Thursday same week
+  firstThursday.setDate(firstThursday.getDate() - ((firstThursday.getDay() + 6) % 7) + 3);
+
+  // Check if daylight-saving-time-switch occurred and correct for it
+  var ds = thursday.getTimezoneOffset() - firstThursday.getTimezoneOffset();
+  thursday.setHours(thursday.getHours() - ds);
+
+  // Number of weeks between target Thursday and first Thursday
+  var weekDiff = (thursday - firstThursday) / (MILLISECONDS_IN_DAY * 7);
+  return 1 + Math.floor(weekDiff)
+}
+
+function isBetweenDates (date, from, to) {
+  var
+    d1 = new Date(from).getTime(),
+    d2 = new Date(to).getTime(),
+    cur = new Date(date).getTime();
+
+  return cur > d1 && cur < d2
+}
+
+function addToDate (date, mod) {
+  return getChange(date, mod, true)
+}
+function subtractFromDate (date, mod) {
+  return getChange(date, mod, false)
+}
+
+function adjustDate (date, mod, utc) {
+  var
+    t = new Date(date),
+    prefix = "set" + (utc ? 'UTC' : '');
+
+  Object.keys(mod).forEach(function (key) {
+    var op = key.charAt(0).toUpperCase() + key.slice(1);
+    t[("" + prefix + op)](mod[key]);
+  });
+  return t
+}
+
+function startOfDate (date, unit) {
+  var t = new Date(date);
+  switch (unit) {
+    case 'year':
+      t.setMonth(0);
+    case 'month':
+      t.setDate(1);
+    case 'day':
+      t.setHours(0);
+    case 'hour':
+      t.setMinutes(0);
+    case 'minute':
+      t.setSeconds(0);
+    case 'second':
+      t.setMilliseconds(0);
+  }
+  return t
+}
+
+function endOfDate (date, unit) {
+  var t = new Date(date);
+  switch (unit) {
+    case 'year':
+      t.setMonth(11);
+    case 'month':
+      t.setDate(daysInMonth(date));
+    case 'day':
+      t.setHours(23);
+    case 'hour':
+      t.setMinutes(59);
+    case 'minute':
+      t.setSeconds(59);
+    case 'second':
+      t.setMilliseconds(59);
+  }
+  return t
+}
+
+function getMaxDate (date) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  var t = new Date(date);
+  args.forEach(function (d) {
+    t = Math.max(t, new Date(d));
+  });
+  return t
+}
+function getMinDate (date) {
+  var args = [], len = arguments.length - 1;
+  while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+
+  var t = new Date(date);
+  args.forEach(function (d) {
+    t = Math.min(t, new Date(d));
+  });
+  return t
+}
+
+function getDiff (t, sub, interval) {
+  return (
+    (t.getTime() - t.getTimezoneOffset() * MILLISECONDS_IN_MINUTE) -
+    (sub.getTime() - sub.getTimezoneOffset() * MILLISECONDS_IN_MINUTE)
+  ) / interval
+}
+
+function getDateDiff (date, subtract, unit) {
+  if ( unit === void 0 ) unit = 'days';
+
+  var
+    t = new Date(date),
+    sub = new Date(subtract);
+
+  switch (unit) {
+    case 'years':
+      return (t.getFullYear() - sub.getFullYear())
+
+    case 'months':
+      return (t.getFullYear() - sub.getFullYear()) * 12 + t.getMonth() - sub.getMonth()
+
+    case 'days':
+      return getDiff(startOfDate(t, 'day'), startOfDate(sub, 'day'), MILLISECONDS_IN_DAY)
+
+    case 'hours':
+      return getDiff(startOfDate(t, 'hour'), startOfDate(sub, 'hour'), MILLISECONDS_IN_HOUR)
+
+    case 'minutes':
+      return getDiff(startOfDate(t, 'minute'), startOfDate(sub, 'minute'), MILLISECONDS_IN_MINUTE)
+
+    case 'seconds':
+      return getDiff(startOfDate(t, 'second'), startOfDate(sub, 'second'), 1000)
+  }
+}
+
+function getDayOfYear (date) {
+  return getDateDiff(date, startOfDate(date, 'year'), 'days') + 1
+}
+
+function convertDateToFormat (date, example) {
+  if (!date) {
+    return
+  }
+
+  if (isDate(example)) {
+    return date
+  }
+  if (typeof example === 'number') {
+    return date.getTime()
+  }
+
+  return formatDate(date)
+}
+
+function getDateBetween (date, min, max) {
+  var t = new Date(date);
+
+  if (min) {
+    var low = new Date(min);
+    if (t < low) {
+      return low
+    }
+  }
+
+  if (max) {
+    var high = new Date(max);
+    if (t > high) {
+      return high
+    }
+  }
+
+  return t
+}
+
+function isSameDate (date, date2, unit) {
+  var
+    t = new Date(date),
+    d = new Date(date2);
+
+  if (unit === void 0) {
+    return t.getTime() === d.getTime()
+  }
+
+  switch (unit) {
+    case 'second':
+      if (t.getUTCSeconds() !== d.getUTCSeconds()) {
+        return false
+      }
+    case 'minute': // intentional fall-through
+      if (t.getUTCMinutes() !== d.getUTCMinutes()) {
+        return false
+      }
+    case 'hour': // intentional fall-through
+      if (t.getUTCHours() !== d.getUTCHours()) {
+        return false
+      }
+    case 'day': // intentional fall-through
+      if (t.getUTCDate() !== d.getUTCDate()) {
+        return false
+      }
+    case 'month': // intentional fall-through
+      if (t.getUTCMonth() !== d.getUTCMonth()) {
+        return false
+      }
+    case 'year': // intentional fall-through
+      if (t.getUTCFullYear() !== d.getUTCFullYear()) {
+        return false
+      }
+      break
+    default:
+      throw new Error(("date isSameDate unknown unit " + unit))
+  }
+
+  return true
+}
+
+function daysInMonth (date) {
+  return (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDate()
+}
+
+var formatter = {
+  // Month: 1, 2, ..., 12
+  M: function M (date) {
+    return date.getMonth() + 1
+  },
+
+  // Month: 01, 02, ..., 12
+  MM: function MM (date) {
+    return pad(date.getMonth() + 1)
+  },
+
+  // Day of week: Sun, Mon, ...
+  MMM: function MMM (date) {
+    return this.MMMM(date).slice(0, 3)
+  },
+
+  // Day of week: Sunday, Monday, ...
+  MMMM: function MMMM (date) {
+    return monthNames[date.getMonth()]
+  },
+
+  // Minute: 0, 1, ..., 59
+  m: function m (date) {
+    return date.getMinutes()
+  },
+
+  // Minute: 00, 01, ..., 59
+  mm: function mm (date) {
+    return pad(date.getMinutes())
+  },
+
+  // Quarter: 1, 2, 3, 4
+  Q: function Q (date) {
+    return Math.ceil((date.getMonth() + 1) / 3)
+  },
+
+  // Day of month: 1, 2, ..., 31
+  D: function D (date) {
+    return date.getDate()
+  },
+
+  // Day of month: 01, 02, ..., 31
+  DD: function DD (date) {
+    return pad(date.getDate())
+  },
+
+  // Day of year: 1, 2, ..., 366
+  DDD: function DDD (date) {
+    return getDayOfYear(date)
+  },
+
+  // Day of year: 001, 002, ..., 366
+  DDDD: function DDDD (date) {
+    return pad(getDayOfYear(date), 3)
+  },
+
+  // Day of week: 0, 1, ..., 6
+  d: function d (date) {
+    return date.getDay()
+  },
+
+  // Day of week: Su, Mo, ...
+  dd: function dd (date) {
+    return this.dddd(date).slice(0, 2)
+  },
+
+  // Day of week: Sun, Mon, ...
+  ddd: function ddd (date) {
+    return this.dddd(date).slice(0, 3)
+  },
+
+  // Day of week: Sunday, Monday, ...
+  dddd: function dddd (date) {
+    return dayNames[date.getDay()]
+  },
+
+  // Day of ISO week: 1, 2, ..., 7
+  E: function E (date) {
+    return date.getDay() || 7
+  },
+
+  // Week of Year: 1 2 ... 52 53
+  w: function w (date) {
+    return getWeekOfYear(date)
+  },
+
+  // Week of Year: 01 02 ... 52 53
+  ww: function ww (date) {
+    return pad(getWeekOfYear(date))
+  },
+
+  // Year: 00, 01, ..., 99
+  YY: function YY (date) {
+    return pad(date.getFullYear(), 4).substr(2)
+  },
+
+  // Year: 1900, 1901, ..., 2099
+  YYYY: function YYYY (date) {
+    return pad(date.getFullYear(), 4)
+  },
+
+  // Hour: 0, 1, ... 23
+  H: function H (date) {
+    return date.getHours()
+  },
+
+  // Hour: 00, 01, ..., 23
+  HH: function HH (date) {
+    return pad(date.getHours())
+  },
+
+  // Hour: 1, 2, ..., 12
+  h: function h (date) {
+    var hours = date.getHours();
+    if (hours === 0) {
+      return 12
+    }
+    if (hours > 12) {
+      return hours % 12
+    }
+    return hours
+  },
+
+  // Hour: 01, 02, ..., 12
+  hh: function hh (date) {
+    return pad(this.h(date))
+  },
+
+  // Second: 0, 1, ..., 59
+  s: function s (date) {
+    return date.getSeconds()
+  },
+
+  // Second: 00, 01, ..., 59
+  ss: function ss (date) {
+    return pad(date.getSeconds())
+  },
+
+  // 1/10 of second: 0, 1, ..., 9
+  S: function S (date) {
+    return Math.floor(date.getMilliseconds() / 100)
+  },
+
+  // 1/100 of second: 00, 01, ..., 99
+  SS: function SS (date) {
+    return pad(Math.floor(date.getMilliseconds() / 10))
+  },
+
+  // Millisecond: 000, 001, ..., 999
+  SSS: function SSS (date) {
+    return pad(date.getMilliseconds(), 3)
+  },
+
+  // Timezone: -01:00, +00:00, ... +12:00
+  Z: function Z (date) {
+    return formatTimezone(date.getTimezoneOffset(), ':')
+  },
+
+  // Timezone: -0100, +0000, ... +1200
+  ZZ: function ZZ (date) {
+    return formatTimezone(date.getTimezoneOffset())
+  },
+
+  // Seconds timestamp: 512969520
+  X: function X (date) {
+    return Math.floor(date.getTime() / 1000)
+  },
+
+  // Milliseconds timestamp: 512969520900
+  x: function x (date) {
+    return date.getTime()
+  }
+};
+
+function formatDate (val, mask) {
+  if ( mask === void 0 ) mask = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
+
+  if (!val) {
+    return
+  }
+
+  var date = new Date(val);
+
+  return mask.replace(token, function (match) {
+    if (match in formatter) {
+      return formatter[match](date)
+    }
+    return match
+  })
+}
+
+
+var date = Object.freeze({
+	dayNames: dayNames,
+	monthNames: monthNames,
+	isValid: isValid,
+	buildDate: buildDate,
+	getDayOfWeek: getDayOfWeek,
+	getWeekOfYear: getWeekOfYear,
+	isBetweenDates: isBetweenDates,
+	addToDate: addToDate,
+	subtractFromDate: subtractFromDate,
+	adjustDate: adjustDate,
+	startOfDate: startOfDate,
+	endOfDate: endOfDate,
+	getMaxDate: getMaxDate,
+	getMinDate: getMinDate,
+	getDateDiff: getDateDiff,
+	getDayOfYear: getDayOfYear,
+	convertDateToFormat: convertDateToFormat,
+	getDateBetween: getDateBetween,
+	isSameDate: isSameDate,
+	daysInMonth: daysInMonth,
+	formatter: formatter,
+	formatDate: formatDate
+});
+
+var modelValidator = function (v) {
+  var type = typeof v;
+  return (
+    v === null || v === undefined ||
+    type === 'number' || type === 'string' ||
+    isDate(v)
+  )
+};
+
+var inline = {
+  value: {
+    validator: modelValidator,
+    required: true
+  },
   type: {
     type: String,
-    default: 'date'
+    default: 'date',
+    validator: function validator (value) {
+      return ['date', 'time', 'datetime'].includes(value)
+    }
   },
   min: {
-    type: String,
-    default: ''
+    validator: modelValidator,
+    default: null
   },
   max: {
-    type: String,
-    default: ''
+    validator: modelValidator,
+    default: null
   },
+  monthNames: {
+    type: Array,
+    default: function () { return monthNames; }
+  },
+  dayNames: {
+    type: Array,
+    default: function () { return dayNames; }
+  },
+  mondayFirst: Boolean,
+  format24h: Boolean,
+  readonly: Boolean,
+  disable: Boolean
+};
+
+var input = {
   format: String,
   noClear: Boolean,
   clearLabel: {
@@ -5432,96 +5947,36 @@ var input = {
     type: String,
     default: 'Cancel'
   },
-  defaultSelection: String,
+  defaultSelection: [String, Number, Date],
   floatLabel: String,
   stackedLabel: String,
   placeholder: String,
   staticLabel: String,
   simple: Boolean,
+  align: String,
   readonly: Boolean,
   disable: Boolean
 };
 
-var inline = {
-  value: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    default: 'date',
-    validator: function validator (value) {
-      return ['date', 'time', 'datetime'].includes(value)
-    }
-  },
-  min: {
-    type: String,
-    default: ''
-  },
-  max: {
-    type: String,
-    default: ''
-  },
-  readonly: Boolean,
-  disable: Boolean
-};
-
-var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center"},[(_vm.typeHasDate)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-month",on:{"touchstart":function($event){_vm.__dragStart($event, 'month');},"touchmove":function($event){_vm.__dragMove($event, 'month');},"touchend":function($event){_vm.__dragStop($event, 'month');}}},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMonth(index + _vm.monthMin);}}},[_vm._v(_vm._s(_vm.monthsList[index + _vm.monthMin - 1]))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-day",on:{"touchstart":function($event){_vm.__dragStart($event, 'date');},"touchmove":function($event){_vm.__dragMove($event, 'date');},"touchend":function($event){_vm.__dragStop($event, 'date');}}},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setDay(index + _vm.dayMin - 1);}}},[_vm._v(_vm._s(index + _vm.dayMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-year",on:{"touchstart":function($event){_vm.__dragStart($event, 'year');},"touchmove":function($event){_vm.__dragMove($event, 'year');},"touchend":function($event){_vm.__dragStop($event, 'year');}}},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])}))])]:_vm._e(),(_vm.typeHasTime)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-hour",on:{"touchstart":function($event){_vm.__dragStart($event, 'hour');},"touchmove":function($event){_vm.__dragMove($event, 'hour');},"touchend":function($event){_vm.__dragStop($event, 'hour');}}},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setHour(n + _vm.hourMin - 1);}}},[_vm._v(_vm._s(n + _vm.hourMin - 1))])}))]),_vm._m(0),_c('div',{staticClass:"q-datetime-col q-datetime-col-minute",on:{"touchstart":function($event){_vm.__dragStart($event, 'minute');},"touchmove":function($event){_vm.__dragMove($event, 'minute');},"touchend":function($event){_vm.__dragStop($event, 'minute');}}},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMinute(n + _vm.minuteMin - 1);}}},[_vm._v(_vm._s(_vm.__pad(n + _vm.minuteMin - 1)))])}))])]:_vm._e(),_c('div',{staticClass:"q-datetime-highlight row items-center justify-center",class:{'q-datetime-no-selection': !_vm.value}},[(!_vm.value && _vm.typeHasDate)?[_c('div',{staticClass:"q-datetime-col-month"},[_vm._v("-----")]),_c('div',{staticClass:"q-datetime-col-day"},[_vm._v("--")]),_c('div',{staticClass:"q-datetime-col-year"},[_vm._v("----")])]:_vm._e(),(!_vm.value && _vm.typeHasTime)?[_c('div',{staticClass:"q-datetime-col-hour"},[_vm._v("--")]),_c('div',{staticClass:"q-datetime-col-minute"},[_vm._v("--")])]:_vm._e()],2)],2),_c('div',{staticClass:"q-datetime-mask"})])],2)},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-col-divider"},[_c('div',{staticClass:"q-datetime-col-wrapper full-height row items-center justify-center"},[_c('div',[_vm._v(":")])])])}],
-  name: 'q-inline-datetime',
+var mixin$2 = {
   props: inline,
-  data: function data () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.date = this$1.__normalizeValue(this$1.date);
-    });
-    return {
-      date: moment(this.value || undefined),
-      monthDragOffset: 0,
-      dateDragOffset: 0,
-      yearDragOffset: 0,
-      hourDragOffset: 0,
-      minuteDragOffset: 0,
-      monthsList: moment.months(),
-      dragging: false
-    }
-  },
-  watch: {
-    model: function model (value) {
-      this.date = this.__normalizeValue(moment(value || undefined));
-      this.__updateAllPositions();
-    },
-    min: function min (value) {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.__updateModel();
-        this$1.__updateAllPositions();
-      });
-    },
-    max: function max (value) {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.__updateModel();
-        this$1.__updateAllPositions();
-      });
-    }
-  },
   computed: {
     model: {
       get: function get () {
-        return this.value || undefined
+        return getDateBetween(this.value ? new Date(this.value) : new Date(), this.pmin, this.pmax)
       },
-      set: function set (value) {
-        this.$emit('input', value);
+      set: function set (val) {
+        var date = getDateBetween(val, this.pmin, this.pmax);
+        if ((new Date(this.value)).getTime() !== date.getTime()) {
+          this.$emit('input', convertDateToFormat(date, this.value));
+        }
       }
     },
     pmin: function pmin () {
-      return this.min ? moment(this.min) : false
+      return this.min ? new Date(this.min) : null
     },
     pmax: function pmax () {
-      return this.max ? moment(this.max) : false
+      return this.max ? new Date(this.max) : null
     },
     typeHasDate: function typeHasDate () {
       return this.type === 'date' || this.type === 'datetime'
@@ -5531,65 +5986,131 @@ var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createEleme
     },
 
     year: function year () {
-      return this.date.year()
+      return this.model.getFullYear()
     },
+    month: function month () {
+      return this.model.getMonth() + 1
+    },
+    day: function day () {
+      return this.model.getDate()
+    },
+    minute: function minute () {
+      return this.model.getMinutes()
+    },
+
     yearInterval: function yearInterval () {
       var
-        min = this.pmin ? this.pmin.year() : 1950,
-        max = this.pmax ? this.pmax.year() : 2050;
+        min = this.pmin !== null ? this.pmin.getFullYear() : 1950,
+        max = this.pmax !== null ? this.pmax.getFullYear() : 2050;
       return Math.max(1, max - min + 1)
     },
     yearMin: function yearMin () {
-      return this.pmin ? this.pmin.year() - 1 : 1949
-    },
-
-    month: function month () {
-      return this.date.month() + 1
+      return this.pmin !== null ? this.pmin.getFullYear() - 1 : 1949
     },
     monthInterval: function monthInterval () {
       var
-        min = this.pmin && this.pmin.isSame(this.date, 'year') ? this.pmin.month() : 0,
-        max = this.pmax && this.pmax.isSame(this.date, 'year') ? this.pmax.month() : 11;
+        min = this.pmin !== null && this.pmin.getFullYear() === this.model.getFullYear() ? this.pmin.getMonth() : 0,
+        max = this.pmax !== null && this.pmax.getFullYear() === this.model.getFullYear() ? this.pmax.getMonth() : 11;
       return Math.max(1, max - min + 1)
     },
     monthMin: function monthMin () {
-      return this.pmin && this.pmin.year() === this.date.year() ? this.pmin.month() : 0
+      return this.pmin !== null && this.pmin.getFullYear() === this.model.getFullYear()
+        ? this.pmin.getMonth()
+        : 0
     },
 
-    day: function day () {
-      return this.date.date()
+    daysInMonth: function daysInMonth$$1 () {
+      return (new Date(this.model.getFullYear(), this.model.getMonth() + 1, 0)).getDate()
     },
+
+    editable: function editable () {
+      return !this.disable && !this.readonly
+    }
+  },
+
+  methods: {
+    toggleAmPm: function toggleAmPm () {
+      if (!this.editable) {
+        return
+      }
+      var
+        hour = this.model.getHours(),
+        offset = this.am ? 12 : -12;
+
+      this.model = new Date(this.model.setHours(hour + offset));
+    },
+
+    __parseTypeValue: function __parseTypeValue (type, value) {
+      if (type === 'month') {
+        return between(value, 1, 12)
+      }
+      if (type === 'date') {
+        return between(value, 1, this.daysInMonth)
+      }
+      if (type === 'year') {
+        var
+          min = this.pmin ? this.pmin.getFullYear() : 1950,
+          max = this.pmax ? this.pmax.getFullYear() : 2050;
+        return between(value, min, max)
+      }
+      if (type === 'hour') {
+        return between(value, 0, 23)
+      }
+      if (type === 'minute') {
+        return between(value, 0, 59)
+      }
+    }
+  }
+};
+
+var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center"},[(_vm.typeHasDate)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-month",on:{"touchstart":function($event){_vm.__dragStart($event, 'month');},"touchmove":function($event){_vm.__dragMove($event, 'month');},"touchend":function($event){_vm.__dragStop($event, 'month');}}},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMonth(index + _vm.monthMin);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-day",on:{"touchstart":function($event){_vm.__dragStart($event, 'date');},"touchmove":function($event){_vm.__dragMove($event, 'date');},"touchend":function($event){_vm.__dragStop($event, 'date');}}},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setDay(index + _vm.dayMin - 1);}}},[_vm._v(_vm._s(index + _vm.dayMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-year",on:{"touchstart":function($event){_vm.__dragStart($event, 'year');},"touchmove":function($event){_vm.__dragMove($event, 'year');},"touchend":function($event){_vm.__dragStop($event, 'year');}}},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])}))])]:_vm._e(),(_vm.typeHasTime)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-hour",on:{"touchstart":function($event){_vm.__dragStart($event, 'hour');},"touchmove":function($event){_vm.__dragMove($event, 'hour');},"touchend":function($event){_vm.__dragStop($event, 'hour');}}},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setHour(n + _vm.hourMin - 1);}}},[_vm._v(_vm._s(n + _vm.hourMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-minute",on:{"touchstart":function($event){_vm.__dragStart($event, 'minute');},"touchmove":function($event){_vm.__dragMove($event, 'minute');},"touchend":function($event){_vm.__dragStop($event, 'minute');}}},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMinute(n + _vm.minuteMin - 1);}}},[_vm._v(_vm._s(_vm.__pad(n + _vm.minuteMin - 1)))])}))])]:_vm._e()],2),(_vm.value)?_c('div',{staticClass:"q-datetime-highlight"}):_vm._e(),_c('div',{staticClass:"q-datetime-mask"})])],2)},staticRenderFns: [],
+  name: 'q-inline-datetime',
+  mixins: [mixin$2],
+  data: function data () {
+    return {
+      monthDragOffset: 0,
+      dateDragOffset: 0,
+      yearDragOffset: 0,
+      hourDragOffset: 0,
+      minuteDragOffset: 0,
+      dragging: false
+    }
+  },
+  watch: {
+    model: function model () {
+      this.$nextTick(this.__updateAllPositions);
+    }
+  },
+  computed: {
     dayMin: function dayMin () {
-      return this.pmin && this.pmin.isSame(this.date, 'month') ? this.pmin.date() : 1
+      return this.pmin !== null && isSameDate(this.pmin, this.model, 'month')
+        ? this.pmin.getDate()
+        : 1
     },
     dayMax: function dayMax () {
-      return this.pmax && this.pmax.isSame(this.date, 'month') ? this.pmax.date() : this.daysInMonth
+      return this.pmax !== null && isSameDate(this.pmax, this.model, 'month')
+        ? this.pmax.getDate()
+        : this.daysInMonth
     },
     daysInterval: function daysInterval () {
       return this.dayMax - this.dayMin + 1
     },
-    daysInMonth: function daysInMonth () {
-      return this.date.daysInMonth()
-    },
 
     hour: function hour () {
-      return this.date.hour()
+      return this.model.getHours()
     },
     hourMin: function hourMin () {
-      return this.pmin && this.pmin.isSame(this.date, 'day') ? this.pmin.hour() : 0
+      return this.pmin && isSameDate(this.pmin, this.model, 'day') ? this.pmin.getHours() : 0
     },
     hourInterval: function hourInterval () {
-      return (this.pmax && this.pmax.isSame(this.date, 'day') ? this.pmax.hour() : 23) - this.hourMin + 1
+      return (this.pmax && isSameDate(this.pmax, this.model, 'day') ? this.pmax.getHours() : 23) - this.hourMin + 1
     },
 
-    minute: function minute () {
-      return this.date.minute()
-    },
     minuteMin: function minuteMin () {
-      return this.pmin && this.pmin.isSame(this.date, 'hour') ? this.pmin.minute() : 0
+      return this.pmin && isSameDate(this.pmin, this.model, 'hour') ? this.pmin.getMinutes() : 0
     },
     minuteInterval: function minuteInterval () {
-      return (this.pmax && this.pmax.isSame(this.date, 'hour') ? this.pmax.minute() : 59) - this.minuteMin + 1
+      return (this.pmax && isSameDate(this.pmax, this.model, 'hour') ? this.pmax.getMinutes() : 59) - this.minuteMin + 1
     },
 
     __monthStyle: function __monthStyle () {
@@ -5606,43 +6127,35 @@ var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createEleme
     },
     __minuteStyle: function __minuteStyle () {
       return this.__colStyle(82 - (this.minute + this.minuteDragOffset) * 36)
-    },
-    editable: function editable () {
-      return !this.disable && !this.readonly
     }
   },
   methods: {
     /* date */
     setYear: function setYear (value) {
       if (this.editable) {
-        this.date.year(this.__parseTypeValue('year', value));
-        this.__updateModel();
+        this.model = new Date(this.model.setFullYear(this.__parseTypeValue('year', value)));
       }
     },
     setMonth: function setMonth (value) {
       if (this.editable) {
-        this.date.month(this.__parseTypeValue('month', value) - 1);
-        this.__updateModel();
+        this.model = new Date(this.model.setMonth(this.__parseTypeValue('month', value) - 1));
       }
     },
     setDay: function setDay (value) {
       if (this.editable) {
-        this.date.date(this.__parseTypeValue('date', value));
-        this.__updateModel();
+        this.model = new Date(this.model.setDate(this.__parseTypeValue('date', value)));
       }
     },
 
     /* time */
     setHour: function setHour (value) {
       if (this.editable) {
-        this.date.hour(this.__parseTypeValue('hour', value));
-        this.__updateModel();
+        this.model = new Date(this.model.setHours(this.__parseTypeValue('hour', value)));
       }
     },
     setMinute: function setMinute (value) {
       if (this.editable) {
-        this.date.minute(this.__parseTypeValue('minute', value));
-        this.__updateModel();
+        this.model = new Date(this.model.setMinutes(this.__parseTypeValue('minute', value)));
       }
     },
 
@@ -5650,38 +6163,18 @@ var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createEleme
     __pad: function __pad (unit, filler) {
       return (unit < 10 ? filler || '0' : '') + unit
     },
-    __parseTypeValue: function __parseTypeValue (type, value) {
-      if (type === 'month') {
-        return between(value, 1, 12)
-      }
-      if (type === 'date') {
-        return between(value, 1, this.daysInMonth)
-      }
-      if (type === 'year') {
-        var
-          min = this.pmin ? this.pmin.year() : 1950,
-          max = this.pmax ? this.pmax.year() : 2050;
-        return between(value, min, max)
-      }
-      if (type === 'hour') {
-        return between(value, 0, 23)
-      }
-      if (type === 'minute') {
-        return between(value, 0, 59)
-      }
-    },
     __updateAllPositions: function __updateAllPositions () {
       var this$1 = this;
 
       this.$nextTick(function () {
         if (this$1.typeHasDate) {
-          this$1.__updatePositions('month', this$1.date.month());
-          this$1.__updatePositions('date', this$1.date.date());
-          this$1.__updatePositions('year', this$1.date.year());
+          this$1.__updatePositions('month', this$1.model.getMonth());
+          this$1.__updatePositions('date', this$1.model.getDate());
+          this$1.__updatePositions('year', this$1.model.getFullYear());
         }
         if (this$1.typeHasTime) {
-          this$1.__updatePositions('hour', this$1.date.hour());
-          this$1.__updatePositions('minute', this$1.date.minute());
+          this$1.__updatePositions('hour', this$1.model.getHours());
+          this$1.__updatePositions('minute', this$1.model.getMinutes());
         }
       });
     },
@@ -5784,25 +6277,10 @@ var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createEleme
     __dragCleanup: function __dragCleanup () {
       clearTimeout(this.timeout);
       this.timeout = null;
-    },
-    __normalizeValue: function __normalizeValue (value) {
-      if (this.pmin) {
-        value = moment.max(this.pmin.clone(), value);
-      }
-      if (this.pmax) {
-        value = moment.min(this.pmax.clone(), value);
-      }
-      return value
-    },
-    __updateModel: function __updateModel () {
-      if (this.date) {
-        this.date = this.__normalizeValue(this.date);
-        this.model = this.date.toISOString();
-      }
     }
   },
   mounted: function mounted () {
-    this.__updateAllPositions();
+    this.$nextTick(this.__updateAllPositions);
   },
   beforeDestroy: function beforeDestroy () {
     this.__dragCleanup();
@@ -5813,16 +6291,17 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[(!_vm.value)?_c('div',{staticClass:"q-datetime-header column justify-center"},[_vm._v(" ")]):_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])])]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('button',{staticClass:"primary clear full-width",class:{active: n + _vm.yearMin === _vm.year},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('button',{staticClass:"primary clear full-width",class:{active: _vm.month === index + _vm.monthMin},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthsList[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"primary clear",on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{staticClass:"primary clear",on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.daysList),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: _vm.value && monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",class:{hidden: !_vm.value},style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, _vm.value && n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])})],2)]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
+var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[(!_vm.value)?_c('div',{staticClass:"q-datetime-header column justify-center"},[_vm._v(" ")]):_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"primary clear full-width",class:{active: n + _vm.yearMin === _vm.year},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('button',{staticClass:"primary clear full-width",class:{active: _vm.month === index + _vm.monthMin},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: _vm.value && monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",class:{hidden: !_vm.value},style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), _vm.value && (n - 1) === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n - 1))])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, _vm.value && n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-inline-datetime',
+  mixins: [mixin$2],
   components: {
     QIcon: QIcon,
     QBtn: QBtn
   },
-  props: inline,
+  directives: {
+    Ripple: Ripple
+  },
   data: function data () {
-    var this$1 = this;
-
     var view;
 
     switch (this.type) {
@@ -5835,17 +6314,10 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
         break
     }
 
-    this.$nextTick(function () {
-      this$1.date = this$1.__normalizeValue(this$1.date);
-    });
     return {
       view: view,
-      date: moment(this.value || undefined),
       dragging: false,
-      centerClockPos: 0,
-      firstDayOfWeek: moment.localeData().firstDayOfWeek(),
-      daysList: moment.weekdaysShort(true),
-      monthsList: moment.months()
+      centerClockPos: 0
     }
   },
   watch: {
@@ -5853,23 +6325,6 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
       if (!val) {
         this.view = ['date', 'datetime'].includes(this.type) ? 'day' : 'hour';
       }
-    },
-    model: function model (value) {
-      this.date = this.__normalizeValue(moment(value || undefined));
-    },
-    min: function min () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.__updateModel();
-      });
-    },
-    max: function max () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.__updateModel();
-      });
     },
     view: function view (value) {
       if (value !== 'year' && value !== 'month') {
@@ -5886,183 +6341,117 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
     }
   },
   computed: {
-    model: {
-      get: function get () {
-        return this.value || undefined
-      },
-      set: function set (value) {
-        this.$emit('input', value);
-      }
+    firstDayOfWeek: function firstDayOfWeek () {
+      return this.mondayFirst ? 1 : 0
     },
-    pmin: function pmin () {
-      return this.min ? moment(this.min) : ''
-    },
-    pmax: function pmax () {
-      return this.max ? moment(this.max) : ''
-    },
-    typeHasDate: function typeHasDate () {
-      return this.type === 'date' || this.type === 'datetime'
-    },
-    typeHasTime: function typeHasTime () {
-      return this.type === 'time' || this.type === 'datetime'
+    headerDayNames: function headerDayNames () {
+      var days = this.dayNames.map(function (day) { return day.slice(0, 3); });
+      return this.mondayFirst
+        ? days.slice(1, 7).concat(days[0])
+        : days
     },
 
-    year: function year () {
-      return this.date.year()
-    },
-    month: function month () {
-      return this.date.month() + 1
-    },
-    day: function day () {
-      return this.date.date()
-    },
     dayString: function dayString () {
-      return this.date.format('Do')
+      return formatDate(this.model, 'D')
     },
     monthString: function monthString () {
-      return this.date.format('MMM')
+      return formatDate(this.model, 'MMM')
     },
     monthStamp: function monthStamp () {
-      return this.date.format('MMMM YYYY')
+      return formatDate(this.model, 'MMMM YYYY')
     },
     weekDayString: function weekDayString () {
-      return this.date.format('dddd')
-    },
-
-    yearInterval: function yearInterval () {
-      var
-        min = this.pmin ? this.pmin.year() : 1950,
-        max = this.pmax ? this.pmax.year() : 2050;
-      return Math.max(1, max - min + 1)
-    },
-    yearMin: function yearMin () {
-      return this.pmin ? this.pmin.year() - 1 : 1949
-    },
-
-    monthInterval: function monthInterval () {
-      var
-        min = this.pmin && this.pmin.isSame(this.date, 'year') ? this.pmin.month() : 0,
-        max = this.pmax && this.pmax.isSame(this.date, 'year') ? this.pmax.month() : 11;
-      return Math.max(1, max - min + 1)
-    },
-    monthMin: function monthMin () {
-      return this.pmin && this.pmin.isSame(this.date, 'year') ? this.pmin.month() : 0
+      return formatDate(this.model, 'dddd')
     },
 
     fillerDays: function fillerDays () {
-      return Math.max(0, this.date.clone().date(1).day() - this.firstDayOfWeek)
+      return Math.max(0, (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.firstDayOfWeek))
     },
     beforeMinDays: function beforeMinDays () {
-      if (!this.pmin || this.pmin.month() !== this.date.month() || this.pmin.year() !== this.date.year()) {
+      if (this.pmin === null || !isSameDate(this.pmin, this.model, 'month')) {
         return false
       }
-      return this.pmin.date() - 1
+      return this.pmin.getDate() - 1
     },
     aferMaxDays: function aferMaxDays () {
-      if (!this.pmax || this.pmax.month() !== this.date.month() || this.pmax.year() !== this.date.year()) {
+      if (this.pmax === null || !isSameDate(this.pmax, this.model, 'month')) {
         return false
       }
       return this.daysInMonth - this.maxDay
     },
     maxDay: function maxDay () {
-      return this.pmax ? this.pmax.date() : this.daysInMonth
+      return this.pmax !== null ? this.pmax.getDate() : this.daysInMonth
     },
     daysInterval: function daysInterval () {
-      var max = !this.pmax || this.pmax.month() !== this.date.month() || this.pmax.year() !== this.date.year() ? 0 : this.daysInMonth - this.pmax.date();
-      if (this.beforeMinDays || max) {
+      var after = this.pmax === null || this.afterMaxDays === false ? 0 : this.aferMaxDays;
+      if (this.beforeMinDays || after) {
         var min = this.beforeMinDays ? this.beforeMinDays + 1 : 1;
-        return Array.apply(null, {length: this.daysInMonth - min - max + 1}).map(function (day, index) {
+        return Array.apply(null, {length: this.daysInMonth - min - after + 1}).map(function (day, index) {
           return index + min
         })
       }
       return this.daysInMonth
     },
-    daysInMonth: function daysInMonth () {
-      return this.date.daysInMonth()
-    },
 
     hour: function hour () {
-      return convertToAmPm(this.date.hour())
+      var h = this.model.getHours();
+      return this.format24h
+        ? h
+        : convertToAmPm(h)
     },
     minute: function minute () {
-      return this.date.minute()
+      return this.model.getMinutes()
     },
     am: function am () {
-      return this.date.hour() <= 11
+      return this.model.getHours() <= 11
     },
     clockPointerStyle: function clockPointerStyle () {
       var
-        divider = this.view === 'minute' ? 60 : 12,
+        divider = this.view === 'minute' ? 60 : (this.format24h ? 24 : 12),
         degrees = Math.round((this.view === 'minute' ? this.minute : this.hour) * (360 / divider)) - 180;
 
-      return {
-        '-webkit-transform': 'rotate(' + degrees + 'deg)',
-        '-ms-transform': 'rotate(' + degrees + 'deg)',
-        'transform': 'rotate(' + degrees + 'deg)'
-      }
-    },
-    editable: function editable () {
-      return !this.disable && !this.readonly
+      return cssTransform(("rotate(" + degrees + "deg)"))
     }
   },
   methods: {
     /* date */
     setYear: function setYear (value) {
-      if (!this.editable) {
-        return
+      if (this.editable) {
+        this.view = 'day';
+        this.model = new Date(this.model.setFullYear(this.__parseTypeValue('year', value)));
       }
-      this.view = 'day';
-      this.date.year(this.__parseTypeValue('year', value));
-      this.__updateModel();
     },
     setMonth: function setMonth (value, force) {
-      if (!this.editable) {
-        return
+      if (this.editable) {
+        this.view = 'day';
+        this.model = new Date(this.model.setMonth((force ? value : this.__parseTypeValue('month', value)) - 1));
       }
-      this.view = 'day';
-      this.date.month((force ? value : this.__parseTypeValue('month', value)) - 1);
-      this.__updateModel();
     },
     setDay: function setDay (value) {
-      if (!this.editable) {
-        return
+      if (this.editable) {
+        this.model = new Date(this.model.setDate(this.__parseTypeValue('date', value)));
       }
-      this.date.date(this.__parseTypeValue('date', value));
-      this.__updateModel();
     },
 
-    /* time */
-    toggleAmPm: function toggleAmPm () {
-      if (!this.editable) {
-        return
-      }
-      var
-        hour = this.date.hour(),
-        offset$$1 = this.am ? 12 : -12;
-
-      this.date.hour(hour + offset$$1);
-      this.__updateModel();
-    },
     setHour: function setHour (value) {
       if (!this.editable) {
         return
       }
-      this.view = 'minute';
-      value = this.__parseTypeValue('hour', value) % 12;
 
-      if (!this.am) {
+      value = this.__parseTypeValue('hour', value);
+
+      if (!this.format24h && value < 12 && !this.am) {
         value += 12;
       }
 
-      this.date.hour(value);
-      this.__updateModel();
+      this.model = new Date(this.model.setHours(value));
     },
     setMinute: function setMinute (value) {
       if (!this.editable) {
         return
       }
-      this.date.minute(this.__parseTypeValue('minute', value));
-      this.__updateModel();
+
+      this.model = new Date(this.model.setMinutes(this.__parseTypeValue('minute', value)));
     },
 
     /* helpers */
@@ -6097,6 +6486,7 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
       ev.stopPropagation();
       ev.preventDefault();
       this.dragging = false;
+      this.view = 'minute';
     },
     __updateClock: function __updateClock (ev) {
       var
@@ -6116,47 +6506,10 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
       }
 
       if (this.view === 'hour') {
-        this.setHour(Math.round(angle / 30));
+        this.setHour(Math.round(angle / (this.format24h ? 15 : 30)));
       }
       else {
         this.setMinute(Math.round(angle / 6));
-      }
-    },
-    __parseTypeValue: function __parseTypeValue (type, value) {
-      if (type === 'month') {
-        return between(value, 1, 12)
-      }
-      if (type === 'date') {
-        return between(value, 1, this.daysInMonth)
-      }
-      if (type === 'year') {
-        var
-          min = this.pmin ? this.pmin.year() : 1950,
-          max = this.pmax ? this.pmax.year() : 2050;
-        return between(value, min, max)
-      }
-      if (type === 'hour') {
-        return between(value, 0, 23)
-      }
-      if (type === 'minute') {
-        return between(value, 0, 59)
-      }
-    },
-
-    /* common */
-    __normalizeValue: function __normalizeValue (value) {
-      if (this.pmin) {
-        value = moment.max(this.pmin.clone(), value);
-      }
-      if (this.pmax) {
-        value = moment.min(this.pmax.clone(), value);
-      }
-      return value
-    },
-    __updateModel: function __updateModel () {
-      if (this.date) {
-        this.date = this.__normalizeValue(this.date);
-        this.model = this.date.toISOString();
       }
     }
   }
@@ -6187,7 +6540,7 @@ var contentCSS = {
   }
 };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[(_vm.desktop)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 4],"disable":_vm.disable || _vm.readonly,"anchor-click":false}},[_c('q-inline-datetime',{staticClass:"no-border",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css}},[_c('q-inline-datetime',{staticClass:"no-border full-width",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}})],1)])],1)],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple,"align":_vm.align},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[(_vm.desktop)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 4],"disable":_vm.disable || _vm.readonly,"anchor-click":false}},[_c('q-inline-datetime',{staticClass:"no-border",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),(_vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}}):_vm._e()],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css}},[_c('q-inline-datetime',{staticClass:"no-border full-width",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),(_vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}}):_vm._e()],1)])],1)],1)},staticRenderFns: [],
   name: 'q-datetime',
   components: {
     QInput: QInput,
@@ -6195,12 +6548,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     QInlineDatetime: QInlineDatetime,
     QBtn: QBtn
   },
-  props: extend({
-    value: {
-      type: String,
-      required: true
-    }
-  }, input),
+  props: extend({}, input, inline),
   data: function data () {
     var data = Platform.is.desktop ? {} : {
       css: contentCSS[current],
@@ -6214,6 +6562,10 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   computed: {
     actualValue: function actualValue () {
+      if (!this.value) {
+        return ''
+      }
+
       var format;
 
       if (this.format) {
@@ -6229,15 +6581,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         format = 'YYYY-MM-DD HH:mm:ss';
       }
 
-      return this.value ? moment(this.value).format(format) : ''
-    }
-  },
-  watch: {
-    min: function min () {
-      this.__normalizeAndEmit();
-    },
-    max: function max () {
-      this.__normalizeAndEmit();
+      return formatDate(this.value, format)
     }
   },
   methods: {
@@ -6264,53 +6608,29 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         }
       }, 1);
     },
-    __normalizeValue: function __normalizeValue (value) {
-      if (this.min) {
-        value = moment.max(moment(this.min).clone(), value);
-      }
-      if (this.max) {
-        value = moment.min(moment(this.max).clone(), value);
-      }
-      return value
-    },
     __setModel: function __setModel () {
-      this.model = this.value || this.__normalizeValue(moment(this.defaultSelection)).format();
+      this.model = this.value || this.defaultSelection;
     },
     __update: function __update () {
       this.$emit('input', this.model);
-    },
-    __normalizeAndEmit: function __normalizeAndEmit () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        if (this$1.value) {
-          this$1.$emit('input', this$1.__normalizeValue(moment(this$1.value)).format(this$1.format));
-        }
-      });
     }
   }
 };
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.model.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable},model:{value:(_vm.model.from),callback:function ($$v) {_vm.model.from=$$v;},expression:"model.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.model.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable},model:{value:(_vm.model.to),callback:function ($$v) {_vm.model.to=$$v;},expression:"model.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.model.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.from),callback:function ($$v) {_vm.model.from=$$v;},expression:"model.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.model.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.to),callback:function ($$v) {_vm.model.to=$$v;},expression:"model.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   components: {
     QDatetime: QDatetime
   },
-  props: extend({
+  props: extend({}, input, inline, {
     value: {
       type: Object,
-      validator: function validator (val) {
-        if (typeof val.from !== 'string' || typeof val.to !== 'string') {
-          console.error('DatetimeRange requires a valid {from, to} model.');
-          return false
-        }
-        return true
-      },
+      validator: function (val) { return 'from' in val && 'to' in val; },
       required: true
     },
     className: [String, Object],
     css: [String, Object]
-  }, input),
+  }),
   computed: {
     model: {
       get: function get () {
@@ -6654,66 +6974,6 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       if (target) {
         target.focus();
       }
-    }
-  }
-};
-
-var sides = ['top', 'right', 'bottom', 'left'];
-
-var QFixedPosition = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"z-fixed",class:[("fixed-" + (_vm.corner))],style:(_vm.style)},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-fixed-position',
-  props: {
-    corner: {
-      type: String,
-      required: true,
-      validator: function (v) { return ['top-right', 'top-left', 'bottom-right', 'bottom-left'].includes(v); }
-    },
-    offset: {
-      type: Object,
-      default: function () { return ({}); }
-    }
-  },
-  inject: ['layout'],
-  computed: {
-    animated: function animated () {
-      return this.pos.top && this.layout.reveal
-    },
-    pos: function pos () {
-      return {
-        top: this.corner.indexOf('top') > -1,
-        right: this.corner.indexOf('right') > -1,
-        bottom: this.corner.indexOf('bottom') > -1,
-        left: this.corner.indexOf('left') > -1
-      }
-    },
-    style: function style$$1 () {
-      var this$1 = this;
-
-      var
-        css$$1 = extend({}, this.offset),
-        layout = this.layout,
-        page = layout.pageStyle;
-
-      if (this.animated && !layout.showHeader) {
-        extend(css$$1, cssTransform(("translateY(" + (-layout.header.h) + "px)")));
-      }
-      else if (this.pos.top && layout.offsetTop) {
-        if (layout.offsetTop > 0) {
-          extend(css$$1, cssTransform(("translateY(" + (layout.offsetTop) + "px)")));
-        }
-      }
-      else if (this.pos.bottom && layout.offsetBottom) {
-        extend(css$$1, cssTransform(("translateY(" + (layout.offsetBottom) + "px)")));
-      }
-
-      sides.forEach(function (side) {
-        var prop = "padding" + (side.charAt(0).toUpperCase() + side.slice(1));
-        if (this$1.pos[side] && page[prop]) {
-          css$$1[side] = css$$1[side] ? ("calc(" + (page[prop]) + " + " + (css$$1[side]) + ")") : page[prop];
-        }
-      });
-
-      return css$$1
     }
   }
 };
@@ -7465,12 +7725,14 @@ var SideMixin = {
     __openByTouch: function __openByTouch (evt, side, right) {
       var
         width = this[side].w,
-        position = between(evt.distance.x, 0, width);
+        position = between(evt.distance.x, 0, width),
+        state = this[side + 'State'],
+        withBackdrop = !this[side + 'OverBreakpoint'];
 
       if (evt.isFinal) {
         var opened = position >= Math.min(75, width);
         this.backdrop.inTransit = false;
-        this[side + 'InTransit'] = false;
+        state.inTransit = false;
         if (opened) {
           this.__show(side);
         }
@@ -7480,23 +7742,36 @@ var SideMixin = {
         return
       }
 
-      this[side + 'State'].position = right
+      state.position = right
         ? Math.max(width - position, 0)
         : Math.min(0, position - width);
 
-      this.backdrop.percentage = between(position / width, 0, 1);
+      if (withBackdrop) {
+        this.backdrop.percentage = between(position / width, 0, 1);
+      }
 
       if (evt.isFirst) {
         document.body.classList.add('with-layout-side-opened');
-        this.backdrop.inTransit = side;
-        this[side + 'InTransit'] = true;
+        if (withBackdrop) {
+          this.backdrop.inTransit = side;
+        }
+        state.inTransit = true;
       }
     },
-    __closeByTouch: function __closeByTouch (evt) {
+    __closeLeftByTouch: function __closeLeftByTouch (evt) {
+      this.__closeByTouch(evt, 'left');
+    },
+    __closeRightByTouch: function __closeRightByTouch (evt) {
+      this.__closeByTouch(evt, 'right', true);
+    },
+    __closeByTouch: function __closeByTouch (evt, side, right) {
+      if (side === void 0) {
+        right = this.rightState.openedSmall;
+        side = right ? 'right' : 'left';
+      }
       var
-        right = this.rightState.openedSmall,
-        side = right ? 'right' : 'left',
-        width = this[side].w;
+        width = this[side].w,
+        state = this[side + 'State'];
 
       if (this[side + 'OnLayout']) {
         return
@@ -7509,7 +7784,7 @@ var SideMixin = {
       if (evt.isFinal) {
         var opened = Math.abs(position) < Math.min(75, width);
         this.backdrop.inTransit = false;
-        this[side + 'InTransit'] = false;
+        state.inTransit = false;
         if (!opened) {
           this.__hide(side);
         }
@@ -7519,12 +7794,12 @@ var SideMixin = {
         return
       }
 
-      this[side + 'State'].position = (right ? 1 : -1) * position;
+      state.position = (right ? 1 : -1) * position;
       this.backdrop.percentage = between(1 + (right ? -1 : 1) * position / width, 0, 1);
 
       if (evt.isFirst) {
         this.backdrop.inTransit = true;
-        this[side + 'InTransit'] = true;
+        state.inTransit = true;
         this.backdrop.touchEvent = true;
       }
     }
@@ -7675,7 +7950,7 @@ function updateObject (obj, data) {
 var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"layout"},[(!_vm.$q.platform.is.ios && _vm.$slots.left && !_vm.leftState.openedSmall)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openLeftByTouch),expression:"__openLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-left"}):_vm._e(),(!_vm.$q.platform.is.ios && _vm.$slots.right && !_vm.rightState.openedSmall)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openRightByTouch),expression:"__openRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-right"}):_vm._e(),(_vm.$slots.left || _vm.$slots.right)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"backdrop",staticClass:"fullscreen layout-backdrop",class:{ 'transition-generic': !_vm.backdrop.inTransit, 'no-pointer-events': _vm.hideBackdrop, },style:({
       opacity: _vm.backdrop.percentage,
       hidden: _vm.hideBackdrop
-    }),on:{"click":_vm.__hide}}):_vm._e(),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"left",staticClass:"layout-aside layout-aside-left",class:{ 'fixed': _vm.fixed.left || !_vm.leftOnLayout, 'on-top': !_vm.leftOverBreakpoint, 'transition-generic': !_vm.leftInTransit, 'top-padding': _vm.fixed.left || _vm.rows.top[0] === 'l' },style:(_vm.leftStyle)},[_vm._t("left"),(_vm.$slots.left)?_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}}):_vm._e()],2),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"right",staticClass:"layout-aside layout-aside-right",class:{ 'fixed': _vm.fixed.right || !_vm.rightOnLayout, 'on-top': !_vm.rightOverBreakpoint, 'transition-generic': !_vm.rightInTransit, 'top-padding': _vm.fixed.right || _vm.rows.top[2] === 'r' },style:(_vm.rightStyle)},[_vm._t("right"),(_vm.$slots.right)?_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}}):_vm._e()],2),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:{'fixed-top': _vm.fixed.header},style:(_vm.headerStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",style:(_vm.pageStyle)},[_c('main',{style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:{'fixed-bottom': _vm.fixed.footer},style:(_vm.footerStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
+    }),on:{"click":_vm.__hide}}):_vm._e(),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],ref:"left",staticClass:"layout-aside layout-aside-left",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),(_vm.$slots.left)?_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}}):_vm._e()],2),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],ref:"right",staticClass:"layout-aside layout-aside-right",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),(_vm.$slots.right)?_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}}):_vm._e()],2),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",style:(_vm.computedPageStyle)},[_c('main',{class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
   name: 'q-layout',
   components: {
     QResizeObservable: QResizeObservable,
@@ -7703,23 +7978,36 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     view: {
       type: String,
       default: 'hhh lpr fff',
-      validator: function (v) { return /^(h|H|L|l)(h|H)(h|H|R|r) (L|l|p)p(R|r|p) (f|F|L|l)(f|F)(f|F|R|r)$/.test(v); }
+      validator: function (v) { return /^(h|l)h(h|r) (l|p)p(r|p) (f|l)f(f|r)$/.test(v.toLowerCase()); }
     },
     reveal: Boolean,
+
     leftBreakpoint: {
       type: Number,
       default: 996
     },
+    leftStyle: Object,
+    leftClass: Object,
+
     rightBreakpoint: {
       type: Number,
       default: 996
-    }
+    },
+    rightStyle: Object,
+    rightClass: Object,
+
+    headerStyle: Object,
+    headerClass: Object,
+
+    footerStyle: Object,
+    footerClass: Object,
+
+    pageStyle: Object,
+    pageClass: Object
   },
   data: function data () {
     return {
       headerOnScreen: true,
-      leftInTransit: false,
-      rightInTransit: false,
 
       header: {h: 0, w: 0},
       left: {h: 0, w: 0},
@@ -7743,11 +8031,13 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
       leftState: {
         position: 0,
+        inTransit: false,
         openedSmall: false,
         openedBig: this.sides.left
       },
       rightState: {
         position: 0,
+        inTransit: false,
         openedSmall: false,
         openedBig: this.sides.right
       }
@@ -7781,6 +8071,12 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         left: this.leftState.openedBig,
         right: v
       });
+    },
+    leftOverBreakpoint: function leftOverBreakpoint (v) {
+      this.$emit('left-breakpoint', v);
+    },
+    rightOverBreakpoint: function rightOverBreakpoint (v) {
+      this.$emit('right-breakpoint', v);
     }
   },
   computed: {
@@ -7815,7 +8111,7 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         bottom: rows[2].split('')
       }
     },
-    pageStyle: function pageStyle () {
+    computedPageStyle: function computedPageStyle () {
       var
         view = this.rows,
         css$$1 = {};
@@ -7836,14 +8132,18 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       return css$$1
     },
     mainStyle: function mainStyle () {
-      return {
+      var css$$1 = {
         minHeight: ("calc(100vh - " + (this.header.h + this.footer.h) + "px)")
-      }
+      };
+
+      return this.pageStyle
+        ? extend({}, this.pageStyle, css$$1)
+        : css$$1
     },
     showHeader: function showHeader () {
       return this.headerOnScreen || !this.reveal
     },
-    headerStyle: function headerStyle () {
+    computedHeaderStyle: function computedHeaderStyle () {
       var
         view = this.rows,
         css$$1 = this.showHeader
@@ -7857,9 +8157,11 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         css$$1.marginRight = this.right.w + 'px';
       }
 
-      return css$$1
+      return this.headerStyle
+        ? extend({}, this.headerStyle, css$$1)
+        : css$$1
     },
-    footerStyle: function footerStyle () {
+    computedFooterStyle: function computedFooterStyle () {
       var
         view = this.rows,
         css$$1 = {};
@@ -7871,7 +8173,45 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         css$$1.marginRight = this.right.w + 'px';
       }
 
-      return css$$1
+      return this.footerStyle
+        ? extend({}, this.footerStyle, css$$1)
+        : css$$1
+    },
+    computedLeftClass: function computedLeftClass () {
+      var classes = {
+        'fixed': this.fixed.left || !this.leftOnLayout,
+        'on-top': !this.leftOverBreakpoint || this.leftState.inTransit,
+        'transition-generic': !this.leftState.inTransit,
+        'top-padding': this.fixed.left || this.rows.top[0] === 'l'
+      };
+
+      return this.leftClass
+        ? extend({}, this.leftClass, classes)
+        : classes
+    },
+    computedRightClass: function computedRightClass () {
+      var classes = {
+        'fixed': this.fixed.right || !this.rightOnLayout,
+        'on-top': !this.rightOverBreakpoint || this.rightState.inTransit,
+        'transition-generic': !this.rightState.inTransit,
+        'top-padding': this.fixed.right || this.rows.top[2] === 'r'
+      };
+
+      return this.rightClass
+        ? extend({}, this.rightClass, classes)
+        : classes
+    },
+    computedHeaderClass: function computedHeaderClass () {
+      var classes = {'fixed-top': this.fixed.header};
+      return this.headerClass
+        ? extend({}, this.headerClass, classes)
+        : classes
+    },
+    computedFooterClass: function computedFooterClass () {
+      var classes = {'fixed-bottom': this.fixed.footer};
+      return this.footerClass
+        ? extend({}, this.footerClass, classes)
+        : classes
     },
     offsetTop: function offsetTop () {
       return !this.fixed.header
@@ -7886,11 +8226,15 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         }
       }
     },
-    leftStyle: function leftStyle () {
+    computedLeftStyle: function computedLeftStyle () {
       if (!this.leftOnLayout) {
-        return this.leftInTransit
+        var style$$1 = this.leftState.inTransit
           ? cssTransform(("translateX(" + (this.leftState.position) + "px)"))
-          : cssTransform(("translateX(" + (this.leftState.openedSmall ? 0 : '-100%') + ")"))
+          : cssTransform(("translateX(" + (this.leftState.openedSmall ? 0 : '-100%') + ")"));
+
+        return this.leftStyle
+          ? extend({}, this.leftStyle, style$$1)
+          : style$$1
       }
 
       var
@@ -7914,13 +8258,19 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         }
       }
 
-      return css$$1
+      return this.leftStyle
+        ? extend({}, this.leftStyle, css$$1)
+        : css$$1
     },
-    rightStyle: function rightStyle () {
+    computedRightStyle: function computedRightStyle () {
       if (!this.rightOnLayout) {
-        return this.rightInTransit
+        var style$$1 = this.rightState.inTransit
           ? cssTransform(("translateX(" + (this.rightState.position) + "px)"))
-          : cssTransform(("translateX(" + (this.rightState.openedSmall ? 0 : '100%') + ")"))
+          : cssTransform(("translateX(" + (this.rightState.openedSmall ? 0 : '100%') + ")"));
+
+        return this.rightStyle
+          ? extend({}, this.rightStyle, style$$1)
+          : style$$1
       }
 
       var
@@ -7944,7 +8294,9 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         }
       }
 
-      return css$$1
+      return this.rightStyle
+        ? extend({}, this.rightStyle, css$$1)
+        : css$$1
     }
   },
   methods: {
@@ -7965,6 +8317,7 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     },
     onWindowResize: function onWindowResize (size) {
       updateSize(this.layout, size);
+      this.$emit('resize', size);
     },
     onPageScroll: function onPageScroll (data) {
       updateObject(this.scroll, data);
@@ -7979,6 +8332,68 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
           this.headerOnScreen = visible;
         }
       }
+
+      this.$emit('scroll', data);
+    }
+  }
+};
+
+var sides = ['top', 'right', 'bottom', 'left'];
+
+var QFixedPosition = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"z-fixed",class:[("fixed-" + (_vm.corner))],style:(_vm.style)},[_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-fixed-position',
+  props: {
+    corner: {
+      type: String,
+      required: true,
+      validator: function (v) { return ['top-right', 'top-left', 'bottom-right', 'bottom-left'].includes(v); }
+    },
+    offset: {
+      type: Object,
+      default: function () { return ({}); }
+    }
+  },
+  inject: ['layout'],
+  computed: {
+    animated: function animated () {
+      return this.pos.top && this.layout.reveal
+    },
+    pos: function pos () {
+      return {
+        top: this.corner.indexOf('top') > -1,
+        right: this.corner.indexOf('right') > -1,
+        bottom: this.corner.indexOf('bottom') > -1,
+        left: this.corner.indexOf('left') > -1
+      }
+    },
+    style: function style$$1 () {
+      var this$1 = this;
+
+      var
+        css$$1 = extend({}, this.offset),
+        layout = this.layout,
+        page = layout.computedPageStyle;
+
+      if (this.animated && !layout.showHeader) {
+        extend(css$$1, cssTransform(("translateY(" + (-layout.header.h) + "px)")));
+      }
+      else if (this.pos.top && layout.offsetTop) {
+        if (layout.offsetTop > 0) {
+          extend(css$$1, cssTransform(("translateY(" + (layout.offsetTop) + "px)")));
+        }
+      }
+      else if (this.pos.bottom && layout.offsetBottom) {
+        extend(css$$1, cssTransform(("translateY(" + (layout.offsetBottom) + "px)")));
+      }
+
+      sides.forEach(function (side) {
+        var prop = "padding" + (side.charAt(0).toUpperCase() + side.slice(1));
+        if (this$1.pos[side] && page[prop]) {
+          css$$1[side] = css$$1[side] ? ("calc(" + (page[prop]) + " + " + (css$$1[side]) + ")") : page[prop];
+        }
+      });
+
+      return css$$1
     }
   }
 };
@@ -8497,7 +8912,7 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   },
   methods: {
     goToStep: function goToStep (step) {
-      if (this.data.step === step || typeof step === 'undefined') {
+      if (this.data.step === step || step === void 0) {
         return
       }
 
@@ -9006,12 +9421,14 @@ var QTree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader"},[_c('input',{ref:"file",attrs:{"type":"file","accept":_vm.extensions,"multiple":_vm.multiple},on:{"change":_vm.__add}}),(_vm.uploading)?_c('div',[_c('span',{staticClass:"chip label bg-light q-uploader-progress"},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.uploading)}}),_c('q-spinner',{attrs:{"size":15}}),_vm._v(_vm._s(_vm.progress)+"%")],1)]):_c('div',{staticClass:"group"},[_vm._t("default",[_c('q-btn',{class:_vm.buttonClass,attrs:{"disabled":_vm.addButtonDisabled},domProps:{"innerHTML":_vm._s(_vm.computedLabel.add)},on:{"click":_vm.__pick}}),(!_vm.hideUploadButton)?_c('q-btn',{class:_vm.buttonClass,attrs:{"disabled":_vm.files.length === 0},domProps:{"innerHTML":_vm._s(_vm.computedLabel.upload)},on:{"click":_vm.upload}}):_vm._e()],{pick:_vm.__pick,upload:_vm.upload,uploadDisabled:_vm.files.length === 0})],2),_c('div',{staticClass:"row wrap items-center group"},[_vm._l((_vm.images),function(img){return _c('div',{key:img.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(img.name))]),_c('div',{staticClass:"card-media"},[_c('img',{attrs:{"src":img.src}})]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(img.__file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",domProps:{"innerHTML":_vm._s(_vm.computedLabel.remove)},on:{"click":function($event){_vm.__remove(img.name);}}})],1)]),(img.__file.__progress)?_c('q-progress',{attrs:{"percentage":img.__file.__progress}}):_vm._e(),(img.__file.__failed)?_c('div',{staticClass:"q-uploader-failed",domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}}):_vm._e()],1)}),_vm._l((_vm.otherFiles),function(file){return _c('div',{key:file.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(file.name))]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",domProps:{"innerHTML":_vm._s(_vm.computedLabel.remove)},on:{"click":function($event){_vm.__remove(file.name);}}})],1)]),(file.__progress)?_c('q-progress',{attrs:{"percentage":file.__progress}}):_vm._e(),(file.__failed)?_c('div',{staticClass:"q-uploader-failed",domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}}):_vm._e()],1)})],2)])},staticRenderFns: [],
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader"},[(_vm.uploading)?_c('div',[_c('q-chip',{staticClass:"bg-light q-uploader-progress",attrs:{"closable":""},on:{"close":_vm.abort}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.uploading)}}),_c('q-spinner',{attrs:{"size":15}}),_vm._v(_vm._s(_vm.progress)+"%")],1)],1):_c('div',{staticClass:"group"},[_c('q-btn',{staticClass:"q-uploader-pick-button overflow-hidden",class:_vm.buttonClass,attrs:{"icon":_vm.computedIcons.add,"disabled":_vm.addButtonDisabled},on:{"click":_vm.__pick}},[_vm._v(_vm._s(_vm.computedLabel.add)+" "),_c('input',{ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions,"multiple":_vm.multiple},on:{"change":_vm.__add}})]),(!_vm.hideUploadButton)?_c('q-btn',{class:_vm.buttonClass,attrs:{"disabled":_vm.files.length === 0,"icon":_vm.computedIcons.upload},on:{"click":_vm.upload}},[_vm._v(_vm._s(_vm.computedLabel.upload))]):_vm._e()],1),_c('div',{staticClass:"row wrap items-center group"},[_vm._l((_vm.images),function(img){return _c('div',{key:img.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(img.name))]),_c('div',{staticClass:"card-media"},[_c('img',{attrs:{"src":img.src}})]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(img.__file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(img);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && img.__file.__progress)?_c('q-progress',{attrs:{"percentage":img.__file.__progress}}):_vm._e(),(img.__file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)}),_vm._l((_vm.otherFiles),function(file){return _c('div',{key:file.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(file.name))]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(file);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && file.__progress)?_c('q-progress',{attrs:{"percentage":file.__progress}}):_vm._e(),(file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)})],2)])},staticRenderFns: [],
   name: 'q-uploader',
   components: {
     QBtn: QBtn,
     QProgress: QProgress,
-    QSpinner: QSpinner
+    QSpinner: QSpinner,
+    QIcon: QIcon,
+    QChip: QChip
   },
   props: {
     name: {
@@ -9037,6 +9454,12 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         return {}
       }
     },
+    icons: {
+      type: Object,
+      default: function default$2 () {
+        return {}
+      }
+    },
     method: {
       type: String,
       default: 'POST'
@@ -9052,19 +9475,28 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       uploadedSize: 0,
       totalSize: 0,
       images: [],
-      otherFiles: []
+      otherFiles: [],
+      xhrs: []
     }
   },
   computed: {
     progress: function progress () {
       return this.totalSize ? (this.uploadedSize / this.totalSize * 100).toFixed(2) : 0
     },
+    computedIcons: function computedIcons () {
+      return extend({
+        add: 'add',
+        remove: 'clear',
+        upload: 'file_upload',
+        failed: 'warning'
+      }, this.icons)
+    },
     computedLabel: function computedLabel () {
       return extend({
-        add: this.multiple ? '<i class="material-icons">add</i> Add Files' : '<i class="material-icons">add</i> Pick File',
-        remove: '<i class="material-icons">clear</i> Remove',
-        upload: '<i class="material-icons">file_upload</i> Upload',
-        failed: '<i class="material-icons">warning</i> Failed',
+        add: this.multiple ? 'Add Files' : 'Pick File',
+        remove: 'Remove',
+        upload: 'Upload',
+        failed: 'Failed',
         uploading: 'Uploading...'
       }, this.labels)
     },
@@ -9108,14 +9540,17 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.files = this.files.concat(files);
       this.$refs.file.value = '';
     },
-    __remove: function __remove (name, done, response) {
-      this.$emit(done ? 'upload' : 'remove', name, response);
-      this.images = this.images.filter(function (file) { return file.name !== name; });
-      this.otherFiles = this.otherFiles.filter(function (file) { return file.name !== name; });
-      this.files = this.files.filter(function (file) { return file.name !== name; });
+    __remove: function __remove (file, done, xhr) {
+      var name = file.name;
+      this.$emit(done ? 'upload' : 'remove', file, xhr);
+      this.images = this.images.filter(function (obj) { return obj.name !== name; });
+      this.otherFiles = this.otherFiles.filter(function (obj) { return obj.name !== name; });
+      this.files = this.files.filter(function (obj) { return obj.name !== name; });
     },
     __pick: function __pick () {
-      this.$refs.file.click();
+      if (this.$q.platform.is.mozilla) {
+        this.$refs.file.click();
+      }
     },
     __getUploadPromise: function __getUploadPromise (file) {
       var this$1 = this;
@@ -9151,19 +9586,18 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
             return
           }
           if (xhr.status && xhr.status < 400) {
-            this$1.__remove(file.name, true, xhr.response);
-            this$1.$emit('uploaded', file.name, xhr);
+            this$1.__remove(file, true, xhr);
             resolve(file);
           }
           else {
             file.__failed = true;
-            this$1.$emit('fail', file.name, xhr);
+            this$1.$emit('fail', file, xhr);
             reject(xhr);
           }
         };
 
         xhr.onerror = function () {
-          this$1.$emit('fail', file.name, xhr);
+          this$1.$emit('fail', file, xhr);
           reject(xhr);
         };
 
@@ -9173,6 +9607,8 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
             xhr.setRequestHeader(key, this$1.headers[key]);
           });
         }
+
+        this$1.xhrs.push(xhr);
         xhr.send(form);
       })
     },
@@ -9189,12 +9625,14 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.uploadedSize = 0;
       this.totalSize = this.files.map(function (file) { return file.size; }).reduce(function (total, size) { return total + size; });
       this.uploading = true;
+      this.xhrs = [];
       this.$emit('start');
 
       var solved = function () {
         filesDone++;
         if (filesDone === length) {
           this$1.uploading = false;
+          this$1.xhrs = [];
           this$1.$emit('finish');
         }
       };
@@ -9202,6 +9640,9 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.files.map(function (file) { return this$1.__getUploadPromise(file); }).forEach(function (promise) {
         promise.then(solved).catch(solved);
       });
+    },
+    abort: function abort () {
+      this.xhrs.forEach(function (xhr) { xhr.abort(); });
     }
   }
 };
@@ -9211,9 +9652,11 @@ var QVideo = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   props: ['src']
 };
 
-function updateBinding (el, ref, ctx) {
+function updateBinding (el, ref) {
   var value = ref.value;
   var modifiers = ref.modifiers;
+
+  var ctx = el.__qbacktotop;
 
   if (!value) {
     ctx.update();
@@ -9267,28 +9710,28 @@ var backToTop = {
       }
     };
     el.classList.add('hidden');
-    add('backtotop', el, ctx);
+    el.__qbacktotop = ctx;
   },
   inserted: function inserted (el, binding) {
-    var ctx = get('backtotop', el);
+    var ctx = el.__qbacktotop;
     ctx.scrollTarget = getScrollTarget(el);
     ctx.animate = binding.modifiers.animate;
-    updateBinding(el, binding, ctx);
+    updateBinding(el, binding);
     ctx.scrollTarget.addEventListener('scroll', ctx.update);
     window.addEventListener('resize', ctx.update);
     el.addEventListener('click', ctx.goToTop);
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
-      updateBinding(el, binding, get('backtotop', el));
+      updateBinding(el, binding);
     }
   },
   unbind: function unbind (el) {
-    var ctx = get('backtotop', el);
+    var ctx = el.__qbacktotop;
     ctx.scrollTarget.removeEventListener('scroll', ctx.update);
     window.removeEventListener('resize', ctx.update);
     el.removeEventListener('click', ctx.goToTop);
-    remove('backtotop', el);
+    delete el.__qbacktotop;
   }
 };
 
@@ -9311,24 +9754,23 @@ var goBack = {
       };
     }
 
-    add('goback', el, ctx);
+    el.__qgoback = ctx;
     el.addEventListener('click', ctx.goBack);
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
-      var ctx = get('goback', el);
-      ctx.value = binding.value;
+      el.__qgoback.value = binding.value;
     }
   },
   unbind: function unbind (el) {
-    el.removeEventListener('click', get('goback', el).goBack);
-    remove('goback', el);
+    el.removeEventListener('click', el.__qgoback.goBack);
+    delete el.__qgoback;
   }
 };
 
 function updateBinding$1 (el, selector) {
   var
-    ctx = get('move', el),
+    ctx = el.__qmove,
     parent = el.parentNode;
 
   if (!ctx.target) {
@@ -9349,15 +9791,14 @@ var move = {
   bind: function bind (el, ref) {
     var value = ref.value;
 
-    add('move', el, {});
+    el.__qmove = {};
   },
   update: function update (el, ref) {
     var oldValue = ref.oldValue;
     var value = ref.value;
 
     if (oldValue !== value) {
-      var ctx = get('move', el);
-      ctx.target = document.querySelector(value);
+      el.__qmove.target = document.querySelector(value);
     }
     updateBinding$1(el, value);
   },
@@ -9371,11 +9812,13 @@ var move = {
     if (parent) {
       parent.removeChild(el);
     }
-    remove('move', el);
+    delete el.__qmove;
   }
 };
 
-function updateBinding$2 (el, binding, ctx) {
+function updateBinding$2 (el, binding) {
+  var ctx = el.__qscrollfire;
+
   if (typeof binding.value !== 'function') {
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
     console.error('v-scroll-fire requires a function as parameter', el);
@@ -9413,26 +9856,28 @@ var scrollFire = {
       }, 25)
     };
 
-    add('scrollfire', el, ctx);
+    el.__qscrollfire = ctx;
   },
   inserted: function inserted (el, binding) {
-    var ctx = get('scrollfire', el);
+    var ctx = el.__qscrollfire;
     ctx.scrollTarget = getScrollTarget(el);
-    updateBinding$2(el, binding, ctx);
+    updateBinding$2(el, binding);
   },
   update: function update (el, binding) {
     if (binding.value !== binding.oldValue) {
-      updateBinding$2(el, binding, get('scrollfire', el));
+      updateBinding$2(el, binding);
     }
   },
   unbind: function unbind (el) {
-    var ctx = get('scrollfire', el);
+    var ctx = el.__qscrollfire;
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
-    remove('scrollfire', el);
+    delete el.__qscrollfire;
   }
 };
 
-function updateBinding$3 (el, binding, ctx) {
+function updateBinding$3 (el, binding) {
+  var ctx = el.__qscroll;
+
   if (typeof binding.value !== 'function') {
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
     console.error('v-scroll requires a function as parameter', el);
@@ -9453,27 +9898,30 @@ var scroll$1 = {
         ctx.handler(getScrollPosition(ctx.scrollTarget));
       }
     };
-    add('scroll', el, ctx);
+    el.__qscroll = ctx;
   },
   inserted: function inserted (el, binding) {
-    var ctx = get('scroll', el);
+    var ctx = el.__qscroll;
     ctx.scrollTarget = getScrollTarget(el);
-    updateBinding$3(el, binding, ctx);
+    updateBinding$3(el, binding);
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
-      updateBinding$3(el, binding, get('scroll', el));
+      updateBinding$3(el, binding);
     }
   },
   unbind: function unbind (el) {
-    var ctx = get('scroll', el);
+    var ctx = el.__qscroll;
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
-    remove('scroll', el);
+    delete el.__qscroll;
   }
 };
 
-function updateBinding$4 (el, binding, ctx) {
+function updateBinding$4 (el, binding) {
+  var ctx = el.__qtouchhold;
+
   ctx.duration = parseInt(binding.arg, 10) || 800;
+
   if (binding.oldValue !== binding.value) {
     ctx.handler = binding.value;
   }
@@ -9512,25 +9960,25 @@ var touchHold = {
       }
     };
 
-    add('touchhold', el, ctx);
-    updateBinding$4(el, binding, ctx);
+    el.__qtouchhold = ctx;
+    updateBinding$4(el, binding);
     el.addEventListener('touchstart', ctx.start);
     el.addEventListener('touchmove', ctx.abort);
     el.addEventListener('touchend', ctx.abort);
     el.addEventListener('mousedown', ctx.mouseStart);
   },
   update: function update (el, binding) {
-    updateBinding$4(el, binding, get('touchhold', el));
+    updateBinding$4(el, binding);
   },
   unbind: function unbind (el, binding) {
-    var ctx = get('touchhold', el);
+    var ctx = el.__qtouchhold;
     el.removeEventListener('touchstart', ctx.start);
     el.removeEventListener('touchmove', ctx.abort);
     el.removeEventListener('touchend', ctx.abort);
     el.removeEventListener('mousedown', ctx.mouseStart);
     document.removeEventListener('mousemove', ctx.mouseAbort);
     document.removeEventListener('mouseup', ctx.mouseAbort);
-    remove('touchhold', el);
+    delete el.__qtouchhold;
   }
 };
 
@@ -10022,7 +10470,7 @@ function set$1 (key, val, opts) {
   ].join('');
 }
 
-function get$1 (key) {
+function get (key) {
   var
     result = key ? undefined : {},
     cookies = document.cookie ? document.cookie.split('; ') : [],
@@ -10049,22 +10497,22 @@ function get$1 (key) {
   return result
 }
 
-function remove$1 (key, options) {
+function remove (key, options) {
   set$1(key, '', extend(true, {}, options, {
     expires: -1
   }));
 }
 
 function has (key) {
-  return get$1(key) !== undefined
+  return get(key) !== undefined
 }
 
 var cookies = {
-  get: get$1,
+  get: get,
   set: set$1,
   has: has,
-  remove: remove$1,
-  all: function () { return get$1(); }
+  remove: remove,
+  all: function () { return get(); }
 };
 
 function encode$1 (value) {
@@ -10594,7 +11042,7 @@ var index$3 = {
 };
 
 var openUrl = function (url, reject) {
-  if (Platform.is.cordova) {
+  if (Platform.is.cordova && navigator && navigator.app) {
     return navigator.app.loadUrl(url, {
       openExternal: true
     })
@@ -10604,6 +11052,7 @@ var openUrl = function (url, reject) {
 
   if (win) {
     win.focus();
+    return win
   }
   else {
     reject();
@@ -10640,4 +11089,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QChatMessage, QCheckbox, QChip, QChips, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QSmallFab, QField, QFixedPosition, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputGroup, QItem, QKnob, QLayout, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QPagination, QParallax, QPopover, QProgress, QProgressBtn, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepPane, QStepper, QStepperHeader, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QChatMessage, QCheckbox, QChip, QChips, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QSmallFab, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputGroup, QItem, QKnob, QLayout, QFixedPosition, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QPagination, QParallax, QPopover, QProgress, QProgressBtn, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepPane, QStepper, QStepperHeader, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
