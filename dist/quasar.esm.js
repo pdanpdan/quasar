@@ -3059,7 +3059,7 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 };
 
-var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-modal-layout column absolute-full",class:_vm.headerClass,style:(_vm.headerStyle)},[(_vm.$slots.header || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-header"},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e(),_c('div',{staticClass:"q-modal-layout-content auto scroll",class:_vm.contentClass,style:(_vm.contentStyle)},[_vm._t("default")],2),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-footer",class:_vm.footerClass,style:(_vm.footerStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e()])},staticRenderFns: [],
+var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-modal-layout column absolute-full"},[(_vm.$slots.header || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-header",class:_vm.headerClass,style:(_vm.headerStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e(),_c('div',{staticClass:"q-modal-layout-content auto scroll",class:_vm.contentClass,style:(_vm.contentStyle)},[_vm._t("default")],2),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-footer",class:_vm.footerClass,style:(_vm.footerStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e()])},staticRenderFns: [],
   name: 'q-modal-layout',
   props: {
     headerStyle: [String, Object, Array],
@@ -6545,6 +6545,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   components: {
     QInput: QInput,
     QPopover: QPopover,
+    QModal: QModal,
     QInlineDatetime: QInlineDatetime,
     QBtn: QBtn
   },
@@ -7751,8 +7752,8 @@ var SideMixin = {
       }
 
       if (evt.isFirst) {
-        document.body.classList.add('with-layout-side-opened');
         if (withBackdrop) {
+          document.body.classList.add('with-layout-side-opened');
           this.backdrop.inTransit = side;
         }
         state.inTransit = true;
@@ -7836,10 +7837,14 @@ var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createEleme
     },
     reset: function reset () {
       var ref = this.$refs;
-      ref.expand.scrollLeft = 100000;
-      ref.expand.scrollTop = 100000;
-      ref.shrink.scrollLeft = 100000;
-      ref.shrink.scrollTop = 100000;
+      if (ref.expand) {
+        ref.expand.scrollLeft = 100000;
+        ref.expand.scrollTop = 100000;
+      }
+      if (ref.shrink) {
+        ref.shrink.scrollLeft = 100000;
+        ref.shrink.scrollTop = 100000;
+      }
     }
   },
   mounted: function mounted () {
@@ -7851,6 +7856,7 @@ var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createEleme
     });
   },
   beforeDestroy: function beforeDestroy () {
+    window.cancelAnimationFrame(this.timer);
     this.$emit('resize', {width: 0, height: 0});
   }
 };
@@ -7947,7 +7953,7 @@ function updateObject (obj, data) {
   });
 }
 
-var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"layout"},[(!_vm.$q.platform.is.ios && _vm.$slots.left && !_vm.leftState.openedSmall)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openLeftByTouch),expression:"__openLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-left"}):_vm._e(),(!_vm.$q.platform.is.ios && _vm.$slots.right && !_vm.rightState.openedSmall)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openRightByTouch),expression:"__openRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-right"}):_vm._e(),(_vm.$slots.left || _vm.$slots.right)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"backdrop",staticClass:"fullscreen layout-backdrop",class:{ 'transition-generic': !_vm.backdrop.inTransit, 'no-pointer-events': _vm.hideBackdrop, },style:({
+var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"layout"},[(!_vm.$q.platform.is.ios && _vm.$slots.left && !_vm.leftState.openedSmall && !_vm.leftOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openLeftByTouch),expression:"__openLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-left"}):_vm._e(),(!_vm.$q.platform.is.ios && _vm.$slots.right && !_vm.rightState.openedSmall && !_vm.rightOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openRightByTouch),expression:"__openRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-right"}):_vm._e(),(_vm.$slots.left || _vm.$slots.right)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"backdrop",staticClass:"fullscreen layout-backdrop",class:{ 'transition-generic': !_vm.backdrop.inTransit, 'no-pointer-events': _vm.hideBackdrop, },style:({
       opacity: _vm.backdrop.percentage,
       hidden: _vm.hideBackdrop
     }),on:{"click":_vm.__hide}}):_vm._e(),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],ref:"left",staticClass:"layout-aside layout-aside-left",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),(_vm.$slots.left)?_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}}):_vm._e()],2),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],ref:"right",staticClass:"layout-aside layout-aside-right",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),(_vm.$slots.right)?_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}}):_vm._e()],2),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",style:(_vm.computedPageStyle)},[_c('main',{class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],

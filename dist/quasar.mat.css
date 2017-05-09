@@ -4365,6 +4365,9 @@ body.desktop .q-stepper-step.step-editable:hover {
   padding: 12px;
   border: 1px solid rgba(0,0,0,0.1);
 }
+.q-tabs-panes:empty {
+  display: none;
+}
 .q-tab-border {
   position: absolute;
   left: 0;
