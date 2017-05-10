@@ -2083,7 +2083,6 @@ $toolbar-padding           ?= 4px 12px
 .layout-footer
   box-shadow $layout-footer-shadow
 .layout-aside
-  overflow-y auto
   position absolute
   top 0
   bottom 0
@@ -2653,6 +2652,15 @@ $rating-shadow                 ?= $shadow-1
       color $color
   &.editable i
     cursor pointer
+.q-scrollarea-thumb
+  background black
+  width 10px
+  opacity .25
+  transition opacity .3s
+  &.invisible-thumb
+    opacity 0 !important
+.q-scrollarea > .absolute
+  width 100%
 .toolbar .q-search
   background rgba(255, 255, 255, .25)
   flex 1 1 auto

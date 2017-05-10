@@ -2812,7 +2812,6 @@ i.q-icon {
   box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
 }
 .layout-aside {
-  overflow-y: auto;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -4090,6 +4089,18 @@ body.desktop .q-radio:focus input + div:before {
 }
 .q-rating.editable i {
   cursor: pointer;
+}
+.q-scrollarea-thumb {
+  background: #000;
+  width: 10px;
+  opacity: 0.25;
+  transition: opacity 0.3s;
+}
+.q-scrollarea-thumb.invisible-thumb {
+  opacity: 0 !important;
+}
+.q-scrollarea > .absolute {
+  width: 100%;
 }
 .toolbar .q-search {
   background: rgba(255,255,255,0.25);

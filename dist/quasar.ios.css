@@ -2744,7 +2744,6 @@ i.q-icon {
   border-top: 1px solid rgba(0,0,0,0.4);
 }
 .layout-aside {
-  overflow-y: auto;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -3717,6 +3716,18 @@ input:checked + div:after {
 }
 .q-rating.editable i {
   cursor: pointer;
+}
+.q-scrollarea-thumb {
+  background: #000;
+  width: 10px;
+  opacity: 0.25;
+  transition: opacity 0.3s;
+}
+.q-scrollarea-thumb.invisible-thumb {
+  opacity: 0 !important;
+}
+.q-scrollarea > .absolute {
+  width: 100%;
 }
 .toolbar .q-search {
   background: rgba(255,255,255,0.25);

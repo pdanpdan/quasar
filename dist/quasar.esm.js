@@ -1192,9 +1192,61 @@ function targetElement (e) {
   return target
 }
 
-function getMouseWheelDirection (e) {
-  e = getEvent(e);
-  return Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))
+// Reasonable defaults
+var PIXEL_STEP = 10;
+var LINE_HEIGHT = 40;
+var PAGE_HEIGHT = 800;
+
+function getMouseWheelDistance (e) {
+  var
+    sX = 0, sY = 0,       // spinX, spinY
+    pX = 0, pY = 0;        // pixelX, pixelY
+
+  // Legacy
+  if ('detail' in e) { sY = e.detail; }
+  if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
+  if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
+  if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
+
+  // side scrolling on FF with DOMMouseScroll
+  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
+    sX = sY;
+    sY = 0;
+  }
+
+  pX = sX * PIXEL_STEP;
+  pY = sY * PIXEL_STEP;
+
+  if ('deltaY' in e) { pY = e.deltaY; }
+  if ('deltaX' in e) { pX = e.deltaX; }
+
+  if ((pX || pY) && e.deltaMode) {
+    if (e.deltaMode === 1) {          // delta in LINE units
+      pX *= LINE_HEIGHT;
+      pY *= LINE_HEIGHT;
+    }
+    else {                             // delta in PAGE units
+      pX *= PAGE_HEIGHT;
+      pY *= PAGE_HEIGHT;
+    }
+  }
+
+  // Fall-back if spin cannot be determined
+  if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
+  if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
+
+  /*
+   * spinX  -- normalized spin speed (use for zoom) - x plane
+   * spinY  -- " - y plane
+   * pixelX -- normalized distance (to pixels) - x plane
+   * pixelY -- " - y plane
+   */
+  return {
+    spinX: sX,
+    spinY: sY,
+    pixelX: pX,
+    pixelY: pY
+  }
 }
 
 
@@ -1202,7 +1254,7 @@ var event = Object.freeze({
 	rightClick: rightClick,
 	position: position,
 	targetElement: targetElement,
-	getMouseWheelDirection: getMouseWheelDirection
+	getMouseWheelDistance: getMouseWheelDistance
 });
 
 function getAnchorPosition (el, offset) {
@@ -3360,6 +3412,8 @@ function updateClasses (el, dir) {
 var TouchSwipe = {
   name: 'touch-swipe',
   bind: function bind (el, binding) {
+    var mouse = !binding.modifiers.nomouse;
+
     var ctx = {
       handler: binding.value,
       direction: getDirection(binding.modifiers),
@@ -3373,8 +3427,10 @@ var TouchSwipe = {
           detected: false,
           prevent: ctx.direction.horizontal && ctx.direction.vertical
         };
-        document.addEventListener('mousemove', ctx.move);
-        document.addEventListener('mouseup', ctx.end);
+        if (mouse) {
+          document.addEventListener('mousemove', ctx.move);
+          document.addEventListener('mouseup', ctx.end);
+        }
       },
       move: function move (evt) {
         var
@@ -3405,8 +3461,10 @@ var TouchSwipe = {
         }
       },
       end: function end (evt) {
-        document.removeEventListener('mousemove', ctx.move);
-        document.removeEventListener('mouseup', ctx.end);
+        if (mouse) {
+          document.removeEventListener('mousemove', ctx.move);
+          document.removeEventListener('mouseup', ctx.end);
+        }
 
         var
           direction,
@@ -3439,8 +3497,10 @@ var TouchSwipe = {
 
     el.__qtouchswipe = ctx;
     updateClasses(el, ctx.direction);
+    if (mouse) {
+      el.addEventListener('mousedown', ctx.start);
+    }
     el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('mousedown', ctx.start);
     el.addEventListener('touchmove', ctx.move);
     el.addEventListener('touchend', ctx.end);
   },
@@ -3823,14 +3883,18 @@ function shouldTrigger (ctx, changes) {
 var TouchPan = {
   name: 'touch-pan',
   bind: function bind (el, binding) {
+    var mouse = !binding.modifiers.nomouse;
+
     var ctx = {
       handler: binding.value,
       scroll: binding.modifiers.scroll,
       direction: getDirection$1(binding.modifiers),
 
       mouseStart: function mouseStart (evt) {
-        document.addEventListener('mousemove', ctx.mouseMove);
-        document.addEventListener('mouseup', ctx.mouseEnd);
+        if (mouse) {
+          document.addEventListener('mousemove', ctx.mouseMove);
+          document.addEventListener('mouseup', ctx.mouseEnd);
+        }
         ctx.start(evt);
       },
       start: function start (evt) {
@@ -3885,8 +3949,10 @@ var TouchPan = {
         }
       },
       mouseEnd: function mouseEnd (evt) {
-        document.removeEventListener('mousemove', ctx.mouseMove);
-        document.removeEventListener('mouseup', ctx.mouseEnd);
+        if (mouse) {
+          document.removeEventListener('mousemove', ctx.mouseMove);
+          document.removeEventListener('mouseup', ctx.mouseEnd);
+        }
         ctx.end(evt);
       },
       end: function end (evt) {
@@ -3900,8 +3966,10 @@ var TouchPan = {
 
     el.__qtouchpan = ctx;
     updateClasses$1(el, ctx.direction, ctx.scroll);
+    if (mouse) {
+      el.addEventListener('mousedown', ctx.mouseStart);
+    }
     el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('mousedown', ctx.mouseStart);
     el.addEventListener('touchmove', ctx.move);
     el.addEventListener('touchend', ctx.end);
   },
@@ -4966,8 +5034,6 @@ var RowSelection = {
   }
 };
 
-var wheelOffset = 40;
-
 var Scroll = {
   data: function data () {
     return {
@@ -4998,7 +5064,7 @@ var Scroll = {
       }
 
       var body = this.$refs.body;
-      body.scrollTop -= getMouseWheelDirection(e) * wheelOffset;
+      body.scrollTop += getMouseWheelDistance(e).pixelY;
       if (body.scrollTop > 0 && body.scrollTop + body.clientHeight < body.scrollHeight) {
         e.preventDefault();
       }
@@ -7956,7 +8022,7 @@ function updateObject (obj, data) {
 var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"layout"},[(!_vm.$q.platform.is.ios && _vm.$slots.left && !_vm.leftState.openedSmall && !_vm.leftOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openLeftByTouch),expression:"__openLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-left"}):_vm._e(),(!_vm.$q.platform.is.ios && _vm.$slots.right && !_vm.rightState.openedSmall && !_vm.rightOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openRightByTouch),expression:"__openRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-right"}):_vm._e(),(_vm.$slots.left || _vm.$slots.right)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"backdrop",staticClass:"fullscreen layout-backdrop",class:{ 'transition-generic': !_vm.backdrop.inTransit, 'no-pointer-events': _vm.hideBackdrop, },style:({
       opacity: _vm.backdrop.percentage,
       hidden: _vm.hideBackdrop
-    }),on:{"click":_vm.__hide}}):_vm._e(),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],ref:"left",staticClass:"layout-aside layout-aside-left",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),(_vm.$slots.left)?_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}}):_vm._e()],2),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],ref:"right",staticClass:"layout-aside layout-aside-right",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),(_vm.$slots.right)?_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}}):_vm._e()],2),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",style:(_vm.computedPageStyle)},[_c('main',{class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
+    }),on:{"click":_vm.__hide}}):_vm._e(),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-left scroll",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),(_vm.$slots.left)?_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}}):_vm._e()],2),_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-right scroll",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),(_vm.$slots.right)?_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}}):_vm._e()],2),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",style:(_vm.computedPageStyle)},[_c('main',{class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
   name: 'q-layout',
   components: {
     QResizeObservable: QResizeObservable,
@@ -8755,21 +8821,164 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
   }
 };
 
-var scrollClasses = 'q-scroll-area relative-position overflow-hidden scroll';
-
-var QScrollArea = {
+var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.$q.platform.is.desktop)?_c('div',{staticClass:"q-scrollarea scroll relative-position overflow-hidden",on:{"mousewheel":_vm.__mouseWheel,"dommousescroll":_vm.__mouseWheel,"mouseenter":function($event){_vm.hover = true;},"mouseleave":function($event){_vm.hover = false;}}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical.nomouse",value:(_vm.__panContainer),expression:"__panContainer",modifiers:{"vertical":true,"nomouse":true}}],staticClass:"absolute",style:(_vm.mainStyle)},[_vm._t("default"),_c('q-resize-observable',{on:{"resize":_vm.__updateScrollHeight}}),_c('q-scroll-observable',{on:{"scroll":_vm.__updateScroll}})],2),_c('q-resize-observable',{on:{"resize":_vm.__updateContainer}}),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__panThumb),expression:"__panThumb",modifiers:{"vertical":true}}],staticClass:"q-scrollarea-thumb absolute-right",class:{'invisible-thumb': _vm.thumbHidden},style:(_vm.style)})],1):_c('div',{staticClass:"scroll relative-position",style:(_vm.contentStyle)},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-scroll-area',
-  functional: true,
+  components: {
+    QResizeObservable: QResizeObservable,
+    QScrollObservable: QScrollObservable
+  },
+  directives: {
+    TouchPan: TouchPan
+  },
   props: {
-    tag: {
-      type: String,
-      default: 'div'
+    thumbStyle: {
+      type: Object,
+      default: function () { return ({}); }
+    },
+    contentStyle: {
+      type: Object,
+      default: function () { return ({}); }
+    },
+    thumbWidth: {
+      type: Number,
+      default: 10
+    },
+    noOverlap: Boolean,
+    delay: {
+      type: Number,
+      default: 1000
+    },
+  },
+  data: function data () {
+    return {
+      active: false,
+      hover: false,
+      containerHeight: 0,
+      scrollPosition: 0,
+      scrollHeight: 0
     }
   },
-  render: function render (h, ctx) {
-    var classes = ctx.data.staticClass;
-    ctx.data.staticClass = "" + (classes ? classes + ' ' : '') + scrollClasses;
-    return h(ctx.props.tag, ctx.data, ctx.children)
+  computed: {
+    thumbHidden: function thumbHidden () {
+      return this.thumbHeight >= this.scrollHeight || (!this.active && !this.hover)
+    },
+    thumbHeight: function thumbHeight () {
+      return Math.round(Math.max(20, this.containerHeight * this.containerHeight / this.scrollHeight))
+    },
+    style: function style () {
+      var top = Math.min(
+        this.scrollPosition + (this.scrollPercentage * (this.containerHeight - this.thumbHeight)),
+        this.scrollHeight - this.thumbHeight
+      );
+      return extend({width: '10px', right: '0px'}, this.thumbStyle, {
+        top: (top + "px"),
+        height: ((this.thumbHeight) + "px")
+      })
+    },
+    mainStyle: function mainStyle () {
+      return extend(
+        {},
+        this.contentStyle,
+        this.noOverlap && !this.thumbHidden ? {paddingRight: ("calc(" + (this.style.width) + " + " + (this.style.right) + ")")} : {}
+      )
+    },
+    scrollPercentage: function scrollPercentage () {
+      var p = between(this.scrollPosition / (this.scrollHeight - this.containerHeight), 0, 1);
+      return Math.round(p * 10000) / 10000
+    }
+  },
+  methods: {
+    __updateContainer: function __updateContainer (size) {
+      if (this.containerHeight !== size.height) {
+        this.containerHeight = size.height;
+        this.__setActive(true, true);
+      }
+    },
+    __updateScroll: function __updateScroll (scroll) {
+      if (this.scrollPosition !== scroll.position) {
+        this.scrollPosition = scroll.position;
+        this.__setActive(true, true);
+      }
+    },
+    __updateScrollHeight: function __updateScrollHeight (ref) {
+      var height = ref.height;
+
+      if (this.scrollHeight !== height) {
+        this.scrollHeight = height;
+        this.__setActive(true, true);
+      }
+    },
+    __panThumb: function __panThumb (e) {
+      if (e.isFirst) {
+        this.refPos = this.scrollPosition;
+        this.__setActive(true, true);
+      }
+      if (e.isFinal) {
+        this.__setActive(false);
+      }
+
+      var
+        sign = (e.direction === 'down' ? 1 : -1),
+        multiplier = (this.scrollHeight - this.containerHeight) / (this.containerHeight - this.thumbHeight);
+
+      this.$el.scrollTop = this.refPos + sign * e.distance.y * multiplier;
+    },
+    __panContainer: function __panContainer (e) {
+      if (e.evt.target.closest('.scroll') !== this.$el) {
+        return
+      }
+
+      if (e.isFirst) {
+        this.refPos = this.scrollPosition;
+        this.__setActive(true, true);
+      }
+      if (e.isFinal) {
+        this.__setActive(false);
+      }
+
+      var el = this.$el;
+      el.scrollTop = this.refPos + (e.direction === 'down' ? -1 : 1) * e.distance.y;
+      if (el.scrollTop > 0 && el.scrollTop + this.containerHeight < this.scrollHeight) {
+        e.evt.preventDefault();
+      }
+    },
+    __mouseWheel: function __mouseWheel (e) {
+      var el = this.$el;
+      if (e.target.closest('.scroll') !== el) {
+        return
+      }
+      el.scrollTop += getMouseWheelDistance(e).pixelY;
+      if (el.scrollTop > 0 && el.scrollTop + this.containerHeight < this.scrollHeight) {
+        e.preventDefault();
+      }
+    },
+    __setActive: function __setActive (active, timer) {
+      clearTimeout(this.timer);
+      if (active === this.active) {
+        if (active && this.timer) {
+          this.__startTimer();
+        }
+        return
+      }
+
+      if (active) {
+        this.active = true;
+        if (timer) {
+          this.__startTimer();
+        }
+      }
+      else {
+        this.active = false;
+      }
+    },
+    __startTimer: function __startTimer () {
+      var this$1 = this;
+
+      this.timer = setTimeout(function () {
+        this$1.active = false;
+        this$1.timer = null;
+      }, this.delay);
+    }
   }
 };
 
@@ -9936,12 +10145,16 @@ function updateBinding$4 (el, binding) {
 var touchHold = {
   name: 'touch-hold',
   bind: function bind (el, binding) {
+    var mouse = !binding.modifiers.nomouse;
+
     var ctx = {
       start: function start (evt) {
         var startTime = new Date().getTime();
         ctx.timer = setTimeout(function () {
-          document.removeEventListener('mousemove', ctx.mouseAbort);
-          document.removeEventListener('mouseup', ctx.mouseAbort);
+          if (mouse) {
+            document.removeEventListener('mousemove', ctx.mouseAbort);
+            document.removeEventListener('mouseup', ctx.mouseAbort);
+          }
 
           ctx.handler({
             evt: evt,
@@ -9951,8 +10164,10 @@ var touchHold = {
         }, ctx.duration);
       },
       mouseStart: function mouseStart (evt) {
-        document.addEventListener('mousemove', ctx.mouseAbort);
-        document.addEventListener('mouseup', ctx.mouseAbort);
+        if (mouse) {
+          document.addEventListener('mousemove', ctx.mouseAbort);
+          document.addEventListener('mouseup', ctx.mouseAbort);
+        }
         ctx.start(evt);
       },
       abort: function abort (evt) {
@@ -9960,8 +10175,10 @@ var touchHold = {
         ctx.timer = null;
       },
       mouseAbort: function mouseAbort (evt) {
-        document.removeEventListener('mousemove', ctx.mouseAbort);
-        document.removeEventListener('mouseup', ctx.mouseAbort);
+        if (mouse) {
+          document.removeEventListener('mousemove', ctx.mouseAbort);
+          document.removeEventListener('mouseup', ctx.mouseAbort);
+        }
         ctx.abort(evt);
       }
     };
@@ -9969,9 +10186,11 @@ var touchHold = {
     el.__qtouchhold = ctx;
     updateBinding$4(el, binding);
     el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchmove', ctx.abort);
     el.addEventListener('touchend', ctx.abort);
-    el.addEventListener('mousedown', ctx.mouseStart);
+    if (mouse) {
+      el.addEventListener('touchmove', ctx.abort);
+      el.addEventListener('mousedown', ctx.mouseStart);
+    }
   },
   update: function update (el, binding) {
     updateBinding$4(el, binding);
@@ -9979,8 +10198,8 @@ var touchHold = {
   unbind: function unbind (el, binding) {
     var ctx = el.__qtouchhold;
     el.removeEventListener('touchstart', ctx.start);
-    el.removeEventListener('touchmove', ctx.abort);
     el.removeEventListener('touchend', ctx.abort);
+    el.removeEventListener('touchmove', ctx.abort);
     el.removeEventListener('mousedown', ctx.mouseStart);
     document.removeEventListener('mousemove', ctx.mouseAbort);
     document.removeEventListener('mouseup', ctx.mouseAbort);
