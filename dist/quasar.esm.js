@@ -6013,7 +6013,6 @@ var input = {
     type: String,
     default: 'Cancel'
   },
-  defaultSelection: [String, Number, Date],
   floatLabel: String,
   stackedLabel: String,
   placeholder: String,
@@ -6029,7 +6028,15 @@ var mixin$2 = {
   computed: {
     model: {
       get: function get () {
-        return getDateBetween(this.value ? new Date(this.value) : new Date(), this.pmin, this.pmax)
+        var date = this.value
+          ? new Date(this.value)
+          : (this.defaultSelection ? new Date(this.defaultSelection) : startOfDate(new Date(), 'day'));
+
+        return getDateBetween(
+          date,
+          this.pmin,
+          this.pmax
+        )
       },
       set: function set (val) {
         var date = getDateBetween(val, this.pmin, this.pmax);
@@ -6129,9 +6136,12 @@ var mixin$2 = {
   }
 };
 
-var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center"},[(_vm.typeHasDate)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-month",on:{"touchstart":function($event){_vm.__dragStart($event, 'month');},"touchmove":function($event){_vm.__dragMove($event, 'month');},"touchend":function($event){_vm.__dragStop($event, 'month');}}},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMonth(index + _vm.monthMin);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-day",on:{"touchstart":function($event){_vm.__dragStart($event, 'date');},"touchmove":function($event){_vm.__dragMove($event, 'date');},"touchend":function($event){_vm.__dragStop($event, 'date');}}},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setDay(index + _vm.dayMin - 1);}}},[_vm._v(_vm._s(index + _vm.dayMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-year",on:{"touchstart":function($event){_vm.__dragStart($event, 'year');},"touchmove":function($event){_vm.__dragMove($event, 'year');},"touchend":function($event){_vm.__dragStop($event, 'year');}}},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])}))])]:_vm._e(),(_vm.typeHasTime)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-hour",on:{"touchstart":function($event){_vm.__dragStart($event, 'hour');},"touchmove":function($event){_vm.__dragMove($event, 'hour');},"touchend":function($event){_vm.__dragStop($event, 'hour');}}},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setHour(n + _vm.hourMin - 1);}}},[_vm._v(_vm._s(n + _vm.hourMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-minute",on:{"touchstart":function($event){_vm.__dragStart($event, 'minute');},"touchmove":function($event){_vm.__dragMove($event, 'minute');},"touchend":function($event){_vm.__dragStop($event, 'minute');}}},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMinute(n + _vm.minuteMin - 1);}}},[_vm._v(_vm._s(_vm.__pad(n + _vm.minuteMin - 1)))])}))])]:_vm._e()],2),(_vm.value)?_c('div',{staticClass:"q-datetime-highlight"}):_vm._e(),_c('div',{staticClass:"q-datetime-mask"})])],2)},staticRenderFns: [],
+var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center"},[(_vm.typeHasDate)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-month",on:{"touchstart":function($event){_vm.__dragStart($event, 'month');},"touchmove":function($event){_vm.__dragMove($event, 'month');},"touchend":function($event){_vm.__dragStop($event, 'month');}}},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMonth(index + _vm.monthMin);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-day",on:{"touchstart":function($event){_vm.__dragStart($event, 'date');},"touchmove":function($event){_vm.__dragMove($event, 'date');},"touchend":function($event){_vm.__dragStop($event, 'date');}}},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setDay(index + _vm.dayMin - 1);}}},[_vm._v(_vm._s(index + _vm.dayMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-year",on:{"touchstart":function($event){_vm.__dragStart($event, 'year');},"touchmove":function($event){_vm.__dragMove($event, 'year');},"touchend":function($event){_vm.__dragStop($event, 'year');}}},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])}))])]:_vm._e(),(_vm.typeHasTime)?[_c('div',{staticClass:"q-datetime-col q-datetime-col-hour",on:{"touchstart":function($event){_vm.__dragStart($event, 'hour');},"touchmove":function($event){_vm.__dragMove($event, 'hour');},"touchend":function($event){_vm.__dragStop($event, 'hour');}}},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setHour(n + _vm.hourMin - 1);}}},[_vm._v(_vm._s(n + _vm.hourMin - 1))])}))]),_c('div',{staticClass:"q-datetime-col q-datetime-col-minute",on:{"touchstart":function($event){_vm.__dragStart($event, 'minute');},"touchmove":function($event){_vm.__dragMove($event, 'minute');},"touchend":function($event){_vm.__dragStop($event, 'minute');}}},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{staticClass:"q-datetime-item",on:{"click":function($event){_vm.setMinute(n + _vm.minuteMin - 1);}}},[_vm._v(_vm._s(_vm.__pad(n + _vm.minuteMin - 1)))])}))])]:_vm._e()],2),_c('div',{staticClass:"q-datetime-highlight"}),_c('div',{staticClass:"q-datetime-mask"})])],2)},staticRenderFns: [],
   name: 'q-inline-datetime',
   mixins: [mixin$2],
+  props: {
+    defaultSelection: [String, Number, Date]
+  },
   data: function data () {
     return {
       monthDragOffset: 0,
@@ -6357,9 +6367,12 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[(!_vm.value)?_c('div',{staticClass:"q-datetime-header column justify-center"},[_vm._v(" ")]):_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"primary clear full-width",class:{active: n + _vm.yearMin === _vm.year},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('button',{staticClass:"primary clear full-width",class:{active: _vm.month === index + _vm.monthMin},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: _vm.value && monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",class:{hidden: !_vm.value},style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), _vm.value && (n - 1) === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n - 1))])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, _vm.value && n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
+var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"primary clear full-width",class:{active: n + _vm.yearMin === _vm.year},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('button',{staticClass:"primary clear full-width",class:{active: _vm.month === index + _vm.monthMin},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{staticClass:"primary clear small",attrs:{"circular":""},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n - 1))])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-inline-datetime',
   mixins: [mixin$2],
+  props: {
+    defaultSelection: [String, Number, Date]
+  },
   components: {
     QIcon: QIcon,
     QBtn: QBtn
@@ -6606,7 +6619,7 @@ var contentCSS = {
   }
 };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple,"align":_vm.align},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[(_vm.desktop)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 4],"disable":_vm.disable || _vm.readonly,"anchor-click":false}},[_c('q-inline-datetime',{staticClass:"no-border",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),(_vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}}):_vm._e()],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css}},[_c('q-inline-datetime',{staticClass:"no-border full-width",attrs:{"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),(_vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}}):_vm._e()],1)])],1)],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",attrs:{"type":"dropdown","disabled":_vm.disable,"readonly":_vm.readonly,"placeholder":_vm.placeholder,"value":_vm.actualValue,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"simple":_vm.simple,"align":_vm.align},on:{"click":_vm.open,"focus":function($event){_vm.$emit('focus');},"blur":_vm.__blur}},[(_vm.desktop)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 4],"disable":_vm.disable || _vm.readonly,"anchor-click":false}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border full-width",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.clearLabel)},on:{"click":function($event){_vm.clear();}}}):_vm._e(),_c('div',{staticClass:"auto"}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.cancelLabel)},on:{"click":function($event){_vm.close();}}}),_c('q-btn',{staticClass:"primary clear",domProps:{"innerHTML":_vm._s(_vm.okLabel)},on:{"click":function($event){_vm.close(_vm.__update);}}})],1)])],1)],1)},staticRenderFns: [],
   name: 'q-datetime',
   components: {
     QInput: QInput,
@@ -6615,7 +6628,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     QInlineDatetime: QInlineDatetime,
     QBtn: QBtn
   },
-  props: extend({}, input, inline),
+  props: extend({defaultSelection: [String, Number, Date]}, input, inline),
   data: function data () {
     var data = Platform.is.desktop ? {} : {
       css: contentCSS[current],
@@ -6676,28 +6689,34 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       }, 1);
     },
     __setModel: function __setModel () {
-      this.model = this.value || this.defaultSelection;
+      this.model = this.value;
     },
     __update: function __update () {
-      this.$emit('input', this.model);
+      this.$emit('input', this.model || this.$refs.target.model);
     }
   }
 };
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.model.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.from),callback:function ($$v) {_vm.model.from=$$v;},expression:"model.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.model.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.to),callback:function ($$v) {_vm.model.to=$$v;},expression:"model.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.model.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.from),callback:function ($$v) {_vm.model.from=$$v;},expression:"model.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.model.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stacked-label":_vm.stackedLabel,"static-label":_vm.staticLabel,"placeholder":_vm.placeholder,"readonly":_vm.readonly,"disable":_vm.disable,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.to),callback:function ($$v) {_vm.model.to=$$v;},expression:"model.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   components: {
     QDatetime: QDatetime
   },
-  props: extend({}, input, inline, {
-    value: {
-      type: Object,
-      validator: function (val) { return 'from' in val && 'to' in val; },
-      required: true
-    },
-    className: [String, Object],
-    css: [String, Object]
-  }),
+  props: extend(
+    input,
+    inline,
+    {
+      value: {
+        type: Object,
+        validator: function (val) { return 'from' in val && 'to' in val; },
+        required: true
+      },
+      className: [String, Object],
+      css: [String, Object],
+      defaultFrom: [String, Number, Date],
+      defaultTo: [String, Number, Date]
+    }
+  ),
   computed: {
     model: {
       get: function get () {
@@ -8839,15 +8858,18 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       type: Object,
       default: function () { return ({}); }
     },
+    contentActiveStyle: {
+      type: Object,
+      default: function () { return ({}); }
+    },
     thumbWidth: {
       type: Number,
       default: 10
     },
-    noOverlap: Boolean,
     delay: {
       type: Number,
       default: 1000
-    },
+    }
   },
   data: function data () {
     return {
@@ -8870,17 +8892,13 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         this.scrollPosition + (this.scrollPercentage * (this.containerHeight - this.thumbHeight)),
         this.scrollHeight - this.thumbHeight
       );
-      return extend({width: '10px', right: '0px'}, this.thumbStyle, {
+      return extend({}, this.thumbStyle, {
         top: (top + "px"),
         height: ((this.thumbHeight) + "px")
       })
     },
     mainStyle: function mainStyle () {
-      return extend(
-        {},
-        this.contentStyle,
-        this.noOverlap && !this.thumbHidden ? {paddingRight: ("calc(" + (this.style.width) + " + " + (this.style.right) + ")")} : {}
-      )
+      return this.thumbHidden ? this.contentStyle : this.contentActiveStyle
     },
     scrollPercentage: function scrollPercentage () {
       var p = between(this.scrollPosition / (this.scrollHeight - this.containerHeight), 0, 1);

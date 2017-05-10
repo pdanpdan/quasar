@@ -3720,7 +3720,8 @@ input:checked + div:after {
 .q-scrollarea-thumb {
   background: #000;
   width: 10px;
-  opacity: 0.25;
+  right: 0;
+  opacity: 0.2;
   transition: opacity 0.3s;
 }
 .q-scrollarea-thumb.invisible-thumb {
