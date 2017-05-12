@@ -522,6 +522,7 @@ img + .item-content,
   display: flex;
   align-items: center;
   font-size: 1rem;
+  text-align: left;
   padding: 8px 16px;
   min-height: 40px;
 }
@@ -715,685 +716,142 @@ img.avatar {
 .q-alert-actions span {
   cursor: pointer;
 }
-button {
+.q-btn {
   position: relative;
-  user-select: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   outline: 0;
   border: 0;
-  cursor: pointer;
-  text-decoration: none;
-  font-style: normal;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   vertical-align: middle;
+  cursor: pointer;
+  -webkit-appearance: button;
+  padding: 0 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
   color: inherit;
   background: transparent;
-  transition: all 0.12s ease-in;
-  -webkit-appearance: button;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.q-btn,
+.q-btn .q-btn-active {
+  transition: 0.12s ease-in;
+}
+.q-btn .q-btn-active {
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+}
+.q-btn:hover .q-btn-active,
+.q-btn:focus .q-btn-active {
+  opacity: 0.15;
+}
+.q-btn.full-width {
+  border-radius: 0 !important;
+}
+.q-btn-rectangle {
   border-radius: 2px;
-  text-transform: uppercase;
-  margin: 0;
-  padding: 0 1rem;
-  min-height: 2.4rem;
-  font-weight: 500;
-  font-size: 0.85rem;
 }
-button i {
-  font-size: 1.275rem;
+.q-btn-flat,
+.q-btn-outline {
+  box-shadow: none !important;
 }
-button:not(.circular) i.on-left,
-button:not(.circular) i.on-right {
-  margin-top: -2px;
+.q-btn-outline {
+  border: 1px solid currentColor;
+  background: transparent !important;
 }
-button:not(.circular) .q-spinner {
-  margin-right: 0.5rem;
-}
-button.small {
-  font-size: 0.75rem;
-  padding: 0 0.5rem;
-  min-height: 1.7rem;
-}
-button.small:not(.circular) i {
-  font-size: 1.125rem;
-}
-button.big {
-  font-size: 0.9rem;
-  padding: 0 1.4rem;
-  min-height: 3.5rem;
-}
-button.big i {
-  font-size: 1.35rem;
-}
-button.circular {
-  text-align: center;
-  border-radius: 50%;
-  padding: 0;
-  height: 56px;
-  width: 56px;
-}
-button.circular.small {
-  height: 37px;
-  width: 37px;
-}
-button.circular.big {
-  height: 72px;
-  width: 72px;
-}
-button.round {
-  border-radius: 64px;
-  padding: 0 2.6rem;
-}
-button.raised {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-button.raised:active:not(.disabled) {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-}
-button.push {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+.q-btn-push {
   border-bottom: 3px solid rgba(0,0,0,0.15);
+  border-radius: 7px;
 }
-button.push:active:not(.disabled) {
+.q-btn-push:active:not(.disabled) {
   border-bottom: 0;
   box-shadow: none;
 }
-button.push:not(.circular) {
-  border-radius: 7px;
+.q-btn-rounded {
+  border-radius: 28px;
 }
-button.primary {
-  background: #027be3;
-  color: #fff;
-}
-button.primary.clear,
-button.primary.outline {
-  color: #027be3;
-}
-button.secondary {
-  background: #26a69a;
-  color: #fff;
-}
-button.secondary.clear,
-button.secondary.outline {
-  color: #26a69a;
-}
-button.tertiary {
-  background: #555;
-  color: #fff;
-}
-button.tertiary.clear,
-button.tertiary.outline {
-  color: #555;
-}
-button.positive {
-  background: #21ba45;
-  color: #fff;
-}
-button.positive.clear,
-button.positive.outline {
-  color: #21ba45;
-}
-button.negative {
-  background: #db2828;
-  color: #fff;
-}
-button.negative.clear,
-button.negative.outline {
-  color: #db2828;
-}
-button.warning {
-  background: #f2c037;
-  color: #fff;
-}
-button.warning.clear,
-button.warning.outline {
-  color: #f2c037;
-}
-button.info {
-  background: #31ccec;
-  color: #fff;
-}
-button.info.clear,
-button.info.outline {
-  color: #31ccec;
-}
-button.light {
-  background: #f4f4f4;
-}
-button.dark {
-  background: #333;
-  color: #fff;
-}
-button.dark.clear,
-button.dark.outline {
-  color: #333;
-}
-button.white {
-  background: #fff;
-}
-button.red {
-  background: #f44336;
-  color: #fff;
-}
-button.red.clear,
-button.red.outline {
-  color: #f44336;
-}
-button.pink {
-  background: #e91e63;
-  color: #fff;
-}
-button.pink.clear,
-button.pink.outline {
-  color: #e91e63;
-}
-button.purple {
-  background: #9c27b0;
-  color: #fff;
-}
-button.purple.clear,
-button.purple.outline {
-  color: #9c27b0;
-}
-button.deep-purple {
-  background: #673ab7;
-  color: #fff;
-}
-button.deep-purple.clear,
-button.deep-purple.outline {
-  color: #673ab7;
-}
-button.indigo {
-  background: #3f51b5;
-  color: #fff;
-}
-button.indigo.clear,
-button.indigo.outline {
-  color: #3f51b5;
-}
-button.blue {
-  background: #2196f3;
-  color: #fff;
-}
-button.blue.clear,
-button.blue.outline {
-  color: #2196f3;
-}
-button.light-blue {
-  background: #03a9f4;
-  color: #fff;
-}
-button.light-blue.clear,
-button.light-blue.outline {
-  color: #03a9f4;
-}
-button.cyan {
-  background: #00bcd4;
-  color: #fff;
-}
-button.cyan.clear,
-button.cyan.outline {
-  color: #00bcd4;
-}
-button.teal {
-  background: #009688;
-  color: #fff;
-}
-button.teal.clear,
-button.teal.outline {
-  color: #009688;
-}
-button.green {
-  background: #4caf50;
-  color: #fff;
-}
-button.green.clear,
-button.green.outline {
-  color: #4caf50;
-}
-button.light-green {
-  background: #8bc34a;
-  color: #fff;
-}
-button.light-green.clear,
-button.light-green.outline {
-  color: #8bc34a;
-}
-button.lime {
-  background: #cddc39;
-  color: #fff;
-}
-button.lime.clear,
-button.lime.outline {
-  color: #cddc39;
-}
-button.yellow {
-  background: #ffeb3b;
-  color: #fff;
-}
-button.yellow.clear,
-button.yellow.outline {
-  color: #ffeb3b;
-}
-button.amber {
-  background: #ffc107;
-  color: #fff;
-}
-button.amber.clear,
-button.amber.outline {
-  color: #ffc107;
-}
-button.orange {
-  background: #ff9800;
-  color: #fff;
-}
-button.orange.clear,
-button.orange.outline {
-  color: #ff9800;
-}
-button.deep-orange {
-  background: #ff5722;
-  color: #fff;
-}
-button.deep-orange.clear,
-button.deep-orange.outline {
-  color: #ff5722;
-}
-button.brown {
-  background: #795548;
-  color: #fff;
-}
-button.brown.clear,
-button.brown.outline {
-  color: #795548;
-}
-button.grey {
-  background: #9e9e9e;
-  color: #fff;
-}
-button.grey.clear,
-button.grey.outline {
-  color: #9e9e9e;
-}
-button.blue-grey {
-  background: #607d8b;
-  color: #fff;
-}
-button.blue-grey.clear,
-button.blue-grey.outline {
-  color: #607d8b;
-}
-button.glossy {
-  background-image: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0) 50%, rgba(0,0,0,0.12) 51%, rgba(0,0,0,0.04));
-}
-button.clear,
-button.outline {
-  background: transparent;
-}
-button.outline {
-  border: 1px solid currentColor;
-}
-button.full-width {
-  display: block;
-  margin-left: 0;
-  margin-right: 0;
-  border-radius: 0;
-}
-body.desktop button.primary:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.primary:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #1290fd;
-}
-body.desktop button.primary:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.primary:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
+.q-btn-round {
+  border-radius: 50%;
+  padding: 0;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
-body.desktop button.primary:not(.disabled).clear:hover,
-body.desktop button.primary:not(.disabled).clear:focus {
-  background: #abd8fe;
-}
-body.desktop button.secondary:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.secondary:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #208d83;
-}
-body.desktop button.secondary:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.secondary:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.secondary:not(.disabled).clear:hover,
-body.desktop button.secondary:not(.disabled).clear:focus {
-  background: #b4eee8;
-}
-body.desktop button.tertiary:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.tertiary:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #6e6e6e;
-}
-body.desktop button.tertiary:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.tertiary:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.tertiary:not(.disabled).clear:hover,
-body.desktop button.tertiary:not(.disabled).clear:focus {
-  background: #ccc;
-}
-body.desktop button.positive:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.positive:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #1c9e3b;
-}
-body.desktop button.positive:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.positive:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.positive:not(.disabled).clear:hover,
-body.desktop button.positive:not(.disabled).clear:focus {
-  background: #b5f2c3;
-}
-body.desktop button.negative:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.negative:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #e04848;
-}
-body.desktop button.negative:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.negative:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.negative:not(.disabled).clear:hover,
-body.desktop button.negative:not(.disabled).clear:focus {
-  background: #f4bebe;
-}
-body.desktop button.warning:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.warning:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #edb20f;
-}
-body.desktop button.warning:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.warning:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.warning:not(.disabled).clear:hover,
-body.desktop button.warning:not(.disabled).clear:focus {
-  background: #fbecc3;
-}
-body.desktop button.info:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.info:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #14bbde;
-}
-body.desktop button.info:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.info:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.info:not(.disabled).clear:hover,
-body.desktop button.info:not(.disabled).clear:focus {
-  background: #c1f0f9;
-}
-body.desktop button.light:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.light:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #cfcfcf;
-}
-body.desktop button.light:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.light:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.light:not(.disabled).clear:hover,
-body.desktop button.light:not(.disabled).clear:focus {
-  background: #fcfcfc;
-}
-body.desktop button.dark:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.dark:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #525252;
-}
-body.desktop button.dark:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.dark:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.dark:not(.disabled).clear:hover,
-body.desktop button.dark:not(.disabled).clear:focus {
-  background: #c2c2c2;
-}
-body.desktop button.white:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.white:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #d9d9d9;
-}
-body.desktop button.white:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.white:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.white:not(.disabled).clear:hover,
-body.desktop button.white:not(.disabled).clear:focus {
-  background: #fff;
-}
-body.desktop button.red:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.red:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #f65f54;
-}
-body.desktop button.red:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.red:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.red:not(.disabled).clear:hover,
-body.desktop button.red:not(.disabled).clear:focus {
-  background: #fcc7c3;
-}
-body.desktop button.pink:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.pink:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #ec407a;
-}
-body.desktop button.pink:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.pink:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.pink:not(.disabled).clear:hover,
-body.desktop button.pink:not(.disabled).clear:focus {
-  background: #f8bcd0;
-}
-body.desktop button.purple:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.purple:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #ba32d2;
-}
-body.desktop button.purple:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.purple:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.purple:not(.disabled).clear:hover,
-body.desktop button.purple:not(.disabled).clear:focus {
-  background: #e7b7ef;
-}
-body.desktop button.deep-purple:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.deep-purple:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #7c51c8;
-}
-body.desktop button.deep-purple:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.deep-purple:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.deep-purple:not(.disabled).clear:hover,
-body.desktop button.deep-purple:not(.disabled).clear:focus {
-  background: #d1c2ec;
-}
-body.desktop button.indigo:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.indigo:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #5768c5;
-}
-body.desktop button.indigo:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.indigo:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.indigo:not(.disabled).clear:hover,
-body.desktop button.indigo:not(.disabled).clear:focus {
-  background: #c4caea;
-}
-body.desktop button.blue:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.blue:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #42a6f5;
-}
-body.desktop button.blue:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.blue:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.blue:not(.disabled).clear:hover,
-body.desktop button.blue:not(.disabled).clear:focus {
-  background: #bce0fb;
-}
-body.desktop button.light-blue:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.light-blue:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #0390cf;
-}
-body.desktop button.light-blue:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.light-blue:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.light-blue:not(.disabled).clear:hover,
-body.desktop button.light-blue:not(.disabled).clear:focus {
-  background: #b1e6fe;
-}
-body.desktop button.cyan:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.cyan:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #00a0b4;
-}
-body.desktop button.cyan:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.cyan:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.cyan:not(.disabled).clear:hover,
-body.desktop button.cyan:not(.disabled).clear:focus {
-  background: #a6f5ff;
-}
-body.desktop button.teal:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.teal:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #00ccb9;
-}
-body.desktop button.teal:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.teal:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.teal:not(.disabled).clear:hover,
-body.desktop button.teal:not(.disabled).clear:focus {
-  background: #93fff5;
-}
-body.desktop button.green:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.green:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #419544;
-}
-body.desktop button.green:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.green:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.green:not(.disabled).clear:hover,
-body.desktop button.green:not(.disabled).clear:focus {
-  background: #c9e7ca;
-}
-body.desktop button.light-green:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.light-green:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #77ac39;
-}
-body.desktop button.light-green:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.light-green:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.light-green:not(.disabled).clear:hover,
-body.desktop button.light-green:not(.disabled).clear:focus {
-  background: #dcedc9;
-}
-body.desktop button.lime:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.lime:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #b9c823;
-}
-body.desktop button.lime:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.lime:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.lime:not(.disabled).clear:hover,
-body.desktop button.lime:not(.disabled).clear:focus {
-  background: #f0f4c4;
-}
-body.desktop button.yellow:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.yellow:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #ffe60c;
-}
-body.desktop button.yellow:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.yellow:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.yellow:not(.disabled).clear:hover,
-body.desktop button.yellow:not(.disabled).clear:focus {
-  background: #fff9c4;
-}
-body.desktop button.amber:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.amber:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #dfa700;
-}
-body.desktop button.amber:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.amber:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.amber:not(.disabled).clear:hover,
-body.desktop button.amber:not(.disabled).clear:focus {
-  background: #ffecb5;
-}
-body.desktop button.orange:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.orange:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #d98100;
-}
-body.desktop button.orange:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.orange:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.orange:not(.disabled).clear:hover,
-body.desktop button.orange:not(.disabled).clear:focus {
-  background: #ffe0b3;
-}
-body.desktop button.deep-orange:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.deep-orange:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #ff7043;
-}
-body.desktop button.deep-orange:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.deep-orange:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.deep-orange:not(.disabled).clear:hover,
-body.desktop button.deep-orange:not(.disabled).clear:focus {
-  background: #ffcdbd;
-}
-body.desktop button.brown:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.brown:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #976a5a;
-}
-body.desktop button.brown:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.brown:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.brown:not(.disabled).clear:hover,
-body.desktop button.brown:not(.disabled).clear:focus {
-  background: #dccac3;
-}
-body.desktop button.grey:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.grey:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #868686;
-}
-body.desktop button.grey:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.grey:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.grey:not(.disabled).clear:hover,
-body.desktop button.grey:not(.disabled).clear:focus {
-  background: #e2e2e2;
-}
-body.desktop button.blue-grey:not(.disabled):not(.clear):hover:not(.glossy),
-body.desktop button.blue-grey:not(.disabled):not(.clear):focus:not(.glossy) {
-  background: #7592a0;
-}
-body.desktop button.blue-grey:not(.disabled):not(.clear):hover:not(.push):not(.outline),
-body.desktop button.blue-grey:not(.disabled):not(.clear):focus:not(.push):not(.outline) {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-}
-body.desktop button.blue-grey:not(.disabled).clear:hover,
-body.desktop button.blue-grey:not(.disabled).clear:focus {
-  background: #ced8dd;
-}
-body.desktop button.outline:hover,
-body.desktop button.outline:focus {
-  color: #fff;
-  border: 1px solid transparent;
+.q-btn-round:active {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.q-btn-small {
+  min-height: 28px;
+  font-size: 11px;
+}
+.q-btn-small .q-icon {
+  font-size: 19px;
+}
+.q-btn-small .q-spinner {
+  height: 19px;
+  width: 19px;
+}
+.q-btn-standard {
+  min-height: 36px;
+  font-size: 14px;
+}
+.q-btn-standard .q-icon {
+  font-size: 24px;
+}
+.q-btn-standard .q-spinner {
+  height: 24px;
+  width: 24px;
+}
+.q-btn-big {
+  min-height: 44px;
+  font-size: 17px;
+}
+.q-btn-big .q-icon {
+  font-size: 30px;
+}
+.q-btn-big .q-spinner {
+  height: 30px;
+  width: 30px;
+}
+.q-btn-round.q-btn-small {
+  height: 40px;
+  width: 40px;
+}
+.q-btn-round.q-btn-small .q-icon {
+  height: 17px;
+  width: 17px;
+  font-size: 17px;
+}
+.q-btn-round.q-btn-small .q-spinner {
+  height: 17px;
+  width: 17px;
+}
+.q-btn-round.q-btn-standard {
+  height: 56px;
+  width: 56px;
+}
+.q-btn-round.q-btn-standard .q-icon {
+  height: 24px;
+  width: 24px;
+  font-size: 24px;
+}
+.q-btn-round.q-btn-standard .q-spinner {
+  height: 24px;
+  width: 24px;
+}
+.q-btn-round.q-btn-big {
+  height: 72px;
+  width: 72px;
+}
+.q-btn-round.q-btn-big .q-icon {
+  height: 31px;
+  width: 31px;
+  font-size: 31px;
+}
+.q-btn-round.q-btn-big .q-spinner {
+  height: 31px;
+  width: 31px;
 }
 .q-message-name,
 .q-message-stamp,
@@ -2292,8 +1750,8 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   }
 }
 .q-fab {
-  height: 67.2px;
-  width: 67.2px;
+  height: 56px;
+  width: 56px;
   position: relative;
   vertical-align: middle;
 }
@@ -2323,8 +1781,8 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-fab-icon,
 .q-fab-active-icon {
   position: absolute;
-  top: 18px;
-  left: 17px;
+  top: 16px;
+  left: 16px;
   transition: opacity 0.4s, transform 0.4s;
 }
 .q-fab-icon {
@@ -2343,31 +1801,31 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   pointer-events: none;
 }
 .q-fab-actions.right {
-  transform: scaleX(0.4) scaleY(0.4) translateX(-134.4px);
-  height: 67.2px;
-  left: 67.2px;
+  transform: scaleX(0.4) scaleY(0.4) translateX(-112px);
+  height: 56px;
+  left: 56px;
   flex-direction: row;
 }
 .q-fab-actions.left {
-  transform: scaleX(0.4) scaleY(0.4) translateX(134.4px);
-  height: 67.2px;
-  right: 67.2px;
+  transform: scaleX(0.4) scaleY(0.4) translateX(112px);
+  height: 56px;
+  right: 56px;
   flex-direction: row-reverse;
 }
 .q-fab-actions.up {
-  transform: scaleX(0.4) scaleY(0.4) translateY(134.4px);
-  width: 67.2px;
+  transform: scaleX(0.4) scaleY(0.4) translateY(112px);
+  width: 56px;
   flex-direction: column-reverse;
   justify-content: center;
-  bottom: 67.2px;
+  bottom: 56px;
   right: 0;
 }
 .q-fab-actions.down {
-  transform: scaleX(0.4) scaleY(0.4) translateY(-134.4px);
-  width: 67.2px;
+  transform: scaleX(0.4) scaleY(0.4) translateY(-112px);
+  width: 56px;
   flex-direction: column;
   justify-content: center;
-  top: 67.2px;
+  top: 56px;
   left: 0;
 }
 body.platform-ios .q-fab[class*='absolute-bottom-'],
@@ -2612,6 +2070,8 @@ i.q-icon {
   direction: ltr;
   user-select: none;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
 }
 .q-inner-loading {
@@ -2876,6 +2336,12 @@ body.with-layout-side-opened {
   margin: 0 0.2rem;
   padding: 0.2rem;
 }
+.q-toolbar > .q-btn:first-child {
+  margin-left: 0;
+}
+.q-toolbar > .q-btn:last-child {
+  margin-right: 0;
+}
 .q-toolbar i {
   line-height: 1;
 }
@@ -3055,6 +2521,7 @@ body.with-modal {
 .modal-buttons {
   padding: 8px 8px 12px 24px;
   justify-content: flex-end;
+  color: #027be3;
 }
 .modal-buttons.row .q-btn + .q-btn {
   margin-left: 8px;
@@ -3134,60 +2601,6 @@ body.with-modal {
   overflow-y: auto;
   overflow-x: hidden;
   max-width: 100vw;
-}
-.q-progress-btn {
-  overflow: hidden;
-}
-.q-progress-btn.active.indeterminate:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
-  background-size: 40px 40px;
-  animation: q-progress-stripes 2s linear infinite;
-}
-.q-progress-btn-content {
-  transition: all 0.3s;
-  transform: translateY(0);
-}
-.q-progress-btn-content.q-progress-btn-complete {
-  transform: translateY(-3.25rem);
-}
-.q-progress-btn-content.q-progress-btn-incomplete {
-  transform: translateY(2.75rem);
-}
-.q-progress-btn-error,
-.q-progress-btn-success {
-  position: absolute;
-  text-align: center;
-  top: 0;
-  left: 50%;
-}
-.q-progress-btn-error div,
-.q-progress-btn-success div {
-  min-height: 1.275rem;
-  line-height: 1.275rem;
-}
-.q-progress-btn-error {
-  transform: translateX(-50%) translateY(-3rem);
-}
-.q-progress-btn-success {
-  transform: translateX(-50%) translateY(3rem);
-}
-.q-progress-btn-filler {
-  transition: all 0.3s;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  height: 100%;
-  background: rgba(255,255,255,0.25);
-}
-.q-progress-btn-filler.q-progress-btn-dark-filler {
-  background: rgba(0,0,0,0.2);
 }
 .q-progress {
   position: relative;
@@ -9850,6 +9263,9 @@ label {
 .transition-0 {
   transition: 0s !important;
 }
+.glossy {
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0) 50%, rgba(0,0,0,0.12) 51%, rgba(0,0,0,0.04)) !important;
+}
 .q-placeholder::-webkit-input-placeholder {
   color: inherit;
   opacity: 0.5;
@@ -10053,10 +9469,10 @@ label {
   vertical-align: bottom !important;
 }
 .on-left {
-  margin-right: 0.3rem !important;
+  margin-right: 12px !important;
 }
 .on-right {
-  margin-left: 0.3rem !important;
+  margin-left: 12px !important;
 }
 .q-ripple-container {
   color: inherit;
