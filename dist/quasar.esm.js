@@ -6539,7 +6539,7 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"primary clear full-width",class:{active: n + _vm.yearMin === _vm.year},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('button',{staticClass:"primary clear full-width",class:{active: _vm.month === index + _vm.monthMin},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":"primary"},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":"primary"},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n - 1))])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
+var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline column gt-md-row",class:{disabled: _vm.disable, readonly: _vm.readonly}},[_c('div',{staticClass:"q-datetime-header column justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row gt-md-column items-center justify-center"},[_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.dayString)+" ")]),_c('span',{staticClass:"q-datetime-link small",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row gt-md-column items-center justify-center"},[_c('div',{staticClass:"q-datetime-clockstring"},[_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content auto column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row items-center justify-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:n,staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","color":"black"},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:index,staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","color":"black"},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day q-datetime-animate"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":"primary"},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('div',{staticClass:"auto"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":"primary"},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1)],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"flex items-center content-center justify-center cursor-pointer",class:{active: monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_vm._v(_vm._s(monthDay))])}),_vm._l((_vm.aferMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"flex items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n - 1))])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_vm._v(_vm._s(n))])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_vm._v(_vm._s((n - 1) * 5))])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-inline-datetime',
   mixins: [mixin$2],
   props: {
@@ -6910,14 +6910,7 @@ var FabMixin = {
   }
 };
 
-function iosFixNeeded (el) {
-  if (Platform.is.mobile && Platform.is.ios) {
-    var style$$1 = window.getComputedStyle(el);
-    return ['fixed', 'absolute'].includes(style$$1.position)
-  }
-}
-
-var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab flex inline justify-center",class:{opened: _vm.opened}},[_c('div',{staticClass:"backdrop animate-fade",style:(_vm.backdropPosition),on:{"click":function($event){_vm.toggle(true);}}}),_c('q-btn',{class:_vm.classNames,attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":function($event){_vm.toggle();}}},[_c('q-icon',{staticClass:"q-fab-icon",attrs:{"name":_vm.icon}}),_c('q-icon',{staticClass:"q-fab-active-icon",attrs:{"name":_vm.activeIcon}})],1),_c('div',{staticClass:"q-fab-actions flex inline items-center",class:[_vm.direction]},[_vm._t("default")],2)],1)},staticRenderFns: [],
+var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab flex inline justify-center",class:{opened: _vm.opened}},[_c('q-btn',{attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_c('q-icon',{staticClass:"q-fab-icon",attrs:{"name":_vm.icon}}),_c('q-icon',{staticClass:"q-fab-active-icon",attrs:{"name":_vm.activeIcon}})],1),_c('div',{staticClass:"q-fab-actions flex inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
   name: 'q-fab',
   mixins: [FabMixin],
   components: {
@@ -6925,7 +6918,6 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     QIcon: QIcon
   },
   props: {
-    classNames: String,
     icon: {
       type: String,
       default: 'add'
@@ -6939,57 +6931,35 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
       default: 'right'
     }
   },
+  provide: function provide () {
+    return {
+      __qFabClose: this.close
+    }
+  },
   data: function data () {
     return {
-      opened: false,
-      backdrop: {
-        top: 0,
-        left: 0
-      },
-      mounted: false
+      opened: false
     }
   },
   methods: {
     open: function open () {
       this.opened = true;
-      this.__repositionBackdrop();
+      this.$emit('open');
     },
     close: function close (fn) {
       this.opened = false;
+
       if (typeof fn === 'function') {
+        this.$emit('close');
         fn();
       }
     },
-    toggle: function toggle (fromBackdrop) {
-      this.opened = !this.opened;
-
-      if (iosFixNeeded(this.$el)) {
-        this.__repositionBackdrop();
+    toggle: function toggle () {
+      if (this.opened) {
+        this.close();
       }
-
-      if (!fromBackdrop && !this.opened) {
-        this.$emit('click');
-      }
-    },
-    __repositionBackdrop: function __repositionBackdrop () {
-      var ref = offset(this.$el);
-      var top = ref.top;
-      var left = ref.left;
-      this.backdrop.top = top;
-      this.backdrop.left = left;
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.mounted = true;
-    });
-  },
-  computed: {
-    backdropPosition: function backdropPosition () {
-      if (this.mounted && iosFixNeeded(this.$el)) {
-        return cssTransform(("translate3d(" + (-this.backdrop.left) + "px, " + (-this.backdrop.top) + "px, 0)"))
+      else {
+        this.open();
       }
     }
   }
@@ -7002,6 +6972,7 @@ var QSmallFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     QBtn: QBtn,
     QIcon: QIcon
   },
+  inject: ['__qFabClose'],
   props: {
     icon: {
       type: String,
@@ -7010,8 +6981,11 @@ var QSmallFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   methods: {
     click: function click (e) {
-      this.$parent.close();
-      this.$emit('click', e);
+      var this$1 = this;
+
+      this.__qFabClose(function () {
+        this$1.$emit('click', e);
+      });
     }
   }
 };

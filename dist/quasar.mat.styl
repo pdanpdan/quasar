@@ -489,16 +489,17 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button
   -webkit-appearance none
 $ios-statusbar-height ?= 20px
-$z-side           ?= 100
-$z-marginals      ?= 200
-$z-fixed-side     ?= 300
-$z-fixed          ?= 400
-$z-modal          ?= 500
-$z-popover        ?= 600
-$z-tooltip        ?= 700
-$z-toast          ?= 800
-$z-body-dimmed    ?= 1000
-$z-absolute       ?= 2000
+$z-side           ?= 1000
+$z-marginals      ?= 2000
+$z-fixed-side     ?= 3000
+$z-fixed          ?= 4000
+$z-fab            ?= 4100
+$z-modal          ?= 5000
+$z-popover        ?= 6000
+$z-tooltip        ?= 7000
+$z-toast          ?= 8000
+$z-body-dimmed    ?= 10000
+$z-absolute       ?= 20000
 $shadow-color ?= black
 $shadow-transition ?= box-shadow .28s cubic-bezier(.4, 0, .2, 1)
 $inset-shadow = 0 7px 9px -7px alpha($shadow-color, .7) inset
@@ -1493,16 +1494,13 @@ div + .q-datetime-time
         animation q-pop-in .5s
         color opposite-non-color($datetime-color)
         background $datetime-color
-.q-datetime-view-year, .q-datetime-view-month
-  button
-    font-weight normal
-    text-transform capitalize
-    color rgba(0, 0, 0, .87) !important
-    &.active
-      font-size 1.5rem
-      padding-top 1rem
-      padding-bottom 1rem
-      color $primary !important
+.q-datetime-btn
+  font-weight normal
+  &.active
+    font-size 1.5rem
+    padding-top 1rem
+    padding-bottom 1rem
+    color $primary !important
 .q-datetime-clock
   width 250px
   height 250px
@@ -1617,16 +1615,10 @@ for $pos in 0..23
       border-width 1px 1px 1px 0
       border-style solid
       border-color $grey-4
-$fab-size       = 56px
-$fab-translate  = 2 * $fab-size
 $fab-margin    ?= 5px
 .q-fab
-  height $fab-size
-  width $fab-size
   position relative
   vertical-align middle
-  .q-btn
-    margin $fab-margin
   &.opened
     z-index $z-fab
     .q-fab-actions
@@ -1639,9 +1631,6 @@ $fab-margin    ?= 5px
     .q-fab-active-icon
       transform rotate3d(0, 0, 1, 0deg)
       opacity 1
-    .backdrop
-      display block
-      background rgba(255, 255, 255, .5)
 .q-fab-icon, .q-fab-active-icon
   position absolute
   top 16px
@@ -1655,34 +1644,37 @@ $fab-margin    ?= 5px
   transform rotate3d(0, 0, 1, -180deg)
 .q-fab-actions
   position absolute
-  margin 0
   opacity 0
   transition all .2s ease-in
   pointer-events none
-  &.right
-    transform scaleX(.4) scaleY(.4) translateX(- $fab-translate)
-    height $fab-size
-    left $fab-size
-    flex-direction row
-  &.left
-    transform scaleX(.4) scaleY(.4) translateX($fab-translate)
-    height $fab-size
-    right $fab-size
-    flex-direction row-reverse
-  &.up
-    transform scaleX(.4) scaleY(.4) translateY($fab-translate)
-    width $fab-size
-    flex-direction column-reverse
-    justify-content center
-    bottom $fab-size
-    right 0
-  &.down
-    transform scaleX(.4) scaleY(.4) translateY(- $fab-translate)
-    width $fab-size
-    flex-direction column
-    justify-content center
-    top $fab-size
-    left 0
+  .q-btn
+    margin $fab-margin
+.q-fab-right
+  transform scaleX(.4) scaleY(.4) translateX(-100%)
+  top 0
+  bottom 0
+  left 120%
+  flex-direction row
+.q-fab-left
+  transform scaleX(.4) scaleY(.4) translateX(100%)
+  top 0
+  bottom 0
+  right 120%
+  flex-direction row-reverse
+.q-fab-up
+  transform scaleX(.4) scaleY(.4) translateY(100%)
+  flex-direction column-reverse
+  justify-content center
+  bottom 120%
+  left 0
+  right 0
+.q-fab-down
+  transform scaleX(.4) scaleY(.4) translateY(-100%)
+  flex-direction column
+  justify-content center
+  top 120%
+  left 0
+  right 0
 body.platform-ios .q-fab
   &[class*='absolute-bottom-'], &[class*='fixed-bottom-']
     transform translate3d(0, -50px, 0)
@@ -2105,7 +2097,6 @@ body.with-loading
     text-align center
     text-shadow 0 0 7px black
 $modal-background        ?= white
-$modal-border-radius     ?= $generic-border-radius
 $modal-width             ?= 80vw
 $modal-max-width         ?= 1000px
 $modal-height            ?= 80vh
@@ -2129,12 +2120,10 @@ maximized-modal()
   height 100%
   max-width 100%
   max-height 100%
-  border-radius 0
 .modal-content
   position relative
   background $modal-background
-  border-radius $modal-border-radius
-  box-shadow $shadow-4
+  box-shadow $shadow-3
   overflow-y auto
   min-width 280px
   max-height 80vh
@@ -2798,7 +2787,7 @@ $tabs-pane-padding             ?= 12px
 $tabs-color                    ?= $toolbar-color
 $tabs-background               ?= $toolbar-background
 $tabs-pane-border              ?= 1px solid rgba(0, 0, 0, .1)
-$tabs-unselected-opacity       ?= .8
+$tabs-unselected-opacity       ?= .7
 $tabs-font-size                ?= .95rem
 $tabs-icon-font-size           ?= 27px
 $tabs-font-weight              ?= 500
