@@ -3,7 +3,8 @@
     <div v-if="uploading">
       <q-chip
         closable
-        class="bg-light q-uploader-progress"
+        color="light"
+        class="text-white q-uploader-progress"
         @close="abort"
       >
         <span v-html="computedLabel.uploading"></span>
@@ -60,7 +61,10 @@
             </q-btn>
           </div>
         </div>
-        <q-progress v-if="uploading && img.__file.__progress" :percentage="img.__file.__progress"></q-progress>
+        <q-progress
+          v-if="uploading && img.__file.__progress"
+          :percentage="img.__file.__progress"
+        ></q-progress>
         <div v-if="img.__file.__failed" class="q-uploader-failed">
           <q-icon :name="computedIcons.failed"></q-icon>
           <span v-html="computedLabel.failed"></span>
@@ -83,7 +87,10 @@
             </q-btn>
           </div>
         </div>
-        <q-progress v-if="uploading && file.__progress" :percentage="file.__progress"></q-progress>
+        <q-progress
+          v-if="uploading && file.__progress"
+          :percentage="file.__progress"
+        ></q-progress>
         <div v-if="file.__failed" class="q-uploader-failed">
           <q-icon :name="computedIcons.failed"></q-icon>
           <span v-html="computedLabel.failed"></span>

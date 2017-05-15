@@ -1712,6 +1712,9 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     this.$nextTick(function () {
       this$1.anchorEl = this$1.$el.parentNode;
       this$1.anchorEl.removeChild(this$1.$el);
+      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode;
+      }
       if (this$1.anchorClick) {
         this$1.anchorEl.classList.add('cursor-pointer');
         this$1.anchorEl.addEventListener('click', this$1.toggle);
@@ -2496,7 +2499,8 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   mixins: [Checkbox]
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:[{ tag: _vm.tag, outline: _vm.outline, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating }, _vm.pointing ? ("pointing-" + (_vm.pointing)) : '']},[(_vm.$slots.left)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[_vm._t("left")],2):_vm._e(),_vm._t("default"),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)},staticRenderFns: [],
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, outline: _vm.outline, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj )},[(_vm.$slots.left)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[_vm._t("left")],2):_vm._e(),_vm._t("default"),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
+var obj;},staticRenderFns: [],
   name: 'q-chip',
   components: {
     QIcon: QIcon
@@ -2511,6 +2515,7 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       type: String,
       validator: function (v) { return ['up', 'right', 'down', 'left'].includes(v); }
     },
+    color: String,
     closable: Boolean,
     detail: Boolean
   }
@@ -4315,7 +4320,8 @@ var QDoubleRange = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating",class:{disabled: _vm.disable, editable: _vm.editable}},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))},staticRenderFns: [],
+var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj ),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))
+var obj;},staticRenderFns: [],
   name: 'q-rating',
   components: {
     QIcon: QIcon
@@ -4334,6 +4340,8 @@ var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       type: String,
       default: 'grade'
     },
+    color: String,
+    size: String,
     readonly: Boolean,
     disable: Boolean
   },
@@ -4376,13 +4384,17 @@ function width$1 (val) {
   return {width: (val + "%")}
 }
 
-var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-progress"},[_c('div',{staticClass:"q-progress-track",style:(_vm.trackStyle)},[_vm._v(" ")]),(_vm.buffer)?_c('div',{staticClass:"q-progress-buffer",style:(_vm.bufferStyle)},[_vm._v(" ")]):_vm._e(),_c('div',{staticClass:"q-progress-model",style:(_vm.modelStyle)},[_vm._v(" ")])])},staticRenderFns: [],
+var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-progress",class:_vm.color ? ("text-" + (_vm.color)) : ''},[(_vm.buffer && !_vm.indeterminate)?_c('div',{staticClass:"q-progress-buffer",style:(_vm.bufferStyle)},[_vm._v(" ")]):_vm._e(),_c('div',{staticClass:"q-progress-track",style:(_vm.trackStyle)},[_vm._v(" ")]),_c('div',{staticClass:"q-progress-model",class:{ animate: _vm.animate, stripe: _vm.stripe, indeterminate: _vm.indeterminate },style:(_vm.modelStyle)},[_vm._v(" ")])])},staticRenderFns: [],
   name: 'q-progress',
   props: {
     percentage: {
       type: Number,
       default: 0
     },
+    color: String,
+    stripe: Boolean,
+    animate: Boolean,
+    indeterminate: Boolean,
     buffer: Number
   },
   computed: {
@@ -4404,7 +4416,7 @@ var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",staticClass:"minimized",attrs:{"no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss},on:{"close":function($event){_vm.__dismiss();}}},[_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title || '')}}),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"placeholder":el.placeholder,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):_vm._e(),(el.type === 'chips')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-chips',{model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),_vm._l((el.items),function(radio){return (el.type === 'radio')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:radio,staticClass:"item"},[_c('div',{staticClass:"item-primary"},[_c('q-radio',{attrs:{"val":radio.value,"disable":radio.disabled},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1),_c('div',{staticClass:"item-content",domProps:{"innerHTML":_vm._s(radio.label)}})]):_vm._e()}),_vm._l((el.items),function(checkbox){return (el.type === 'checkbox')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:checkbox,staticClass:"item"},[_c('div',{staticClass:"item-primary"},[_c('q-checkbox',{attrs:{"disable":checkbox.disabled},model:{value:(checkbox.model),callback:function ($$v) {checkbox.model=$$v;},expression:"checkbox.model"}})],1),_c('div',{staticClass:"item-content",domProps:{"innerHTML":_vm._s(checkbox.label)}})]):_vm._e()}),_vm._l((el.items),function(toggle){return (el.type === 'toggle')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:toggle,staticClass:"item"},[_c('div',{staticClass:"item-content has-secondary",domProps:{"innerHTML":_vm._s(toggle.label)}}),_c('div',{staticClass:"item-secondary"},[_c('q-toggle',{attrs:{"disable":toggle.disabled},model:{value:(toggle.model),callback:function ($$v) {toggle.model=$$v;},expression:"toggle.model"}})],1)]):_vm._e()}),(el.type === 'range' || el.type === 'double-range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'double-range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{staticClass:"primary stripe animate",class:{indeterminate: _vm.progress.indeterminate},attrs:{"percentage":_vm.progress.model}}),(!_vm.progress.indeterminate)?_c('span',[_vm._v(_vm._s(_vm.progress.model)+" %")]):_vm._e()],1):_vm._e(),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button){return _c('q-btn',{key:button,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),(!_vm.buttons && !_vm.nobuttons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
+var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",staticClass:"minimized",attrs:{"no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss},on:{"close":function($event){_vm.__dismiss();}}},[_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title || '')}}),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"placeholder":el.placeholder,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):_vm._e(),(el.type === 'chips')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-chips',{model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),_vm._l((el.items),function(radio){return (el.type === 'radio')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:radio,staticClass:"item"},[_c('div',{staticClass:"item-primary"},[_c('q-radio',{attrs:{"val":radio.value,"disable":radio.disabled},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1),_c('div',{staticClass:"item-content",domProps:{"innerHTML":_vm._s(radio.label)}})]):_vm._e()}),_vm._l((el.items),function(checkbox){return (el.type === 'checkbox')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:checkbox,staticClass:"item"},[_c('div',{staticClass:"item-primary"},[_c('q-checkbox',{attrs:{"disable":checkbox.disabled},model:{value:(checkbox.model),callback:function ($$v) {checkbox.model=$$v;},expression:"checkbox.model"}})],1),_c('div',{staticClass:"item-content",domProps:{"innerHTML":_vm._s(checkbox.label)}})]):_vm._e()}),_vm._l((el.items),function(toggle){return (el.type === 'toggle')?_c('label',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:toggle,staticClass:"item"},[_c('div',{staticClass:"item-content has-secondary",domProps:{"innerHTML":_vm._s(toggle.label)}}),_c('div',{staticClass:"item-secondary"},[_c('q-toggle',{attrs:{"disable":toggle.disabled},model:{value:(toggle.model),callback:function ($$v) {toggle.model=$$v;},expression:"toggle.model"}})],1)]):_vm._e()}),(el.type === 'range' || el.type === 'double-range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'double-range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{attrs:{"percentage":_vm.progress.model,"color":"primary","animate":"","stripe":"","indeterminate":_vm.progress.indeterminate}}),(!_vm.progress.indeterminate)?_c('span',[_vm._v(_vm._s(_vm.progress.model)+" %")]):_vm._e()],1):_vm._e(),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button){return _c('q-btn',{key:button,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),(!_vm.buttons && !_vm.nobuttons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
   name: 'q-dialog',
   components: {
     QModal: QModal,
@@ -5269,6 +5281,10 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       type: Array,
       validator: offsetValidator
     },
+    delay: {
+      type: Number,
+      default: 0
+    },
     maxHeight: String,
     disable: Boolean
   },
@@ -5303,6 +5319,7 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       if (this.disable) {
         return
       }
+      clearTimeout(this.timer);
       this.opened = true;
       document.body.appendChild(this.$el);
       this.scrollTarget = getScrollTarget(this.anchorEl);
@@ -5314,6 +5331,7 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       this.__updatePosition();
     },
     close: function close () {
+      clearTimeout(this.timer);
       if (this.opened) {
         this.opened = false;
         this.scrollTarget.removeEventListener('scroll', this.close);
@@ -5333,6 +5351,10 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
         selfOrigin: this.selfOrigin,
         maxHeight: this.maxHeight
       });
+    },
+    __delayOpen: function __delayOpen () {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.open, this.delay);
     }
   },
   created: function created () {
@@ -5355,12 +5377,15 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 
       this$1.anchorEl = this$1.$el.parentNode;
       this$1.anchorEl.removeChild(this$1.$el);
+      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode;
+      }
       if (Platform.is.mobile) {
         this$1.anchorEl.addEventListener('click', this$1.open);
       }
       else {
-        this$1.anchorEl.addEventListener('mouseenter', this$1.open);
-        this$1.anchorEl.addEventListener('focus', this$1.open);
+        this$1.anchorEl.addEventListener('mouseenter', this$1.__delayOpen);
+        this$1.anchorEl.addEventListener('focus', this$1.__delayOpen);
         this$1.anchorEl.addEventListener('mouseleave', this$1.close);
         this$1.anchorEl.addEventListener('blur', this$1.close);
       }
@@ -5371,8 +5396,8 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       this.anchorEl.removeEventListener('click', this.open);
     }
     else {
-      this.anchorEl.removeEventListener('mouseenter', this.open);
-      this.anchorEl.removeEventListener('click', this.open);
+      this.anchorEl.removeEventListener('mouseenter', this.__delayOpen);
+      this.anchorEl.removeEventListener('focus', this.__delayOpen);
       this.anchorEl.removeEventListener('mouseleave', this.close);
       this.anchorEl.removeEventListener('blur', this.close);
     }
@@ -5380,7 +5405,7 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-delimiter"},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})})],2),(!_vm.noHeader)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._l((_vm.cols),function(col,index){return _c('th',{class:{invisible: _vm.hidden(index), sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(!_vm.hidden(index))?[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}})]:_vm._e()],2)})],2)]):_vm._e(),(!_vm.head)?_c('tbody',[_vm._t("default")],2):_vm._e()])},staticRenderFns: [],
+var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-delimiter"},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})})],2),(!_vm.noHeader)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._l((_vm.cols),function(col,index){return _c('th',{class:{invisible: _vm.hidden(index), sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(!_vm.hidden(index))?[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()]:_vm._e()],2)})],2)]):_vm._e(),(!_vm.head)?_c('tbody',[_vm._t("default")],2):_vm._e()])},staticRenderFns: [],
   name: 'q-table-sticky',
   components: {
     SortIcon: SortIcon,
@@ -5466,7 +5491,7 @@ var StickyColumns = {
   }
 };
 
-var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-delimiter",style:(_vm.tableStyle)},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})}),(_vm.head && _vm.scroll.horiz)?_c('col',{style:({width: _vm.scroll.horiz})}):_vm._e()],2),(_vm.head)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._l((_vm.cols),function(col){return _c('th',{class:{sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}})],1)}),(_vm.head && _vm.scroll.horiz)?_c('th'):_vm._e()],2)]):_c('tbody',[_vm._t("default")],2)])},staticRenderFns: [],
+var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-delimiter",style:(_vm.tableStyle)},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})}),(_vm.head && _vm.scroll.horiz)?_c('col',{style:({width: _vm.scroll.horiz})}):_vm._e()],2),(_vm.head)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._l((_vm.cols),function(col){return _c('th',{class:{sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()],1)}),(_vm.head && _vm.scroll.horiz)?_c('th'):_vm._e()],2)]):_c('tbody',[_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-table-content',
   components: {
     SortIcon: SortIcon,
@@ -9223,17 +9248,43 @@ var TabMixin = {
       }
     },
     alert: Boolean,
-    count: [Number, String]
+    count: [Number, String],
+    color: String
   },
   inject: ['data', 'selectTab'],
   computed: {
     active: function active () {
       return this.data.tabName === this.name
+    },
+    classes: function classes () {
+      var cls = {
+        active: this.active,
+        hidden: this.hidden,
+        disabled: this.disable,
+        'icon-and-label': this.icon && this.label,
+        'hide-icon': this.hide === 'icon',
+        'hide-label': this.hide === 'label'
+      };
+
+      var color = this.data.inverted
+        ? this.color || this.data.color
+        : this.color;
+
+      if (color) {
+        cls[("text-" + color)] = this.$q.theme === 'ios' ? this.active : true;
+      }
+
+      return cls
+    },
+    borderClasses: function borderClasses () {
+      if (this.data.inverted && this.data.color) {
+        return ("text-" + (this.data.color))
+      }
     }
   }
 };
 
-var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-link',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab items-center justify-center relative-position",class:{ active: _vm.active, hidden: _vm.hidden, disabled: _vm.disable, 'icon-and-label': _vm.icon && _vm.label, 'hide-icon': _vm.hide === 'icon', 'hide-label': _vm.hide === 'label' },attrs:{"tag":"div","to":_vm.to,"replace":_vm.replace,"append":_vm.append,"exact":_vm.exact,"event":_vm.routerLinkEventName},nativeOn:{"click":function($event){_vm.select($event);}}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tabs-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('span',{staticClass:"floating label circular"},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),_c('div',{staticClass:"q-tab-border"})],2)},staticRenderFns: [],
+var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-link',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab items-center justify-center relative-position",class:_vm.classes,attrs:{"tag":"div","to":_vm.to,"replace":_vm.replace,"append":_vm.append,"exact":_vm.exact,"event":_vm.routerLinkEventName},nativeOn:{"click":function($event){_vm.select($event);}}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('span',{staticClass:"floating label circular"},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),_c('div',{staticClass:"q-tab-border",class:_vm.borderClasses})],2)},staticRenderFns: [],
   name: 'q-route-tab',
   components: {
     QIcon: QIcon
@@ -9269,7 +9320,7 @@ var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab items-center justify-center relative-position",class:{ active: _vm.active, hidden: _vm.hidden, disabled: _vm.disable, 'icon-and-label': _vm.icon && _vm.label, 'hide-icon': _vm.hide === 'icon', 'hide-label': _vm.hide === 'label' },on:{"click":_vm.select}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tabs-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.count)?_c('q-chip',{attrs:{"floating":""}},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),_c('div',{staticClass:"q-tab-border"})],2)},staticRenderFns: [],
+var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab items-center justify-center relative-position",class:_vm.classes,on:{"click":_vm.select}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.count)?_c('q-chip',{attrs:{"floating":""}},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tab-border",class:_vm.borderClasses}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-tab',
   components: {
     QIcon: QIcon
@@ -9314,7 +9365,9 @@ var QTabPane = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 var scrollNavigationSpeed = 5;
 var debounceDelay = 50; // in ms
 
-var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs column",class:[("position-" + (_vm.position))]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:[("align-" + (_vm.align))]},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row"},[_c('div',{staticClass:"relative-position self-stretch"},[(_vm.$q.theme === 'mat')?_c('div',{ref:"posbar",staticClass:"q-tabs-position-bar",on:{"transitionend":_vm.__updatePosbarTransition}}):_vm._e()]),_vm._t("title")],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])},staticRenderFns: [],
+var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs column",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row"},[_vm._t("title"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch"},[_c('div',{ref:"posbar",staticClass:"q-tabs-position-bar",class:( obj$1 = {}, obj$1[("text-" + (_vm.color))] = _vm.inverted && _vm.color, obj$1 ),on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])
+var obj;
+var obj$1;},staticRenderFns: [],
   name: 'q-tabs',
   components: {
     QIcon: QIcon
@@ -9330,19 +9383,30 @@ var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       type: String,
       default: 'top',
       validator: function (v) { return ['top', 'bottom'].includes(v); }
-    }
+    },
+    color: String,
+    inverted: Boolean,
+    twoLines: Boolean
   },
   data: function data () {
     return {
       tab: {},
       data: {
-        tabName: this.value || ''
+        tabName: this.value || '',
+        color: this.color,
+        inverted: this.inverted
       }
     }
   },
   watch: {
     value: function value (name) {
       this.selectTab(name);
+    },
+    color: function color (v) {
+      this.data.color = v;
+    },
+    inverted: function inverted (v) {
+      this.data.inverted = v;
     }
   },
   provide: function provide () {
@@ -9588,6 +9652,28 @@ var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
+var QToolbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-toolbar",class:_vm.classes},[_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-toolbar',
+  props: {
+    color: String,
+    inverted: Boolean
+  },
+  computed: {
+    classes: function classes () {
+      var
+        inv = this.inverted,
+        cls = [];
+
+      cls.push(("q-toolbar-" + (inv ? 'inverted' : 'normal')));
+      if (this.color) {
+        cls.push(((inv ? 'text' : 'bg') + "-" + (this.color)));
+      }
+
+      return cls
+    }
+  }
+};
+
 var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.model.handler || _vm.isExpandable},on:{"click":_vm.toggle}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center"},[(_vm.model.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.model.icon}}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(_vm.model.title)}})],1),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.model.expanded ? _vm.contractHtml : _vm.expandHtml)}}):_vm._e()]),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.model.expanded),expression:"isExpandable && model.expanded"}]},_vm._l((_vm.model.children),function(item){return _c('q-tree-item',{key:item,attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
   name: 'q-tree-item',
   components: {
@@ -9637,7 +9723,7 @@ var QTree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader"},[(_vm.uploading)?_c('div',[_c('q-chip',{staticClass:"bg-light q-uploader-progress",attrs:{"closable":""},on:{"close":_vm.abort}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.uploading)}}),_c('q-spinner',{attrs:{"size":15}}),_vm._v(_vm._s(_vm.progress)+"%")],1)],1):_c('div',{staticClass:"group"},[_c('q-btn',{staticClass:"q-uploader-pick-button overflow-hidden",class:_vm.buttonClass,attrs:{"icon":_vm.computedIcons.add,"disabled":_vm.addButtonDisabled},on:{"click":_vm.__pick}},[_vm._v(_vm._s(_vm.computedLabel.add)+" "),_c('input',{ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions,"multiple":_vm.multiple},on:{"change":_vm.__add}})]),(!_vm.hideUploadButton)?_c('q-btn',{class:_vm.buttonClass,attrs:{"disabled":_vm.files.length === 0,"icon":_vm.computedIcons.upload},on:{"click":_vm.upload}},[_vm._v(_vm._s(_vm.computedLabel.upload))]):_vm._e()],1),_c('div',{staticClass:"row wrap items-center group"},[_vm._l((_vm.images),function(img){return _c('div',{key:img.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(img.name))]),_c('div',{staticClass:"card-media"},[_c('img',{attrs:{"src":img.src}})]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(img.__file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(img);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && img.__file.__progress)?_c('q-progress',{attrs:{"percentage":img.__file.__progress}}):_vm._e(),(img.__file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)}),_vm._l((_vm.otherFiles),function(file){return _c('div',{key:file.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(file.name))]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(file);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && file.__progress)?_c('q-progress',{attrs:{"percentage":file.__progress}}):_vm._e(),(file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)})],2)])},staticRenderFns: [],
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader"},[(_vm.uploading)?_c('div',[_c('q-chip',{staticClass:"text-white q-uploader-progress",attrs:{"closable":"","color":"light"},on:{"close":_vm.abort}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.uploading)}}),_c('q-spinner',{attrs:{"size":15}}),_vm._v(_vm._s(_vm.progress)+"%")],1)],1):_c('div',{staticClass:"group"},[_c('q-btn',{staticClass:"q-uploader-pick-button overflow-hidden",class:_vm.buttonClass,attrs:{"icon":_vm.computedIcons.add,"disabled":_vm.addButtonDisabled},on:{"click":_vm.__pick}},[_vm._v(_vm._s(_vm.computedLabel.add)+" "),_c('input',{ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions,"multiple":_vm.multiple},on:{"change":_vm.__add}})]),(!_vm.hideUploadButton)?_c('q-btn',{class:_vm.buttonClass,attrs:{"disabled":_vm.files.length === 0,"icon":_vm.computedIcons.upload},on:{"click":_vm.upload}},[_vm._v(_vm._s(_vm.computedLabel.upload))]):_vm._e()],1),_c('div',{staticClass:"row wrap items-center group"},[_vm._l((_vm.images),function(img){return _c('div',{key:img.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(img.name))]),_c('div',{staticClass:"card-media"},[_c('img',{attrs:{"src":img.src}})]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(img.__file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(img);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && img.__file.__progress)?_c('q-progress',{attrs:{"percentage":img.__file.__progress}}):_vm._e(),(img.__file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)}),_vm._l((_vm.otherFiles),function(file){return _c('div',{key:file.name,staticClass:"card"},[_c('div',{staticClass:"card-title"},[_vm._v(_vm._s(file.name))]),_c('div',{staticClass:"card-content"},[_c('div',{staticClass:"row items-center"},[_c('span',{staticClass:"text-faded"},[_vm._v(_vm._s(file.__size))]),_c('div',{staticClass:"auto"}),_c('q-btn',{directives:[{name:"show",rawName:"v-show",value:(!_vm.uploading),expression:"!uploading"}],staticClass:"primary clear small",attrs:{"icon":_vm.computedIcons.remove},on:{"click":function($event){_vm.__remove(file);}}},[_vm._v(_vm._s(_vm.computedLabel.remove))])],1)]),(_vm.uploading && file.__progress)?_c('q-progress',{attrs:{"percentage":file.__progress}}):_vm._e(),(file.__failed)?_c('div',{staticClass:"q-uploader-failed"},[_c('q-icon',{attrs:{"name":_vm.computedIcons.failed}}),_c('span',{domProps:{"innerHTML":_vm._s(_vm.computedLabel.failed)}})],1):_vm._e()],1)})],2)])},staticRenderFns: [],
   name: 'q-uploader',
   components: {
     QBtn: QBtn,
@@ -11315,4 +11401,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QChatMessage, QCheckbox, QChip, QChips, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QSmallFab, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputGroup, QItem, QKnob, QLayout, QFixedPosition, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepPane, QStepper, QStepperHeader, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QChatMessage, QCheckbox, QChip, QChips, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QSmallFab, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputGroup, QItem, QKnob, QLayout, QFixedPosition, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepPane, QStepper, QStepperHeader, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
