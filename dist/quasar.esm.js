@@ -922,7 +922,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       return this.$refs.input
     },
     computedStep: function computedStep () {
-      if (this.isNumer) {
+      if (this.isNumber) {
         return this.step
       }
     }
