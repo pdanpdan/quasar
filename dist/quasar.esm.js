@@ -1426,8 +1426,8 @@ function setPosition (ref) {
 
   targetPosition = applyAutoPositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
 
-  el.style.top = targetPosition.top + 'px';
-  el.style.left = targetPosition.left + 'px';
+  el.style.top = Math.max(0, targetPosition.top) + 'px';
+  el.style.left = Math.max(0, targetPosition.left) + 'px';
 }
 
 function positionValidator (pos) {
@@ -3732,6 +3732,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
       var opts = clone(this.options).map(function (opt, index) {
         opt.index = index;
+        opt.value = this$1.options[index].value;
         return opt
       });
       if (this.filter && this.terms.length) {
