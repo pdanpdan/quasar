@@ -4,8 +4,6 @@
  * Released under the MIT License.
  */
 $generic-border-radius         ?= 2px
-$generic-input-size            ?= 19px
-$generic-input-border-width    ?= 2px
 $typography-font-family        ?= 'Roboto'
 $toolbar-color                 ?= white
 $toolbar-background            ?= $primary
@@ -1031,16 +1029,7 @@ $button-round-sizes = {
   color inherit
   background transparent
   box-shadow $shadow-1
-  &, .q-btn-active
-    transition $button-transition
-  .q-btn-active
-    pointer-events none
-    border-radius inherit
-    background currentColor
-    opacity 0
-  &:hover, &:focus
-    .q-btn-active
-      opacity .15
+  transition $button-transition
   &.full-width
     border-radius 0 !important
 .q-btn-rectangle
@@ -1157,55 +1146,22 @@ $chat-message-text-padding ?= 8px
       bottom 0
       width 0
       height 0
-$checkbox-size           ?= $generic-input-size
-$checkbox-border-radius  ?= $generic-border-radius
-$checkbox-border-width   ?= $generic-input-border-width
-$checkbox-tick-thickness ?= 2px
-$checkbox-tick-top        = ($checkbox-size / 6)
-$checkbox-tick-left       = ($checkbox-size / 6)
-$checkbox-tick-width      = (.26 * $checkbox-size)
-$checkbox-tick-height     = (.55 * $checkbox-size)
-.q-checkbox
-  display inline-block
+$checkbox-size           ?= 24px
+.q-checkbox-unchecked, .q-checkbox-checked
   height $checkbox-size
   width $checkbox-size
-  min-width $checkbox-size
+  font-size $checkbox-size
+  opacity 0
+.q-checkbox
+  display inline-block
   vertical-align middle
+  height $checkbox-size
+  width $checkbox-size
+  color $grey-7
+  &.active
+    color $primary
   input
     display none !important
-  input + div
-    position relative
-    &:before
-      border $checkbox-border-width solid $form-darker-color
-    &:before, &:after
-      content ''
-      position absolute
-      top 0
-      left 0
-      width $checkbox-size
-      height $checkbox-size
-      transition all .3s ease
-      border-radius $checkbox-border-radius
-  input:checked + div
-    &:before
-      background $form-active-color
-      border $checkbox-border-width solid $form-active-color
-    &:after
-      top $checkbox-tick-top
-      left $checkbox-tick-left
-      width $checkbox-tick-width
-      height $checkbox-tick-height
-      border-top none
-      border-left none
-      border-right $checkbox-tick-thickness solid white
-      border-bottom $checkbox-tick-thickness solid white
-      transform rotate(45deg)
-      transform-origin 100% 100%
-      border-radius 0
-  for $name, $color in $colors
-    &.{$name} input:checked + div:before
-      background $color
-      border-color $color
 body.desktop .q-checkbox:focus input + div:before
   box-shadow $form-focus-box-shadow
 $chip-border             ?= #e0e0e0
@@ -1875,12 +1831,8 @@ i
   background $light-dimmed-background
   &.dark
     background $dimmed-background
-.q-input-group
-  label
-    div + span
-      margin-left 5px
-  &.inline-opts > div
-    display inline-flex
+.q-input-group-inline-opts > div
+  display inline-flex
 $textfield-border-size        ?= 2px
 $textfield-border-style       ?= solid
 $textfield-border-color       ?= $form-lighter-color
@@ -2018,6 +1970,10 @@ $input-label-color            ?= rgba(0, 0, 0, .54)
   bottom 0
   i
     font-size 130%
+$label-offset ?= 5px
+.q-label
+  div + span, span + div
+    margin-left $label-offset
 $layout-aside-background   ?= white
 $layout-aside-left-width   ?= 300px
 $layout-aside-right-width  ?= 300px
@@ -2106,7 +2062,7 @@ $modal-header-padding    ?= 24px 24px 20px 24px
 $modal-header-text-align ?= left
 $modal-body-text-align   ?= left
 $modal-body-color        ?= rgba(0, 0, 0, .5)
-$modal-body-padding      ?= 0 24px 24px 24px
+$modal-body-padding      ?= 5px 24px 24px 24px
 $modal-slim-body-padding ?= 0 24px
 $modal-scroll-size       ?= 240px
 $modal-buttons-padding   ?= 8px 8px 12px 24px
@@ -2344,46 +2300,33 @@ $pull-to-refresh-icon-size          ?= 2rem
   i
     font-size $pull-to-refresh-icon-size
     transition all .3s
-$radio-size         ?= $generic-input-size
-$radio-border-width ?= $generic-input-border-width
+$radio-size         ?= 19px
+.q-radio-unchecked, .q-radio-checked
+  height $checkbox-size
+  width $checkbox-size
+  font-size $checkbox-size
+  transition all .45s cubic-bezier(.23, 1, .32, 1)
+  opacity 1
+.q-radio-unchecked
+  transform scale(1)
+.q-radio-checked
+  transform-origin 50% 50% 0
+  transform scale(0)
 .q-radio
   display inline-block
-  height $radio-size
-  width $radio-size
-  min-width $radio-size
   vertical-align middle
+  height $checkbox-size
+  width $checkbox-size
+  color $grey-7
+  &.active
+    color $primary
+    .q-radio-unchecked
+      opacity 0
+      transform scale(0)
+    .q-radio-checked
+      transform scale(1)
   input
     display none !important
-  input + div
-    position relative
-    &:before, &:after
-      content ''
-      position absolute
-      top 0
-      left 0
-      border-radius 50%
-      transition .3s ease
-    &:before
-      width $radio-size
-      height $radio-size
-      border $radio-border-width solid $form-darker-color
-    &:after
-      transform scale(0)
-      margin (2.5 * $radio-border-width)
-      width ($radio-size - 5 * $radio-border-width)
-      height ($radio-size - 5 * $radio-border-width)
-  input:checked + div
-    &:before
-      border $radio-border-width solid $form-active-color
-    &:after
-      background $form-active-color
-      transform scale(1.02)
-  for $name, $color in $colors
-    &.{$name} input:checked + div
-      &:before
-        border-color $color
-      &:after
-        background $color
 body.desktop .q-radio:focus input + div:before
   box-shadow $form-focus-box-shadow
 $range-height              ?= 36px
@@ -3008,69 +2951,43 @@ body.mobile .q-tabs-scroller
     > img, > i
       font-size 2rem
       margin-right 48px
-$toggle-size             ?= $generic-input-size
-$toggle-width-factor     ?= 1.8
-$toggle-height           = $toggle-size
-$toggle-width            = $toggle-width-factor * $toggle-size
-$toggle-handle-size      = $toggle-size
-$toggle-area-width       = $toggle-width
-$toggle-area-active-left = ($toggle-width - $toggle-handle-size)
+$toggle-width           = 44px
+$toggle-height          = 24px
+$toggle-handle-size     = round($toggle-width / 2)
+.q-toggle-base
+  transition all .45s cubic-bezier(.23, 1, .32, 1)
+  width 100%
+  height 14px
+  border-radius 30px
+  background-color currentColor
+  opacity .5
+.q-toggle-handle
+  background-color rgb(245, 245, 245)
+  transition all 450ms cubic-bezier(.23, 1, .32, 1)
+  border-radius 50%
+  position absolute
+  top 1px
+  left 0
+  width $toggle-handle-size
+  height $toggle-handle-size
+  line-height $toggle-handle-size
 .q-toggle
   display inline-block
   height $toggle-height
   width $toggle-width
   min-width $toggle-width
   vertical-align middle
-  position relative
+  padding 5px 0
+  color $grey-7
+  &.active
+    color $primary
+    .q-toggle-handle
+      background-color currentColor
+      left ($toggle-width - $toggle-handle-size)
+    .q-toggle-icon
+      color white
   input
     display none
-  i
-    color $grey-7
-    line-height $toggle-size
-    font-size (.65 * $toggle-size)
-    position absolute
-    top 0
-    bottom 0
-    left (.25 * $toggle-handle-size)
-    transition all .3s ease
-  div
-    position relative
-    &:before, &:after
-      content ''
-      position absolute
-      transition all .3s ease
-    &:before
-      vertical-align middle
-      top (.15 * $toggle-height)
-      left 0
-      width $toggle-area-width
-      height (.7 * $toggle-height)
-      border-radius 16px
-      background $form-lighter-color
-    &:after
-      border-radius 50%
-      top 0
-      left 2px
-      width $toggle-handle-size
-      height $toggle-handle-size
-      background white
-      box-shadow $form-shadow
-      transform translateX(0)
-  input:checked + div
-    &:before
-      background lighten($form-active-color, 60%)
-    &:after
-      transform translateX(($toggle-area-active-left - 2px))
-      background $form-active-color
-  input:checked ~ i
-    color white
-    transform translateX(($toggle-area-active-left - 1.6px))
-  for $name, $color in $colors
-    &.{$name} input:checked + div
-      &:before
-        background lighten($color, 60%)
-      &:after
-        background $color
 body.desktop .q-toggle:focus input + div:before
   box-shadow $form-focus-box-shadow
 $toolbar-title-font-size   ?= 1.15rem
@@ -5062,6 +4979,34 @@ flex-media-query($type)
       transition none
     &-visible
       opacity .3
+.q-radial-ripple
+  overflow hidden
+  transform translate3d(-25%, -25%, 0)
+  width 200%
+  height 200%
+  border-radius 50%
+  pointer-events none
+  &, &:after
+    position absolute
+    top 0
+    right 0
+    bottom 0
+    left 0
+  &:after
+    content ''
+    display block
+    width 100%
+    height 100%
+    background-image radial-gradient(circle, currentColor 10%, transparent 10.01%)
+    background-repeat no-repeat
+    background-position 50%
+    transform scale(10, 10)
+    opacity 0
+    transition transform .5s, opacity 1s
+  &.active:after
+    transform scale(0, 0)
+    opacity .2
+    transition 0s
 .fit
   width 100% !important
   height 100% !important
@@ -5157,3 +5102,19 @@ for type in desktop mobile cordova electron ios mat touch no-touch within-iframe
 @media all and (orientation landscape)
   .orientation-portrait
     display none !important
+.q-focus-helper
+  position absolute
+  top 0
+  right 0
+  bottom 0
+  left 0
+  pointer-events none
+  border-radius inherit
+  background currentColor
+  opacity 0
+  transition opacity .12s ease-in
+.q-focusable:focus, .q-hoverable:hover
+  .q-focus-helper
+    opacity .15
+body.ios .q-hoverable:active .q-focus-helper
+  opacity .3
