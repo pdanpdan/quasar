@@ -812,11 +812,10 @@ $item-stamp-font-size              ?= .8rem
     width $item-primary-size
     height $item-primary-size
     border-radius 50%
-  .item-letter, i
+  .item-letter, .q-icon
     font-size $item-icon-size
-  i
+  .q-icon
     border-radius 50%
-    cursor default
     &.inverted
       font-size $item-inverted-icon-size
       line-height $item-inverted-icon-size
@@ -1231,21 +1230,22 @@ $chip-background         ?= $light
       content ''
       z-index -1
       background inherit
-      width 9px
-      height 9px
+      width 16px
+      height 16px
       position absolute
-      transform translateX(-50%) translateY(-50%) rotate(45deg)
   &.pointing-up
     margin-top .8rem
     &:before
       top 0
       left 50%
+      transform translateX(-50%) translateY(-22%) rotate(45deg)
   &.pointing-down
     margin-bottom .8rem
     &:before
       right auto
       top 100%
       left 50%
+      transform translateX(-50%) translateY(-78%) rotate(45deg)
   &.pointing-right
     margin-right .8rem
     &:before
@@ -1253,7 +1253,7 @@ $chip-background         ?= $light
       right 2px
       bottom auto
       left auto
-      transform translateX(50%) translateY(-50%) rotate(45deg)
+      transform translateX(33%) translateY(-50%) rotate(45deg)
   &.pointing-left
     margin-left .8rem
     &:before
@@ -1261,6 +1261,7 @@ $chip-background         ?= $light
       left 2px
       bottom auto
       right auto
+      transform translateX(-33%) translateY(-50%) rotate(45deg)
   .chip-detail
     background rgba(0, 0, 0, .1)
     opacity .8
@@ -1814,19 +1815,19 @@ if $icon-font-family == 'Material Icons'
       -moz-osx-font-smoothing grayscale
       
       font-feature-settings 'liga'
-i
-  &.material-icons, &.q-icon
-    line-height 1
-    letter-spacing normal
-    text-transform none
-    white-space nowrap
-    word-wrap normal
-    direction ltr
-    user-select none
-    display inline-flex
-    align-items center
-    justify-content center
-    vertical-align middle
+&.material-icons, &.q-icon
+  line-height 1
+  letter-spacing normal
+  text-transform none
+  white-space nowrap
+  word-wrap normal
+  direction ltr
+  user-select none
+  cursor inherit
+  display inline-flex
+  align-items center
+  justify-content center
+  vertical-align middle
 .q-inner-loading
   background $light-dimmed-background
   &.dark
@@ -2329,14 +2330,15 @@ $radio-size         ?= 19px
     display none !important
 body.desktop .q-radio:focus input + div:before
   box-shadow $form-focus-box-shadow
-$range-height              ?= 36px
-$range-color               ?= $grey-4
-$range-active-color        ?= $form-active-color
-$range-track-height        ?= 2px
-$range-mark-height         ?= 10px
-$range-handle-size         ?= 18px
-$range-handle-radius       ?= 50%
-$range-label-size = (1.5 * $range-handle-size)
+$range-color              ?= $primary
+$range-height              = 20px
+$range-track-height        = 2px
+$range-mark-height         = 10px
+$range-handle-size         = 12px
+$range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
+.q-range-track, .q-range-mark
+  opacity .4
+  background currentColor
 .q-range-track
   position absolute
   top 50%
@@ -2344,24 +2346,20 @@ $range-label-size = (1.5 * $range-handle-size)
   transform translateY(-50%)
   height $range-track-height
   width 100%
-  background $range-color
   &:not(.dragging)
     transition all .3s ease
   &.active-track
-    background $range-active-color
+    opacity 1
   &.track-draggable.dragging
     height ($range-track-height * 2)
     transition height .3s ease
   &.handle-at-minimum
     background transparent
-  &.handle-at-maximum
-    background solid
 .q-range-mark
   position absolute
   top 50%
   height $range-mark-height
   width 2px
-  background $range-color
   transform translateX(-50%) translateY(-50%)
 .q-range-handle-container
   position relative
@@ -2369,33 +2367,15 @@ $range-label-size = (1.5 * $range-handle-size)
   margin-left ($range-handle-size / 2)
   margin-right ($range-handle-size / 2)
 .q-range-label
-  position relative
-  top - $range-handle-size * .75
-  left -25%
-  padding 8px 0
+  top 0
+  left ($range-handle-size / 2)
   opacity 0
-  text-align center
-  transform translateY(0) scale(.1)
-  transition all .3s ease
-  width $range-label-size
-  height $range-label-size
-  font-size ($range-handle-size / 2)
-  line-height ($range-handle-size / 3)
-  color white
-  &:before
-    content ''
-    z-index -1
-    position absolute
-    top (- $range-handle-size * .25)
-    left 0
-    width (1.5 * $range-handle-size)
-    height (1.5 * $range-handle-size)
-    background $range-active-color
-    border-radius 50% 50% 50% 0
-    transform rotate(-45deg)
+  transform translateX(-50%) translateY(0) scale(0)
+  transition all .2s
+  padding 5px 9px
   &.label-always
     opacity 1
-    transform translateY(-50%) scale(1)
+    transform $range-label-transform
 .q-range-handle
   position absolute
   top 50%
@@ -2404,45 +2384,57 @@ $range-label-size = (1.5 * $range-handle-size)
   transition all .3s ease
   width $range-handle-size
   height $range-handle-size
-  border-radius $range-handle-radius
-  box-sizing content-box
   &.dragging
     transform translate3d(-50%, -50%, 0) scale(1.3)
     transition opacity .3s ease, transform .3s ease
     .q-range-label
       opacity 1
-      transform translateY(-50%) scale(1)
-  background $range-active-color
+      transform $range-label-transform
+  background currentColor
   &.handle-at-minimum
     background white
-    border 2px solid $range-color
-    .q-range-label
-      color black
-      &:before
-        background $range-color
+    &:after
+      content ''
+      position absolute
+      top 0
+      right 0
+      bottom 0
+      left 0
+      background transparent
+      border-radius inherit
+      border 2px solid currentColor
+.q-range-ring
+  position absolute
+  top -50%
+  left -50%
+  width 200%
+  height 200%
+  border-radius inherit
+  pointer-events none
+  opacity 0
+  transform scale(0)
+  transition all .2s ease-in
+  background currentColor
+.q-range:not(.disabled)
+  &:focus, &:hover
+    .q-range-ring
+      opacity .4
+      transform scale(1)
+.q-range.disabled
+  .q-range-handle
+    border 2px solid white
+  .q-range-handle.handle-at-minimum
+    background currentColor
 .q-range
   height $range-height
   width 100%
+  color $range-color
   cursor pointer
   &.label-always, &.with-padding
-    padding-top (1.8 * $range-label-size)
-    padding-bottom (.5 * $range-label-size)
-  for $name, $color in $colors
-    &.{$name}
-      .q-range-track.active-track,
-      .q-range-handle:not(.handle-at-minimum)
-        background $color
-        .q-range-label
-          &:before
-            background $color
-          if luminosity($color) > .3
-            color black
+    padding 55px 0 5px
+    height 85px
   &.has-error
-    .q-range-track
-      background alpha($has-error, 50%)
-    .q-range-track.active-track,
-    .q-range-handle:not(.handle-at-minimum)
-      background $has-error
+    color $has-error
 $rating-grade-color     ?= $yellow
 $rating-shadow          ?= $shadow-1
 .q-rating
