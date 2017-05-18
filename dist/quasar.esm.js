@@ -8596,7 +8596,7 @@ var QFixedPosition = {render: function(){var _vm=this;var _h=_vm.$createElement;
   props: {
     corner: {
       type: String,
-      required: true,
+      default: 'bottom-right',
       validator: function (v) { return ['top-right', 'top-left', 'bottom-right', 'bottom-left'].includes(v); }
     },
     offset: {
