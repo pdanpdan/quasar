@@ -752,6 +752,11 @@ function isDate (v) {
   return Object.prototype.toString.call(v) === '[object Date]'
 }
 
+var marginal = {
+  type: Array,
+  validator: function (v) { return v.every(function (i) { return 'icon' in i && 'handler' in i; }); }
+};
+
 var FrameMixin = {
   props: {
     prefix: String,
@@ -760,7 +765,14 @@ var FrameMixin = {
     floatLabel: String,
     error: Boolean,
     disable: Boolean,
-    color: String,
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    dark: Boolean,
+    before: marginal,
+    after: marginal,
+    inverted: Boolean,
     align: {
       type: String,
       default: 'left',
@@ -906,7 +918,7 @@ function frameDebounce (fn) {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:{ 'q-if-has-label': _vm.label, 'q-if-focused': _vm.focused, 'q-if-error': _vm.hasError, 'q-if-disabled': _vm.disable, 'q-if-focusable': _vm.focusable && !_vm.disable },attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null}},[_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position",on:{"click":_vm.__onClick}},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("control")],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: item.content && !_vm.length},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position",on:{"click":_vm.__onClick}},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("control"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: (item.content && !_vm.length) || (!!item.error !== _vm.hasError)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
   props: {
@@ -931,8 +943,31 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         'self-start': this.topAddons
       }
     },
+    classes: function classes () {
+      var cls = [{
+        'q-if-has-label': this.label,
+        'q-if-focused': this.focused,
+        'q-if-error': this.hasError,
+        'q-if-disabled': this.disable,
+        'q-if-focusable': this.focusable && !this.disable,
+        'q-if-inverted': this.inverted,
+        'q-if-dark': this.dark || this.inverted
+      }];
+
+      var color = this.hasError ? 'negative' : this.color;
+      if (color) {
+        if (this.inverted) {
+          cls.push(("bg-" + color));
+          cls.push("text-white");
+        }
+        else {
+          cls.push(("text-" + color));
+        }
+      }
+      return cls
+    },
     hasError: function hasError () {
-      return this.field.error || this.error
+      return !!(this.field.error || this.error)
     }
   },
   methods: {
@@ -1180,7 +1215,7 @@ var QWindowResizeObservable = {
   }
 };
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxlength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.inputPattern,"disabled":_vm.disable,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"},[(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e()],1):_vm._e()],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.inverted),expression:"!inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxlength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.inputPattern,"disabled":_vm.disable,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e(),_vm._t("after")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -3376,7 +3411,7 @@ var ColumnSelection = {
   }
 };
 
-var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disabled":_vm.disable,"readonly":_vm.readonly,"clearable":"","complex":"","extra-icons":false,"align":_vm.align},on:{"focus":_vm.focus,"blur":_vm.blur,"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__enter($event);}},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('q-icon',{staticClass:"q-input-comp",attrs:{"name":_vm.icon},slot:"before"}),_vm._t("default")],2)},staticRenderFns: [],
+var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"pattern":_vm.pattern,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":"","color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})},staticRenderFns: [],
   name: 'q-search',
   components: {
     QIcon: QIcon,
@@ -3386,10 +3421,7 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     Ripple: Ripple
   },
   props: {
-    value: {
-      type: [String, Number],
-      default: ''
-    },
+    value: { required: true },
     type: String,
     pattern: String,
     debounce: {
@@ -3404,14 +3436,18 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       type: String,
       default: 'Search'
     },
+    prefix: String,
+    suffix: String,
+    floatLabel: String,
+    stackLabel: String,
     autofocus: Boolean,
     align: String,
-    readonly: Boolean,
-    disable: Boolean
+    disable: Boolean,
+    error: Boolean,
+    color: String
   },
   data: function data () {
     return {
-      focused: false,
       timer: null,
       isEmpty: !this.value && this.value !== 0
     }
@@ -3439,27 +3475,36 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         }, this.debounce);
       }
     },
-    centered: function centered () {
-      return !this.focused && this.value === ''
+    controlBefore: function controlBefore () {
+      return [{icon: this.icon, handler: this.focus}]
     },
-    editable: function editable () {
-      return !this.disable && !this.readonly
+    controlAfter: function controlAfter () {
+      return [{icon: 'clear', content: true, handler: this.clearAndFocus}]
     }
   },
   methods: {
     clear: function clear () {
-      if (this.editable) {
+      if (!this.disable) {
         this.model = '';
       }
     },
+    clearAndFocus: function clearAndFocus () {
+      this.clear();
+      this.focus();
+    },
     focus: function focus () {
-      if (this.editable) {
-        this.focused = true;
+      this.$refs.input.focus();
+    },
+    blur: function blur () {
+      this.$refs.input.blur();
+    },
+
+    __onFocus: function __onFocus () {
+      if (!this.disable) {
         this.$emit('focus');
       }
     },
-    blur: function blur () {
-      this.focused = false;
+    __onBlur: function __onBlur () {
       this.$emit('blur');
     },
     __enter: function __enter () {
@@ -7228,7 +7273,7 @@ var QSmallFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-field row no-wrap items-start",class:{ 'q-field-floating': _vm.childHasLabel, 'q-field-with-error': _vm.hasError }},[(_vm.icon)?_c('q-icon',{staticClass:"q-field-icon",attrs:{"name":_vm.icon}}):(_vm.insetIcon)?_c('div',{staticClass:"q-field-icon"}):_vm._e(),_c('div',{staticClass:"row col"},[(_vm.hasLabel)?_c('div',{staticClass:"q-field-label col-xs-12",class:("col-sm-" + (_vm.labelWidth))},[_c('div',{staticClass:"q-field-label-inner row items-center"},[(_vm.label)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._t("label")],2)]):_vm._e(),_c('div',{staticClass:"col-xs-12 col-sm"},[_vm._t("default"),(_vm.hasBottom)?_c('div',{staticClass:"q-field-bottom"},[(_vm.hasError && _vm.errorLabel)?_c('div',{staticClass:"q-field-error col",domProps:{"innerHTML":_vm._s(_vm.errorLabel)}}):(_vm.helper)?_c('div',{staticClass:"q-field-helper col",domProps:{"innerHTML":_vm._s(_vm.helper)}}):_vm._e(),(_vm.counter)?_c('div',{staticClass:"q-field-counter col-auto float-right"},[_vm._v(_vm._s(_vm.counter))]):_vm._e()]):_vm._e()],2)])],1)},staticRenderFns: [],
+var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-field row no-wrap items-start",class:{ 'q-field-floating': _vm.childHasLabel, 'q-field-with-error': _vm.hasError, 'q-field-dark': _vm.isDark }},[(_vm.icon)?_c('q-icon',{staticClass:"q-field-icon",attrs:{"name":_vm.icon}}):(_vm.insetIcon)?_c('div',{staticClass:"q-field-icon"}):_vm._e(),_c('div',{staticClass:"row col"},[(_vm.hasLabel)?_c('div',{staticClass:"q-field-label col-xs-12",class:("col-sm-" + (_vm.labelWidth))},[_c('div',{staticClass:"q-field-label-inner row items-center"},[(_vm.label)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._t("label")],2)]):_vm._e(),_c('div',{staticClass:"col-xs-12 col-sm"},[_vm._t("default"),(_vm.hasBottom)?_c('div',{staticClass:"q-field-bottom row no-wrap"},[(_vm.hasError && _vm.errorLabel)?_c('div',{staticClass:"q-field-error col",domProps:{"innerHTML":_vm._s(_vm.errorLabel)}}):(_vm.helper)?_c('div',{staticClass:"q-field-helper col",domProps:{"innerHTML":_vm._s(_vm.helper)}}):_vm._e(),(_vm.counter)?_c('div',{staticClass:"q-field-counter col-auto"},[_vm._v(_vm._s(_vm.counter))]):_vm._e()]):_vm._e()],2)])],1)},staticRenderFns: [],
   name: 'q-field',
   components: {
     QIcon: QIcon
@@ -7255,7 +7300,8 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     error: Boolean,
     errorLabel: String,
     helper: String,
-    icon: String
+    icon: String,
+    dark: Boolean
   },
   data: function data () {
     return {
@@ -7274,6 +7320,9 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     childHasLabel: function childHasLabel () {
       return this.input.floatLabel || this.input.stackLabel
+    },
+    isDark: function isDark () {
+      return this.input.dark || this.dark
     },
     insetIcon: function insetIcon () {
       return ['icon', 'full'].includes(this.inset)

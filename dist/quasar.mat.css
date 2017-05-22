@@ -1698,6 +1698,12 @@ body.platform-ios .q-fab[class*='fixed-bottom-'] {
   color: rgba(0,0,0,0.54);
   padding-left: 8px;
 }
+.q-field-dark .q-field-label,
+.q-field-dark .q-field-icon,
+.q-field-dark .q-field-helper,
+.q-field-dark .q-field-counter {
+  color: rgba(255,255,255,0.6);
+}
 .q-field-with-error .q-field-icon,
 .q-field-with-error .q-field-label {
   color: #db2828;
@@ -1811,7 +1817,7 @@ body.desktop .q-gallery-slider-quickview img:hover {
   word-wrap: normal;
   direction: ltr;
   user-select: none;
-  cursor: default;
+  cursor: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1823,12 +1829,23 @@ body.desktop .q-gallery-slider-quickview img:hover {
 .q-inner-loading.dark {
   background: rgba(0,0,0,0.4);
 }
+.q-if,
+.q-if:before,
+.q-if:after,
+.q-if-label,
+.q-if-addon,
+.q-field-icon,
+.q-field-label,
+.q-if-control {
+  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+}
 .q-if {
   font-size: 16px;
   min-height: 24px;
   margin-top: 16px;
   margin-bottom: 8px;
   padding-bottom: 8px;
+  color: #027be3;
 }
 .q-if:before,
 .q-if:after {
@@ -1837,7 +1854,6 @@ body.desktop .q-gallery-slider-quickview img:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
   background: currentColor;
 }
 .q-if:before {
@@ -1849,7 +1865,7 @@ body.desktop .q-gallery-slider-quickview img:hover {
   left: 50%;
   width: 0;
   height: 2px;
-  color: #027be3;
+  color: currentColor;
   transform: translateX(-50%);
 }
 .q-if:hover:before {
@@ -1881,7 +1897,6 @@ body.desktop .q-gallery-slider-quickview img:hover {
   right: 0;
   transform-origin: left top 0;
   transform: scale(1) translate(0, 0);
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .q-if-label-above {
   transform: scale(0.75) translate(0, -27px);
@@ -1890,7 +1905,6 @@ body.desktop .q-gallery-slider-quickview img:hover {
   pointer-events: none;
   color: rgba(0,0,0,0.46);
   opacity: 0;
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .q-if-addon-left {
   padding-right: 8px;
@@ -1907,15 +1921,49 @@ body.desktop .q-gallery-slider-quickview img:hover {
   color: rgba(0,0,0,0.54);
   font-size: 22px;
 }
+.q-if-control:hover {
+  opacity: 0.7;
+}
+.q-if-control-before {
+  margin-left: 0;
+  margin-right: 8px;
+}
+.q-if-dark:before,
+.q-if-dark .q-if-label,
+.q-if-dark .q-if-control {
+  color: rgba(255,255,255,0.7);
+}
+.q-if-dark:hover:before,
+.q-if-dark .q-if-addon {
+  color: rgba(255,255,255,0.9);
+}
 .q-if-focused:after {
   width: 100%;
 }
 .q-if-focused .q-if-label {
-  color: #027be3;
+  color: currentColor;
+}
+.q-if-inverted {
+  min-height: 38px;
+  border-radius: 2px;
+  padding-top: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+.q-if-inverted:before,
+.q-if-inverted:after {
+  display: none;
+}
+.q-if-inverted .q-if-control {
+  color: #fff;
+}
+.q-if-inverted .q-if-control,
+.q-if-inverted .q-if-inner {
+  margin-left: 8px;
+  margin-right: 8px;
 }
 .q-if-error:before,
 .q-if-error:after,
-.q-if-error .q-if-label,
+.q-if-error:not(.q-if-inverted) .q-if-label,
 .q-if-error .q-if-addon {
   color: #db2828;
 }
@@ -1946,12 +1994,34 @@ body.desktop .q-gallery-slider-quickview img:hover {
   border: 0;
   outline: 0;
   padding: 0;
-  color: inherit;
+  color: #000;
   background: transparent;
   font-size: inherit;
   min-width: 70px;
   overflow: hidden;
   resize: none;
+}
+.q-if-dark .q-input-target {
+  color: #fff;
+}
+.q-if-dark .q-input-target::-webkit-input-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+.q-if-dark .q-input-target::-moz-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+.q-if-dark .q-input-target:-ms-input-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+.q-if-dark .q-input-target::selection {
+  background: #fff;
+  color: #000;
+}
+/*
+ * Remove browser controller for input type="number" */
+.q-if input::-webkit-outer-spin-button,
+.q-if input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 .q-input-shadow {
   overflow: hidden;
@@ -2513,7 +2583,7 @@ body.desktop .q-radio:focus input + div:before {
   background: currentColor;
 }
 .q-range {
-  height: 20px;
+  height: 28px;
   width: 100%;
   color: #027be3;
   cursor: pointer;
@@ -2564,11 +2634,9 @@ body.desktop .q-radio:focus input + div:before {
 .q-scrollarea > .absolute {
   width: 100%;
 }
-.toolbar .q-search {
+.q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
   flex: 1 1 auto;
-}
-.q-search {
   margin: 0;
 }
 .q-slider {
