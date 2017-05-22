@@ -491,12 +491,6 @@ input[type='search']
 input[type='search']::-webkit-search-cancel-button,
 input[type='search']::-webkit-search-decoration
   -webkit-appearance none
-/*
- * Remove browser controller for input type="number"
- */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button
-  -webkit-appearance none
 $ios-statusbar-height ?= 20px
 $z-side           ?= 1000
 $z-marginals      ?= 2000
@@ -1289,19 +1283,6 @@ $chip-background         ?= $light
       height $chip-small-height
       width $chip-small-height
       min-width $chip-small-height
-.q-chips
-  &.readonly
-    input, i
-      display none
-  .q-chip
-    margin 2px
-  input
-    padding 10px
-    height 26px
-    margin-left 4px
-.q-chips-button
-  cursor pointer
-  padding 5px 10px
 $collapsible-padding           ?= 4px 16px
 $collapsible-menu-left-padding ?= ($item-primary-size + $item-gutter)
 $collapsible-active-color      ?= $item-active-color
@@ -1396,8 +1377,11 @@ $datatable-font-size ?= 85%
 .q-data-table-selection
   color $primary
   background alpha($primary, 20%)
-$datetime-color          ?= $primary
-$datetime-range-space    ?= 10px
+$datetime-color           ?= $primary
+$datetime-range-space     ?= 10px
+$datetime-input-min-width ?= 70px
+.q-datetime-input
+  min-width $datetime-input-min-width
 .q-datetime
   color rgba(0, 0, 0, .87)
   font-size 1rem
@@ -1649,87 +1633,47 @@ $fab-margin    ?= 5px
 body.platform-ios .q-fab
   &[class*='absolute-bottom-'], &[class*='fixed-bottom-']
     transform translate3d(0, -50px, 0)
-$field-primary-color          ?= $primary
-$field-icon-size              ?= 1.75rem
-$field-icon-color             ?= rgba(0, 0, 0, .38)
-$field-helper-color           ?= rgba(0, 0, 0, .38)
-$field-label-color            ?= rgba(0, 0, 0, .54)
-$field-label-hint-color       ?= $secondary
-$field-required-label-weight  ?= 500
-$field-gutter                 ?= .6rem
-.q-field-helper, .q-field-icon
-  transition color .3s ease-out
+$field-icon-size   ?= 28px
+$field-label-color ?= rgba(0, 0, 0, .54)
+.q-field
+  margin-top 16px
+  margin-bottom 8px
+  .q-if
+    margin-top 0 !important
+    margin-bottom 0 !important
 .q-field-icon
   width $field-icon-size
+  height $field-icon-size
   min-width $field-icon-size
   font-size $field-icon-size
-  line-height $field-icon-size
-  border-radius 50%
-  cursor default
-  margin-right $field-gutter
-  color $field-icon-color
-.q-field-label
-  cursor pointer
-  padding-right $field-gutter
+  margin-right 16px
   color $field-label-color
-  &.required-label
-    font-weight $field-required-label-weight
+.q-field-label
+  padding-right 8px
+  color $field-label-color
+.q-field-label-inner
+  min-height $field-icon-size
 .q-field-label-hint
-  color $field-label-hint-color
-  font-size 120%
-  margin 0 5px
-  vertical-align -5px
-.q-field-count
-  color $field-helper-color
-.q-field-label, .q-field-count
-  transition color .3s ease-out
-.q-field-error
-  color $negative
+  padding-left 8px
+.q-field-label-focusable .q-field-label-inner
+  cursor pointer
 .q-field-bottom
-  margin-top 8px
-  > div
-    font-size small
+  font-size 12px
+  padding-top 8px
+.q-field-error
+  color $has-error
 .q-field-helper
-  color $field-helper-color
-.q-field
-  padding 15px 0
-  .q-input-group
-    margin-bottom 13px
-  .q-input
-    margin-top 0
-    margin-bottom 0
-  &.with-icon
-    .q-field-label, .q-field-content
-      margin-top .25rem
-  &.floating
-    .q-field-icon
-      margin-top 1rem
-    .q-field-content
-      margin-top 0
-  &:hover, &.focused
+  color rgba(0, 0, 0, .46)
+.q-field-counter
+  color $field-label-color
+  padding-left 8px
+.q-field-with-error
+  .q-field-icon, .q-field-label
+    color $has-error
+@media (min-width $breakpoint-sm-min)
+  .q-field-floating
     .q-field-icon, .q-field-label
-      color $field-primary-color
-  &.has-error
-    .q-field-label, .q-field-icon
-      color $has-error
-@media (min-width 576px)
-  .q-field.floating .q-field-label
-    margin-top 1.25rem
-@media (max-width 575px)
-  .q-field-label
-    padding-right 0
-  .q-field
-    &:not(.with-label)
-      .q-field-label
-        display none
-    &.with-label
-      .q-field-icon
-        margin-top 0
-      .q-field-label
-        margin-bottom .7rem
-      &.with-icon
-        .q-field-content
-          margin-top 0
+      margin-top 18px
 .q-gallery
   width 100%
   display flex
@@ -1825,7 +1769,7 @@ if $icon-font-family == 'Material Icons'
   word-wrap normal
   direction ltr
   user-select none
-  cursor inherit
+  cursor default
   display inline-flex
   align-items center
   justify-content center
@@ -1834,131 +1778,113 @@ if $icon-font-family == 'Material Icons'
   background $light-dimmed-background
   &.dark
     background $dimmed-background
-.q-input-group-inline-opts > div
-  display inline-flex
-.q-input-group
-  margin -5px
-$textfield-border-size        ?= 2px
-$textfield-border-style       ?= solid
-$textfield-border-color       ?= $form-lighter-color
-$textfield-focus-border-color ?= $form-active-color
-$textfield-padding-horizontal ?= 0
-$textfield-padding-vertical   ?= 8px
-$input-primary-color          ?= $primary
-$input-icon-color             ?= rgba(0, 0, 0, .38)
-$input-label-color            ?= rgba(0, 0, 0, .54)
-.caret
-  display inline-block
-  width 0
-  height 0
-  vertical-align middle
-  border-top 4px solid $input-icon-color
-  border-right 4px solid transparent
-  border-left 4px solid transparent
-.q-input-label
-  cursor pointer
-  transition all .3s ease-out
-  color $input-label-color
-  position absolute
-  &:not(.above)
-    cursor text
-  &.above
-    left 0
-    font-size small
-    transform translateY(-1.25rem)
-.q-input-border
-  background $grey-4
-  height 1px
-  left 0
-  &, &:after
-    position absolute
-    right 0
-    bottom 0
-  &:after
+$input-transition = all .45s cubic-bezier(.23, 1, .32, 1)
+.q-if
+  font-size 16px
+  min-height 24px
+  margin-top 16px
+  margin-bottom 8px
+  padding-bottom 8px
+  &:before, &:after
     content ''
+    position absolute
+    bottom 0
+    left 0
+    right 0
+    transition $input-transition
+    background currentColor
+  &:before
+    height 1px
+    color rgba(0, 0, 0, .12)
+    transform scaleY(1)
+  &:after
     left 50%
-    height 2px
-    background $input-primary-color
     width 0
+    height 2px
+    color $primary
     transform translateX(-50%)
-    transition width .3s ease-out
-.q-input-target.flow
-  flex-wrap wrap
-  align-items center
-.q-input-comp
-  cursor default
-.q-input-faded
-  color $faded
-.q-input-small
-  font-size small
-.q-input-button
+  &:hover:before
+    color rgba(0, 0, 0, .36)
+  .group
+    margin -5px
+.q-if-focusable
+  outline 0
   cursor pointer
-  padding 0 5px
-.q-input
-  position relative
-  margin-top 1rem
-  margin-bottom .5rem
-  &.dropdown:not(.disabled):not(.readonly)
-    cursor pointer !important
-    input, textarea, .q-input-comp, .q-input-label
-      cursor pointer !important
-      font-style normal
-  &:not(.textarea)
-    padding-bottom 8px
-  > .q-input-comp + .q-input-comp
-    margin-left 4px
-  &:not(.disabled):not(.readonly):not(.has-error)
-    &:hover, &.focused
-      .q-input-label
-        color $input-primary-color
-  &.disabled, &.readonly
-    border-bottom 2px dotted $grey-4
-    .q-input-border
-      display none
-  &.readonly
-    input, textarea
-      font-style italic
-  input, textarea
-    border 0
-    outline 0
-    padding 0
-    color inherit
-    background transparent
-    
-    max-width 100%
+.q-if-inner
+  min-height 19px !important
+.q-if-has-label
+  min-height 44px
+  .q-if-inner
+    min-height 39px !important
+    padding-top 20px
+.q-if-label
+  color rgba(0, 0, 0, .46)
+  pointer-events none
+  user-select none
+  top 20px
+  left 0
+  right 0
+  transform-origin left top 0
+  transform scale(1) translate(0, 0)
+  transition $input-transition
+.q-if-label-above
+  transform scale(.75) translate(0, -27px)
+.q-if-addon
+  pointer-events none
+  color rgba(0, 0, 0, .46)
+  opacity 0
+  transition $input-transition
+.q-if-addon-left
+  padding-right 8px
+.q-if-addon-right
+  padding-left 8px
+.q-if-addon-visible
+  opacity 1
+.q-if-control
+  cursor pointer
+  margin-left 8px
+  color rgba(0, 0, 0, .54)
+  font-size 22px
+.q-if-focused
+  &:after
     width 100%
-  textarea
-    margin-bottom 8px
-    resize vertical
-  &.focused .q-input-border:after
-    width 100%
-  &.has-label
-    padding-top 1.25rem
-  &.simple
-    padding-bottom 0
-  &.complex
-    border-bottom 0
-    border-radius $generic-border-radius
-    box-shadow $shadow-1
-    padding 0
-    align-items center !important
-    &, .q-input-target
-      height 38px
-    input
-      line-height 1
-    .q-icon
-      font-size 22px
-      padding 0 8px
-.q-input, .q-field
-  &.has-error
-    .q-input-label, .q-input-comp
-      color $has-error
-    .q-input-border
-      &, &:after
-        background $has-error
-.q-input-dropdown
-  max-width 100%
-  width 100px
+  .q-if-label
+    color $primary
+.q-if-error
+  &:before, &:after, .q-if-label, .q-if-addon
+    color $has-error
+  &:hover:before
+    color lighten($has-error, 26%)
+.q-if-disabled
+  cursor not-allowed !important
+  .q-if-label, .q-if-control
+    opacity .6
+    cursor not-allowed !important
+  &:before
+    background-image linear-gradient(90deg, rgba(0, 0, 0, .38) 0, rgba(0, 0, 0, .38) 33%, transparent 0)
+    background-color transparent
+    background-position bottom
+    background-size 3px 1px
+    background-repeat repeat-x
+.q-input-no-native-addons
+  .q-input-target::-webkit-outer-spin-button,
+  .q-input-target::-webkit-inner-spin-button
+    -webkit-appearance none
+.q-input-target, .q-input-shadow
+  border 0
+  outline 0
+  padding 0
+  color inherit
+  background transparent
+  font-size inherit
+  min-width 70px
+  overflow hidden
+  resize none
+.q-input-shadow
+  overflow hidden
+  visibility hidden
+  pointer-events none
+  height auto
 .q-knob, .q-knob > div
   position relative
   display inline-block
@@ -1975,7 +1901,7 @@ $input-label-color            ?= rgba(0, 0, 0, .54)
   bottom 0
   i
     font-size 130%
-$label-offset ?= 5px
+$label-offset ?= 8px
 .q-label
   div + span, span + div
     margin-left $label-offset
@@ -2175,6 +2101,10 @@ maximized-modal()
   opacity 0
   .modal-content
     transform translateX(-101%)
+.q-option-group-inline-opts > div
+  display inline-flex
+.q-option-group
+  margin -5px
 .q-pagination
   display inline-block
   input
@@ -4530,6 +4460,8 @@ for $name, $size in $sizes
   width auto
 .col-auto
   flex 0 0 auto
+.col-grow
+  flex 1 1 auto
 .order-first
   order -10000
 .order-last
