@@ -1846,6 +1846,11 @@ body.desktop .q-gallery-slider-quickview img:hover {
   margin-bottom: 8px;
   padding-bottom: 8px;
   color: #027be3;
+/* Remove browser controller for input type="number" */
+}
+.q-if input::-webkit-outer-spin-button,
+.q-if input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 .q-if:before,
 .q-if:after {
@@ -2016,12 +2021,6 @@ body.desktop .q-gallery-slider-quickview img:hover {
 .q-if-dark .q-input-target::selection {
   background: #fff;
   color: #000;
-}
-/*
- * Remove browser controller for input type="number" */
-.q-if input::-webkit-outer-spin-button,
-.q-if input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
 }
 .q-input-shadow {
   overflow: hidden;

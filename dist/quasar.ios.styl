@@ -1701,6 +1701,10 @@ $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
   margin-bottom 8px
   padding-bottom 8px
   color $primary
+  /* Remove browser controller for input type="number" */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button 
+    -webkit-appearance none
   &:before, &:after
     content ''
     position absolute
@@ -1815,24 +1819,17 @@ $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
   min-width 70px
   overflow hidden
   resize none
-.q-if-dark
-  .q-input-target
-    color white
-    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
-      color rgba(255, 255, 255, .6) !important
-    &::-moz-placeholder 
-      color rgba(255, 255, 255, .6) !important
-    &:-ms-input-placeholder 
-      color rgba(255, 255, 255, .6) !important
-    &::selection
-      background white
-      color black
-/*
- * Remove browser controller for input type="number" */
-.q-if
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button 
-    -webkit-appearance none
+.q-if-dark .q-input-target
+  color white
+  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+    color rgba(255, 255, 255, .6) !important
+  &::-moz-placeholder 
+    color rgba(255, 255, 255, .6) !important
+  &:-ms-input-placeholder 
+    color rgba(255, 255, 255, .6) !important
+  &::selection
+    background white
+    color black
 .q-input-shadow
   overflow hidden
   visibility hidden
