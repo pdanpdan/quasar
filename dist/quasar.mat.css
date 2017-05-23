@@ -1884,27 +1884,27 @@ body.desktop .q-gallery-slider-quickview img:hover {
   cursor: pointer;
 }
 .q-if-inner {
-  min-height: 19px !important;
+  min-height: 24px !important;
 }
 .q-if-has-label {
-  min-height: 44px;
+  min-height: 41px;
 }
 .q-if-has-label .q-if-inner {
-  min-height: 39px !important;
-  padding-top: 20px;
+  min-height: 34px !important;
+  padding-top: 15px;
 }
 .q-if-label {
   color: rgba(0,0,0,0.46);
   pointer-events: none;
   user-select: none;
-  top: 20px;
+  top: 15px;
   left: 0;
   right: 0;
   transform-origin: left top 0;
   transform: scale(1) translate(0, 0);
 }
 .q-if-label-above {
-  transform: scale(0.75) translate(0, -27px);
+  transform: scale(0.75) translate(0, -22px);
 }
 .q-if-addon {
   pointer-events: none;
@@ -1924,7 +1924,7 @@ body.desktop .q-gallery-slider-quickview img:hover {
   cursor: pointer;
   margin-left: 8px;
   color: rgba(0,0,0,0.54);
-  font-size: 22px;
+  font-size: 24px;
 }
 .q-if-control:hover {
   opacity: 0.7;
@@ -2001,8 +2001,9 @@ body.desktop .q-gallery-slider-quickview img:hover {
   padding: 0;
   color: #000;
   background: transparent;
-  font-size: inherit;
   min-width: 70px;
+  font-size: inherit;
+  line-height: 1;
   overflow: hidden;
   resize: none;
 }
