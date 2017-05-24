@@ -31,7 +31,7 @@ export default {
     length () {
       return this.multiple
         ? this.value.length
-        : (this.value.length ? 1 : 0)
+        : ([null, undefined, ''].includes(this.value) ? 0 : 1)
     },
     frameColor () {
       return this.hasChips && this.inverted

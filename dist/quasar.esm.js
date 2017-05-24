@@ -2724,7 +2724,7 @@ var obj;},staticRenderFns: [],
   }
 };
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.bgColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group"},[_vm._l((_vm.value),function(label,index){return _c('q-chip',{key:index,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.remove(index);}}},[_vm._v(_vm._s(label))])}),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxlength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"name":"send"},on:{"click":function($event){_vm.add();}},slot:"control"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.bgColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.value),function(label,index){return _c('q-chip',{key:index,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.remove(index);}}},[_vm._v(_vm._s(label))])}),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxlength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"name":"send"},on:{"click":function($event){_vm.add();}},slot:"control"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -3848,7 +3848,7 @@ var SelectMixin = {
     length: function length () {
       return this.multiple
         ? this.value.length
-        : (this.value.length ? 1 : 0)
+        : ([null, undefined, ''].includes(this.value) ? 0 : 1)
     },
     frameColor: function frameColor () {
       return this.hasChips && this.inverted
