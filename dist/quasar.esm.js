@@ -3807,7 +3807,8 @@ var SelectMixin = {
       validator: function (v) { return v.every(function (o) { return 'label' in o && 'value' in o; }); }
     },
     chips: Boolean,
-    bgColor: String
+    bgColor: String,
+    customValue: String
   },
   data: function data () {
     return {
@@ -3898,8 +3899,11 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     actualValue: function actualValue () {
       var this$1 = this;
 
+      if (this.customValue) {
+        return this.customValue
+      }
       if (!this.multiple) {
-        var option = this.options.find(function (option) { return option.value === this$1.model; });
+        var option = this.options.find(function (option) { return option.value === this$1.value; });
         return option ? option.label : ''
       }
 
@@ -4876,16 +4880,16 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     actualValue: function actualValue () {
       var this$1 = this;
 
-      if (this.multiple) {
-        var options = this.options
-        .filter(function (option) { return this$1.value.includes(option.value); })
-        .map(function (option) { return option.label; });
-
-        return !options.length ? '' : options.join(', ')
+      if (this.customValue) {
+        return this.customValue
+      }
+      if (!this.multiple) {
+        var option = this.options.find(function (option) { return option.value === this$1.value; });
+        return option ? option.label : ''
       }
 
-      var option = this.options.find(function (option) { return option.value === this$1.value; });
-      return option ? option.label : ''
+      var options = this.selectedOptions.map(function (opt) { return opt.label; });
+      return !options.length ? '' : options.join(', ')
     },
     selectedOptions: function selectedOptions () {
       var this$1 = this;
