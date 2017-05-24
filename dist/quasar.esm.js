@@ -3920,6 +3920,11 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
       return typeof this.filter === 'boolean'
         ? defaultFilterFn
         : this.filter
+    },
+    activeItemSelector: function activeItemSelector () {
+      return this.multiple
+        ? (".item-" + (this.toggle ? 'secondary' : 'primary') + " > .active")
+        : ".item.active"
     }
   },
   methods: {
@@ -3935,6 +3940,10 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     __onOpen: function __onOpen () {
       this.focused = true;
       this.$emit('focus');
+      var selected = this.$refs.popover.$el.querySelector(this.activeItemSelector);
+      if (selected) {
+        selected.scrollIntoView();
+      }
     },
     __onClose: function __onClose () {
       this.focused = false;
