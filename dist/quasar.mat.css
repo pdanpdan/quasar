@@ -1200,16 +1200,23 @@ body.desktop .q-checkbox:focus input + div:before {
 .q-datetime-input {
   min-width: 70px;
 }
+.q-datetime-controls {
+  padding: 0 10px 8px;
+}
 .q-datetime {
-  color: rgba(0,0,0,0.87);
   font-size: 1rem;
   text-align: center;
   user-select: none;
   line-height: initial;
 }
+.q-datetime-dark {
+  color: #000;
+}
 .q-datetime-header {
+  background: currentColor;
+}
+.q-datetime-header > div {
   color: #fff;
-  background: #027be3;
 }
 .q-datetime-weekdaystring {
   font-size: 0.8rem;
@@ -1242,20 +1249,15 @@ div + .q-datetime-time {
   font-size: 2.7rem;
 }
 .q-datetime-selector {
-  height: 330px;
+  height: 310px;
   overflow: auto;
-}
-.q-datetime-animate {
-  animation: q-scale-in 0.4s;
-}
-.modal .q-datetime-animate {
-  animation: initial;
 }
 .q-datetime-view-day {
   width: 250px;
   height: 300px;
 }
 .q-datetime-weekdays {
+  color: rgba(0,0,0,0.87);
   font-size: 0.75rem;
   margin-top: 10px;
   margin-bottom: 5px;
@@ -1271,33 +1273,34 @@ div + .q-datetime-time {
   min-height: 0;
   background: transparent;
 }
-.q-datetime-days {
-  font-size: 12px;
-}
 .q-datetime-days div {
+  font-size: 12px;
   width: 35px;
   height: 35px;
-}
-.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled) {
   border-radius: 50%;
-  transition: all 0.3s;
 }
-.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled):hover {
-  background: #e0e0e0;
+.q-datetime-days div:not(.active) {
+  color: #000;
 }
-.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled).active {
-  animation: q-pop-in 0.5s;
+.q-datetime-days div.active {
+  background: currentColor;
+}
+.q-datetime-days div.active > span {
   color: #fff;
-  background: #027be3;
+}
+.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled):not(.active):hover {
+  background: #e0e0e0;
 }
 .q-datetime-btn {
   font-weight: normal;
+}
+.q-datetime-btn:not(.active) {
+  color: #000 !important;
 }
 .q-datetime-btn.active {
   font-size: 1.5rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  color: #027be3 !important;
 }
 .q-datetime-clock {
   width: 250px;
@@ -1321,8 +1324,7 @@ div + .q-datetime-time {
   left: 0;
   right: 0;
   bottom: 0;
-  color: #fff;
-  background: #027be3;
+  background: currentColor;
 }
 .q-datetime-clock-pointer {
   width: 1px;
@@ -1334,7 +1336,7 @@ div + .q-datetime-time {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #027be3;
+  background: currentColor;
 }
 .q-datetime-clock-pointer span {
   position: absolute;
@@ -1346,7 +1348,7 @@ div + .q-datetime-time {
   min-width: 0;
   min-height: 0;
   transform: translate(-50%, -50%);
-  background: #027be3;
+  background: currentColor;
 }
 body.desktop .q-datetime-clock-position:not(.active):hover {
   background: #f5f5f5 !important;
@@ -1363,9 +1365,14 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   transform: translate(-50%, -50%);
   border-radius: 50%;
 }
+.q-datetime-clock-position:not(.active) {
+  color: #000;
+}
 .q-datetime-clock-position.active {
+  background: currentColor;
+}
+.q-datetime-clock-position.active > span {
   color: #fff;
-  background: #027be3 !important;
 }
 .q-datetime-clock-pos-0 {
   top: 0%;
@@ -2361,7 +2368,7 @@ body.with-modal {
 }
 .q-popover {
   position: fixed;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
   background: #fff;
   z-index: 6000;
   overflow-y: auto;
