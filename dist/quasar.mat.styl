@@ -61,7 +61,6 @@ $white     ?= #fff
 $light     ?= #f4f4f4
 $dark      ?= #333
 $faded     ?= #777
-$has-error ?= $negative
 $link-color          ?= lighten($primary, 25%)
 $link-color-active   ?= $primary
 $dimmed-background       ?= rgba(0, 0, 0, .4)
@@ -1657,28 +1656,40 @@ $field-label-color ?= rgba(0, 0, 0, .54)
   min-height $field-icon-size
 .q-field-label-hint
   padding-left 8px
-.q-field-label-focusable .q-field-label-inner
-  cursor pointer
 .q-field-bottom
   font-size 12px
   padding-top 8px
-.q-field-error
-  color $has-error
-.q-field-helper
   color rgba(0, 0, 0, .46)
+.q-field-no-input
+  margin-top 8px
+  border-top 1px solid rgba(0, 0, 0, .12)
 .q-field-counter
   color $field-label-color
   padding-left 8px
 .q-field-dark
-  .q-field-label, .q-field-icon, .q-field-helper, .q-field-counter
+  .q-field-label, .q-field-icon, .q-field-counter, .q-field-bottom
     color rgba(255, 255, 255, 60%)
+  .q-field-no-input
+    border-top 1px solid rgba(255, 255, 255, .7)
 .q-field-with-error
-  .q-field-icon, .q-field-label
+  .q-field-icon, .q-field-label, .q-field-bottom
     color $negative
+  .q-field-no-input
+    border-top 1px solid $negative
+@media (max-width $breakpoint-xs-max)
+  .q-field-label + .q-field-content
+    padding-top 8px
+  .q-field-floating.q-field-no-label
+    .q-field-margin
+      margin-top 12px
+  .q-field-no-label .q-field-label
+    display none
 @media (min-width $breakpoint-sm-min)
   .q-field-floating
-    .q-field-icon, .q-field-label
-      margin-top 18px
+    .q-field-margin
+      margin-top 12px
+  .q-field-label + .q-field-content
+    padding-top 0
 .q-gallery
   width 100%
   display flex
@@ -1784,7 +1795,7 @@ if $icon-font-family == 'Material Icons'
   &.dark
     background $dimmed-background
 $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
-.q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control
+.q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-transition
 .q-if
   font-size 16px
@@ -1861,9 +1872,9 @@ $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
   margin-right 8px
 .q-if-dark
   &:before, .q-if-label, .q-if-control
-    color rgba(255, 255, 255, 70%)
+    color rgba(255, 255, 255, .7)
   &:hover:before, .q-if-addon
-    color rgba(255, 255, 255, 90%)
+    color rgba(255, 255, 255, .9)
 .q-if-focused
   &:after
     width 100%
@@ -1883,7 +1894,7 @@ $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
     margin-right 8px
 .q-if-error
   &:before, &:after, &:not(.q-if-inverted) .q-if-label, .q-if-addon
-    color $has-error
+    color $negative
   &:hover:before
     color lighten($negative, 26%)
 .q-if-disabled
@@ -2154,6 +2165,7 @@ maximized-modal()
   display inline-flex
 .q-option-group
   margin -5px
+  padding 5px 0
 .q-pagination
   display inline-block
   input
@@ -2419,7 +2431,7 @@ $range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     padding 55px 0 5px
     height 85px
   &.has-error
-    color $has-error
+    color $negative
 $rating-grade-color     ?= $yellow
 $rating-shadow          ?= $shadow-1
 .q-rating
