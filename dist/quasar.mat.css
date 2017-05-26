@@ -2014,6 +2014,11 @@ body.desktop .q-gallery-slider-quickview img:hover {
   background-size: 3px 1px;
   background-repeat: repeat-x;
 }
+@-webkit-keyframes autofill {
+  to {
+    background: transparent;
+  }
+}
 .q-input-target::-webkit-outer-spin-button,
 .q-input-target::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -2033,6 +2038,19 @@ body.desktop .q-gallery-slider-quickview img:hover {
   resize: none;
   display: flex;
   align-items: center;
+}
+.q-input-target:-webkit-autofill,
+.q-input-shadow:-webkit-autofill {
+  -webkit-animation-name: autofill;
+  -webkit-animation-fill-mode: both;
+}
+.q-input-target::-ms-clear,
+.q-input-shadow::-ms-clear,
+.q-input-target::-ms-reveal,
+.q-input-shadow::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
 }
 input.q-input-target {
   height: 18px;
