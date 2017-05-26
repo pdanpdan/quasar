@@ -826,7 +826,6 @@ img.avatar {
 .q-message-stamp,
 .q-message-label {
   font-size: small;
-  color: rgba(0,0,0,0.51);
 }
 .q-message-name {
   padding-left: 11px;
@@ -851,48 +850,53 @@ img.avatar {
 .q-message:first-child .q-message-label {
   margin-top: 0;
 }
-.q-message.message-received .q-message-avatar {
+.q-message-received .q-message-avatar {
   margin-right: 8px;
 }
-.q-message.message-received .q-message-text {
-  color: #000;
-  background: #eee;
+.q-message-received .q-message-text {
+  color: #81c784;
   border-radius: 20px;
 }
-.q-message.message-received .q-message-text:last-child:before {
+.q-message-received .q-message-text:last-child:before {
   left: -7px;
-  border-left: 20px solid #eee;
+  border-left: 20px solid currentColor;
   border-bottom-right-radius: 16px 14px;
 }
-.q-message.message-received .q-message-text:last-child:after {
+.q-message-received .q-message-text:last-child:after {
   left: 23px;
   border-bottom-right-radius: 10px;
 }
-.q-message.message-sent .q-message-name {
+.q-message-received .q-message-text-content {
+  color: #000;
+}
+.q-message-sent .q-message-name {
   text-align: right;
   padding-right: 11px;
 }
-.q-message.message-sent .q-message-avatar {
+.q-message-sent .q-message-avatar {
   margin-left: 8px;
 }
-.q-message.message-sent .q-message-container {
+.q-message-sent .q-message-container {
   flex-direction: row-reverse;
 }
-.q-message.message-sent .q-message-text {
-  color: #000;
-  background: #a5d6a7;
+.q-message-sent .q-message-text {
+  color: #e0e0e0;
   border-radius: 20px;
 }
-.q-message.message-sent .q-message-text:last-child:before {
+.q-message-sent .q-message-text:last-child:before {
   right: -7px;
-  border-right: 20px solid #a5d6a7;
+  border-right: 20px solid currentColor;
   border-bottom-left-radius: 16px 14px;
 }
-.q-message.message-sent .q-message-text:last-child:after {
+.q-message-sent .q-message-text:last-child:after {
   right: -37px;
   border-bottom-left-radius: 10px;
 }
+.q-message-sent .q-message-text-content {
+  color: #000;
+}
 .q-message-text {
+  background: currentColor;
   padding: 9px 11px;
   line-height: 1.2;
   word-break: break-word;
