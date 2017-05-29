@@ -1,5 +1,5 @@
 $button-border-radius ?= $generic-border-radius
-$button-padding       ?= 0 1rem
+$button-padding       ?= 0 16px
 $button-transition    ?= .12s ease-in
 
 $button-sizes = {
@@ -12,10 +12,16 @@ $button-round-sizes = {
   standard: 56px,
   big: 72px
 }
+button-round-factor($size)
+  if $size == 'small'
+    .54
+  else
+    .47
 
 .q-btn
   position relative
   display inline-flex
+  flex-direction column
   align-items center
   justify-content center
   outline 0
@@ -55,8 +61,9 @@ $button-round-sizes = {
 
 for $name, $size in $button-sizes
   .q-btn-{$name}
-    min-height $size
     font-size round($size * .38)
+    .q-btn-inner
+      flex-basis $size
     .q-icon
       font-size round($size * .68)
     .q-spinner
@@ -66,10 +73,7 @@ for $name, $size in $button-round-sizes
   .q-btn-round.q-btn-{$name}
     height $size
     width $size
-    .q-icon
-      height round(.43 * $size)
-      width round(.43 * $size)
-      font-size round(.43 * $size)
-    .q-spinner
-      height round(.43 * $size)
-      width round(.43 * $size)
+    .q-icon, .q-spinner
+      height round(button-round-factor($name) * $size)
+      width round(button-round-factor($name) * $size)
+      font-size round(button-round-factor($name) * $size)
