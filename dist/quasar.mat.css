@@ -2722,6 +2722,7 @@ body.with-modal {
 .q-slider-track.with-arrows > div {
   padding-left: 10%;
   padding-right: 10%;
+  -ms-flex-preferred-size: 80%;
 }
 .q-slider-track.with-toolbar > div {
   padding-bottom: 3.3rem;
