@@ -2622,13 +2622,13 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QCard = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card",class:{ 'no-border-radius': _vm.square, 'no-shadow': _vm.flat, row: _vm.horizontal, column: !_vm.horizontal, inline: !_vm.block }},[_vm._t("default")],2)},staticRenderFns: [],
+var QCard = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card",class:{ 'no-border-radius': _vm.square, 'no-shadow': _vm.flat, row: _vm.horizontal, column: !_vm.horizontal, inline: _vm.inline }},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-card',
   props: {
     square: Boolean,
     flat: Boolean,
     horizontal: Boolean,
-    block: Boolean
+    inline: Boolean
   }
 };
 

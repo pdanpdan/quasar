@@ -633,9 +633,9 @@ img.avatar {
 .q-btn {
   position: relative;
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   outline: 0;
   border: 0;
   vertical-align: middle;
@@ -656,6 +656,11 @@ img.avatar {
 }
 .q-btn.full-width {
   border-radius: 0 !important;
+}
+.q-btn .q-btn-inner {
+  flex-wrap: nowrap;
+  flex: 1 0 auto;
+  white-space: normal;
 }
 .q-btn-no-uppercase {
   text-transform: none;
@@ -691,10 +696,11 @@ img.avatar {
   box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
 }
 .q-btn-small {
+  min-height: 28px;
   font-size: 11px;
 }
 .q-btn-small .q-btn-inner {
-  flex-basis: 28px;
+  -ms-flex-preferred-size: 28px;
 }
 .q-btn-small .q-icon {
   font-size: 19px;
@@ -704,10 +710,11 @@ img.avatar {
   width: 19px;
 }
 .q-btn-standard {
+  min-height: 36px;
   font-size: 14px;
 }
 .q-btn-standard .q-btn-inner {
-  flex-basis: 36px;
+  -ms-flex-preferred-size: 36px;
 }
 .q-btn-standard .q-icon {
   font-size: 24px;
@@ -717,10 +724,11 @@ img.avatar {
   width: 24px;
 }
 .q-btn-big {
+  min-height: 44px;
   font-size: 17px;
 }
 .q-btn-big .q-btn-inner {
-  flex-basis: 44px;
+  -ms-flex-preferred-size: 44px;
 }
 .q-btn-big .q-icon {
   font-size: 30px;
