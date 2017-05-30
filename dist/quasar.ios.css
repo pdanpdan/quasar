@@ -2139,11 +2139,14 @@ body.with-modal {
   padding: 5px 0;
 }
 .q-pagination {
-  display: inline-block;
+  display: inline-flex;
 }
 .q-pagination input {
   text-align: center;
   -moz-appearance: textfield;
+}
+.q-pagination .q-if {
+  margin: 8px 0 0 0;
 }
 .q-pagination .q-btn {
   padding: 0 5px !important;
