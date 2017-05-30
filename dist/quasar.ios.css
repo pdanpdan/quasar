@@ -637,7 +637,6 @@ img.avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   outline: 0;
   border: 0;
   vertical-align: middle;
@@ -652,11 +651,18 @@ img.avatar {
 }
 .q-btn.full-width {
   border-radius: 0 !important;
+  align-items: stretch;
 }
 .q-btn .q-btn-inner {
-  flex-wrap: nowrap;
   flex: 1 0 auto;
+  flex-wrap: nowrap;
   white-space: normal;
+}
+.q-btn .q-btn-inner> :not(.q-btn-inner-content) {
+  flex: 0 0 auto;
+}
+.q-btn .q-btn-inner .q-btn-inner-content {
+  flex: 1 1 auto;
 }
 .q-btn-rectangle {
   border-radius: 4px;
@@ -680,11 +686,13 @@ img.avatar {
   padding: 0;
 }
 .q-btn-small {
-  min-height: 28px;
   font-size: 11px;
 }
-.q-btn-small .q-btn-inner {
-  -ms-flex-preferred-size: 28px;
+.q-btn-small .q-btn-inner:before {
+  content: "";
+  height: 28px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .q-btn-small .q-icon {
   font-size: 19px;
@@ -694,11 +702,13 @@ img.avatar {
   width: 19px;
 }
 .q-btn-standard {
-  min-height: 36px;
   font-size: 14px;
 }
-.q-btn-standard .q-btn-inner {
-  -ms-flex-preferred-size: 36px;
+.q-btn-standard .q-btn-inner:before {
+  content: "";
+  height: 36px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .q-btn-standard .q-icon {
   font-size: 24px;
@@ -708,11 +718,13 @@ img.avatar {
   width: 24px;
 }
 .q-btn-big {
-  min-height: 44px;
   font-size: 17px;
 }
-.q-btn-big .q-btn-inner {
-  -ms-flex-preferred-size: 44px;
+.q-btn-big .q-btn-inner:before {
+  content: "";
+  height: 44px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .q-btn-big .q-icon {
   font-size: 30px;

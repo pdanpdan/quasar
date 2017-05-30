@@ -2520,7 +2520,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
   }
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-btn row inline items-center justify-center q-focusable q-hoverable",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col items-center justify-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-btn row inline items-center justify-center q-focusable q-hoverable",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col items-center justify-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(!!_vm.$slots.default)?_c('span',{staticClass:"q-btn-inner-content"},[_vm._t("default")],2):_vm._e(),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
   name: 'q-btn',
   components: {
     QSpinner: QSpinner,

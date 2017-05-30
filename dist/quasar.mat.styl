@@ -1002,7 +1002,6 @@ button-round-factor($size)
   display inline-flex
   align-items center
   justify-content center
-  flex-direction column
   outline 0
   border 0
   vertical-align middle
@@ -1021,10 +1020,15 @@ button-round-factor($size)
     box-shadow $shadow-8
   &.full-width
     border-radius 0 !important
+    align-items stretch
   .q-btn-inner
-    flex-wrap nowrap
     flex 1 0 auto
+    flex-wrap nowrap
     white-space normal
+    &> :not(.q-btn-inner-content)
+     flex 0 0 auto
+    .q-btn-inner-content
+      flex 1 1 auto
 .q-btn-no-uppercase
   text-transform none
 .q-btn-rectangle
@@ -1050,10 +1054,12 @@ button-round-factor($size)
     box-shadow $shadow-8
 for $name, $size in $button-sizes
   .q-btn-{$name}
-    min-height $size
     font-size round($size * .38)
-    .q-btn-inner
-      -ms-flex-preferred-size $size
+    .q-btn-inner:before
+      content ""
+      height $size
+      display inline-block
+      vertical-align middle
     .q-icon
       font-size round($size * .68)
     .q-spinner
