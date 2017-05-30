@@ -1771,13 +1771,17 @@ $input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
 .q-if-focusable
   outline 0
   cursor pointer
-.q-if-inner
-  min-height 24px !important
+.q-if-inner:before
+  content ""
+  height 24px
+  display inline-block
+  vertical-align middle
 .q-if-has-label
   min-height 41px
   .q-if-inner
-    min-height 34px !important
     padding-top 15px
+    &:before
+      height 19px
 .q-if-label
   color rgba(0, 0, 0, .46)
   pointer-events none
@@ -2685,6 +2689,8 @@ $tabs-text-transform           ?= uppercase
 .q-tab-pane
   padding $tabs-pane-padding
   border $tabs-pane-border
+.q-tabs-no-pane-border .q-tab-pane
+  border 0
 .q-tabs-panes:empty
   display none
 .q-tab-icon, .q-tab-label

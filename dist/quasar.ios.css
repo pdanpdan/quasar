@@ -1635,15 +1635,20 @@ body.desktop .q-gallery-slider-quickview img:hover {
   outline: 0;
   cursor: pointer;
 }
-.q-if-inner {
-  min-height: 24px !important;
+.q-if-inner:before {
+  content: "";
+  height: 24px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .q-if-has-label {
   min-height: 41px;
 }
 .q-if-has-label .q-if-inner {
-  min-height: 34px !important;
   padding-top: 15px;
+}
+.q-if-has-label .q-if-inner:before {
+  height: 19px;
 }
 .q-if-label {
   color: rgba(0,0,0,0.46);
@@ -2704,6 +2709,9 @@ body.desktop .q-stepper-step.step-editable:hover {
 .q-tab-pane {
   padding: 12px;
   border: 1px solid rgba(0,0,0,0.1);
+}
+.q-tabs-no-pane-border .q-tab-pane {
+  border: 0;
 }
 .q-tabs-panes:empty {
   display: none;
