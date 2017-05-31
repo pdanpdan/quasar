@@ -1580,7 +1580,9 @@ var Ripple = {
 
     var ctx = el.__qripple;
     Object.keys(ctx).forEach(function (evt) {
-      el.removeEventListener(evt, ctx[evt], false);
+      if (evt !== 'enabled') {
+        el.removeEventListener(evt, ctx[evt], false);
+      }
     });
     delete el.__qripple;
   }
