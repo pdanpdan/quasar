@@ -2407,6 +2407,9 @@ body.with-modal {
 .q-pagination .q-if {
   margin: 8px 0 0 0;
 }
+.q-pagination .q-input-target {
+  width: 100%;
+}
 .q-pagination .q-btn {
   padding: 0 5px !important;
 }

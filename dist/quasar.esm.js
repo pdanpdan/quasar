@@ -1558,7 +1558,9 @@ var Ripple = {
 
     el.__qripple = ctx;
     Object.keys(ctx).forEach(function (evt) {
-      el.addEventListener(evt, ctx[evt], false);
+      if (evt !== 'enabled') {
+        el.addEventListener(evt, ctx[evt], false);
+      }
     });
   },
   update: function update (el, ref) {
