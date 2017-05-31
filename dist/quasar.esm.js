@@ -220,14 +220,14 @@ function height (el) {
   if (el === window) {
     return viewport().height
   }
-  return parseFloat(window.getComputedStyle(el).getPropertyValue('height'), 10)
+  return parseFloat(style(el, 'height'))
 }
 
 function width (el) {
   if (el === window) {
     return viewport().width
   }
-  return parseFloat(window.getComputedStyle(el).getPropertyValue('width'), 10)
+  return parseFloat(style(el, 'width'))
 }
 
 function css (element, css) {
@@ -1333,17 +1333,17 @@ var QSpinnerTail = {render: function(){var _vm=this;var _h=_vm.$createElement;va
 };
 
 function getEvent (e) {
-  return !e ? window.event : e
+  return e || window.event
 }
 
 function rightClick (e) {
   e = getEvent(e);
 
   if (e.which) {
-    return e.which == 3 // eslint-disable-line
+    return e.which === 3 // eslint-disable-line
   }
   if (e.button) {
-    return e.button == 2 // eslint-disable-line
+    return e.button === 2 // eslint-disable-line
   }
 
   return false
@@ -1730,7 +1730,7 @@ var class2type = {};
 });
 
 function type (obj) {
-  return obj == null ? String(obj) : class2type[toString.call(obj)] || 'object'
+  return obj === null ? String(obj) : class2type[toString.call(obj)] || 'object'
 }
 
 function isPlainObject (obj) {
@@ -1776,7 +1776,7 @@ function extend () {
   }
 
   for (; i < length; i++) {
-    if ((options = arguments$1[i]) != null) {
+    if ((options = arguments$1[i]) !== null) {
       for (name in options) {
         src = target[name];
         copy = options[name];
@@ -3031,7 +3031,7 @@ function getHeight (el, style$$1) {
   var height$$1 = style$$1.height;
   css(el, initial);
 
-  return parseFloat(height$$1, 10)
+  return parseFloat(height$$1)
 }
 
 function parseSize (padding) {
@@ -3040,7 +3040,7 @@ function parseSize (padding) {
     if (unit) {
       unit = unit[0];
     }
-    return [parseFloat(t, 10), unit]
+    return [parseFloat(t), unit]
   })
 }
 
@@ -4259,7 +4259,7 @@ function getPercentage (event, dragging) {
 
 function notDivides (res, decimals) {
   var number = decimals
-    ? parseFloat(res.toFixed(decimals), 10)
+    ? parseFloat(res.toFixed(decimals))
     : res;
 
   return number !== parseInt(number, 10)
@@ -5332,7 +5332,6 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     __update: function __update () {
       var parsed = parseInt(this.newPage, 10);
       if (parsed) {
-        console.log('blurring and setting model');
         this.model = parsed;
         this.$refs.input.blur();
       }
@@ -9109,14 +9108,11 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
       }
 
       if (event.isFinal) {
-        if (this.scrolling) {
-          this.scrolling = false;
-          this.pulling = false;
-          return
-        }
         this.scrolling = false;
         this.pulling = false;
-
+        if (this.scrolling) {
+          return
+        }
         if (this.state === 'pulled') {
           this.state = 'refreshing';
           this.__animateTo(0);
@@ -10090,6 +10086,10 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       type: String,
       required: true
     },
+    urlFactory: {
+      type: Function,
+      required: false
+    },
     additionalFields: {
       type: Array,
       default: function () { return []; }
@@ -10265,15 +10265,21 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           reject(xhr);
         };
 
-        xhr.open(this$1.method, this$1.url, true);
-        if (this$1.headers) {
-          Object.keys(this$1.headers).forEach(function (key) {
-            xhr.setRequestHeader(key, this$1.headers[key]);
-          });
-        }
+        var resolver = this$1.urlFactory
+          ? this$1.urlFactory(file)
+          : Promise.resolve(this$1.url);
 
-        this$1.xhrs.push(xhr);
-        xhr.send(form);
+        resolver.then(function (url) {
+          xhr.open(this$1.method, url, true);
+          if (this$1.headers) {
+            Object.keys(this$1.headers).forEach(function (key) {
+              xhr.setRequestHeader(key, this$1.headers[key]);
+            });
+          }
+
+          this$1.xhrs.push(xhr);
+          xhr.send(form);
+        });
       })
     },
     upload: function upload () {
@@ -11592,7 +11598,7 @@ function parseOptions$1 (opts, defaults) {
   return options
 }
 
-var Toast = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-toast-container",class:{active: _vm.active}},[(_vm.stack[0])?_c('div',{staticClass:"q-toast row no-wrap items-center non-selectable",class:_vm.classes,style:({color: _vm.stack[0].color, background: _vm.stack[0].bgColor})},[(_vm.stack[0].icon)?_c('q-icon',{attrs:{"name":_vm.stack[0].icon}}):_vm._e(),(_vm.stack[0].image)?_c('img',{attrs:{"src":_vm.stack[0].image}}):_vm._e(),_c('div',{staticClass:"q-toast-message col",domProps:{"innerHTML":_vm._s(_vm.stack[0].html)}}),(_vm.stack[0].button && _vm.stack[0].button.label)?_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss(_vm.stack[0].button.handler);}}},[_vm._v(_vm._s(_vm.stack[0].button.label)+" ")]):_vm._e(),_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss();}}},[_c('q-icon',{attrs:{"name":"close"}})],1)],1):_vm._e()])},staticRenderFns: [],
+var Toast = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-toast-container",class:{active: _vm.active}},[(_vm.stack[0])?_c('div',{staticClass:"q-toast row no-wrap items-center non-selectable",class:_vm.classes,style:({color: _vm.stack[0].color, background: _vm.stack[0].bgColor})},[(_vm.stack[0].icon)?_c('q-icon',{attrs:{"name":_vm.stack[0].icon}}):_vm._e(),(_vm.stack[0].image)?_c('img',{attrs:{"src":_vm.stack[0].image}}):_vm._e(),_c('div',{staticClass:"q-toast-message col-grow",domProps:{"innerHTML":_vm._s(_vm.stack[0].html)}}),(_vm.stack[0].button && _vm.stack[0].button.label)?_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss(_vm.stack[0].button.handler);}}},[_vm._v(_vm._s(_vm.stack[0].button.label)+" ")]):_vm._e(),_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss();}}},[_c('q-icon',{attrs:{"name":"close"}})],1)],1):_vm._e()])},staticRenderFns: [],
   name: 'q-toast',
   components: {
     QIcon: QIcon
