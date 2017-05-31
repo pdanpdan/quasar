@@ -2101,6 +2101,9 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       if (this$1.anchorEl.classList.contains('q-btn-inner')) {
         this$1.anchorEl = this$1.anchorEl.parentNode;
       }
+      if (this$1.anchorEl.classList.contains('q-btn-inner-content')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode.parentNode;
+      }
       if (this$1.anchorClick) {
         this$1.anchorEl.classList.add('cursor-pointer');
         this$1.anchorEl.addEventListener('click', this$1.toggle);
@@ -5924,6 +5927,9 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       this$1.anchorEl.removeChild(this$1.$el);
       if (this$1.anchorEl.classList.contains('q-btn-inner')) {
         this$1.anchorEl = this$1.anchorEl.parentNode;
+      }
+      if (this$1.anchorEl.classList.contains('q-btn-inner-content')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode.parentNode;
       }
       if (Platform.is.mobile) {
         this$1.anchorEl.addEventListener('click', this$1.open);
