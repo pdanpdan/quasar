@@ -4501,9 +4501,6 @@ input::selection
 *:-webkit-full-screen 
   width 100%
   height 100%
-label
-  user-select none
-  cursor pointer
 .row, .column, .flex
   display flex
   flex-wrap wrap
@@ -4783,9 +4780,9 @@ for $z in 1..24
   transform scale(-1, 1)
 .flip-vertical
   transform scale(1, -1)
-.pull-left
+.pull-left, .float-left
   float left !important
-.pull-right
+.pull-right, .float-right
   float right !important
 .relative-position
   position relative !important
@@ -4844,21 +4841,16 @@ for $z in 1..24
   right 0
   bottom 0
   left 0
-+prefix-classes('float-')
-  .left
-    float left !important
-  .right
-    float right !important
-+prefix-classes('vertical-')
-  .top
+.vertical-
+  &top
     vertical-align top !important
-  .middle
+  &middle
     vertical-align middle !important
-  .bottom
+  &bottom
     vertical-align bottom !important
-&.on-left
+.on-left
   margin-right 12px !important
-&.on-right
+.on-right
   margin-left 12px !important
 .q-ripple
   &-container
@@ -5001,7 +4993,7 @@ body
       z-index $z-body-dimmed !important
 .z-absolute
   z-index $z-absolute !important
-for type in desktop mobile cordova electron ios mat touch no-touch within-iframe platform-ios platform-android
+for type in desktop mobile cordova electron ios mat touch within-iframe platform-ios platform-android
   body:not(.{type}) .{type}-only,
   body.{type} .{type}-hide
     display none !important
