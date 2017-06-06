@@ -9690,7 +9690,7 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     },
     reset: function reset () {
       if (this.hasSteps) {
-        this.gotToStep(this.steps[0].name);
+        this.goToStep(this.steps[0].name);
       }
     },
 
