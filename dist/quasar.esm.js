@@ -4162,7 +4162,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().startsWith(terms)
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additionallength":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('div',{staticClass:"list link no-border",class:{delimiter: _vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"no-ripple":""},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"secondary"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"primary"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":_vm.model === opt.value,"no-ripple":""},nativeOn:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
@@ -4226,12 +4226,12 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
         return this.displayValue
       }
       if (!this.multiple) {
-        var option = this.options.find(function (option) { return option.value === this$1.value; });
-        return option ? option.label : ''
+        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
+        return opt$1 ? opt$1.label : ''
       }
 
-      var options = this.selectedOptions.map(function (opt) { return opt.label; });
-      return !options.length ? '' : options.join(', ')
+      var opt = this.selectedOptions.map(function (opt) { return opt.label; });
+      return opt.length ? opt.join(', ') : ''
     },
     optModel: function optModel () {
       var this$1 = this;
@@ -5216,7 +5216,7 @@ var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 
 var Dialog = Modal(Dialog$1);
 
-var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additionallength":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"})],1)},staticRenderFns: [],
