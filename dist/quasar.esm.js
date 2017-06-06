@@ -9493,7 +9493,7 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.vm.done),expression:"vm.done",modifiers:{"mat":true}}],staticClass:"q-stepper-tab col-grow flex no-wrap relative-position",class:{ 'step-error': _vm.vm.error, 'step-active': _vm.vm.active, 'step-done': _vm.vm.done, 'step-waiting': _vm.vm.waiting, 'step-disabled': _vm.vm.disable, 'step-colored': _vm.vm.active || _vm.vm.done, 'items-center': !_vm.vm.__stepper.vertical, 'items-start': _vm.vm.__stepper.vertical },on:{"click":_vm.__select}},[_c('div',{staticClass:"q-stepper-dot row items-center justify-center q-stepper-line relative-position"},[_c('span',{staticClass:"row items-center justify-center"},[(_vm.vm.stepIcon)?_c('q-icon',{attrs:{"name":_vm.vm.stepIcon}}):_c('span',[_vm._v(_vm._s(_vm.vm.actualOrder + 1))])],1)]),(_vm.vm.title)?_c('div',{staticClass:"q-stepper-label q-stepper-line relative-position"},[_c('div',{staticClass:"q-stepper-title",domProps:{"innerHTML":_vm._s(_vm.vm.title)}}),_c('div',{staticClass:"q-stepper-subtitle",domProps:{"innerHTML":_vm._s(_vm.vm.subtitle)}})]):_vm._e()])},staticRenderFns: [],
+var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.vm.done),expression:"vm.done",modifiers:{"mat":true}}],staticClass:"q-stepper-tab col-grow flex no-wrap relative-position",class:{ 'step-error': _vm.vm.error, 'step-active': _vm.vm.active, 'step-done': _vm.vm.done, 'step-waiting': _vm.vm.waiting, 'step-disabled': _vm.vm.disable, 'step-colored': _vm.vm.active || _vm.vm.done, 'items-center': !_vm.vm.__stepper.vertical, 'items-start': _vm.vm.__stepper.vertical, 'q-stepper-first': _vm.vm.first, 'q-stepper-last': _vm.vm.last },on:{"click":_vm.__select}},[_c('div',{staticClass:"q-stepper-dot row items-center justify-center q-stepper-line relative-position"},[_c('span',{staticClass:"row items-center justify-center"},[(_vm.vm.stepIcon)?_c('q-icon',{attrs:{"name":_vm.vm.stepIcon}}):_c('span',[_vm._v(_vm._s(_vm.vm.innerOrder + 1))])],1)]),(_vm.vm.title)?_c('div',{staticClass:"q-stepper-label q-stepper-line relative-position"},[_c('div',{staticClass:"q-stepper-title",domProps:{"innerHTML":_vm._s(_vm.vm.title)}}),_c('div',{staticClass:"q-stepper-subtitle",domProps:{"innerHTML":_vm._s(_vm.vm.subtitle)}})]):_vm._e()])},staticRenderFns: [],
   name: 'q-step-header',
   components: {
     QIcon: QIcon
@@ -9509,7 +9509,7 @@ var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   }
 };
 
-var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-step"},[(_vm.__stepper.vertical)?_c('step-tab',{attrs:{"vm":this}}):_vm._e(),_c('q-slide-transition',[(_vm.active)?_c('div',{staticClass:"q-stepper-step-content"},[_c('div',{staticClass:"q-stepper-step-inner"},[_vm._t("default")],2)]):_vm._e()])],1)},staticRenderFns: [],
+var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-step",style:(_vm.style)},[(_vm.__stepper.vertical)?_c('step-tab',{attrs:{"vm":this}}):_vm._e(),_c('q-slide-transition',[(_vm.active)?_c('div',{staticClass:"q-stepper-step-content"},[_c('div',{staticClass:"q-stepper-step-inner"},[_vm._t("default")],2)]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-step',
   components: {
     QSlideTransition: QSlideTransition,
@@ -9543,7 +9543,9 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   },
   data: function data () {
     return {
-      innerOrder: 0
+      innerOrder: 0,
+      first: false,
+      last: false
     }
   },
   computed: {
@@ -9569,10 +9571,18 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       return this.__stepper.step === this.name
     },
     done: function done () {
-      return !this.disable && this.__stepper.currentOrder > this.actualOrder
+      return !this.disable && this.__stepper.currentOrder > this.innerOrder
     },
     waiting: function waiting () {
-      return !this.disable && this.__stepper.currentOrder < this.actualOrder
+      return !this.disable && this.__stepper.currentOrder < this.innerOrder
+    },
+    style: function style () {
+      var ord = this.actualOrder;
+      return {
+        '-webkit-box-ordinal-group': ord,
+        '-ms-flex-order': ord,
+        order: ord
+      }
     }
   },
   methods: {
@@ -9658,7 +9668,7 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     },
     currentOrder: function currentOrder () {
       if (this.currentStep) {
-        return this.currentStep.actualOrder
+        return this.currentStep.innerOrder
       }
     },
     length: function length () {
@@ -9679,14 +9689,10 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       }
     },
     next: function next () {
-      if (this.currentOrder < this.length - 1) {
-        this.__go(1);
-      }
+      this.__go(1);
     },
     previous: function previous () {
-      if (this.currentOrder > 0) {
-        this.__go(-1);
-      }
+      this.__go(-1);
     },
     reset: function reset () {
       if (this.hasSteps) {
@@ -9709,7 +9715,7 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
         do {
           index += offset;
         } while (index >= 0 && index < this.length - 1 && this.steps[index].disable)
-        if (index < 0 || index > this.length || this.steps[index].disable) {
+        if (index < 0 || index > this.length - 1 || this.steps[index].disable) {
           return
         }
         name = this.steps[index].name;
@@ -9718,11 +9724,21 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       this.goToStep(name);
     },
     __sortSteps: function __sortSteps () {
+      var this$1 = this;
+
       this.steps.sort(function (a, b) {
         return a.actualOrder - b.actualOrder
       });
+      var last = this.steps.length - 1;
       this.steps.forEach(function (step, index) {
         step.innerOrder = index;
+        step.first = index === 0;
+        step.last = index === last;
+      });
+      this.$nextTick(function () {
+        if (!this$1.steps.some(function (step) { return step.active; })) {
+          this$1.goToStep(this$1.steps[0].name);
+        }
       });
     },
     __registerStep: function __registerStep (vm) {
@@ -9749,7 +9765,7 @@ var QStepperNavigation = {
       slots = ctx.slots();
     var child = [h('div', {staticClass: 'col'}), slots.default];
 
-    data.staticClass = "q-stepper-nav row no-wrap items-center" + (cls ? (" " + cls) : '');
+    data.staticClass = "q-stepper-nav order-last row no-wrap items-center" + (cls ? (" " + cls) : '');
 
     if (slots.left) {
       child.unshift(slots.left);

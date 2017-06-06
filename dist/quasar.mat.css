@@ -2933,13 +2933,13 @@ body.with-modal {
 .q-stepper-horizontal .q-stepper-step .q-stepper-nav > div.col {
   display: none;
 }
+.q-stepper-horizontal .q-stepper-first .q-stepper-dot:before,
+.q-stepper-horizontal .q-stepper-last .q-stepper-label:after,
+.q-stepper-horizontal .q-stepper-last .q-stepper-dot:after {
+  display: none;
+}
 .q-stepper-horizontal .q-stepper-tab {
   overflow: hidden;
-}
-.q-stepper-horizontal .q-stepper-tab:first-child .q-stepper-dot:before,
-.q-stepper-horizontal .q-stepper-tab:last-child .q-stepper-label:after,
-.q-stepper-horizontal .q-stepper-tab:last-child .q-stepper-dot:after {
-  display: none;
 }
 .q-stepper-horizontal .q-stepper-line:before,
 .q-stepper-horizontal .q-stepper-line:after {
@@ -2981,12 +2981,12 @@ body.with-modal {
 .q-stepper-vertical .q-stepper-nav > div.col {
   display: none;
 }
+.q-stepper-vertical .q-stepper-first .q-stepper-dot:before,
+.q-stepper-vertical .q-stepper-last .q-stepper-dot:after {
+  display: none;
+}
 .q-stepper-vertical .q-stepper-step {
   overflow: hidden;
-}
-.q-stepper-vertical .q-stepper-step:first-child .q-stepper-dot:before,
-.q-stepper-vertical .q-stepper-step:last-child .q-stepper-dot:after {
-  display: none;
 }
 .q-stepper-vertical .q-stepper-dot:before,
 .q-stepper-vertical .q-stepper-dot:after {
