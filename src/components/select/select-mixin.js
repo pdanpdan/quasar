@@ -16,7 +16,7 @@ export default {
     },
     chips: Boolean,
     bgColor: String,
-    customValue: String
+    displayValue: String
   },
   data () {
     return {
@@ -32,6 +32,9 @@ export default {
       return this.multiple
         ? this.value.length
         : ([null, undefined, ''].includes(this.value) ? 0 : 1)
+    },
+    additionalLength () {
+      return this.displayValue && this.displayValue.length > 0
     },
     frameColor () {
       return this.hasChips && this.inverted

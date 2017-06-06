@@ -644,13 +644,13 @@ var QIcon = {
   render: function render (h, ctx) {
     var name, text;
     var
-      props = ctx.props,
+      prop = ctx.props,
       data = ctx.data,
       theme = ctx.parent.$q.theme,
-      classes = ctx.data.staticClass,
-      icon = props.mat && theme === 'mat'
-        ? props.mat
-        : (props.ios && theme === 'ios' ? props.ios : ctx.props.name);
+      cls = ctx.data.staticClass,
+      icon = prop.mat && theme === 'mat'
+        ? prop.mat
+        : (prop.ios && theme === 'ios' ? prop.ios : ctx.props.name);
 
     if (!icon) {
       name = '';
@@ -666,26 +666,74 @@ var QIcon = {
       text = icon.replace(/ /g, '_');
     }
 
-    data.staticClass = (classes ? classes + ' ' : '') + "q-icon" + (name.length ? (" " + name) : '') + (props.color ? (" text-" + (props.color)) : '');
+    data.staticClass = (cls ? cls + ' ' : '') + "q-icon" + (name.length ? (" " + name) : '') + (prop.color ? (" text-" + (prop.color)) : '');
     data.attrs['aria-hidden'] = 'true';
     return h('i', data, text ? [text, ctx.children] : [' ', ctx.children])
   }
 };
 
-var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:[ ("bg-" + (_vm.color)), _vm.position ? ("fixed-" + (_vm.position) + " shadow-2 z-alert") : '' ]},[_c('div',{staticClass:"q-alert-icon row col-auto items-center justify-center"},[_vm._t("left",[_c('q-icon',{attrs:{"name":_vm.alertIcon}})])],2),_c('div',{staticClass:"q-alert-content col-grow self-center"},[_vm._t("default"),(_vm.buttons && _vm.buttons.length)?_c('div',{staticClass:"q-alert-actions row items-center justify-between"},_vm._l((_vm.buttons),function(btn){return _c('span',{key:btn,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()},staticRenderFns: [],
+/*
+ * Also import the necessary CSS into the app.
+ *
+ * Example:
+ * import 'animate.css/source/_base.css'
+ * import 'animate.css/source/bouncing_entrances/bounceInLeft.css'
+ * import 'animate.css/source/bouncing_exits/bounceOutRight.css'
+ */
+
+var QTransition = {
+  name: 'q-transition',
+  functional: true,
+  props: {
+    name: String,
+    enter: String,
+    leave: String,
+    group: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      prop = ctx.props,
+      data = ctx.data;
+
+    if (prop.name) {
+      data.props = {
+        name: prop.name
+      };
+    }
+    else if (prop.enter && prop.leave) {
+      data.props = {
+        enterActiveClass: ("animated " + (prop.enter)),
+        leaveActiveClass: ("animated " + (prop.leave))
+      };
+    }
+    else {
+      return ctx.children
+    }
+
+    return h(("transition" + (ctx.props.group ? '-group' : '')), data, ctx.children)
+  }
+};
+
+var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":_vm.__dismissed}},[(_vm.active)?_c('div',{staticClass:"q-alert row",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto items-center justify-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-alert',
   components: {
-    QIcon: QIcon
+    QIcon: QIcon,
+    QTransition: QTransition
   },
   props: {
     value: Boolean,
+    duration: Number,
+    name: String,
+    enter: String,
+    leave: String,
+    appear: Boolean,
     color: {
       type: String,
       default: 'negative'
     },
     icon: String,
     dismissible: Boolean,
-    buttons: Array,
+    actions: Array,
     position: {
       type: String,
       validator: function (v) { return [
@@ -699,22 +747,41 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       active: true
     }
   },
+  watch: {
+    value: function value (v) {
+      if (v !== this.active) {
+        this.active = v;
+      }
+    }
+  },
   computed: {
     alertIcon: function alertIcon () {
-      return typeIcon[this.color] || typeIcon.warning
+      return this.icon || typeIcon[this.color] || typeIcon.warning
+    },
+    containerClass: function containerClass () {
+      if (this.position) {
+        return ("fixed-" + (this.position))
+      }
+    },
+    classes: function classes () {
+      var cls = "bg-" + (this.color);
+      if (this.position) {
+        cls += ' shadow-2 z-alert';
+      }
+      return cls
     }
   },
   methods: {
-    show: function show () {
-      this.$emit('input', true);
-    },
-    dismiss: function dismiss () {
+    __dismissed: function __dismissed () {
       this.$emit('dismiss');
-      this.$emit('input', false);
+      this.__onDismiss && this.__onDismiss();
     },
-    destroy: function destroy () {
+    dismiss: function dismiss (fn) {
       this.active = false;
-      this.$nextTick(this.$destroy);
+      this.$emit('input', false);
+      if (typeof fn === 'function') {
+        this.__onDismiss = fn;
+      }
     }
   }
 };
@@ -778,7 +845,6 @@ var FrameMixin = {
 var InputMixin = {
   props: {
     autofocus: Boolean,
-    pattern: String,
     name: String,
     maxlength: Number,
     maxHeight: Number,
@@ -836,7 +902,7 @@ var InputMixin = {
 var inputTypes = [
   'text', 'textarea', 'email',
   'tel', 'file', 'number',
-  'password', 'url', 'dropdown'
+  'password', 'url'
 ];
 
 var now = Date.now;
@@ -986,10 +1052,10 @@ function getSize (el) {
   }
 }
 
-var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onScroll}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onScroll}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
+var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
   name: 'q-resize-observable',
   methods: {
-    onScroll: function onScroll () {
+    onResize: function onResize () {
       var size = getSize(this.$el.parentNode);
 
       if (size.width === this.size.width && size.height === this.size.height) {
@@ -1024,7 +1090,7 @@ var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createEleme
 
     this.$nextTick(function () {
       this$1.size = {};
-      this$1.onScroll();
+      this$1.onResize();
     });
   },
   beforeDestroy: function beforeDestroy () {
@@ -1544,24 +1610,25 @@ var Ripple = {
       }
     }
 
-    var ctx = {enabled: value !== false};
+    var
+      ctx = {enabled: value !== false},
+      h = {};
 
     if (Platform.is.desktop) {
-      ctx.mousedown = show;
-      ctx.mouseup = hide;
-      ctx.mouseleave = hide;
+      h.mousedown = show;
+      h.mouseup = hide;
+      h.mouseleave = hide;
     }
     if (Platform.has.touch) {
-      ctx.touchstart = show;
-      ctx.touchend = hide;
-      ctx.touchcancel = hide;
+      h.touchstart = show;
+      h.touchend = hide;
+      h.touchcancel = hide;
     }
 
+    ctx.h = h;
     el.__qripple = ctx;
-    Object.keys(ctx).forEach(function (evt) {
-      if (evt !== 'enabled') {
-        el.addEventListener(evt, ctx[evt], false);
-      }
+    Object.keys(h).forEach(function (evt) {
+      el.addEventListener(evt, h[evt], false);
     });
   },
   update: function update (el, ref) {
@@ -1580,16 +1647,14 @@ var Ripple = {
     }
 
     var ctx = el.__qripple;
-    Object.keys(ctx).forEach(function (evt) {
-      if (evt !== 'enabled') {
-        el.removeEventListener(evt, ctx[evt], false);
-      }
+    Object.keys(ctx.h).forEach(function (evt) {
+      el.removeEventListener(evt, ctx.h[evt], false);
     });
     delete el.__qripple;
   }
 };
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col-grow q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col-grow q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxlength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col-grow q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.inputPattern,"disabled":_vm.disable,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"control"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col-grow q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col-grow q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxlength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col-grow q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxlength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"control"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -1663,9 +1728,9 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     isLoading: function isLoading () {
       return this.loading || this.shadow.loading
     },
-    inputPattern: function inputPattern () {
+    pattern: function pattern () {
       if (this.isNumber) {
-        return this.pattern || '[0-9]*'
+        return '[0-9]*'
       }
     },
     inputStep: function inputStep () {
@@ -2630,26 +2695,86 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QCard = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card",class:{ 'no-border-radius': _vm.square, 'no-shadow': _vm.flat, row: _vm.horizontal, column: !_vm.horizontal, inline: _vm.inline }},[_vm._t("default")],2)},staticRenderFns: [],
+var QCard = {
   name: 'q-card',
+  functional: true,
   props: {
     square: Boolean,
     flat: Boolean,
-    horizontal: Boolean,
-    inline: Boolean
+    inline: Boolean,
+    color: String
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      classes = data.staticClass,
+      prop = ctx.props;
+
+    var cls = ['q-card column'];
+    if (prop.square) {
+      cls.push('no-border-radius');
+    }
+    if (prop.flat) {
+      cls.push('no-shadow');
+    }
+    if (prop.inline) {
+      cls.push('inline');
+    }
+    if (prop.color) {
+      cls.push(("bg-" + (prop.color) + " text-white q-card-dark"));
+    }
+
+    data.staticClass = "" + (cls.join(' ')) + (classes ? (" " + classes) : '');
+
+    return h(
+      'div',
+      data,
+      ctx.children
+    )
   }
 };
 
-var QCardTitle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card-primary q-card-container row no-wrap"},[_c('div',{staticClass:"col column"},[_c('div',{staticClass:"q-card-title"},[_vm._t("default")],2),_c('div',{staticClass:"q-card-subtitle"},[_vm._t("subtitle")],2)]),_c('div',{staticClass:"col-auto self-center q-card-title-extra"},[_vm._t("right")],2)])},staticRenderFns: [],
-  name: 'q-card-title'
+var QCardTitle = {
+  name: 'q-card-title',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = ctx.data.staticClass,
+      slots = ctx.slots();
+
+    data.staticClass = "q-card-primary q-card-container row no-wrap" + (cls ? (" " + cls) : '');
+    return h(
+      'div',
+      data,
+      [
+        h('div', {staticClass: 'col column'}, [
+          h('div', {staticClass: 'q-card-title'}, slots.default),
+          h('div', {staticClass: 'q-card-subtitle'}, slots.subtitle)
+        ]),
+        h('div', {staticClass: 'col-auto self-center q-card-title-extra'}, slots.right)
+      ]
+    )
+  }
 };
 
-var QCardMain = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card-main q-card-container"},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-card-main'
+var QCardMain = {
+  name: 'q-card-main',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass;
+
+    data.staticClass = "q-card-main q-card-container" + (cls ? (" " + cls) : '');
+
+    return h('div', data, ctx.children)
+  }
 };
 
-var QCardActions = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card-actions",class:_vm.classes},[_vm._t("default")],2)},staticRenderFns: [],
+var QCardActions = {
   name: 'q-card-actions',
+  functional: true,
   props: {
     vertical: Boolean,
     align: {
@@ -2658,18 +2783,24 @@ var QCardActions = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       validator: function (v) { return ['start', 'center', 'end', 'around'].includes(v); }
     }
   },
-  computed: {
-    classes: function classes () {
-      return [
-        ("q-card-actions-" + (this.vertical ? 'vert column justify-start' : 'horiz row')),
-        ((this.vertical ? 'items' : 'justify') + "-" + (this.align))
-      ]
-    }
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      classes = data.staticClass,
+      prop = ctx.props;
+
+    data.staticClass = "q-card-actions " +
+      "q-card-actions-" + (prop.vertical ? 'vert column justify-start' : 'horiz row') + " " +
+      (prop.vertical ? 'items' : 'justify') + "-" + (prop.align) +
+      "" + (classes ? (" " + classes) : '');
+
+    return h('div', data, ctx.children)
   }
 };
 
-var QCardMedia = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card-media relative-position"},[_vm._t("default"),_c('div',{staticClass:"q-card-media-overlay",class:_vm.classes},[_vm._t("overlay")],2)],2)},staticRenderFns: [],
+var QCardMedia = {
   name: 'q-card-media',
+  functional: true,
   props: {
     overlayPosition: {
       type: String,
@@ -2677,15 +2808,58 @@ var QCardMedia = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
       validator: function (v) { return ['top', 'bottom', 'full'].includes(v); }
     }
   },
-  computed: {
-    classes: function classes () {
-      return ("absolute-" + (this.overlayPosition))
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass,
+      slots = ctx.slots();
+    var child = [slots.default];
+
+    data.staticClass = "q-card-media relative-position" + (cls ? (" " + cls) : '');
+
+    if (slots.overlay) {
+      child.push(h(
+        'div',
+        {
+          staticClass: ("q-card-media-overlay absolute-" + (ctx.props.overlayPosition))
+        },
+        slots.overlay
+      ));
     }
+
+    return h('div', data, child)
   }
 };
 
-var QCardList = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-card-list list no-border"},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-card-list'
+var QCardList = {
+  name: 'q-card-list',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass;
+
+    data.staticClass = "q-card-list list no-border" + (cls ? (" " + cls) : '');
+
+    return h('div', data, ctx.children)
+  }
+};
+
+var QCardSeparator = {
+  name: 'q-card-separator',
+  functional: true,
+  props: {
+    inset: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass;
+
+    data.staticClass = "q-card-separator" + (ctx.props.inset ? ' inset' : '') + (cls ? (" " + cls) : '');
+
+    return h('div', data, ctx.children)
+  }
 };
 
 var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.text)?_c('div',{staticClass:"q-message-container row items-end"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_c('div',{staticClass:"column"},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._l((_vm.text),function(msg,index){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}})])])}),(_vm.$slots.default)?_c('div',{staticClass:"q-message-text"},[_vm._t("default")],2):_vm._e()],2)],2):_vm._e()])},staticRenderFns: [],
@@ -2702,7 +2876,6 @@ var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     text: Array,
     stamp: String
   },
-  inject: ['__chat'],
   computed: {
     textClass: function textClass () {
       if (this.textColor) {
@@ -3115,22 +3288,22 @@ var QSlideTransition = {
   props: {
     appear: Boolean
   },
-  render: function render (h, context) {
+  render: function render (h, ctx) {
     var data = {
       props: {
         mode: 'out-in',
         css: false,
-        appear: context.props.appear
+        appear: ctx.props.appear
       },
       on: slideAnimation
     };
-    return h('transition', data, context.children)
+    return h('transition', data, ctx.children)
   }
 };
 
 var eventName = 'q:collapsible:close';
 
-var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible"},[_vm._t("header",[_c('q-item',{staticClass:"non-selectable item-collapsible",attrs:{"link":!_vm.iconToggle,"icon":_vm.icon,"img":_vm.img,"avatar":_vm.avatar,"letter":_vm.letter,"text":"","no-ripple":_vm.iconToggle},nativeOn:{"click":function($event){_vm.__toggleItem($event);}}},[_c('q-icon',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(!_vm.iconToggle),expression:"!iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"relative-position cursor-pointer",class:{'rotate-180': _vm.active},attrs:{"name":_vm.arrowIcon},on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"secondary"}),_vm._t("label",[_c('div',{staticClass:"ellipsis",domProps:{"innerHTML":_vm._s(_vm.label)}}),(_vm.description)?_c('div',{staticClass:"ellipsis",domProps:{"innerHTML":_vm._s(_vm.description)}}):_vm._e()])],2)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item",class:{menu: _vm.menu}},[_vm._t("default")],2)])])],2)},staticRenderFns: [],
+var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible"},[_vm._t("header",[_c('q-item',{staticClass:"non-selectable item-collapsible",attrs:{"link":!_vm.iconToggle,"icon":_vm.icon,"img":_vm.img,"avatar":_vm.avatar,"letter":_vm.letter,"text":"","no-ripple":_vm.iconToggle},nativeOn:{"click":function($event){_vm.__toggleItem($event);}}},[_c('q-icon',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(!_vm.iconToggle),expression:"!iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"relative-position cursor-pointer",class:{'rotate-180': _vm.active},attrs:{"name":_vm.arrowIcon},on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"secondary"}),_vm._t("label",[_c('div',{staticClass:"ellipsis",domProps:{"innerHTML":_vm._s(_vm.label)}}),(_vm.description)?_c('div',{staticClass:"ellipsis",domProps:{"innerHTML":_vm._s(_vm.description)}}):_vm._e()])],2)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],2)},staticRenderFns: [],
   name: 'q-collapsible',
   components: {
     QItem: QItem,
@@ -3142,7 +3315,7 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   },
   props: {
     opened: Boolean,
-    menu: Boolean,
+    indent: Boolean,
     icon: String,
     group: String,
     img: String,
@@ -3241,48 +3414,6 @@ var ContextMenuDesktop = {render: function(){var _vm=this;var _h=_vm.$createElem
   }
 };
 
-/*
- * Also import the necessary CSS into the app.
- *
- * Example:
- * import 'animate.css/source/_base.css'
- * import 'animate.css/source/bouncing_entrances/bounceInLeft.css'
- * import 'animate.css/source/bouncing_exits/bounceOutRight.css'
- */
-
-var QTransition = {
-  name: 'q-transition',
-  functional: true,
-  props: {
-    name: String,
-    enter: String,
-    leave: String,
-    group: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      prop = ctx.props,
-      data = ctx.data;
-
-    if (prop.name) {
-      data.props = {
-        name: prop.name
-      };
-    }
-    else if (prop.enter && prop.leave) {
-      data.props = {
-        enterActiveClass: ("animated " + (prop.enter)),
-        leaveActiveClass: ("animated " + (prop.leave))
-      };
-    }
-    else {
-      return ctx.children
-    }
-
-    return h(("transition" + (ctx.props.group ? '-group' : '')), data, ctx.children)
-  }
-};
-
 var positions = {
   top: 'items-start justify-center with-backdrop',
   bottom: 'items-end justify-center with-backdrop',
@@ -3360,7 +3491,9 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     noEscDismiss: {
       type: Boolean,
       default: false
-    }
+    },
+    minimized: Boolean,
+    maximized: Boolean
   },
   data: function data () {
     return {
@@ -3369,9 +3502,16 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   computed: {
     modalClasses: function modalClasses () {
-      return this.position
+      var cls = this.position
         ? positions[this.position]
-        : this.positionClasses
+        : this.positionClasses;
+      if (this.maximized) {
+        return ['maximized', cls]
+      }
+      else if (this.minimized) {
+        return ['minimized', cls]
+      }
+      return cls
     },
     modalTransition: function modalTransition () {
       return this.position ? ("q-modal-" + (this.position)) : this.transition
@@ -3392,9 +3532,6 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     open: function open (onShow) {
       var this$1 = this;
 
-      if (this.minimized && this.maximized) {
-        throw new Error('Modal cannot be minimized & maximized simultaneously.')
-      }
       if (this.active) {
         return
       }
@@ -3993,7 +4130,7 @@ var SelectMixin = {
     },
     chips: Boolean,
     bgColor: String,
-    customValue: String
+    displayValue: String
   },
   data: function data () {
     return {
@@ -4010,6 +4147,9 @@ var SelectMixin = {
         ? this.value.length
         : ([null, undefined, ''].includes(this.value) ? 0 : 1)
     },
+    additionalLength: function additionalLength () {
+      return this.displayValue && this.displayValue.length > 0
+    },
     frameColor: function frameColor () {
       return this.hasChips && this.inverted
         ? this.bgColor || this.color
@@ -4022,7 +4162,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().startsWith(terms)
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additionallength":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('div',{staticClass:"list link no-border",class:{delimiter: _vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"no-ripple":""},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"secondary"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"primary"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item',{key:opt,staticClass:"item",attrs:{"cfg":opt,"active":_vm.model === opt.value,"no-ripple":""},nativeOn:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
@@ -4082,8 +4222,8 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     actualValue: function actualValue () {
       var this$1 = this;
 
-      if (this.customValue) {
-        return this.customValue
+      if (this.displayValue) {
+        return this.displayValue
       }
       if (!this.multiple) {
         var option = this.options.find(function (option) { return option.value === this$1.value; });
@@ -4963,7 +5103,7 @@ var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",staticClass:"minimized",attrs:{"no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss},on:{"close":function($event){_vm.__dismiss();}}},[_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title || '')}}),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"color":el.color,"placeholder":el.placeholder,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(el.type === 'chips')?_c('q-chips-input',{attrs:{"color":el.color,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(['radio', 'checkbox', 'toggle'].includes(el.type))?_c('q-option-group',{attrs:{"type":el.type,"color":el.color,"options":el.items},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):_vm._e(),(el.type === 'range' || el.type === 'double-range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'double-range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap,"square":el.square,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{staticClass:"block",domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{attrs:{"percentage":_vm.progress.model,"color":"progress.color || primary","animate":"","stripe":"","indeterminate":_vm.progress.indeterminate}}),(!_vm.progress.indeterminate)?_c('span',[_vm._v(_vm._s(_vm.progress.model)+" %")]):_vm._e()],1):_vm._e(),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button){return _c('q-btn',{key:button,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),(!_vm.buttons && !_vm.noButtons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
+var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"minimized":"","no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss},on:{"close":function($event){_vm.__dismiss();}}},[_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title || '')}}),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"color":el.color,"placeholder":el.placeholder,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(el.type === 'chips')?_c('q-chips-input',{attrs:{"color":el.color,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(['radio', 'checkbox', 'toggle'].includes(el.type))?_c('q-option-group',{attrs:{"type":el.type,"color":el.color,"options":el.items},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):_vm._e(),(el.type === 'range' || el.type === 'double-range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'double-range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap,"square":el.square,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{staticClass:"block",domProps:{"innerHTML":_vm._s(el.label)}}),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{attrs:{"percentage":_vm.progress.model,"color":"progress.color || primary","animate":"","stripe":"","indeterminate":_vm.progress.indeterminate}}),(!_vm.progress.indeterminate)?_c('span',[_vm._v(_vm._s(_vm.progress.model)+" %")]):_vm._e()],1):_vm._e(),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button){return _c('q-btn',{key:button,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),(!_vm.buttons && !_vm.noButtons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
   name: 'q-dialog',
   components: {
     QModal: QModal,
@@ -5076,7 +5216,7 @@ var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 
 var Dialog = Modal(Dialog$1);
 
-var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additionallength":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"})],1)},staticRenderFns: [],
@@ -5114,16 +5254,16 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     actualValue: function actualValue () {
       var this$1 = this;
 
-      if (this.customValue) {
-        return this.customValue
+      if (this.displayValue) {
+        return this.displayValue
       }
       if (!this.multiple) {
-        var option = this.options.find(function (option) { return option.value === this$1.value; });
-        return option ? option.label : ''
+        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
+        return opt$1 ? opt$1.label : ''
       }
 
-      var options = this.selectedOptions.map(function (opt) { return opt.label; });
-      return !options.length ? '' : options.join(', ')
+      var opt = this.selectedOptions.map(function (opt) { return opt.label; });
+      return opt.length ? opt.join(', ') : ''
     },
     selectedOptions: function selectedOptions () {
       var this$1 = this;
@@ -5749,9 +5889,7 @@ function getSortFn (sort, type) {
   if (typeof sort === 'function') {
     return sort
   }
-  if (type && sortMethod[type]) {
-    return sortMethod[type]
-  }
+  return sortMethod[type] || sortMethod.number
 }
 
 var Sort = {
@@ -7536,8 +7674,8 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QSmallFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn',{attrs:{"round":"","small":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.click}},[_c('q-icon',{attrs:{"name":_vm.icon}}),_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-small-fab',
+var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn',{attrs:{"round":"","small":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.click}},[_c('q-icon',{attrs:{"name":_vm.icon}}),_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-fab-action',
   mixins: [FabMixin],
   components: {
     QBtn: QBtn,
@@ -8044,7 +8182,7 @@ var QInfiniteScroll = {render: function(){var _vm=this;var _h=_vm.$createElement
   }
 };
 
-var QInnerLoading = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',{staticClass:"q-inner-loading animate-fade absolute-full column items-center justify-center",class:{dark: _vm.dark}},[_vm._t("default",[_c('q-spinner',{attrs:{"size":_vm.size}})])],2):_vm._e()},staticRenderFns: [],
+var QInnerLoading = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',{staticClass:"q-inner-loading animate-fade absolute-full column items-center justify-center",class:{dark: _vm.dark}},[_vm._t("default",[_c('q-spinner',{attrs:{"size":_vm.size,"color":_vm.color}})])],2):_vm._e()},staticRenderFns: [],
   name: 'q-inner-loading',
   components: {
     QSpinner: QSpinner
@@ -8053,9 +8191,10 @@ var QInnerLoading = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     dark: Boolean,
     visible: Boolean,
     size: {
-      type: Number,
+      type: [String, Number],
       default: 42
-    }
+    },
+    color: String
   }
 };
 
@@ -9220,10 +9359,6 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       type: Object,
       default: function () { return ({}); }
     },
-    thumbWidth: {
-      type: Number,
-      default: 10
-    },
     delay: {
       type: Number,
       default: 1000
@@ -9358,106 +9493,123 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-stepper-step row items-center",class:{ 'step-selected': _vm.selected, 'step-editable': _vm.editable || _vm.isEditable, 'step-done': _vm.done || _vm.isDone, 'step-error': _vm.error, },on:{"click":_vm.select}},[_c('div',{staticClass:"q-stepper-identity row items-center justify-center"},[(_vm.stepIcon)?_c('q-icon',{attrs:{"name":_vm.stepIcon}}):[_vm._v(_vm._s(_vm.step))]],2),_c('div',{staticClass:"q-stepper-label column"},[_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-step',
+var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.vm.done),expression:"vm.done",modifiers:{"mat":true}}],staticClass:"q-stepper-tab col-grow flex no-wrap relative-position",class:{ 'step-error': _vm.vm.error, 'step-active': _vm.vm.active, 'step-done': _vm.vm.done, 'step-error': _vm.vm.error, 'step-waiting': _vm.vm.waiting, 'step-disabled': _vm.vm.disable, 'step-colored': _vm.vm.active || _vm.vm.done, 'items-center': !_vm.vm.__stepper.vertical, 'items-start': _vm.vm.__stepper.vertical },on:{"click":_vm.__select}},[_c('div',{staticClass:"q-stepper-dot row items-center justify-center q-stepper-line relative-position"},[_c('span',{staticClass:"row items-center justify-center"},[(_vm.vm.stepIcon)?_c('q-icon',{attrs:{"name":_vm.vm.stepIcon}}):_c('span',[_vm._v(_vm._s(_vm.vm.actualOrder + 1))])],1)]),(_vm.vm.title)?_c('div',{staticClass:"q-stepper-label q-stepper-line relative-position"},[_c('div',{staticClass:"q-stepper-title",domProps:{"innerHTML":_vm._s(_vm.vm.title)}}),_c('div',{staticClass:"q-stepper-subtitle",domProps:{"innerHTML":_vm._s(_vm.vm.subtitle)}})]):_vm._e()])},staticRenderFns: [],
+  name: 'q-step-header',
   components: {
     QIcon: QIcon
   },
   directives: {
     Ripple: Ripple
   },
+  props: ['vm'],
+  methods: {
+    __select: function __select () {
+      this.vm.select();
+    }
+  }
+};
+
+var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-step"},[(_vm.__stepper.vertical)?_c('step-tab',{attrs:{"vm":this}}):_vm._e(),_c('q-slide-transition',[(_vm.active)?_c('div',{staticClass:"q-stepper-step-content"},[_c('div',{staticClass:"q-stepper-step-inner"},[_vm._t("default")],2)]):_vm._e()])],1)},staticRenderFns: [],
+  name: 'q-step',
+  components: {
+    QSlideTransition: QSlideTransition,
+    StepTab: StepTab
+  },
   props: {
-    step: {
+    name: {
       type: [Number, String],
+      default: function default$1 () {
+        return uid()
+      }
+    },
+    default: Boolean,
+    title: {
+      type: String,
       required: true
     },
-    done: Boolean,
-    editable: Boolean,
+    subtitle: String,
     icon: String,
-    error: Boolean
+    order: [Number, String],
+    error: Boolean,
+    activeIcon: String,
+    errorIcon: String,
+    disable: Boolean
   },
-  inject: ['data', 'goToStep', 'registerStep', 'unregisterStep'],
+  inject: ['__stepper'],
+  watch: {
+    order: function order () {
+      this.__stepper.__sortSteps();
+    }
+  },
   data: function data () {
     return {
-      isEditable: false,
-      isDone: false
+      innerOrder: 0
     }
   },
   computed: {
-    selected: function selected () {
-      return this.data.step === this.step
-    },
     stepIcon: function stepIcon () {
-      if (this.selected && this.data.selectedIcon !== false) {
-        return this.data.selectedIcon || 'edit'
+      var data = this.__stepper;
+
+      if (this.active) {
+        return this.activeIcon || data.activeIcon
       }
-      if (this.error && this.data.errorIcon !== false) {
-        return this.data.errorIcon || 'warning'
+      if (this.error) {
+        return this.errorIcon || data.errorIcon
       }
-      if (this.done && this.data.doneIcon !== false) {
-        return this.data.doneIcon || 'check'
+      if (this.done && !this.disable) {
+        return this.doneIcon || data.doneIcon
       }
 
       return this.icon
+    },
+    actualOrder: function actualOrder () {
+      return parseInt(this.order || this.innerOrder, 10)
+    },
+    active: function active () {
+      return this.__stepper.step === this.name
+    },
+    done: function done () {
+      return !this.disable && this.__stepper.currentOrder > this.actualOrder
+    },
+    waiting: function waiting () {
+      return !this.disable && this.__stepper.currentOrder < this.actualOrder
     }
   },
   methods: {
     select: function select () {
-      if (this.editable || this.isEditable) {
-        this.goToStep(this.step);
+      if (this.done) {
+        this.__stepper.goToStep(this.name);
       }
-    },
-    setEditable: function setEditable (val) {
-      if ( val === void 0 ) val = true;
-
-      this.isEditable = val;
-    },
-    setDone: function setDone (val) {
-      if ( val === void 0 ) val = true;
-
-      this.done = val;
     }
   },
   mounted: function mounted () {
-    this.registerStep(this);
+    this.__stepper.__registerStep(this);
+    if (this.default) {
+      this.select();
+    }
   },
   beforeDestroy: function beforeDestroy () {
-    this.unregisterStep(this);
+    this.__stepper.__unregisterStep(this);
   }
 };
 
-var QStepPane = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-pane",class:{hidden: _vm.hidden}},[(_vm.active)?_c('div',{staticClass:"q-stepper-inner"},[_vm._t("default")],2):_vm._e()])},staticRenderFns: [],
-  name: 'q-step-pane',
-  props: {
-    step: {
-      type: [Number, String],
-      required: true
-    }
-  },
-  inject: ['data'],
-  computed: {
-    active: function active () {
-      return this.data.step === this.step
-    },
-    hidden: function hidden () {
-      return !this.data.vertical && !this.active
-    }
-  }
-};
-
-var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper shadow-1",class:{ vertical: _vm.data.vertical, horizontal: !_vm.data.vertical }},[_vm._t("default"),_c('q-inner-loading',{attrs:{"visible":_vm.loading,"size":50}})],2)},staticRenderFns: [],
+var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step,attrs:{"vm":step}})})):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-stepper',
   components: {
-    QInnerLoading: QInnerLoading
+    StepTab: StepTab
   },
   props: {
-    value: Number,
-    loading: Boolean,
+    value: [Number, String],
+    color: String,
+    vertical: Boolean,
+    alternativeLabels: Boolean,
+    contractable: Boolean,
+    flat: Boolean,
     doneIcon: {
       type: [String, Boolean],
       default: 'check'
     },
-    selectedIcon: {
+    activeIcon: {
       type: [String, Boolean],
       default: 'edit'
     },
@@ -9466,119 +9618,146 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       default: 'warning'
     }
   },
-  watch: {
-    value: function value (name) {
-      this.goToStep(name);
-    },
-    doneIcon: function doneIcon (i) {
-      this.data.doneIcon = i;
-    },
-    selectedIcon: function selectedIcon (i) {
-      this.data.selectedIcon = i;
-    },
-    errorIcon: function errorIcon (i) {
-      this.data.errorIcon = i;
-    }
-  },
   data: function data () {
     return {
-      data: {
-        step: null,
-        vertical: true,
-        doneIcon: this.doneIcon,
-        selectedIcon: this.selectedIcon,
-        errorIcon: this.errorIcon
-      },
+      step: this.value || null,
       steps: []
     }
   },
   provide: function provide () {
     return {
-      data: this.data,
-      goToStep: this.goToStep,
-      setVerticality: this.__setVerticality,
-      registerStep: this.__registerStep,
-      unregisterStep: this.__unregisterStep
+      __stepper: this
+    }
+  },
+  watch: {
+    value: function value (v) {
+      this.goToStep(v);
+    }
+  },
+  computed: {
+    classes: function classes () {
+      var cls = [
+        ("q-stepper-" + (this.vertical ? 'vertical' : 'horizontal'))
+      ];
+      if (this.color) {
+        cls.push(("text-" + (this.color)));
+      }
+      if (this.contractable) {
+        cls.push("q-stepper-contractable");
+      }
+      return cls
+    },
+    hasSteps: function hasSteps () {
+      return this.steps.length > 0
+    },
+    currentStep: function currentStep () {
+      var this$1 = this;
+
+      if (this.hasSteps) {
+        return this.steps.find(function (step) { return step.name === this$1.step; })
+      }
+    },
+    currentOrder: function currentOrder () {
+      if (this.currentStep) {
+        return this.currentStep.actualOrder
+      }
+    },
+    length: function length () {
+      return this.steps.length
     }
   },
   methods: {
     goToStep: function goToStep (step) {
-      if (this.data.step === step || step === void 0) {
+      if (this.step === step || step === void 0) {
         return
       }
 
-      this.data.step = step;
+      this.step = step;
 
       if (this.value !== step) {
         this.$emit('input', step);
         this.$emit('step', step);
       }
     },
-    next: function next (step) {
-      if (step) {
-        this.goToStep(step);
-        return
-      }
-
-      var index = this.__getStepIndex(this.data.step);
-      if (index !== -1 && index + 1 < this.steps.length) {
-        this.goToStep(this.steps[index + 1].step);
+    next: function next () {
+      if (this.currentOrder < this.length - 2) {
+        this.__go(1);
       }
     },
     previous: function previous () {
-      var index = this.__getStepIndex(this.data.step);
-      if (index !== -1 && index > 0) {
-        this.goToStep(this.steps[index - 1].step);
+      if (this.currentOrder > 0) {
+        this.__go(-1);
       }
     },
     reset: function reset () {
-      if (this.steps.length > 0) {
-        this.goToStep(this.steps[0].name);
+      if (this.hasSteps) {
+        this.gotToStep(this.steps[0].name);
       }
     },
 
-    __setVerticality: function __setVerticality (bool) {
-      this.data.vertical = bool;
+    __go: function __go (offset) {
+      var
+        name,
+        index = this.currentOrder;
+
+      if (index === void 0) {
+        if (!this.hasSteps) {
+          return
+        }
+        name = this.steps[0].name;
+      }
+      else {
+        do {
+          index += offset;
+        } while (index >= 0 && index < this.length - 1 && this.steps[index].disable)
+        if (index < 0 || index > this.length || this.steps[index].disable) {
+          return
+        }
+        name = this.steps[index].name;
+      }
+
+      this.goToStep(name);
+    },
+    __sortSteps: function __sortSteps () {
+      this.steps.sort(function (a, b) {
+        return a.actualOrder - b.actualOrder
+      });
+      this.steps.forEach(function (step, index) {
+        step.innerOrder = index;
+      });
     },
     __registerStep: function __registerStep (vm) {
       this.steps.push(vm);
+      this.__sortSteps();
+      return this
     },
     __unregisterStep: function __unregisterStep (vm) {
-      this.steps.splice(this.steps.indexOf(vm), 1);
-    },
-    __getStepIndex: function __getStepIndex (step) {
-      return this.steps.findIndex(function (vm) { return vm.step === step; })
+      this.steps = this.steps.filter(function (step) { return step !== vm; });
     }
   },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      if (this$1.value) {
-        this$1.goToStep(this$1.value);
-        return
-      }
-      this$1.reset();
-    });
+  created: function created () {
+    this.__sortSteps = frameDebounce(this.__sortSteps);
   }
 };
 
-var QStepperHeader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-header row items-stretch justify-between wrap shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-stepper-header',
-  props: {
-    alternativeLabels: Boolean
-  },
-  inject: ['setVerticality'],
-  mounted: function mounted () {
-    this.setVerticality(false);
-  },
-  beforeDestroy: function beforeDestroy () {
-    this.setVerticality(true);
-  }
-};
+var QStepperNavigation = {
+  name: 'q-stepper-navigation',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass,
+      slots = ctx.slots();
+    var child = [h('div', {staticClass: 'col'}), slots.default];
 
-var QStepperNavigation = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-navigation row items-center"},[_vm._t("left"),_c('div',{staticClass:"auto"}),_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-stepper-navigation'
+    data.staticClass = "q-stepper-nav row no-wrap items-center" + (cls ? (" " + cls) : '');
+
+    if (slots.left) {
+      child.unshift(slots.left);
+    }
+
+    return h('div', data, child)
+  }
 };
 
 var TabMixin = {
@@ -9604,7 +9783,11 @@ var TabMixin = {
   inject: ['data', 'selectTab'],
   computed: {
     active: function active () {
-      return this.data.tabName === this.name
+      var sel = this.data.tabName === this.name;
+      if (sel) {
+        this.$emit('select', this.name);
+      }
+      return sel
     },
     classes: function classes () {
       var cls = {
@@ -9680,7 +9863,7 @@ var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   },
   mixins: [TabMixin],
   props: {
-    selected: Boolean
+    default: Boolean
   },
   methods: {
     select: function select () {
@@ -9690,7 +9873,7 @@ var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     }
   },
   mounted: function mounted () {
-    if (this.selected && !this.disable) {
+    if (this.default && !this.disable) {
       this.select();
     }
   }
@@ -10003,25 +10186,49 @@ var obj$1;},staticRenderFns: [],
   }
 };
 
-var QToolbar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-toolbar row items-center relative-position",class:_vm.classes},[_vm._t("default")],2)},staticRenderFns: [],
+var QToolbar = {
   name: 'q-toolbar',
+  functional: true,
   props: {
     color: String,
     inverted: Boolean
   },
-  computed: {
-    classes: function classes () {
-      var
-        inv = this.inverted,
-        cls = [];
+  render: function render (h, ctx) {
+    var
+      cls = ctx.data.staticClass,
+      prop = ctx.props;
 
-      cls.push(("q-toolbar-" + (inv ? 'inverted' : 'normal')));
-      if (this.color) {
-        cls.push(((inv ? 'text' : 'bg') + "-" + (this.color)));
-      }
-
-      return cls
+    var classes = "q-toolbar-" + (prop.inverted ? 'inverted' : 'normal');
+    if (prop.color) {
+      classes += " " + (prop.inverted ? 'text' : 'bg') + "-" + (prop.color);
     }
+
+    ctx.data.staticClass = "q-toolbar row no-wrap items-center relative-position " + classes + (cls ? (" " + cls) : '');
+
+    return h(
+      'div',
+      ctx.data,
+      ctx.children
+    )
+  }
+};
+
+var QToolbarTitle = {
+  name: 'q-toolbar-title',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass,
+      slots = ctx.slots(),
+      children = [slots.default];
+
+    if (slots.subtitle) {
+      children.push(h('div', { staticClass: 'q-toolbar-subtitle' }, slots.subtitle));
+    }
+    data.staticClass = "q-toolbar-title" + (cls ? (" " + cls) : '');
+
+    return h('div', data, children)
   }
 };
 
@@ -10196,7 +10403,6 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         : 0;
     },
     __remove: function __remove (file) {
-      console.log('__remove', file.name);
       var
         name = file.name,
         done = file.__doneUploading;
@@ -10333,9 +10539,32 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QVideo = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-video"},[_c('iframe',{attrs:{"src":_vm.src,"frameborder":"0","allowfullscreen":""}})],1)},staticRenderFns: [],
+var QVideo = {
   name: 'q-video',
-  props: ['src']
+  functional: true,
+  props: {
+    src: {
+      type: String,
+      required: true
+    }
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props,
+      cls = data.staticClass,
+      iframeData = {
+        attrs: {
+          src: prop.src,
+          frameborder: '0',
+          allowfullscreen: true
+        }
+      };
+
+    data.staticClass = "q-video" + (cls ? (" " + cls) : '');
+
+    return h('div', data, [ h('iframe', iframeData) ])
+  }
 };
 
 function updateBinding (el, ref) {
@@ -10970,65 +11199,46 @@ var addressbarColor = {
   }
 };
 
-var Alert$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":""},on:{"after-leave":_vm.dismissed}},[_c('q-alert',{directives:[{name:"show",rawName:"v-show",value:(_vm.visible),expression:"visible"}],ref:"alert",staticStyle:{"margin":"18px"},attrs:{"color":_vm.color,"dismissible":!_vm.buttons || !_vm.buttons.length,"position":_vm.position,"buttons":_vm.buttons},on:{"dismiss":_vm.dismiss}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon},slot:"left"}):_vm._e(),_c('span',{domProps:{"innerHTML":_vm._s(_vm.html)}})],1)],1)],1)},staticRenderFns: [],
-  components: {
-    QTransition: QTransition,
-    QAlert: QAlert,
-    QIcon: QIcon,
-    QBtn: QBtn
-  },
-  methods: {
-    dismiss: function dismiss (fn) {
-      this.visible = false;
-      if (typeof fn === 'function') {
-        this.onDismiss = fn;
-      }
-    },
-    dismissed: function dismissed () {
-      this.$emit('dismissed');
-      this.onDismiss && this.onDismiss();
-    }
-  }
-};
-
 function create (opts) {
   var node = document.createElement('div');
   document.body.appendChild(node);
-  var active = true;
 
-  var vm = new Vue(extend({
-    data: function data () {
-      return {
-        visible: true,
-        duration: opts.duration,
-        name: opts.name,
-        enter: opts.enter,
-        leave: opts.leave,
-        color: opts.color,
-        icon: opts.icon,
-        html: opts.html,
-        buttons: opts.buttons,
-        position: opts.position || 'top-right'
-      }
-    }
-  }, Alert$1));
+  var state = extend({position: 'top-right'}, opts, {value: true, appear: true, dismissible: !opts.actions || !opts.actions.length});
 
-  vm.close = function () {
-    if (!active) {
-      return
+  var vm = new Vue({
+    components: {
+      QAlert: QAlert
+    },
+    functional: true,
+    render: function render (h, ctx) {
+      return h(
+        'q-alert', {
+          style: {
+            margin: '18px'
+          },
+          props: state,
+          on: {
+            dismiss: function dismiss () {
+              vm.$destroy();
+              vm.$el.parentNode.removeChild(vm.$el);
+              if (opts.onDismiss) {
+                opts.onDismiss();
+              }
+            }
+          }
+        },
+        opts.html
+      )
     }
-    active = false;
-    vm.$destroy();
-    vm.$el.parentNode.removeChild(vm.$el);
-    if (opts.onDismiss) {
-      opts.onDismiss();
-    }
-  };
-  vm.$on('dismissed', vm.close);
+  });
+
   vm.$mount(node);
 
   return {
-    dismiss: vm.dismiss
+    dismiss: function dismiss () {
+      state.value = false;
+      vm.$forceUpdate();
+    }
   }
 }
 
@@ -11831,4 +12041,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardList, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QSmallFab, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QItem, QKnob, QLayout, QFixedPosition, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepPane, QStepper, QStepperHeader, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardList, QCardSeparator, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QFabAction, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QItem, QKnob, QLayout, QFixedPosition, QSideLink, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, QSpinnerAudio, QSpinnerBall, QSpinnerBars, QSpinnerCircles, QSpinnerDots, QSpinnerFacebook, QSpinnerGears, QSpinnerGrid, QSpinnerHearts, QSpinnerHourglass, QSpinnerInfinity, QSpinnerIos, QSpinnerMat, QSpinnerOval, QSpinnerPie, QSpinnerPuff, QSpinnerRadio, QSpinnerRings, QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index$1 as ActionSheet, Dialog, index$2 as Loading, index$3 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;

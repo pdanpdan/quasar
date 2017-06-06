@@ -19,6 +19,7 @@
     :focused="focused"
     focusable
     :length="length"
+    :additionalLength="additionalLength"
 
     @click.native="pick"
     @focus.native="__onFocus"
@@ -87,16 +88,16 @@ export default {
   },
   computed: {
     actualValue () {
-      if (this.customValue) {
-        return this.customValue
+      if (this.displayValue) {
+        return this.displayValue
       }
       if (!this.multiple) {
-        let option = this.options.find(option => option.value === this.value)
-        return option ? option.label : ''
+        const opt = this.options.find(opt => opt.value === this.value)
+        return opt ? opt.label : ''
       }
 
-      let options = this.selectedOptions.map(opt => opt.label)
-      return !options.length ? '' : options.join(', ')
+      let opt = this.selectedOptions.map(opt => opt.label)
+      return opt.length ? opt.join(', ') : ''
     },
     selectedOptions () {
       if (this.multiple) {
