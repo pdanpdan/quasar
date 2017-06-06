@@ -9604,7 +9604,6 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     vertical: Boolean,
     alternativeLabels: Boolean,
     contractable: Boolean,
-    flat: Boolean,
     doneIcon: {
       type: [String, Boolean],
       default: 'check'
@@ -9680,7 +9679,7 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       }
     },
     next: function next () {
-      if (this.currentOrder < this.length - 2) {
+      if (this.currentOrder < this.length - 1) {
         this.__go(1);
       }
     },
