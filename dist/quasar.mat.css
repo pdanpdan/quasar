@@ -6116,8 +6116,10 @@ input::selection {
   }
   .col-xs-grow {
     min-height: 1px;
-    width: auto;
     flex: 1 1 auto;
+  }
+  .row > .col-xs-grow {
+    width: auto;
   }
   .col-xs-1 {
     flex: 0 0 8.3333%;
@@ -6241,8 +6243,10 @@ input::selection {
   }
   .col-sm-grow {
     min-height: 1px;
-    width: auto;
     flex: 1 1 auto;
+  }
+  .row > .col-sm-grow {
+    width: auto;
   }
   .col-sm-1 {
     flex: 0 0 8.3333%;
@@ -6366,8 +6370,10 @@ input::selection {
   }
   .col-md-grow {
     min-height: 1px;
-    width: auto;
     flex: 1 1 auto;
+  }
+  .row > .col-md-grow {
+    width: auto;
   }
   .col-md-1 {
     flex: 0 0 8.3333%;
@@ -6491,8 +6497,10 @@ input::selection {
   }
   .col-lg-grow {
     min-height: 1px;
-    width: auto;
     flex: 1 1 auto;
+  }
+  .row > .col-lg-grow {
+    width: auto;
   }
   .col-lg-1 {
     flex: 0 0 8.3333%;
@@ -6616,8 +6624,10 @@ input::selection {
   }
   .col-xl-grow {
     min-height: 1px;
-    width: auto;
     flex: 1 1 auto;
+  }
+  .row > .col-xl-grow {
+    width: auto;
   }
   .col-xl-1 {
     flex: 0 0 8.3333%;

@@ -4651,8 +4651,9 @@ for $name, $size in $sizes
       flex 0 0 auto
     .col-{$name}-grow
       min-height 1px
-      width auto
       flex 1 1 auto
+    .row > .col-{$name}-grow
+      width auto
     for $i in (1..$grid-cols)
       .col-{$name}-{$i}
         flex 0 0 (round($i / $grid-cols * 100, 4))%
