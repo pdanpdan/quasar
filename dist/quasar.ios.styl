@@ -4461,6 +4461,7 @@ input::selection
     width 100%
 for $name, $size in $sizes
   .row > .col-{$name}
+  .row > .col-{$name}-grow
     width 100%
   .col-{$name}
     min-height 1px
@@ -4539,8 +4540,13 @@ for $name, $size in $sizes
       flex-basis 0
       flex-grow 1
     .col-{$name}-auto
+      min-height 1px
       width auto
       flex 0 0 auto
+    .col-{$name}-grow
+      min-height 1px
+      width auto
+      flex 1 1 auto
     for $i in (1..$grid-cols)
       .col-{$name}-{$i}
         flex 0 0 (round($i / $grid-cols * 100, 4))%

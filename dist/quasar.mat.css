@@ -5522,7 +5522,8 @@ input::selection {
   max-width: 100%;
   width: 100%;
 }
-.row > .col-xs {
+.row > .col-xs,
+.row > .col-xs-grow {
   width: 100%;
 }
 .col-xs {
@@ -5600,7 +5601,8 @@ input::selection {
 .col-xs-12 {
   min-height: 1px;
 }
-.row > .col-sm {
+.row > .col-sm,
+.row > .col-sm-grow {
   width: 100%;
 }
 .col-sm {
@@ -5678,7 +5680,8 @@ input::selection {
 .col-sm-12 {
   min-height: 1px;
 }
-.row > .col-md {
+.row > .col-md,
+.row > .col-md-grow {
   width: 100%;
 }
 .col-md {
@@ -5756,7 +5759,8 @@ input::selection {
 .col-md-12 {
   min-height: 1px;
 }
-.row > .col-lg {
+.row > .col-lg,
+.row > .col-lg-grow {
   width: 100%;
 }
 .col-lg {
@@ -5834,7 +5838,8 @@ input::selection {
 .col-lg-12 {
   min-height: 1px;
 }
-.row > .col-xl {
+.row > .col-xl,
+.row > .col-xl-grow {
   width: 100%;
 }
 .col-xl {
@@ -6105,8 +6110,14 @@ input::selection {
     flex-grow: 1;
   }
   .col-xs-auto {
+    min-height: 1px;
     width: auto;
     flex: 0 0 auto;
+  }
+  .col-xs-grow {
+    min-height: 1px;
+    width: auto;
+    flex: 1 1 auto;
   }
   .col-xs-1 {
     flex: 0 0 8.3333%;
@@ -6224,8 +6235,14 @@ input::selection {
     flex-grow: 1;
   }
   .col-sm-auto {
+    min-height: 1px;
     width: auto;
     flex: 0 0 auto;
+  }
+  .col-sm-grow {
+    min-height: 1px;
+    width: auto;
+    flex: 1 1 auto;
   }
   .col-sm-1 {
     flex: 0 0 8.3333%;
@@ -6343,8 +6360,14 @@ input::selection {
     flex-grow: 1;
   }
   .col-md-auto {
+    min-height: 1px;
     width: auto;
     flex: 0 0 auto;
+  }
+  .col-md-grow {
+    min-height: 1px;
+    width: auto;
+    flex: 1 1 auto;
   }
   .col-md-1 {
     flex: 0 0 8.3333%;
@@ -6462,8 +6485,14 @@ input::selection {
     flex-grow: 1;
   }
   .col-lg-auto {
+    min-height: 1px;
     width: auto;
     flex: 0 0 auto;
+  }
+  .col-lg-grow {
+    min-height: 1px;
+    width: auto;
+    flex: 1 1 auto;
   }
   .col-lg-1 {
     flex: 0 0 8.3333%;
@@ -6581,8 +6610,14 @@ input::selection {
     flex-grow: 1;
   }
   .col-xl-auto {
+    min-height: 1px;
     width: auto;
     flex: 0 0 auto;
+  }
+  .col-xl-grow {
+    min-height: 1px;
+    width: auto;
+    flex: 1 1 auto;
   }
   .col-xl-1 {
     flex: 0 0 8.3333%;
