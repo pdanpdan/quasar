@@ -5821,7 +5821,7 @@ var I18n = {
   }
 };
 
-var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-pagination",class:{disabled: _vm.disable}},[_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":"primary","flat":"","small":""},on:{"click":function($event){_vm.set(_vm.min);}}},[_c('q-icon',{attrs:{"name":"first_page"}})],1),_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":"primary","flat":"","small":""},on:{"click":function($event){_vm.setByOffset(-1);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('q-input',{ref:"input",staticClass:"inline",style:({width: ((_vm.inputPlaceholder.length) + "rem")}),attrs:{"type":"number","min":_vm.min,"max":_vm.max,"placeholder":_vm.inputPlaceholder,"disable":_vm.disable},on:{"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__update($event);},"blur":_vm.__update},model:{value:(_vm.newPage),callback:function ($$v) {_vm.newPage=$$v;},expression:"newPage"}}),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":"primary","flat":"","small":""},on:{"click":function($event){_vm.setByOffset(1);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":"primary","flat":"","small":""},on:{"click":function($event){_vm.set(_vm.max);}}},[_c('q-icon',{attrs:{"name":"last_page"}})],1)],1)},staticRenderFns: [],
+var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-pagination",class:{disabled: _vm.disable}},[_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":""},on:{"click":function($event){_vm.set(_vm.min);}}},[_c('q-icon',{attrs:{"name":"first_page"}})],1),_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":""},on:{"click":function($event){_vm.setByOffset(-1);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"}})],1),_c('q-input',{ref:"input",staticClass:"inline",style:({width: ((_vm.inputPlaceholder.length) + "rem")}),attrs:{"type":"number","min":_vm.min,"max":_vm.max,"color":_vm.color,"placeholder":_vm.inputPlaceholder,"disable":_vm.disable},on:{"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__update($event);},"blur":_vm.__update},model:{value:(_vm.newPage),callback:function ($$v) {_vm.newPage=$$v;},expression:"newPage"}}),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":""},on:{"click":function($event){_vm.setByOffset(1);}}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":""},on:{"click":function($event){_vm.set(_vm.max);}}},[_c('q-icon',{attrs:{"name":"last_page"}})],1)],1)},staticRenderFns: [],
   name: 'q-pagination',
   components: {
     QBtn: QBtn,
@@ -5840,6 +5840,10 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     max: {
       type: Number,
       required: true
+    },
+    color: {
+      type: String,
+      default: 'primary'
     },
     disable: Boolean
   },
