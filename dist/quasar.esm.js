@@ -178,8 +178,9 @@ Platform.has.popstate = !Platform.within.iframe && !Platform.is.electron;
 
 var bus;
 
-function install$1 (_Vue) {
+function installEvents (_Vue) {
   bus = new _Vue();
+  return bus
 }
 
 var Events = {
@@ -319,7 +320,7 @@ function setVue (_Vue) {
   Vue = _Vue;
 }
 
-var install$$1 = function (_Vue, opts) {
+var install = function (_Vue, opts) {
   if ( opts === void 0 ) opts = {};
 
   if (this.installed) {
@@ -346,29 +347,34 @@ var install$$1 = function (_Vue, opts) {
     });
   }
 
-  install$1(_Vue);
+  var events = installEvents(_Vue);
 
   _Vue.prototype.$q = {
     version: version,
     platform: Platform,
-    theme: current
+    theme: current,
+    events: events
   };
 };
 
-var start = function (callback) {
-  if ( callback === void 0 ) callback = function () {};
+var start = function (cb) {
+  if ( cb === void 0 ) cb = function () {};
 
   /*
     if on Cordova, but not on an iframe,
     like on Quasar Play app
    */
   if (!Platform.is.cordova || Platform.within.iframe) {
-    return callback()
+    cb();
+    return
   }
 
   var tag = document.createElement('script');
 
-  document.addEventListener('deviceready', callback, false);
+  document.addEventListener('deviceready', function () {
+    Vue.prototype.$cordova = cordova;
+    cb();
+  }, false);
 
   tag.type = 'text/javascript';
   document.body.appendChild(tag);
@@ -2731,7 +2737,7 @@ function prevent (e) {
   e.stopPropagation();
 }
 
-var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('show');}}},[_c('div',{staticClass:"list no-border",class:{delimiter: _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result,attrs:{"cfg":result,"link":"","active":_vm.selectedIndex === index},on:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
+var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('open');}}},[_c('div',{staticClass:"list no-border",class:{delimiter: _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result,attrs:{"cfg":result,"link":"","active":_vm.selectedIndex === index},on:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
   name: 'q-autocomplete',
   components: {
     QInput: QInput,
@@ -3371,7 +3377,7 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, outline: _vm.outline, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj )},[(_vm.$slots.left)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[_vm._t("left")],2):_vm._e(),_vm._t("default"),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj )},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._t("default"),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
 var obj;},staticRenderFns: [],
   name: 'q-chip',
   components: {
@@ -3380,7 +3386,6 @@ var obj;},staticRenderFns: [],
   props: {
     small: Boolean,
     tag: Boolean,
-    outline: Boolean,
     square: Boolean,
     floating: Boolean,
     pointing: {
@@ -3388,6 +3393,9 @@ var obj;},staticRenderFns: [],
       validator: function (v) { return ['up', 'right', 'down', 'left'].includes(v); }
     },
     color: String,
+    icon: String,
+    iconRight: String,
+    avatar: String,
     closable: Boolean,
     detail: Boolean
   }
@@ -3738,7 +3746,7 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-var ContextMenuDesktop = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"anchor-click":false}},[_vm._t("default")],2)},staticRenderFns: [],
+var ContextMenuDesktop = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"anchor-click":false},on:{"open":function($event){_vm.$emit('open');},"close":function($event){_vm.$emit('close');}}},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-context-menu',
   components: {
     QPopover: QPopover
@@ -4012,7 +4020,7 @@ var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-var ContextMenuMobile = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",staticClass:"minimized"},[_vm._t("default")],2)},staticRenderFns: [],
+var ContextMenuMobile = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"minimized":""},on:{"open":function($event){_vm.$emit('open');},"close":function($event){_vm.$emit('close');}}},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-context-menu',
   components: {
     QModal: QModal
@@ -4528,7 +4536,7 @@ function defaultFilterFn (terms, obj) {
 var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('q-list',{staticClass:"no-border",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"right"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.model === opt.value},on:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.hasToolbar)?_c('q-toolbar',{attrs:{"color":_vm.color,"inverted":!_vm.inverted}},[(_vm.filter)?_c('q-search',{attrs:{"placeholder":_vm.filterPlaceholder,"debounce":50,"color":_vm.color,"inverted":_vm.inverted},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),(!_vm.filter)?_c('q-toolbar-title'):_vm._e(),(_vm.multipleToggle)?_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.__toggleAll(false);}}},[_c('q-icon',{attrs:{"name":"check_box_outline_blank"}})],1):_vm._e(),(_vm.multipleToggle)?_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.__toggleAll(true);}}},[_c('q-icon',{attrs:{"name":"check_box"}})],1):_vm._e()],1):_vm._e(),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"right"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.model === opt.value},on:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -4546,6 +4554,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
       required: true
     },
     multiple: Boolean,
+    multipleToggle: Boolean,
     radio: Boolean,
     toggle: Boolean,
     chips: Boolean,
@@ -4633,8 +4642,11 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     },
     activeItemSelector: function activeItemSelector () {
       return this.multiple
-        ? (".item-" + (this.toggle ? 'secondary' : 'primary') + " > .active")
-        : ".item.active"
+        ? (".q-item-side > " + (this.toggle ? '.q-toggle' : '.q-checkbox') + " > .active")
+        : ".q-item.active"
+    },
+    hasToolbar: function hasToolbar () {
+      return this.filter || (this.multiple && this.multipleToggle)
     }
   },
   methods: {
@@ -4671,14 +4683,23 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
       this.$emit('blur');
       this.terms = '';
     },
-    __toggle: function __toggle (value) {
+    __toggle: function __toggle (value, select) {
       var index = this.model.indexOf(value);
       if (index > -1) {
-        this.model.splice(index, 1);
+        if (select !== true) {
+          this.model.splice(index, 1);
+        }
       }
       else {
-        this.model.push(value);
+        if (select !== false) {
+          this.model.push(value);
+        }
       }
+    },
+    __toggleAll: function __toggleAll (status) {
+      var this$1 = this;
+
+      this.visibleOptions.forEach(function (opt) { return this$1.__toggle(opt.value, status); });
     },
     __select: function __select (val) {
       this.model = val;
@@ -6783,7 +6804,9 @@ function adjustDate (date, mod, utc) {
     prefix = "set" + (utc ? 'UTC' : '');
 
   Object.keys(mod).forEach(function (key) {
-    var op = key.charAt(0).toUpperCase() + key.slice(1);
+    var op = key === 'year'
+      ? 'FullYear'
+      : key.charAt(0).toUpperCase() + key.slice(1);
     t[("" + prefix + op)](mod[key]);
   });
   return t
@@ -6969,6 +6992,16 @@ function daysInMonth (date) {
 }
 
 var formatter = {
+  // Year: 00, 01, ..., 99
+  YY: function YY (date) {
+    return pad(date.getFullYear(), 4).substr(2)
+  },
+
+  // Year: 1900, 1901, ..., 2099
+  YYYY: function YYYY (date) {
+    return pad(date.getFullYear(), 4)
+  },
+
   // Month: 1, 2, ..., 12
   M: function M (date) {
     return date.getMonth() + 1
@@ -6979,24 +7012,14 @@ var formatter = {
     return pad(date.getMonth() + 1)
   },
 
-  // Day of week: Sun, Mon, ...
+  // Month Short Name: Jan, Feb, ...
   MMM: function MMM (date) {
     return this.MMMM(date).slice(0, 3)
   },
 
-  // Day of week: Sunday, Monday, ...
+  // Month Name: January, February, ...
   MMMM: function MMMM (date) {
     return monthNames[date.getMonth()]
-  },
-
-  // Minute: 0, 1, ..., 59
-  m: function m (date) {
-    return date.getMinutes()
-  },
-
-  // Minute: 00, 01, ..., 59
-  mm: function mm (date) {
-    return pad(date.getMinutes())
   },
 
   // Quarter: 1, 2, 3, 4
@@ -7059,16 +7082,6 @@ var formatter = {
     return pad(getWeekOfYear(date))
   },
 
-  // Year: 00, 01, ..., 99
-  YY: function YY (date) {
-    return pad(date.getFullYear(), 4).substr(2)
-  },
-
-  // Year: 1900, 1901, ..., 2099
-  YYYY: function YYYY (date) {
-    return pad(date.getFullYear(), 4)
-  },
-
   // Hour: 0, 1, ... 23
   H: function H (date) {
     return date.getHours()
@@ -7094,6 +7107,16 @@ var formatter = {
   // Hour: 01, 02, ..., 12
   hh: function hh (date) {
     return pad(this.h(date))
+  },
+
+  // Minute: 0, 1, ..., 59
+  m: function m (date) {
+    return date.getMinutes()
+  },
+
+  // Minute: 00, 01, ..., 59
+  mm: function mm (date) {
+    return pad(date.getMinutes())
   },
 
   // Second: 0, 1, ..., 59
@@ -8981,7 +9004,7 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     view: {
       type: String,
       default: 'hhh lpr fff',
-      validator: function (v) { return /^(h|l)h(h|r) (l|p)p(r|p) (f|l)f(f|r)$/.test(v.toLowerCase()); }
+      validator: function (v) { return /^(h|l)h(h|r) lpr (f|l)f(f|r)$/.test(v.toLowerCase()); }
     },
     reveal: Boolean,
 
@@ -10289,7 +10312,7 @@ var obj$1;},staticRenderFns: [],
   },
   watch: {
     value: function value (name) {
-      this.selectTab(name);
+      this.selectTab(name, true);
     },
     color: function color (v) {
       this.data.color = v;
@@ -10305,7 +10328,7 @@ var obj$1;},staticRenderFns: [],
     }
   },
   methods: {
-    selectTab: function selectTab (name) {
+    selectTab: function selectTab (name, instantSet) {
       var this$1 = this;
 
       if (this.data.tabName === name) {
@@ -10349,22 +10372,31 @@ var obj$1;},staticRenderFns: [],
         this$1.__setPositionBar(this$1.tab.width, this$1.tab.offsetLeft);
         posbarClass.remove('invisible');
 
+        var calcWidth, calcOffsetLeft;
+        if (this$1.tab.index < index) {
+          calcWidth = offsetLeft + width$$1 - this$1.tab.offsetLeft;
+          calcOffsetLeft = this$1.tab.offsetLeft;
+        }
+        else {
+          calcWidth = this$1.tab.offsetLeft + this$1.tab.width - offsetLeft;
+          calcOffsetLeft = offsetLeft;
+        }
+        instantSet = instantSet || (calcWidth === this$1.tab.width && calcOffsetLeft === this$1.tab.offsetLeft);
+        if (instantSet) {
+          this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index});
+        }
         this$1.timer = setTimeout(function () {
           posbarClass.add('expand');
 
-          if (this$1.tab.index < index) {
-            this$1.__setPositionBar(
-              offsetLeft + width$$1 - this$1.tab.offsetLeft,
-              this$1.tab.offsetLeft
-            );
-          }
-          else {
-            this$1.__setPositionBar(
-              this$1.tab.offsetLeft + this$1.tab.width - offsetLeft,
-              offsetLeft
-            );
-          }
+          this$1.__setPositionBar(
+            calcWidth,
+            calcOffsetLeft
+          );
 
+          if (instantSet) {
+            this$1.__beforePositionContract = function () {};
+            return
+          }
           this$1.__beforePositionContract = function () {
             this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index});
           };
@@ -10425,7 +10457,7 @@ var obj$1;},staticRenderFns: [],
       this.$refs.rightScroll.classList[action]('disabled');
     },
     __getTabElByName: function __getTabElByName (value) {
-      var tab = this.$children.find(function (child) { return child.name === value; });
+      var tab = this.$children.find(function (child) { return child.$el && child.$el.nodeType === 1 && child.name === value; });
       if (tab) {
         return tab.$el
       }
@@ -10523,7 +10555,7 @@ var obj$1;},staticRenderFns: [],
       window.addEventListener('resize', this$1.__redraw);
 
       if (this$1.data.tabName !== '' && this$1.value) {
-        this$1.selectTab(this$1.value);
+        this$1.selectTab(this$1.value, true);
       }
 
       // let browser drawing stabilize then
@@ -12308,7 +12340,7 @@ function create$1 (opts, defaults) {
   if (!toast) {
     toastStack.push(opts);
     if (!installed) {
-      install$2();
+      install$1();
     }
     return
   }
@@ -12320,7 +12352,7 @@ types.forEach(function (type) {
   create$1[type.name] = function (opts) { return create$1(opts, type.defaults); };
 });
 
-function install$2 () {
+function install$1 () {
   installed = true;
   ready(function () {
     var node = document.createElement('div');
@@ -12394,7 +12426,7 @@ function noop () {}
 
 var index_esm = {
   version: version,
-  install: install$$1,
+  install: install,
   start: start,
   theme: theme
 };

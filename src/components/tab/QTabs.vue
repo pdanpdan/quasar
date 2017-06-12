@@ -101,7 +101,7 @@ export default {
   },
   watch: {
     value (name) {
-      this.selectTab(name)
+      this.selectTab(name, true)
     },
     color (v) {
       this.data.color = v
@@ -117,7 +117,7 @@ export default {
     }
   },
   methods: {
-    selectTab (name) {
+    selectTab (name, instantSet) {
       if (this.data.tabName === name) {
         return
       }
@@ -159,22 +159,31 @@ export default {
         this.__setPositionBar(this.tab.width, this.tab.offsetLeft)
         posbarClass.remove('invisible')
 
+        let calcWidth, calcOffsetLeft
+        if (this.tab.index < index) {
+          calcWidth = offsetLeft + width - this.tab.offsetLeft
+          calcOffsetLeft = this.tab.offsetLeft
+        }
+        else {
+          calcWidth = this.tab.offsetLeft + this.tab.width - offsetLeft
+          calcOffsetLeft = offsetLeft
+        }
+        instantSet = instantSet || (calcWidth === this.tab.width && calcOffsetLeft === this.tab.offsetLeft)
+        if (instantSet) {
+          this.__setTab({name, el, width, offsetLeft, index})
+        }
         this.timer = setTimeout(() => {
           posbarClass.add('expand')
 
-          if (this.tab.index < index) {
-            this.__setPositionBar(
-              offsetLeft + width - this.tab.offsetLeft,
-              this.tab.offsetLeft
-            )
-          }
-          else {
-            this.__setPositionBar(
-              this.tab.offsetLeft + this.tab.width - offsetLeft,
-              offsetLeft
-            )
-          }
+          this.__setPositionBar(
+            calcWidth,
+            calcOffsetLeft
+          )
 
+          if (instantSet) {
+            this.__beforePositionContract = () => {}
+            return
+          }
           this.__beforePositionContract = () => {
             this.__setTab({name, el, width, offsetLeft, index})
           }
@@ -232,7 +241,7 @@ export default {
       this.$refs.rightScroll.classList[action]('disabled')
     },
     __getTabElByName (value) {
-      const tab = this.$children.find(child => child.name === value)
+      const tab = this.$children.find(child => child.$el && child.$el.nodeType === 1 && child.name === value)
       if (tab) {
         return tab.$el
       }
@@ -324,7 +333,7 @@ export default {
       window.addEventListener('resize', this.__redraw)
 
       if (this.data.tabName !== '' && this.value) {
-        this.selectTab(this.value)
+        this.selectTab(this.value, true)
       }
 
       // let browser drawing stabilize then
