@@ -10461,8 +10461,8 @@ var obj$1;},staticRenderFns: [],
       this.$refs.rightScroll.classList[action]('disabled');
     },
     __getTabElByName: function __getTabElByName (value) {
-      var tab = this.$children.find(function (child) { return child.$el && child.$el.nodeType === 1 && child.name === value; });
-      if (tab) {
+      var tab = this.$children.find(function (child) { return child.name === value; });
+      if (tab && tab.$el && tab.$el.nodeType === 1) {
         return tab.$el
       }
     },
