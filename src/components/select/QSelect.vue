@@ -54,27 +54,21 @@
       :disable="disable"
       :offset="[0, 10]"
       :anchor-click="false"
+      class="column no-wrap"
       @open="__onFocus"
       @close="__onClose"
-      class="column no-wrap"
     >
-      <q-toolbar v-if="hasToolbar" :color="color" :inverted="!inverted">
-        <q-search
-          v-if="filter"
-          v-model="terms"
-          :placeholder="filterPlaceholder"
-          :debounce="50"
-          :color="color"
-          :inverted="inverted"
-        ></q-search>
-        <q-toolbar-title v-if="!filter"></q-toolbar-title>
-        <q-btn flat v-if="multipleToggle" @click="__toggleAll(false)">
-          <q-icon name="check_box_outline_blank" />
-        </q-btn>
-        <q-btn flat v-if="multipleToggle" @click="__toggleAll(true)">
-          <q-icon name="check_box" />
-        </q-btn>
-      </q-toolbar>
+      <q-search
+        v-if="filter"
+        v-model="terms"
+        @input="reposition"
+        :placeholder="filterPlaceholder"
+        :debounce="100"
+        :color="color"
+        icon="filter_list"
+        class="no-margin"
+        style="min-height: 50px; padding: 10px;"
+      ></q-search>
 
       <q-list
         link
@@ -132,7 +126,7 @@ import SelectMixin from './select-mixin'
 import clone from '../../utils/clone'
 
 function defaultFilterFn (terms, obj) {
-  return obj.label.toLowerCase().startsWith(terms)
+  return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
 export default {
@@ -153,7 +147,6 @@ export default {
       required: true
     },
     multiple: Boolean,
-    multipleToggle: Boolean,
     radio: Boolean,
     toggle: Boolean,
     chips: Boolean,
@@ -169,10 +162,7 @@ export default {
     model: {
       deep: true,
       handler (val) {
-        const popover = this.$refs.popover
-        if (popover.opened) {
-          popover.reposition()
-        }
+        this.reposition()
         if (this.multiple) {
           this.$emit('input', val)
         }
@@ -235,9 +225,6 @@ export default {
       return this.multiple
         ? `.q-item-side > ${this.toggle ? '.q-toggle' : '.q-checkbox'} > .active`
         : `.q-item.active`
-    },
-    hasToolbar () {
-      return this.filter || (this.multiple && this.multipleToggle)
     }
   },
   methods: {
@@ -248,6 +235,12 @@ export default {
     },
     close () {
       this.$refs.popover.close()
+    },
+    reposition () {
+      const popover = this.$refs.popover
+      if (popover.opened) {
+        popover.reposition()
+      }
     },
 
     __onFocus () {

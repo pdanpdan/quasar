@@ -15,8 +15,7 @@
     :prefix="prefix"
     :suffix="suffix"
     :inverted="inverted"
-    :maxlength="maxlength"
-    :max-height="maxHeight"
+    :max-length="maxLength"
 
     :color="color"
     :before="controlBefore"
@@ -131,10 +130,6 @@ export default {
     clearAndFocus () {
       this.clear()
       this.focus()
-    },
-
-    __enter () {
-      this.$emit('enter', this.model)
     }
   },
   beforeDestroy () {

@@ -1876,7 +1876,7 @@ body.desktop .q-gallery-slider-quickview img:hover {
 }
 .q-if {
   font-size: 16px;
-  min-height: 24px;
+  min-height: 32px;
   margin-top: 16px;
   margin-bottom: 8px;
   padding-bottom: 8px;

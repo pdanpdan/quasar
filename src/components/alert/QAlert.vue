@@ -10,13 +10,13 @@
     >
       <div
         v-if="active"
-        class="q-alert row"
+        class="q-alert row no-wrap"
         :class="classes"
       >
         <div class="q-alert-icon row col-auto items-center justify-center">
           <q-icon :name="alertIcon"></q-icon>
         </div>
-        <div class="q-alert-content col self-center">
+        <div class="q-alert-content col-grow self-center">
           <slot></slot>
           <div
             v-if="actions && actions.length"
