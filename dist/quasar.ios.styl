@@ -1217,7 +1217,7 @@ $chat-message-text-padding-horiz ?= 11px
       background white
       width 7px
       transform translate(-30px, -2px)
-$checkbox-size = 24px
+$checkbox-size = 20px
 .q-checkbox-unchecked, .q-checkbox-checked
   height $checkbox-size
   width $checkbox-size
@@ -1700,36 +1700,14 @@ $field-label-color ?= rgba(0, 0, 0, .54)
       border 1px solid white
 body.desktop .q-gallery-slider-quickview img:hover
   opacity 1
-$icon-font-family    ?= 'Material Icons'
-$icon-font-weight    ?= normal
-$icon-font-style     ?= normal
-$icon-letter-spacing ?= normal
-if $icon-font-family == 'Material Icons'
-  if $quasar-dont-import-fonts != true && $quasar-dont-import-material-icons != true
-    @font-face
-      font-family 'Material Icons'
-      font-style normal
-      font-weight 400
-      src url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff')
-    &.material-icons
-      font-family $icon-font-family
-      font-weight $icon-font-weight
-      font-style $icon-font-style
-      
-      -webkit-font-smoothing antialiased
-      
-      text-rendering optimizeLegibility
-      
-      -moz-osx-font-smoothing grayscale
-      
-      font-feature-settings 'liga'
-&.material-icons, &.q-icon
+.q-icon
   line-height 1
   letter-spacing normal
   text-transform none
   white-space nowrap
   word-wrap normal
   direction ltr
+.q-icon, .material-icons
   user-select none
   cursor inherit
   display inline-flex
@@ -2134,10 +2112,6 @@ maximized-modal()
   .modal-content
     transform translateX(-101%)
 $label-offset ?= 8px
-.q-option
-  vertical-align middle
-  input
-    display none !important
 .q-option-inner
   display inline-block
   color $grey-7
@@ -2145,6 +2119,13 @@ $label-offset ?= 8px
     color $primary
   & + .q-option-label
     margin-left $label-offset
+.q-option
+  vertical-align middle
+  input
+    display none !important
+  &.reverse .q-option-inner + .q-option-label
+    margin-right $label-offset
+    margin-left 0
 .q-option-group-inline-opts > div
   display inline-flex
 .q-option-group
@@ -2286,12 +2267,12 @@ $pull-to-refresh-icon-size          ?= 2rem
   i
     font-size $pull-to-refresh-icon-size
     transition all .3s
-$radio-size = 24px
+$radio-size = 20px
 .q-radio-unchecked, .q-radio-checked, .q-radio .q-option-inner
-  height $checkbox-size
-  width $checkbox-size
-  min-width $checkbox-size
-  font-size $checkbox-size
+  height $radio-size
+  width $radio-size
+  min-width $radio-size
+  font-size $radio-size
   transition all .45s cubic-bezier(.23, 1, .32, 1)
   opacity 1
 .q-radio-unchecked
@@ -2909,8 +2890,8 @@ body.mobile .q-tabs-scroller
     > img, > i
       font-size 2rem
       margin-right 48px
-$toggle-width           = 51px
-$toggle-height          = 32px
+$toggle-width           = 42px
+$toggle-height          = 24px
 $toggle-span            = 2px
 $toggle-handle-size     = $toggle-height - 2 * $toggle-span
 .q-toggle-base
@@ -2932,6 +2913,8 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   width $toggle-handle-size
   height $toggle-handle-size
   line-height $toggle-handle-size
+.q-toggle-icon
+  font-size round($toggle-height / 1.7)
 .q-toggle .q-option-inner
   height $toggle-height
   width $toggle-width
@@ -4842,7 +4825,7 @@ for $z in 1..24
     transition transform .5s, opacity 1s
   &.active:after
     transform scale(0, 0)
-    opacity .2
+    opacity .5
     transition 0s
 .fit
   width 100% !important
