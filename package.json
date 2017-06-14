@@ -45,6 +45,7 @@
   },
   "homepage": "http://quasar-framework.org",
   "devDependencies": {
+    "amdefine": "^1.0.1",
     "autoprefixer": "^6.5.0",
     "babel-core": "^6.25.0",
     "babel-eslint": "^7.0.0",
@@ -74,13 +75,12 @@
     "git-directory-deploy": "^1.5.1",
     "html-webpack-plugin": "^2.22.0",
     "json-loader": "^0.5.4",
-    "material-design-icons": "^3.0.1",
     "opn": "^4.0.2",
     "parse5": "^2.1.0",
     "postcss-loader": "^1.0.0",
     "progress-bar-webpack-plugin": "^1.9.0",
+    "quasar-extras": "0.0.1",
     "raw-loader": "^0.5.1",
-    "roboto-fontface": "^0.7.0",
     "rollup": "^0.41.4",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-buble": "^0.15.0",
@@ -104,9 +104,8 @@
     "webpack-merge": "^4.1.0"
   },
   "peerDependencies": {
-    "vue": "^2.3.0"
+    "vue": "^2.3.0",
+    "quasar-extras": "^0.0.1"
   },
-  "dependencies": {
-    "amdefine": "^1.0.1"
-  }
+  "false": {}
 }

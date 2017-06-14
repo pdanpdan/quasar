@@ -3,31 +3,10 @@
  * (c) 2017 Razvan Stoenescu
  * Released under the MIT License.
  */
-$generic-border-radius         ?= 2px
-$typography-font-family        ?= 'Roboto'
-$toolbar-color                 ?= white
-$toolbar-background            ?= $primary
-if $typography-font-family == 'Roboto' && $quasar-dont-import-fonts != true && $quasar-dont-import-roboto != true
-  @font-face
-    font-family 'Roboto'
-    font-weight 200
-    src url('~roboto-fontface/fonts/Roboto/Roboto-Thin.woff') format('woff')
-  @font-face
-    font-family 'Roboto'
-    font-weight 300
-    src url('~roboto-fontface/fonts/Roboto/Roboto-Light.woff') format('woff')
-  @font-face
-    font-family 'Roboto'
-    font-weight 400
-    src url('~roboto-fontface/fonts/Roboto/Roboto-Regular.woff') format('woff')
-  @font-face
-    font-family 'Roboto'
-    font-weight 500
-    src url('~roboto-fontface/fonts/Roboto/Roboto-Medium.woff') format('woff')
-  @font-face
-    font-family 'Roboto'
-    font-weight 700
-    src url('~roboto-fontface/fonts/Roboto/Roboto-Bold.woff') format('woff')
+$generic-border-radius       ?= 2px
+$toolbar-color               ?= white
+$toolbar-background          ?= $primary
+$typography-font-family      ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
 $breakpoint-xs ?= 575px
 $breakpoint-sm ?= 767px
 $breakpoint-md ?= 991px
@@ -1801,36 +1780,14 @@ $field-label-color ?= rgba(0, 0, 0, .54)
       border 1px solid white
 body.desktop .q-gallery-slider-quickview img:hover
   opacity 1
-$icon-font-family    ?= 'Material Icons'
-$icon-font-weight    ?= normal
-$icon-font-style     ?= normal
-$icon-letter-spacing ?= normal
-if $icon-font-family == 'Material Icons'
-  if $quasar-dont-import-fonts != true && $quasar-dont-import-material-icons != true
-    @font-face
-      font-family 'Material Icons'
-      font-style normal
-      font-weight 400
-      src url('~material-design-icons/iconfont/MaterialIcons-Regular.woff') format('woff')
-    &.material-icons
-      font-family $icon-font-family
-      font-weight $icon-font-weight
-      font-style $icon-font-style
-      
-      -webkit-font-smoothing antialiased
-      
-      text-rendering optimizeLegibility
-      
-      -moz-osx-font-smoothing grayscale
-      
-      font-feature-settings 'liga'
-&.material-icons, &.q-icon
+.q-icon
   line-height 1
   letter-spacing normal
   text-transform none
   white-space nowrap
   word-wrap normal
   direction ltr
+.q-icon, .material-icons
   user-select none
   cursor inherit
   display inline-flex
