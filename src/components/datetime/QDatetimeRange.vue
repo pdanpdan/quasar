@@ -1,11 +1,11 @@
 <template>
   <div class="q-datetime-range">
     <q-datetime
-      v-model="model.from"
+      v-model="value.from"
       :default-selection="defaultFrom"
       :type="type"
       :min="min"
-      :max="model.to || max"
+      :max="value.to || max"
       :format="format"
       :no-clear="noClear"
       :clear-label="clearLabel"
@@ -26,13 +26,14 @@
       class="inline"
       :class="className"
       :style="css"
+      @change="__onChange"
     ></q-datetime>
 
     <q-datetime
-      v-model="model.to"
+      v-model="value.to"
       :default-selection="defaultTo"
       :type="type"
-      :min="model.from || min"
+      :min="value.from || min"
       :max="max"
       :format="format"
       :no-clear="noClear"
@@ -54,6 +55,7 @@
       class="inline"
       :class="className"
       :style="css"
+      @change="__onChange"
     ></q-datetime>
   </div>
 </template>
@@ -82,19 +84,14 @@ export default {
       className: [String, Object],
       css: [String, Object],
       defaultFrom: [String, Number, Date],
-      defaultTo: [String, Number, Date],
-      color: String,
-      disable: Boolean
+      defaultTo: [String, Number, Date]
     }
   ),
-  computed: {
-    model: {
-      get () {
-        return this.value
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
+  methods: {
+    __onChange () {
+      this.$nextTick(() => {
+        this.$emit('change', this.value)
+      })
     }
   }
 }

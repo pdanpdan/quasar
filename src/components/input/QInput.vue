@@ -13,7 +13,6 @@
     :before="before"
     :after="after"
     :color="color"
-    :align="align"
 
     :focused="focused"
     :length="length"
@@ -220,6 +219,7 @@ export default {
     clear () {
       if (!this.disable) {
         this.$emit('input', '')
+        this.$emit('change', '')
       }
     },
 
@@ -230,6 +230,7 @@ export default {
           val = parseFloat(val).toFixed(this.maxDecimals)
         }
         this.$emit('input', val)
+        this.$emit('change', val)
       }
     },
     __updateArea () {

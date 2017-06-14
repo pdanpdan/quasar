@@ -1673,7 +1673,7 @@ var Ripple = {
   }
 };
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col-grow q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col-grow q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col-grow q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"control"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col-grow q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col-grow q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col-grow q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"control"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"control"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"control"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -1775,6 +1775,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     clear: function clear () {
       if (!this.disable) {
         this.$emit('input', '');
+        this.$emit('change', '');
       }
     },
 
@@ -1785,6 +1786,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
           val = parseFloat(val).toFixed(this.maxDecimals);
         }
         this.$emit('input', val);
+        this.$emit('change', val);
       }
     },
     __updateArea: function __updateArea () {
@@ -2235,7 +2237,8 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       this.reposition(evt);
       this.timer = setTimeout(function () {
         this$1.timer = null;
-        document.addEventListener('click', this$1.close, true);
+        document.body.addEventListener('click', this$1.close, true);
+        document.body.addEventListener('touchstart', this$1.close, true);
         this$1.$emit('open');
       }, 1);
     },
@@ -2247,7 +2250,8 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       }
 
       clearTimeout(this.timer);
-      document.removeEventListener('click', this.close, true);
+      document.body.removeEventListener('click', this.close, true);
+      document.body.removeEventListener('touchstart', this.close, true);
       this.scrollTarget.removeEventListener('scroll', this.__updatePosition);
       window.removeEventListener('resize', this.__updatePosition);
       EscapeKey.pop();
@@ -3247,8 +3251,10 @@ var Mixin = {
       get: function get () {
         return this.value
       },
-      set: function set (value) {
-        this.$emit('input', value);
+      set: function set (val) {
+        if (this.value !== val) {
+          this.$emit('input', val);
+        }
       }
     },
     isArray: function isArray () {
@@ -3263,17 +3269,6 @@ var Mixin = {
       return this.isArray
         ? this.model.indexOf(this.val) > -1
         : this.model
-    }
-  },
-  watch: {
-    isActive: function isActive () {
-      var ref = this.$refs.ripple;
-      if (ref) {
-        ref.classList.add('active');
-        setTimeout(function () {
-          ref.classList.remove('active');
-        }, 10);
-      }
     }
   },
   methods: {
@@ -3295,6 +3290,7 @@ var Mixin = {
         return
       }
       this.model = !this.model;
+      this.__onChange();
     },
     select: function select () {
       if (this.disable) {
@@ -3303,10 +3299,12 @@ var Mixin = {
       if (this.isArray) {
         if (this.index === -1) {
           this.model.push(this.val);
+          this.__onChange();
         }
         return
       }
       this.model = true;
+      this.__onChange();
     },
     unselect: function unselect () {
       if (this.disable) {
@@ -3315,15 +3313,30 @@ var Mixin = {
       if (this.isArray) {
         if (this.index > -1) {
           this.model.splice(this.index, 1);
+          this.__onChange();
         }
         return
       }
       this.model = false;
+      this.__onChange();
     },
     __change: function __change (e) {
       if (this.$q.platform.is.ios) {
         this.toggle();
       }
+      else {
+        this.__onChange();
+      }
+    },
+    __onChange: function __onChange () {
+      var ref = this.$refs.ripple;
+      if (ref) {
+        ref.classList.add('active');
+        setTimeout(function () {
+          ref.classList.remove('active');
+        }, 10);
+      }
+      this.$emit('change', this.model);
     }
   }
 };
@@ -3435,15 +3448,15 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       if ( value === void 0 ) value = this.input;
 
       if (!this.disable && value) {
-        this.$emit('input', this.value.concat([value]));
+        this.value.push(value);
+        this.$emit('change', this.value);
         this.input = '';
       }
     },
     remove: function remove (index) {
       if (!this.disable && index >= 0 && index < this.length) {
-        var value = this.value.slice(0);
-        value.splice(index, 1);
-        this.$emit('input', value);
+        this.value.splice(index, 1);
+        this.$emit('change', this.value);
       }
     },
     __onInputBlur: function __onInputBlur (e) {
@@ -4175,9 +4188,10 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
     return {
       __inputParent: {
-        set: function (value) {
-          if (this$1.value !== value) {
-            this$1.$emit('input', value);
+        set: function (val) {
+          if (this$1.value !== val) {
+            this$1.$emit('input', val);
+            this$1.$emit('change', val);
           }
         },
         setChildDebounce: function (v) {
@@ -4190,19 +4204,21 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     value: function value (v) {
       this.model = v;
     },
-    model: function model (value) {
+    model: function model (val) {
       var this$1 = this;
 
       clearTimeout(this.timer);
-      if (this.value === value) {
+      if (this.value === val) {
         return
       }
-      if (!value && value !== 0) {
+      if (!val && val !== 0) {
         this.$emit('input', '');
+        this.$emit('change', '');
         return
       }
       this.timer = setTimeout(function () {
-        this$1.$emit('input', value);
+        this$1.$emit('input', val);
+        this$1.$emit('change', val);
       }, this.debounceValue);
     }
   },
@@ -4261,25 +4277,15 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       default: 'radio_button_unchecked'
     }
   },
-  watch: {
-    isActive: function isActive (v) {
-      var ref = this.$refs.ripple;
-      if (v && ref) {
-        ref.classList.add('active');
-        setTimeout(function () {
-          ref.classList.remove('active');
-        }, 10);
-      }
-    }
-  },
   computed: {
     model: {
       get: function get () {
         return this.value
       },
-      set: function set$$1 (value) {
-        if (value !== this.value) {
-          this.$emit('input', value);
+      set: function set$$1 (val) {
+        if (val !== this.value) {
+          this.$emit('input', val);
+          this.__onChange(val);
         }
       }
     },
@@ -4293,12 +4299,26 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         this.$el.blur();
       }
 
-      if (!this.disable) {
+      if (!this.disable && this.model !== this.val) {
         this.model = this.val;
+        this.__onChange(this.val);
       }
     },
     __change: function __change (e) {
-      this.model = this.val;
+      if (this.model !== this.val) {
+        this.__onChange(this.val);
+        this.model = this.val;
+      }
+    },
+    __onChange: function __onChange (val) {
+      var ref = this.$refs.ripple;
+      if (val && ref) {
+        ref.classList.add('active');
+        setTimeout(function () {
+          ref.classList.remove('active');
+        }, 10);
+      }
+      this.$emit('change', val);
     }
   }
 };
@@ -4498,7 +4518,7 @@ var SelectMixin = {
       validator: function (v) { return v.every(function (o) { return 'label' in o && 'value' in o; }); }
     },
     chips: Boolean,
-    bgColor: String,
+    frameColor: String,
     displayValue: String
   },
   data: function data () {
@@ -4518,11 +4538,22 @@ var SelectMixin = {
     },
     additionalLength: function additionalLength () {
       return this.displayValue && this.displayValue.length > 0
-    },
-    frameColor: function frameColor () {
-      return this.hasChips && this.inverted
-        ? this.bgColor || this.color
-        : this.color
+    }
+  },
+  methods: {
+    __toggle: function __toggle (value) {
+      var
+        model = this.value,
+        index = model.indexOf(value);
+
+      if (index > -1) {
+        model.splice(index, 1);
+      }
+      else {
+        model.push(value);
+      }
+
+      this.$emit('change', model);
     }
   }
 };
@@ -4531,10 +4562,10 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"right"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},nativeOn:{"click":function($event){_vm.__toggle(opt.value);}},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.model === opt.value},on:{"click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.model,"val":opt.value},slot:"primary"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"}),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"!click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},slot:"right"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.value,"val":opt.value},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -4563,29 +4594,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     placeholder: String,
     delimiter: Boolean
   },
-  watch: {
-    model: {
-      deep: true,
-      handler: function handler (val) {
-        this.reposition();
-        if (this.multiple) {
-          this.$emit('input', val);
-        }
-      }
-    }
-  },
   computed: {
-    model: {
-      get: function get () {
-        if (this.multiple && !Array.isArray(this.value)) {
-          console.error('Select model needs to be an array when using multiple selection.');
-        }
-        return this.value
-      },
-      set: function set (value) {
-        this.$emit('input', value);
-      }
-    },
     actualValue: function actualValue () {
       var this$1 = this;
 
@@ -4605,14 +4614,14 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
 
       /* Used by multiple selection only */
       if (this.multiple) {
-        return this.options.map(function (opt) { return this$1.model.includes(opt.value); })
+        return this.options.map(function (opt) { return this$1.value.includes(opt.value); })
       }
     },
     selectedOptions: function selectedOptions () {
       var this$1 = this;
 
       if (this.multiple) {
-        return this.options.filter(function (opt) { return this$1.model.includes(opt.value); })
+        return this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
       }
     },
     visibleOptions: function visibleOptions () {
@@ -4680,26 +4689,11 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
       this.$emit('blur');
       this.terms = '';
     },
-    __toggle: function __toggle (value, select) {
-      var index = this.model.indexOf(value);
-      if (index > -1) {
-        if (select !== true) {
-          this.model.splice(index, 1);
-        }
-      }
-      else {
-        if (select !== false) {
-          this.model.push(value);
-        }
-      }
-    },
-    __toggleAll: function __toggleAll (status) {
-      var this$1 = this;
-
-      this.visibleOptions.forEach(function (opt) { return this$1.__toggle(opt.value, status); });
-    },
     __select: function __select (val) {
-      this.model = val;
+      if (this.value !== val) {
+        this.$emit('input', val);
+        this.$emit('change', val);
+      }
       this.close();
     }
   }
@@ -4729,7 +4723,7 @@ var Modal = function (component) {
   }
 };
 
-var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon},on:{"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');}},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
+var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
   name: 'q-option-group',
   components: {
     QRadio: QRadio,
@@ -4779,6 +4773,21 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       set: function set (value) {
         this.$emit('input', value);
       }
+    }
+  },
+  methods: {
+    __onChange: function __onChange () {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        this$1.$emit('change', this$1.model);
+      });
+    },
+    __onFocus: function __onFocus () {
+      this.$emit('focus');
+    },
+    __onBlur: function __onBlur () {
+      this.$emit('blur');
     }
   }
 };
@@ -5146,7 +5155,10 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         model = getModel(percentage, this.min, this.max, this.step, this.decimals);
 
       this.currentPercentage = percentage;
-      this.$emit('input', model);
+      if (model !== this.value) {
+        this.$emit('input', model);
+        this.$emit('change', model);
+      }
     },
     __end: function __end () {
       this.dragging = false;
@@ -5370,7 +5382,11 @@ var QDoubleRange = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       var min = ref.min; if ( min === void 0 ) min = this.value.min;
       var max = ref.max; if ( max === void 0 ) max = this.value.max;
 
-      this.$emit('input', {min: min, max: max});
+      var val = {min: min, max: max};
+      if (this.value.min !== min || this.value.max !== max) {
+        this.$emit('input', val);
+        this.$emit('change', val);
+      }
     },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
@@ -5424,9 +5440,10 @@ var obj;},staticRenderFns: [],
       get: function get () {
         return this.value
       },
-      set: function set (value) {
-        if (this.value !== value) {
-          this.$emit('input', value);
+      set: function set (val) {
+        if (this.value !== val) {
+          this.$emit('input', val);
+          this.$emit('change', val);
         }
       }
     },
@@ -5598,7 +5615,7 @@ var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 
 var Dialog = Modal(Dialog$1);
 
-var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
+var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col-grow row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"control"})],1)},staticRenderFns: [],
@@ -5684,7 +5701,10 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
           {
             label: this.okLabel,
             handler: function (data) {
-              this$1.$emit('input', data.select);
+              if (JSON.stringify(this$1.value) !== JSON.stringify(data.select)) {
+                this$1.$emit('input', data.select);
+                this$1.$emit('change', data.select);
+              }
             }
           }
         ]
@@ -5696,20 +5716,6 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
       }
     },
 
-    __toggle: function __toggle (value) {
-      var
-        index = this.value.indexOf(value),
-        model = this.value.slice(0);
-
-      if (index > -1) {
-        model.splice(index, 1);
-      }
-      else {
-        model.push(value);
-      }
-
-      this.$emit('input', model);
-    },
     __onFocus: function __onFocus () {
       this.focused = true;
       this.$emit('focus');
@@ -5867,7 +5873,6 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       var parsed = parseInt(this.newPage, 10);
       if (parsed) {
         this.model = parsed;
-        this.$refs.input.blur();
       }
 
       this.newPage = '';
@@ -5887,6 +5892,7 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         }
         if (this.value !== value) {
           this.$emit('input', value);
+          this.$emit('change', value);
         }
       }
     },
@@ -7289,8 +7295,10 @@ var DateMixin = {
       },
       set: function set (val) {
         var date = getDateBetween(val, this.pmin, this.pmax);
-        if ((new Date(this.value)).getTime() !== date.getTime()) {
-          this.$emit('input', convertDateToFormat(date, this.value));
+        if (!isSameDate(this.value, date)) {
+          var val$1 = convertDateToFormat(date, this.value);
+          this.$emit('input', val$1);
+          this.$emit('change', val$1);
         }
       }
     },
@@ -7351,6 +7359,13 @@ var DateMixin = {
   },
 
   methods: {
+    clear: function clear () {
+      if (this.value !== '') {
+        this.$emit('input', '');
+        this.$emit('change', '');
+      }
+    },
+
     toggleAmPm: function toggleAmPm () {
       if (!this.editable) {
         return
@@ -7931,7 +7946,10 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     clear: function clear () {
       this.$refs.popup.close();
-      this.$emit('input', '');
+      if (this.value !== '') {
+        this.$emit('input', '');
+        this.$emit('change', '');
+      }
     },
 
     __onFocus: function __onFocus () {
@@ -7957,12 +7975,16 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.model = this.value;
     },
     __update: function __update () {
-      this.$emit('input', this.model || this.$refs.target.model);
+      var val = this.model || this.$refs.target.model;
+      if (!isSameDate(this.value, val)) {
+        this.$emit('input', val);
+        this.$emit('change', val);
+      }
     }
   }
 };
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.model.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.from),callback:function ($$v) {_vm.model.from=$$v;},expression:"model.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.model.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},model:{value:(_vm.model.to),callback:function ($$v) {_vm.model.to=$$v;},expression:"model.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.value.from=$$v;},expression:"value.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.value.to=$$v;},expression:"value.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   mixins: [FrameMixin],
   components: {
@@ -7980,19 +8002,16 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
       className: [String, Object],
       css: [String, Object],
       defaultFrom: [String, Number, Date],
-      defaultTo: [String, Number, Date],
-      color: String,
-      disable: Boolean
+      defaultTo: [String, Number, Date]
     }
   ),
-  computed: {
-    model: {
-      get: function get () {
-        return this.value
-      },
-      set: function set (value) {
-        this.$emit('input', value);
-      }
+  methods: {
+    __onChange: function __onChange () {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        this$1.$emit('change', this$1.value);
+      });
     }
   }
 };
@@ -8733,11 +8752,16 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
         model = this.min + (angle / 360) * (this.max - this.min),
         modulo = model % this.step;
 
-      this.$emit('input', between(
+      var val = between(
         model - modulo + (Math.abs(modulo) >= this.step / 2 ? (modulo < 0 ? -1 : 1) * this.step : 0),
         this.min,
         this.max
-      ));
+      );
+
+      if (this.value !== val) {
+        this.$emit('input', val);
+        this.$emit('change', val);
+      }
     },
     __getCenter: function __getCenter () {
       var knobOffset = offset(this.$el);
