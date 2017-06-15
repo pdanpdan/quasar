@@ -101,7 +101,7 @@ export default {
   },
   watch: {
     value (name) {
-      this.selectTab(name, true)
+      this.selectTab(name)
     },
     color (v) {
       this.data.color = v
@@ -162,19 +162,6 @@ export default {
         this.__setPositionBar(this.tab.width, this.tab.offsetLeft)
         posbarClass.remove('invisible')
 
-        let calcWidth, calcOffsetLeft
-        if (this.tab.index < index) {
-          calcWidth = offsetLeft + width - this.tab.offsetLeft
-          calcOffsetLeft = this.tab.offsetLeft
-        }
-        else {
-          calcWidth = this.tab.offsetLeft + this.tab.width - offsetLeft
-          calcOffsetLeft = offsetLeft
-        }
-        instantSet = instantSet || (calcWidth === this.tab.width && calcOffsetLeft === this.tab.offsetLeft)
-        if (instantSet) {
-          this.__setTab({name, el, width, offsetLeft, index})
-        }
         this.timer = setTimeout(() => {
           posbarClass.add('expand')
 
@@ -348,7 +335,7 @@ export default {
       window.addEventListener('resize', this.__redraw)
 
       if (this.data.tabName !== '' && this.value) {
-        this.selectTab(this.value, true)
+        this.selectTab(this.value)
       }
 
       // let browser drawing stabilize then

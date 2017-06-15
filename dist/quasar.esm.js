@@ -10334,7 +10334,7 @@ var obj$1;},staticRenderFns: [],
   },
   watch: {
     value: function value (name) {
-      this.selectTab(name, true);
+      this.selectTab(name);
     },
     color: function color (v) {
       this.data.color = v;
@@ -10397,19 +10397,6 @@ var obj$1;},staticRenderFns: [],
         this$1.__setPositionBar(this$1.tab.width, this$1.tab.offsetLeft);
         posbarClass.remove('invisible');
 
-        var calcWidth, calcOffsetLeft;
-        if (this$1.tab.index < index) {
-          calcWidth = offsetLeft + width$$1 - this$1.tab.offsetLeft;
-          calcOffsetLeft = this$1.tab.offsetLeft;
-        }
-        else {
-          calcWidth = this$1.tab.offsetLeft + this$1.tab.width - offsetLeft;
-          calcOffsetLeft = offsetLeft;
-        }
-        instantSet = instantSet || (calcWidth === this$1.tab.width && calcOffsetLeft === this$1.tab.offsetLeft);
-        if (instantSet) {
-          this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index});
-        }
         this$1.timer = setTimeout(function () {
           posbarClass.add('expand');
 
@@ -10592,7 +10579,7 @@ var obj$1;},staticRenderFns: [],
       window.addEventListener('resize', this$1.__redraw);
 
       if (this$1.data.tabName !== '' && this$1.value) {
-        this$1.selectTab(this$1.value, true);
+        this$1.selectTab(this$1.value);
       }
 
       // let browser drawing stabilize then
