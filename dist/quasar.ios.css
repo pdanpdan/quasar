@@ -950,9 +950,9 @@ img.avatar {
 }
 .q-checkbox-unchecked,
 .q-checkbox-checked {
-  height: 20px;
-  width: 20px;
-  font-size: 20px;
+  height: 21px;
+  width: 21px;
+  font-size: 21px;
   opacity: 0;
 }
 .q-chip {
@@ -1870,7 +1870,6 @@ main,
   color: #fff;
   background: #027be3;
   z-index: 2000;
-  transition: transform 0.3s;
 }
 .layout-backdrop {
   z-index: 2999;
@@ -2259,10 +2258,10 @@ body.with-modal {
 .q-radio-unchecked,
 .q-radio-checked,
 .q-radio .q-option-inner {
-  height: 20px;
-  width: 20px;
-  min-width: 20px;
-  font-size: 20px;
+  height: 21px;
+  width: 21px;
+  min-width: 21px;
+  font-size: 21px;
   transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
   opacity: 1;
 }
@@ -3027,9 +3026,6 @@ body.mobile .q-tabs-scroller {
   width: 20px;
   height: 20px;
   line-height: 20px;
-}
-.q-toggle-icon {
-  font-size: 14px;
 }
 .q-toggle .q-option-inner {
   height: 24px;
@@ -6835,7 +6831,7 @@ input::selection {
 }
 .q-radial-ripple.active:after {
   transform: scale(0, 0);
-  opacity: 0.5;
+  opacity: 0.4;
   transition: 0s;
 }
 .fit {

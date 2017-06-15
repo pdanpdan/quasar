@@ -1217,7 +1217,7 @@ $chat-message-text-padding-horiz ?= 11px
       background white
       width 7px
       transform translate(-30px, -2px)
-$checkbox-size = 20px
+$checkbox-size = 21px
 .q-checkbox-unchecked, .q-checkbox-checked
   height $checkbox-size
   width $checkbox-size
@@ -1935,7 +1935,6 @@ main, .layout, .layout-header, .layout-footer
   color $toolbar-color
   background $toolbar-background
   z-index $z-marginals
-  transition transform .3s
 .layout-backdrop
   z-index ($z-fixed-side - 1)
   background $dimmed-background
@@ -2267,7 +2266,7 @@ $pull-to-refresh-icon-size          ?= 2rem
   i
     font-size $pull-to-refresh-icon-size
     transition all .3s
-$radio-size = 20px
+$radio-size = 21px
 .q-radio-unchecked, .q-radio-checked, .q-radio .q-option-inner
   height $radio-size
   width $radio-size
@@ -2913,8 +2912,6 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   width $toggle-handle-size
   height $toggle-handle-size
   line-height $toggle-handle-size
-.q-toggle-icon
-  font-size round($toggle-height / 1.7)
 .q-toggle .q-option-inner
   height $toggle-height
   width $toggle-width
@@ -4825,7 +4822,7 @@ for $z in 1..24
     transition transform .5s, opacity 1s
   &.active:after
     transform scale(0, 0)
-    opacity .5
+    opacity .4
     transition 0s
 .fit
   width 100% !important

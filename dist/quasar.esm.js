@@ -942,8 +942,6 @@ function debounce (fn, wait, immediate) {
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
 
-    var callNow = immediate && !timeout;
-
     context = this;
     timestamp = now();
     params = args;
@@ -951,7 +949,7 @@ function debounce (fn, wait, immediate) {
     if (!timeout) {
       timeout = setTimeout(later, wait);
     }
-    if (callNow) {
+    if (immediate && !timeout) {
       result = fn.apply(context, args);
       context = params = null;
     }
@@ -4285,7 +4283,6 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       set: function set$$1 (val) {
         if (val !== this.value) {
           this.$emit('input', val);
-          this.__onChange(val);
         }
       }
     },
@@ -4305,10 +4302,7 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       }
     },
     __change: function __change (e) {
-      if (this.model !== this.val) {
-        this.__onChange(this.val);
-        this.model = this.val;
-      }
+      this.__onChange(this.value);
     },
     __onChange: function __onChange (val) {
       var ref = this.$refs.ripple;
@@ -6733,11 +6727,14 @@ var monthNames = [
 ];
 
 function formatTimezone (offset, delimeter) {
-  delimeter = delimeter || '';
-  var sign = offset > 0 ? '-' : '+';
-  var absOffset = Math.abs(offset);
-  var hours = Math.floor(absOffset / 60);
-  var minutes = absOffset % 60;
+  if ( delimeter === void 0 ) delimeter = '';
+
+  var
+    sign = offset > 0 ? '-' : '+',
+    absOffset = Math.abs(offset),
+    hours = Math.floor(absOffset / 60),
+    minutes = absOffset % 60;
+
   return sign + pad(hours) + delimeter + pad(minutes)
 }
 
@@ -9001,7 +8998,7 @@ function updateObject (obj, data) {
 var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"layout"},[(!_vm.$q.platform.is.ios && _vm.$slots.left && !_vm.leftState.openedSmall && !_vm.leftOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openLeftByTouch),expression:"__openLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-left"}):_vm._e(),(!_vm.$q.platform.is.ios && _vm.$slots.right && !_vm.rightState.openedSmall && !_vm.rightOnLayout)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__openRightByTouch),expression:"__openRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-side-opener fixed-right"}):_vm._e(),(_vm.$slots.left || _vm.$slots.right)?_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeByTouch),expression:"__closeByTouch",modifiers:{"horizontal":true}}],ref:"backdrop",staticClass:"fullscreen layout-backdrop",class:{ 'transition-generic': !_vm.backdrop.inTransit, 'no-pointer-events': _vm.hideBackdrop, },style:({
       opacity: _vm.backdrop.percentage,
       hidden: _vm.hideBackdrop
-    }),on:{"click":_vm.__hide}}):_vm._e(),(_vm.$slots.left)?_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-left scroll",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}})],2):_vm._e(),(_vm.$slots.right)?_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-right scroll",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}})],2):_vm._e(),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",staticClass:"layout-page-container",style:(_vm.computedPageStyle)},[_c('main',{staticClass:"layout-page",class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
+    }),on:{"click":_vm.__hide}}):_vm._e(),(_vm.$slots.left)?_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeLeftByTouch),expression:"__closeLeftByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-left scroll",class:_vm.computedLeftClass,style:(_vm.computedLeftStyle)},[_vm._t("left"),_c('q-resize-observable',{on:{"resize":_vm.onLeftAsideResize}})],2):_vm._e(),(_vm.$slots.right)?_c('aside',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__closeRightByTouch),expression:"__closeRightByTouch",modifiers:{"horizontal":true}}],staticClass:"layout-aside layout-aside-right scroll",class:_vm.computedRightClass,style:(_vm.computedRightStyle)},[_vm._t("right"),_c('q-resize-observable',{on:{"resize":_vm.onRightAsideResize}})],2):_vm._e(),(_vm.$slots.header || (_vm.$q.theme !== 'ios' && _vm.$slots.navigation))?_c('header',{ref:"header",staticClass:"layout-header transition-generic",class:_vm.computedHeaderClass,style:(_vm.computedHeaderStyle)},[_vm._t("header"),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onHeaderResize}})],2):_vm._e(),_c('div',{ref:"main",staticClass:"layout-page-container transition-generic",style:(_vm.computedPageStyle)},[_c('main',{staticClass:"layout-page",class:_vm.pageClass,style:(_vm.mainStyle)},[_vm._t("default")],2)]),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('footer',{ref:"footer",staticClass:"layout-footer transition-generic",class:_vm.computedFooterClass,style:(_vm.computedFooterStyle)},[_vm._t("footer"),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e(),_c('q-resize-observable',{on:{"resize":_vm.onFooterResize}})],2):_vm._e(),_c('q-scroll-observable',{on:{"scroll":_vm.onPageScroll}}),_c('q-resize-observable',{on:{"resize":_vm.onLayoutResize}}),_c('q-window-resize-observable',{on:{"resize":_vm.onWindowResize}})],1)},staticRenderFns: [],
   name: 'q-layout',
   components: {
     QResizeObservable: QResizeObservable,
@@ -10353,18 +10350,21 @@ var obj$1;},staticRenderFns: [],
     }
   },
   methods: {
-    selectTab: function selectTab (name, instantSet) {
+    selectTab: function selectTab (name) {
       var this$1 = this;
 
-      if (this.data.tabName === name) {
+      clearTimeout(this.timer);
+      this.__beforePositionContract = function () {};
+
+      var emitInput = this.value !== name;
+      if (!emitInput && this.data.tabName === name) {
         return
       }
 
-      clearTimeout(this.timer);
       var el = this.__getTabElByName(name);
 
       if (this.$q.theme === 'ios') {
-        this.__setTab({name: name, el: el});
+        this.__setTab({name: name, el: el}, emitInput);
         return
       }
 
@@ -10373,7 +10373,7 @@ var obj$1;},staticRenderFns: [],
 
       if (!el) {
         this.__setPositionBar(0, 0);
-        this.__setTab({name: name});
+        this.__setTab({name: name}, emitInput);
         return
       }
 
@@ -10386,7 +10386,7 @@ var obj$1;},staticRenderFns: [],
       this.timer = setTimeout(function () {
         if (!this$1.tab.el) {
           posbarClass.add('invisible');
-          this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index});
+          this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput);
           return
         }
 
@@ -10413,24 +10413,36 @@ var obj$1;},staticRenderFns: [],
         this$1.timer = setTimeout(function () {
           posbarClass.add('expand');
 
-          this$1.__setPositionBar(
-            calcWidth,
-            calcOffsetLeft
-          );
-
-          if (instantSet) {
-            this$1.__beforePositionContract = function () {};
-            return
+          if (this$1.tab.index < index) {
+            if (offsetLeft + width$$1 - this$1.tab.offsetLeft === this$1.tab.offsetLeft) {
+              return this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput)
+            }
+            this$1.__setPositionBar(
+              offsetLeft + width$$1 - this$1.tab.offsetLeft,
+              this$1.tab.offsetLeft
+            );
           }
+          else {
+            if (this$1.tab.offsetLeft === offsetLeft) {
+              return this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput)
+            }
+            this$1.__setPositionBar(
+              this$1.tab.offsetLeft + this$1.tab.width - offsetLeft,
+              offsetLeft
+            );
+          }
+
           this$1.__beforePositionContract = function () {
-            this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index});
+            this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput);
           };
         }, 30);
       }, 30);
     },
-    __setTab: function __setTab (data) {
+    __setTab: function __setTab (data, emitInput) {
       this.data.tabName = data.name;
-      this.$emit('input', data.name);
+      if (emitInput) {
+        this.$emit('input', data.name);
+      }
       this.$emit('select', data.name);
       this.__scrollToTab(data.el);
       this.tab = data;
@@ -10482,8 +10494,8 @@ var obj$1;},staticRenderFns: [],
       this.$refs.rightScroll.classList[action]('disabled');
     },
     __getTabElByName: function __getTabElByName (value) {
-      var tab = this.$children.find(function (child) { return child.name === value; });
-      if (tab && tab.$el && tab.$el.nodeType === 1) {
+      var tab = this.$children.find(function (child) { return child.name === value && child.$el && child.$el.nodeType === 1; });
+      if (tab) {
         return tab.$el
       }
     },
@@ -10852,8 +10864,9 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     __getUploadPromise: function __getUploadPromise (file) {
       var this$1 = this;
 
-      var form = new FormData();
-      var xhr = new XMLHttpRequest();
+      var
+        form = new FormData(),
+        xhr = new XMLHttpRequest();
 
       try {
         form.append('Content-Type', file.type || 'application/octet-stream');
@@ -11466,10 +11479,12 @@ if (!Array.prototype.find) {
       if (typeof predicate !== 'function') {
         throw new TypeError('predicate must be a function')
       }
-      var list = Object(this);
-      var length = list.length >>> 0;
-      var thisArg = arguments[1];
+
       var value;
+      var
+        list = Object(this),
+        length = list.length >>> 0,
+        thisArg = arguments[1];
 
       for (var i = 0; i < length; i++) {
         value = list[i];
