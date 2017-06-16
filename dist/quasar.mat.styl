@@ -965,6 +965,81 @@ for $name, $size in $button-round-sizes
     background $card-dark-separator-color
   .q-card-subtitle, .q-card-title-extra
     color $card-dark-faded-color
+.q-carousel
+  overflow hidden
+  &.fullscreen
+    z-index $z-absolute
+.q-carousel-inner
+  position relative
+  height 100%
+.q-carousel-track
+  padding 0
+  margin 0
+  will-change transform
+  display flex
+  flex-wrap nowrap
+  height 100%
+  > div
+    flex 0 0 100%
+    min-height $slider-min-height
+    margin 0
+    padding $slider-padding
+    &.centered
+      display flex
+      flex-direction column
+      align-items center
+      justify-content center
+  &.with-arrows
+    > div:not(.no-padding)
+      padding-left 10%
+      padding-right 10%
+      -ms-flex-preferred-size 80%
+  &.with-toolbar
+    > div
+      padding-bottom ($slider-padding + 1rem)
+  &.infinite-left > div:nth-last-child(2)
+    order -1000
+    margin-left -100%
+  &.infinite-right > div:nth-child(2)
+    order 1000
+.q-carousel-left-button,
+.q-carousel-right-button
+  position absolute
+  top 0
+  bottom 0
+  font-size $slider-arrow-size
+  width 10%
+  max-width 70px
+  pointer-events none
+  i
+    cursor pointer
+    pointer-events all
+    padding 3px
+    border-radius 50%
+    background $slider-ovelay-color
+    opacity $slider-opacity
+    transition opacity .3s
+    &:hover
+      opacity $slider-opacity-active
+.q-carousel-left-button
+  left 0
+.q-carousel-right-button
+  right 0
+.q-carousel-toolbar
+  position absolute
+  bottom 0
+  left 0
+  right 0
+  margin 0
+  opacity $slider-opacity
+  padding .5rem .8rem
+  transition opacity .3s
+  i
+    cursor pointer
+    padding 5px
+    font-size $slider-button-size
+  .q-carousel-dots i
+    font-size $slider-dots-size
 .q-message-name, .q-message-stamp, .q-message-label
   font-size small
 .q-message-label
@@ -1557,10 +1632,10 @@ body.platform-ios .q-fab
   img
     height auto
     width 100%
-.q-gallery-slider img
+.q-gallery-carousel img
   height auto
   width 100%
-.q-gallery-slider-overlay
+.q-gallery-carousel-overlay
   position absolute
   top 0
   right 0
@@ -1571,7 +1646,7 @@ body.platform-ios .q-fab
   display none
   &.active
     display block
-.q-gallery-slider-quickview
+.q-gallery-carousel-quickview
   position absolute
   bottom 0
   left 0
@@ -1606,7 +1681,7 @@ body.platform-ios .q-fab
     &.active img, img.active
       opacity 1
       border 1px solid white
-body.desktop .q-gallery-slider-quickview img:hover
+body.desktop .q-gallery-carousel-quickview img:hover
   opacity 1
 table.q-table
   border-spacing 0
@@ -2484,81 +2559,6 @@ $range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   background rgba(255, 255, 255, .25)
   flex 1 1 auto
   margin 0
-.q-slider
-  overflow hidden
-  &.fullscreen
-    z-index $z-absolute
-.q-slider-inner
-  position relative
-  height 100%
-.q-slider-track
-  padding 0
-  margin 0
-  will-change transform
-  display flex
-  flex-wrap nowrap
-  height 100%
-  > div
-    flex 0 0 100%
-    min-height $slider-min-height
-    margin 0
-    padding $slider-padding
-    &.centered
-      display flex
-      flex-direction column
-      align-items center
-      justify-content center
-  &.with-arrows
-    > div:not(.no-padding)
-      padding-left 10%
-      padding-right 10%
-      -ms-flex-preferred-size 80%
-  &.with-toolbar
-    > div
-      padding-bottom ($slider-padding + 1rem)
-  &.infinite-left > div:nth-last-child(2)
-    order -1000
-    margin-left -100%
-  &.infinite-right > div:nth-child(2)
-    order 1000
-.q-slider-left-button,
-.q-slider-right-button
-  position absolute
-  top 0
-  bottom 0
-  font-size $slider-arrow-size
-  width 10%
-  max-width 70px
-  pointer-events none
-  i
-    cursor pointer
-    pointer-events all
-    padding 3px
-    border-radius 50%
-    background $slider-ovelay-color
-    opacity $slider-opacity
-    transition opacity .3s
-    &:hover
-      opacity $slider-opacity-active
-.q-slider-left-button
-  left 0
-.q-slider-right-button
-  right 0
-.q-slider-toolbar
-  position absolute
-  bottom 0
-  left 0
-  right 0
-  margin 0
-  opacity $slider-opacity
-  padding .5rem .8rem
-  transition opacity .3s
-  i
-    cursor pointer
-    padding 5px
-    font-size $slider-button-size
-  .q-slider-dots i
-    font-size $slider-dots-size
 .q-spinner
   vertical-align middle
 .q-spinner-mat

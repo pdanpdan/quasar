@@ -3178,6 +3178,530 @@ var QCardSeparator = {
   }
 };
 
+function getDirection (mod) {
+  if (Object.keys(mod).length === 0) {
+    return {
+      horizontal: true,
+      vertical: true
+    }
+  }
+
+  var dir = {};['horizontal', 'vertical'].forEach(function (direction) {
+    if (mod[direction]) {
+      dir[direction] = true;
+    }
+  });
+
+  return dir
+}
+
+function updateClasses (el, dir, scroll) {
+  el.classList.add('q-touch');
+
+  if (!scroll) {
+    if (dir.horizontal && !dir.vertical) {
+      el.classList.add('q-touch-y');
+      el.classList.remove('q-touch-x');
+    }
+    else if (!dir.horizontal && dir.vertical) {
+      el.classList.add('q-touch-x');
+      el.classList.remove('q-touch-y');
+    }
+  }
+}
+
+function processChanges (evt, ctx, isFinal) {
+  var
+    direction,
+    pos = position(evt),
+    distX = pos.left - ctx.event.x,
+    distY = pos.top - ctx.event.y,
+    absDistX = Math.abs(distX),
+    absDistY = Math.abs(distY);
+
+  if (ctx.direction.horizontal && !ctx.direction.vertical) {
+    direction = distX < 0 ? 'left' : 'right';
+  }
+  else if (!ctx.direction.horizontal && ctx.direction.vertical) {
+    direction = distY < 0 ? 'up' : 'down';
+  }
+  else if (absDistX >= absDistY) {
+    direction = distX < 0 ? 'left' : 'right';
+  }
+  else {
+    direction = distY < 0 ? 'up' : 'down';
+  }
+
+  return {
+    evt: evt,
+    position: pos,
+    direction: direction,
+    isFirst: ctx.event.isFirst,
+    isFinal: Boolean(isFinal),
+    duration: new Date().getTime() - ctx.event.time,
+    distance: {
+      x: absDistX,
+      y: absDistY
+    },
+    delta: {
+      x: pos.left - ctx.event.lastX,
+      y: pos.top - ctx.event.lastY
+    }
+  }
+}
+
+function shouldTrigger (ctx, changes) {
+  if (ctx.direction.horizontal && ctx.direction.vertical) {
+    return true
+  }
+  if (ctx.direction.horizontal && !ctx.direction.vertical) {
+    return Math.abs(changes.delta.x) > 0
+  }
+  if (!ctx.direction.horizontal && ctx.direction.vertical) {
+    return Math.abs(changes.delta.y) > 0
+  }
+}
+
+var TouchPan = {
+  name: 'touch-pan',
+  bind: function bind (el, binding) {
+    var mouse = !binding.modifiers.nomouse;
+
+    var ctx = {
+      handler: binding.value,
+      scroll: binding.modifiers.scroll,
+      direction: getDirection(binding.modifiers),
+
+      mouseStart: function mouseStart (evt) {
+        if (mouse) {
+          document.addEventListener('mousemove', ctx.mouseMove);
+          document.addEventListener('mouseup', ctx.mouseEnd);
+        }
+        ctx.start(evt);
+      },
+      start: function start (evt) {
+        var pos = position(evt);
+        ctx.event = {
+          x: pos.left,
+          y: pos.top,
+          time: new Date().getTime(),
+          detected: false,
+          prevent: ctx.direction.horizontal && ctx.direction.vertical,
+          isFirst: true,
+          lastX: pos.left,
+          lastY: pos.top
+        };
+      },
+      mouseMove: function mouseMove (evt) {
+        ctx.event.prevent = true;
+        ctx.move(evt);
+      },
+      move: function move (evt) {
+        if (ctx.event.prevent) {
+          if (!ctx.scroll) {
+            evt.preventDefault();
+          }
+          var changes = processChanges(evt, ctx, false);
+          if (shouldTrigger(ctx, changes)) {
+            ctx.handler(changes);
+            ctx.event.lastX = changes.position.left;
+            ctx.event.lastY = changes.position.top;
+            ctx.event.isFirst = false;
+          }
+          return
+        }
+        if (ctx.event.detected) {
+          return
+        }
+
+        ctx.event.detected = true;
+        var
+          pos = position(evt),
+          distX = pos.left - ctx.event.x,
+          distY = pos.top - ctx.event.y;
+
+        if (ctx.direction.horizontal && !ctx.direction.vertical) {
+          if (Math.abs(distX) > Math.abs(distY)) {
+            evt.preventDefault();
+            ctx.event.prevent = true;
+          }
+        }
+        else if (Math.abs(distX) < Math.abs(distY)) {
+          ctx.event.prevent = true;
+        }
+      },
+      mouseEnd: function mouseEnd (evt) {
+        if (mouse) {
+          document.removeEventListener('mousemove', ctx.mouseMove);
+          document.removeEventListener('mouseup', ctx.mouseEnd);
+        }
+        ctx.end(evt);
+      },
+      end: function end (evt) {
+        if (!ctx.event.prevent || ctx.event.isFirst) {
+          return
+        }
+
+        ctx.handler(processChanges(evt, ctx, true));
+      }
+    };
+
+    el.__qtouchpan = ctx;
+    updateClasses(el, ctx.direction, ctx.scroll);
+    if (mouse) {
+      el.addEventListener('mousedown', ctx.mouseStart);
+    }
+    el.addEventListener('touchstart', ctx.start);
+    el.addEventListener('touchmove', ctx.move);
+    el.addEventListener('touchend', ctx.end);
+  },
+  update: function update (el, binding) {
+    if (binding.oldValue !== binding.value) {
+      el.__qtouchpan.handler = binding.value;
+    }
+  },
+  unbind: function unbind (el, binding) {
+    var ctx = el.__qtouchpan;
+    el.removeEventListener('touchstart', ctx.start);
+    el.removeEventListener('mousedown', ctx.mouseStart);
+    el.removeEventListener('touchmove', ctx.move);
+    el.removeEventListener('touchend', ctx.end);
+    delete el.__qtouchpan;
+  }
+};
+
+var ids = {};
+
+function defaultEasing (progress) {
+  return progress
+}
+
+function start$1 (ref) {
+  var name = ref.name;
+  var duration = ref.duration; if ( duration === void 0 ) duration = 300;
+  var to = ref.to;
+  var from = ref.from;
+  var apply = ref.apply;
+  var done = ref.done;
+  var cancel = ref.cancel;
+  var easing = ref.easing;
+
+  var id = name;
+  var start = performance.now();
+
+  if (id) {
+    stop(id);
+  }
+  else {
+    id = uid();
+  }
+
+  var delta = easing || defaultEasing;
+  var handler = function () {
+    var progress = (performance.now() - start) / duration;
+    if (progress > 1) {
+      progress = 1;
+    }
+
+    var newPos = from + (to - from) * delta(progress);
+    apply(newPos, progress);
+
+    if (progress === 1) {
+      delete ids[id];
+      done && done(newPos);
+      return
+    }
+
+    anim.last = {
+      pos: newPos,
+      progress: progress
+    };
+    anim.timer = window.requestAnimationFrame(handler);
+  };
+
+  var anim = ids[id] = {
+    cancel: cancel,
+    timer: window.requestAnimationFrame(handler)
+  };
+
+  return id
+}
+
+function stop (id) {
+  if (!id) {
+    return
+  }
+  var anim = ids[id];
+  if (anim && anim.timer) {
+    cancelAnimationFrame(anim.timer);
+    anim.cancel && anim.cancel(anim.last);
+    delete ids[id];
+  }
+}
+
+
+var animate = Object.freeze({
+	start: start$1,
+	stop: stop
+});
+
+var CarouselMixin = {
+  props: {
+    arrows: Boolean,
+    dots: Boolean,
+    fullscreen: Boolean,
+    infinite: Boolean,
+    actions: Boolean,
+    animation: {
+      type: Boolean,
+      default: true
+    },
+    autoplay: [Number, Boolean]
+  }
+};
+
+var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-carousel",class:{fullscreen: _vm.inFullscreen}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-carousel-inner"},[_c('div',{ref:"track",staticClass:"q-carousel-track",class:{'with-arrows': _vm.arrows, 'with-toolbar': _vm.toolbar, 'infinite-left': _vm.infiniteLeft, 'infinite-right': _vm.infiniteRight},style:(_vm.trackPosition)},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteRight),expression:"infiniteRight"}]}),_vm._t("slide"),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteLeft),expression:"infiniteLeft"}]})],2),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToPrevious),expression:"arrows && canGoToPrevious"}],staticClass:"q-carousel-left-button row items-center justify-center"},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"},on:{"click":_vm.previous}})],1),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToNext),expression:"arrows && canGoToNext"}],staticClass:"q-carousel-right-button row items-center justify-center",on:{"click":_vm.next}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),(_vm.toolbar)?_c('div',{staticClass:"q-carousel-toolbar row items-center justify-end"},[_c('div',{staticClass:"q-carousel-dots col row items-center justify-center"},_vm._l((_vm.slidesNumber),function(n){return (_vm.dots)?_c('q-icon',{key:n,attrs:{"name":(n - 1) !== _vm.slide ? 'panorama_fish_eye' : 'lens'},on:{"click":function($event){_vm.goToSlide(n - 1);}}}):_vm._e()})),_c('div',{staticClass:"row items-center"},[_vm._t("action"),(_vm.fullscreen)?_c('q-icon',{attrs:{"name":_vm.inFullscreen ? 'fullscreen_exit' : 'fullscreen'},on:{"click":_vm.toggleFullscreen}}):_vm._e()],2)]):_vm._e(),_vm._t("default")],2)])},staticRenderFns: [],
+  name: 'q-carousel',
+  components: {
+    QIcon: QIcon
+  },
+  directives: {
+    TouchPan: TouchPan
+  },
+  mixins: [CarouselMixin],
+  data: function data () {
+    return {
+      position: 0,
+      slide: 0,
+      positionSlide: 0,
+      slidesNumber: 0,
+      inFullscreen: false,
+      animUid: false
+    }
+  },
+  watch: {
+    autoplay: function autoplay () {
+      this.__planAutoPlay();
+    },
+    infinite: function infinite () {
+      this.__planAutoPlay();
+    }
+  },
+  computed: {
+    toolbar: function toolbar () {
+      return this.dots || this.fullscreen || this.actions
+    },
+    trackPosition: function trackPosition () {
+      return cssTransform(("translateX(" + (this.position) + "%)"))
+    },
+    infiniteRight: function infiniteRight () {
+      return this.infinite && this.slidesNumber > 1 && this.positionSlide >= this.slidesNumber
+    },
+    infiniteLeft: function infiniteLeft () {
+      return this.infinite && this.slidesNumber > 1 && this.positionSlide < 0
+    },
+    canGoToPrevious: function canGoToPrevious () {
+      return this.infinite ? this.slidesNumber > 1 : this.slide > 0
+    },
+    canGoToNext: function canGoToNext () {
+      return this.infinite ? this.slidesNumber > 1 : this.slide < this.slidesNumber - 1
+    }
+  },
+  methods: {
+    __pan: function __pan (event) {
+      var this$1 = this;
+
+      if (this.infinite && this.animationInProgress) {
+        return
+      }
+      if (!this.hasOwnProperty('initialPosition')) {
+        this.initialPosition = this.position;
+        this.__cleanup();
+      }
+
+      var delta = (event.direction === 'left' ? -1 : 1) * event.distance.x;
+
+      if (
+        (this.infinite && this.slidesNumber < 2) ||
+        (
+          !this.infinite &&
+          (
+            (this.slide === 0 && delta > 0) ||
+            (this.slide === this.slidesNumber - 1 && delta < 0)
+          )
+        )
+      ) {
+        delta = delta / 10;
+      }
+
+      this.position = this.initialPosition + delta / this.$refs.track.offsetWidth * 100;
+      this.positionSlide = (event.direction === 'left' ? this.slide + 1 : this.slide - 1);
+
+      if (event.isFinal) {
+        this.goToSlide(
+          event.distance.x < 100
+            ? this.slide
+            : this.positionSlide,
+          function () {
+            delete this$1.initialPosition;
+          }
+        );
+      }
+    },
+    __getSlidesNumber: function __getSlidesNumber () {
+      return this.$slots.slide ? this.$slots.slide.length : 0
+    },
+    previous: function previous (done) {
+      if (this.canGoToPrevious) {
+        this.goToSlide(this.slide - 1, done);
+      }
+    },
+    next: function next (done) {
+      if (this.canGoToNext) {
+        this.goToSlide(this.slide + 1, done);
+      }
+    },
+    goToSlide: function goToSlide (slide, done) {
+      var this$1 = this;
+
+      var direction = '';
+      this.__cleanup();
+
+      var finish = function () {
+        this$1.$emit('slide', this$1.slide, direction);
+        this$1.__planAutoPlay();
+        if (typeof done === 'function') {
+          done();
+        }
+      };
+
+      if (this.slidesNumber < 2) {
+        this.slide = 0;
+        this.positionSlide = 0;
+      }
+      else {
+        if (!this.hasOwnProperty('initialPosition')) {
+          this.position = -this.slide * 100;
+        }
+        direction = slide > this.slide ? 'next' : 'previous';
+        if (this.infinite) {
+          this.slide = normalizeToInterval(slide, 0, this.slidesNumber - 1);
+          this.positionSlide = normalizeToInterval(slide, -1, this.slidesNumber);
+        }
+        else {
+          this.slide = between(slide, 0, this.slidesNumber - 1);
+          this.positionSlide = this.slide;
+        }
+      }
+
+      var pos = -this.positionSlide * 100;
+
+      if (!this.animation) {
+        this.position = pos;
+        finish();
+        return
+      }
+
+      this.animationInProgress = true;
+
+      this.animUid = start$1({
+        from: this.position,
+        to: pos,
+        apply: function (pos) {
+          this$1.position = pos;
+        },
+        done: function () {
+          if (this$1.infinite) {
+            this$1.position = -this$1.slide * 100;
+            this$1.positionSlide = this$1.slide;
+          }
+          this$1.animationInProgress = false;
+          finish();
+        }
+      });
+    },
+    toggleFullscreen: function toggleFullscreen () {
+      if (this.inFullscreen) {
+        if (!Platform.has.popstate) {
+          this.__setFullscreen(false);
+        }
+        else {
+          window.history.go(-1);
+        }
+        return
+      }
+
+      this.__setFullscreen(true);
+      if (Platform.has.popstate) {
+        window.history.pushState({}, '');
+        window.addEventListener('popstate', this.__popState);
+      }
+    },
+    __setFullscreen: function __setFullscreen (state) {
+      if (this.inFullscreen === state) {
+        return
+      }
+
+      if (state) {
+        this.container.replaceChild(this.fillerNode, this.$el);
+        document.body.appendChild(this.$el);
+        this.inFullscreen = true;
+        return
+      }
+
+      this.inFullscreen = false;
+      this.container.replaceChild(this.$el, this.fillerNode);
+    },
+    __popState: function __popState () {
+      if (this.inFullscreen) {
+        this.__setFullscreen(false);
+      }
+      window.removeEventListener('popstate', this.__popState);
+    },
+    stopAnimation: function stopAnimation () {
+      stop(this.animUid);
+      this.animationInProgress = false;
+    },
+    __cleanup: function __cleanup () {
+      this.stopAnimation();
+      clearTimeout(this.timer);
+    },
+    __planAutoPlay: function __planAutoPlay () {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        if (this$1.autoplay) {
+          clearTimeout(this$1.timer);
+          this$1.timer = setTimeout(
+            this$1.next,
+            typeof this$1.autoplay === 'number' ? this$1.autoplay : 5000
+          );
+        }
+      });
+    }
+  },
+  beforeUpdate: function beforeUpdate () {
+    var slides = this.__getSlidesNumber();
+    if (slides !== this.slidesNumber) {
+      this.slidesNumber = slides;
+      this.goToSlide(this.slide);
+    }
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      this$1.fillerNode = document.createElement('span');
+      this$1.container = this$1.$el.parentNode;
+      this$1.slidesNumber = this$1.__getSlidesNumber();
+      this$1.__planAutoPlay();
+    });
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.__cleanup();
+  }
+};
+
 var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_c('div',{staticClass:"column"},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._l((_vm.text),function(msg,index){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()])])}),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()],2)]):_vm._e()],2)],2):_vm._e()])},staticRenderFns: [],
   name: 'q-chat-message',
   props: {
@@ -3450,81 +3974,6 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     }
   }
 };
-
-var ids = {};
-
-function defaultEasing (progress) {
-  return progress
-}
-
-function start$1 (ref) {
-  var name = ref.name;
-  var duration = ref.duration; if ( duration === void 0 ) duration = 300;
-  var to = ref.to;
-  var from = ref.from;
-  var apply = ref.apply;
-  var done = ref.done;
-  var cancel = ref.cancel;
-  var easing = ref.easing;
-
-  var id = name;
-  var start = performance.now();
-
-  if (id) {
-    stop(id);
-  }
-  else {
-    id = uid();
-  }
-
-  var delta = easing || defaultEasing;
-  var handler = function () {
-    var progress = (performance.now() - start) / duration;
-    if (progress > 1) {
-      progress = 1;
-    }
-
-    var newPos = from + (to - from) * delta(progress);
-    apply(newPos, progress);
-
-    if (progress === 1) {
-      delete ids[id];
-      done && done(newPos);
-      return
-    }
-
-    anim.last = {
-      pos: newPos,
-      progress: progress
-    };
-    anim.timer = window.requestAnimationFrame(handler);
-  };
-
-  var anim = ids[id] = {
-    cancel: cancel,
-    timer: window.requestAnimationFrame(handler)
-  };
-
-  return id
-}
-
-function stop (id) {
-  if (!id) {
-    return
-  }
-  var anim = ids[id];
-  if (anim && anim.timer) {
-    cancelAnimationFrame(anim.timer);
-    anim.cancel && anim.cancel(anim.last);
-    delete ids[id];
-  }
-}
-
-
-var animate = Object.freeze({
-	start: start$1,
-	stop: stop
-});
 
 function getHeight (el, style$$1) {
   var initial = {
@@ -4287,7 +4736,7 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 };
 
-function getDirection (mod) {
+function getDirection$1 (mod) {
   if (Object.keys(mod).length === 0) {
     return {
       left: true, right: true, up: true, down: true, horizontal: true, vertical: true
@@ -4315,7 +4764,7 @@ function getDirection (mod) {
   return dir
 }
 
-function updateClasses (el, dir) {
+function updateClasses$1 (el, dir) {
   el.classList.add('q-touch');
 
   if (dir.horizontal && !dir.vertical) {
@@ -4335,7 +4784,7 @@ var TouchSwipe = {
 
     var ctx = {
       handler: binding.value,
-      direction: getDirection(binding.modifiers),
+      direction: getDirection$1(binding.modifiers),
 
       start: function start (evt) {
         var pos = position(evt);
@@ -4415,7 +4864,7 @@ var TouchSwipe = {
     };
 
     el.__qtouchswipe = ctx;
-    updateClasses(el, ctx.direction);
+    updateClasses$1(el, ctx.direction);
     if (mouse) {
       el.addEventListener('mousedown', ctx.start);
     }
@@ -4857,198 +5306,6 @@ var mixin$1 = {
   },
   created: function created () {
     this.__validateProps();
-  }
-};
-
-function getDirection$1 (mod) {
-  if (Object.keys(mod).length === 0) {
-    return {
-      horizontal: true,
-      vertical: true
-    }
-  }
-
-  var dir = {};['horizontal', 'vertical'].forEach(function (direction) {
-    if (mod[direction]) {
-      dir[direction] = true;
-    }
-  });
-
-  return dir
-}
-
-function updateClasses$1 (el, dir, scroll) {
-  el.classList.add('q-touch');
-
-  if (!scroll) {
-    if (dir.horizontal && !dir.vertical) {
-      el.classList.add('q-touch-y');
-      el.classList.remove('q-touch-x');
-    }
-    else if (!dir.horizontal && dir.vertical) {
-      el.classList.add('q-touch-x');
-      el.classList.remove('q-touch-y');
-    }
-  }
-}
-
-function processChanges (evt, ctx, isFinal) {
-  var
-    direction,
-    pos = position(evt),
-    distX = pos.left - ctx.event.x,
-    distY = pos.top - ctx.event.y,
-    absDistX = Math.abs(distX),
-    absDistY = Math.abs(distY);
-
-  if (ctx.direction.horizontal && !ctx.direction.vertical) {
-    direction = distX < 0 ? 'left' : 'right';
-  }
-  else if (!ctx.direction.horizontal && ctx.direction.vertical) {
-    direction = distY < 0 ? 'up' : 'down';
-  }
-  else if (absDistX >= absDistY) {
-    direction = distX < 0 ? 'left' : 'right';
-  }
-  else {
-    direction = distY < 0 ? 'up' : 'down';
-  }
-
-  return {
-    evt: evt,
-    position: pos,
-    direction: direction,
-    isFirst: ctx.event.isFirst,
-    isFinal: Boolean(isFinal),
-    duration: new Date().getTime() - ctx.event.time,
-    distance: {
-      x: absDistX,
-      y: absDistY
-    },
-    delta: {
-      x: pos.left - ctx.event.lastX,
-      y: pos.top - ctx.event.lastY
-    }
-  }
-}
-
-function shouldTrigger (ctx, changes) {
-  if (ctx.direction.horizontal && ctx.direction.vertical) {
-    return true
-  }
-  if (ctx.direction.horizontal && !ctx.direction.vertical) {
-    return Math.abs(changes.delta.x) > 0
-  }
-  if (!ctx.direction.horizontal && ctx.direction.vertical) {
-    return Math.abs(changes.delta.y) > 0
-  }
-}
-
-var TouchPan = {
-  name: 'touch-pan',
-  bind: function bind (el, binding) {
-    var mouse = !binding.modifiers.nomouse;
-
-    var ctx = {
-      handler: binding.value,
-      scroll: binding.modifiers.scroll,
-      direction: getDirection$1(binding.modifiers),
-
-      mouseStart: function mouseStart (evt) {
-        if (mouse) {
-          document.addEventListener('mousemove', ctx.mouseMove);
-          document.addEventListener('mouseup', ctx.mouseEnd);
-        }
-        ctx.start(evt);
-      },
-      start: function start (evt) {
-        var pos = position(evt);
-        ctx.event = {
-          x: pos.left,
-          y: pos.top,
-          time: new Date().getTime(),
-          detected: false,
-          prevent: ctx.direction.horizontal && ctx.direction.vertical,
-          isFirst: true,
-          lastX: pos.left,
-          lastY: pos.top
-        };
-      },
-      mouseMove: function mouseMove (evt) {
-        ctx.event.prevent = true;
-        ctx.move(evt);
-      },
-      move: function move (evt) {
-        if (ctx.event.prevent) {
-          if (!ctx.scroll) {
-            evt.preventDefault();
-          }
-          var changes = processChanges(evt, ctx, false);
-          if (shouldTrigger(ctx, changes)) {
-            ctx.handler(changes);
-            ctx.event.lastX = changes.position.left;
-            ctx.event.lastY = changes.position.top;
-            ctx.event.isFirst = false;
-          }
-          return
-        }
-        if (ctx.event.detected) {
-          return
-        }
-
-        ctx.event.detected = true;
-        var
-          pos = position(evt),
-          distX = pos.left - ctx.event.x,
-          distY = pos.top - ctx.event.y;
-
-        if (ctx.direction.horizontal && !ctx.direction.vertical) {
-          if (Math.abs(distX) > Math.abs(distY)) {
-            evt.preventDefault();
-            ctx.event.prevent = true;
-          }
-        }
-        else if (Math.abs(distX) < Math.abs(distY)) {
-          ctx.event.prevent = true;
-        }
-      },
-      mouseEnd: function mouseEnd (evt) {
-        if (mouse) {
-          document.removeEventListener('mousemove', ctx.mouseMove);
-          document.removeEventListener('mouseup', ctx.mouseEnd);
-        }
-        ctx.end(evt);
-      },
-      end: function end (evt) {
-        if (!ctx.event.prevent || ctx.event.isFirst) {
-          return
-        }
-
-        ctx.handler(processChanges(evt, ctx, true));
-      }
-    };
-
-    el.__qtouchpan = ctx;
-    updateClasses$1(el, ctx.direction, ctx.scroll);
-    if (mouse) {
-      el.addEventListener('mousedown', ctx.mouseStart);
-    }
-    el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchmove', ctx.move);
-    el.addEventListener('touchend', ctx.end);
-  },
-  update: function update (el, binding) {
-    if (binding.oldValue !== binding.value) {
-      el.__qtouchpan.handler = binding.value;
-    }
-  },
-  unbind: function unbind (el, binding) {
-    var ctx = el.__qtouchpan;
-    el.removeEventListener('touchstart', ctx.start);
-    el.removeEventListener('mousedown', ctx.mouseStart);
-    el.removeEventListener('touchmove', ctx.move);
-    el.removeEventListener('touchend', ctx.end);
-    delete el.__qtouchpan;
   }
 };
 
@@ -8165,267 +8422,13 @@ var QGallery = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var sliderMixin = {
-  props: {
-    arrows: Boolean,
-    dots: Boolean,
-    fullscreen: Boolean,
-    infinite: Boolean,
-    actions: Boolean,
-    animation: {
-      type: Boolean,
-      default: true
-    },
-    autoplay: [Number, Boolean]
-  }
-};
-
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-slider",class:{fullscreen: _vm.inFullscreen}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider-inner"},[_c('div',{ref:"track",staticClass:"q-slider-track",class:{'with-arrows': _vm.arrows, 'with-toolbar': _vm.toolbar, 'infinite-left': _vm.infiniteLeft, 'infinite-right': _vm.infiniteRight},style:(_vm.trackPosition)},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteRight),expression:"infiniteRight"}]}),_vm._t("slide"),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteLeft),expression:"infiniteLeft"}]})],2),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToPrevious),expression:"arrows && canGoToPrevious"}],staticClass:"q-slider-left-button row items-center justify-center"},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"},on:{"click":_vm.previous}})],1),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToNext),expression:"arrows && canGoToNext"}],staticClass:"q-slider-right-button row items-center justify-center",on:{"click":_vm.next}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),(_vm.toolbar)?_c('div',{staticClass:"q-slider-toolbar row items-center justify-end"},[_c('div',{staticClass:"q-slider-dots col row items-center justify-center"},_vm._l((_vm.slidesNumber),function(n){return (_vm.dots)?_c('q-icon',{key:n,attrs:{"name":(n - 1) !== _vm.slide ? 'panorama_fish_eye' : 'lens'},on:{"click":function($event){_vm.goToSlide(n - 1);}}}):_vm._e()})),_c('div',{staticClass:"row items-center"},[_vm._t("action"),(_vm.fullscreen)?_c('q-icon',{attrs:{"name":_vm.inFullscreen ? 'fullscreen_exit' : 'fullscreen'},on:{"click":_vm.toggleFullscreen}}):_vm._e()],2)]):_vm._e(),_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-slider',
+var QGalleryCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-carousel',{ref:"slider",staticClass:"text-white bg-black q-gallery-carousel",attrs:{"dots":_vm.dots,"arrows":_vm.arrows,"fullscreen":_vm.fullscreen,"infinite":_vm.infinite,"actions":"","animation":_vm.animation,"autoplay":_vm.autoplay},on:{"slide":_vm.__updateCurrentSlide}},[_vm._l((_vm.src),function(img,index){return _c('div',{key:index,staticClass:"no-padding row items-center justify-center",slot:"slide"},[_c('div',{staticClass:"full-width"},[_c('img',{attrs:{"src":img}})])])}),_c('div',{staticClass:"q-gallery-carousel-overlay",class:{active: _vm.quickView},on:{"click":function($event){_vm.toggleQuickView();}}}),_c('q-icon',{attrs:{"name":"view_carousel"},on:{"click":function($event){_vm.toggleQuickView();}},slot:"action"}),_c('div',{staticClass:"q-gallery-carousel-quickview",class:{active: _vm.quickView, row: _vm.horizontalQuickView, horizontal: _vm.horizontalQuickView},on:{"!touchstart":function($event){$event.stopPropagation();},"!touchmove":function($event){$event.stopPropagation();},"!touchend":function($event){$event.stopPropagation();},"!mousedown":function($event){$event.stopPropagation();},"!mousemove":function($event){$event.stopPropagation();},"!mouseend":function($event){$event.stopPropagation();}}},_vm._l((_vm.src),function(img,index){return _c('div',{key:index},[_c('img',{class:{active: _vm.currentSlide === index},attrs:{"src":img},on:{"click":function($event){_vm.__selectImage(index);}}})])}))],2)},staticRenderFns: [],
+  name: 'q-gallery-carousel',
   components: {
+    QCarousel: QCarousel,
     QIcon: QIcon
   },
-  mixins: [sliderMixin],
-  data: function data () {
-    return {
-      position: 0,
-      slide: 0,
-      positionSlide: 0,
-      slidesNumber: 0,
-      inFullscreen: false,
-      animUid: false
-    }
-  },
-  watch: {
-    autoplay: function autoplay () {
-      this.__planAutoPlay();
-    },
-    infinite: function infinite () {
-      this.__planAutoPlay();
-    }
-  },
-  computed: {
-    toolbar: function toolbar () {
-      return this.dots || this.fullscreen || this.actions
-    },
-    trackPosition: function trackPosition () {
-      return cssTransform(("translateX(" + (this.position) + "%)"))
-    },
-    infiniteRight: function infiniteRight () {
-      return this.infinite && this.slidesNumber > 1 && this.positionSlide >= this.slidesNumber
-    },
-    infiniteLeft: function infiniteLeft () {
-      return this.infinite && this.slidesNumber > 1 && this.positionSlide < 0
-    },
-    canGoToPrevious: function canGoToPrevious () {
-      return this.infinite ? this.slidesNumber > 1 : this.slide > 0
-    },
-    canGoToNext: function canGoToNext () {
-      return this.infinite ? this.slidesNumber > 1 : this.slide < this.slidesNumber - 1
-    }
-  },
-  methods: {
-    __pan: function __pan (event) {
-      var this$1 = this;
-
-      if (this.infinite && this.animationInProgress) {
-        return
-      }
-      if (!this.hasOwnProperty('initialPosition')) {
-        this.initialPosition = this.position;
-        this.__cleanup();
-      }
-
-      var delta = (event.direction === 'left' ? -1 : 1) * event.distance.x;
-
-      if (
-        (this.infinite && this.slidesNumber < 2) ||
-        (
-          !this.infinite &&
-          (
-            (this.slide === 0 && delta > 0) ||
-            (this.slide === this.slidesNumber - 1 && delta < 0)
-          )
-        )
-      ) {
-        delta = delta / 10;
-      }
-
-      this.position = this.initialPosition + delta / this.$refs.track.offsetWidth * 100;
-      this.positionSlide = (event.direction === 'left' ? this.slide + 1 : this.slide - 1);
-
-      if (event.isFinal) {
-        this.goToSlide(
-          event.distance.x < 100
-            ? this.slide
-            : this.positionSlide,
-          function () {
-            delete this$1.initialPosition;
-          }
-        );
-      }
-    },
-    __getSlidesNumber: function __getSlidesNumber () {
-      return this.$slots.slide ? this.$slots.slide.length : 0
-    },
-    previous: function previous (done) {
-      if (this.canGoToPrevious) {
-        this.goToSlide(this.slide - 1, done);
-      }
-    },
-    next: function next (done) {
-      if (this.canGoToNext) {
-        this.goToSlide(this.slide + 1, done);
-      }
-    },
-    goToSlide: function goToSlide (slide, done) {
-      var this$1 = this;
-
-      var direction = '';
-      this.__cleanup();
-
-      var finish = function () {
-        this$1.$emit('slide', this$1.slide, direction);
-        this$1.__planAutoPlay();
-        if (typeof done === 'function') {
-          done();
-        }
-      };
-
-      if (this.slidesNumber < 2) {
-        this.slide = 0;
-        this.positionSlide = 0;
-      }
-      else {
-        if (!this.hasOwnProperty('initialPosition')) {
-          this.position = -this.slide * 100;
-        }
-        direction = slide > this.slide ? 'next' : 'previous';
-        if (this.infinite) {
-          this.slide = normalizeToInterval(slide, 0, this.slidesNumber - 1);
-          this.positionSlide = normalizeToInterval(slide, -1, this.slidesNumber);
-        }
-        else {
-          this.slide = between(slide, 0, this.slidesNumber - 1);
-          this.positionSlide = this.slide;
-        }
-      }
-
-      var pos = -this.positionSlide * 100;
-
-      if (!this.animation) {
-        this.position = pos;
-        finish();
-        return
-      }
-
-      this.animationInProgress = true;
-
-      this.animUid = start$1({
-        from: this.position,
-        to: pos,
-        apply: function (pos) {
-          this$1.position = pos;
-        },
-        done: function () {
-          if (this$1.infinite) {
-            this$1.position = -this$1.slide * 100;
-            this$1.positionSlide = this$1.slide;
-          }
-          this$1.animationInProgress = false;
-          finish();
-        }
-      });
-    },
-    toggleFullscreen: function toggleFullscreen () {
-      if (this.inFullscreen) {
-        if (!Platform.has.popstate) {
-          this.__setFullscreen(false);
-        }
-        else {
-          window.history.go(-1);
-        }
-        return
-      }
-
-      this.__setFullscreen(true);
-      if (Platform.has.popstate) {
-        window.history.pushState({}, '');
-        window.addEventListener('popstate', this.__popState);
-      }
-    },
-    __setFullscreen: function __setFullscreen (state) {
-      if (this.inFullscreen === state) {
-        return
-      }
-
-      if (state) {
-        this.container.replaceChild(this.fillerNode, this.$el);
-        document.body.appendChild(this.$el);
-        this.inFullscreen = true;
-        return
-      }
-
-      this.inFullscreen = false;
-      this.container.replaceChild(this.$el, this.fillerNode);
-    },
-    __popState: function __popState () {
-      if (this.inFullscreen) {
-        this.__setFullscreen(false);
-      }
-      window.removeEventListener('popstate', this.__popState);
-    },
-    stopAnimation: function stopAnimation () {
-      stop(this.animUid);
-      this.animationInProgress = false;
-    },
-    __cleanup: function __cleanup () {
-      this.stopAnimation();
-      clearTimeout(this.timer);
-    },
-    __planAutoPlay: function __planAutoPlay () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        if (this$1.autoplay) {
-          clearTimeout(this$1.timer);
-          this$1.timer = setTimeout(
-            this$1.next,
-            typeof this$1.autoplay === 'number' ? this$1.autoplay : 5000
-          );
-        }
-      });
-    }
-  },
-  beforeUpdate: function beforeUpdate () {
-    var slides = this.__getSlidesNumber();
-    if (slides !== this.slidesNumber) {
-      this.slidesNumber = slides;
-      this.goToSlide(this.slide);
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.fillerNode = document.createElement('span');
-      this$1.container = this$1.$el.parentNode;
-      this$1.slidesNumber = this$1.__getSlidesNumber();
-      this$1.__planAutoPlay();
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    this.__cleanup();
-  }
-};
-
-var QGallerySlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-slider',{ref:"slider",staticClass:"text-white bg-black q-gallery-slider",attrs:{"dots":_vm.dots,"arrows":_vm.arrows,"fullscreen":_vm.fullscreen,"infinite":_vm.infinite,"actions":"","animation":_vm.animation,"autoplay":_vm.autoplay},on:{"slide":_vm.__updateCurrentSlide}},[_vm._l((_vm.src),function(img,index){return _c('div',{key:index,staticClass:"no-padding row items-center justify-center",slot:"slide"},[_c('div',{staticClass:"full-width"},[_c('img',{attrs:{"src":img}})])])}),_c('div',{staticClass:"q-gallery-slider-overlay",class:{active: _vm.quickView},on:{"click":function($event){_vm.toggleQuickView();}}}),_c('q-icon',{attrs:{"name":"view_carousel"},on:{"click":function($event){_vm.toggleQuickView();}},slot:"action"}),_c('div',{staticClass:"q-gallery-slider-quickview",class:{active: _vm.quickView, row: _vm.horizontalQuickView, horizontal: _vm.horizontalQuickView},on:{"!touchstart":function($event){$event.stopPropagation();},"!touchmove":function($event){$event.stopPropagation();},"!touchend":function($event){$event.stopPropagation();},"!mousedown":function($event){$event.stopPropagation();},"!mousemove":function($event){$event.stopPropagation();},"!mouseend":function($event){$event.stopPropagation();}}},_vm._l((_vm.src),function(img,index){return _c('div',{key:index},[_c('img',{class:{active: _vm.currentSlide === index},attrs:{"src":img},on:{"click":function($event){_vm.__selectImage(index);}}})])}))],2)},staticRenderFns: [],
-  name: 'q-gallery-slider',
-  components: {
-    QSlider: QSlider,
-    QIcon: QIcon
-  },
-  mixins: [sliderMixin],
+  mixins: [CarouselMixin],
   props: {
     src: {
       type: Array,
@@ -9550,6 +9553,9 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
   components: {
     QIcon: QIcon
   },
+  directives: {
+    TouchPan: TouchPan
+  },
   props: {
     handler: {
       type: Function,
@@ -10621,6 +10627,9 @@ var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     QIcon: QIcon,
     QSlideTransition: QSlideTransition
   },
+  directives: {
+    Ripple: Ripple
+  },
   props: ['model', 'contractHtml', 'expandHtml'],
   methods: {
     toggle: function toggle () {
@@ -11378,12 +11387,6 @@ if (!String.prototype.endsWith) {
   };
 }
 
-Number.isInteger = Number.isInteger || function (value) {
-  return typeof value === 'number' &&
-    isFinite(value) &&
-    Math.floor(value) === value
-};
-
 if (typeof Element.prototype.matches !== 'function') {
   Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches (selector) {
     var
@@ -11412,22 +11415,6 @@ if (typeof Element.prototype.closest !== 'function') {
   };
 }
 
-(function (arr) {
-  arr.forEach(function (item) {
-    if (item.hasOwnProperty('remove')) {
-      return
-    }
-    Object.defineProperty(item, 'remove', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: function remove () {
-        return this.parentNode ? this.parentNode.removeChild(this) : this
-      }
-    });
-  });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
-
 if (!Array.prototype.find) {
   Object.defineProperty(Array.prototype, 'find', {
     value: function value (predicate) {
@@ -11452,30 +11439,6 @@ if (!Array.prototype.find) {
         }
       }
       return undefined
-    }
-  });
-}
-
-if (!Array.prototype.findIndex) {
-  Object.defineProperty(Array.prototype, 'findIndex', {
-    value: function value (predicate) {
-      'use strict';
-      if (this == null) {
-        throw new TypeError('Array.prototype.findIndex called on null or undefined')
-      }
-      if (typeof predicate !== 'function') {
-        throw new TypeError('predicate must be a function')
-      }
-      var list = Object(this);
-      var length = list.length >>> 0;
-      var thisArg = arguments[1];
-
-      for (var i = 0; i < length; i++) {
-        if (predicate.call(thisArg, list[i], i, list)) {
-          return i
-        }
-      }
-      return -1
     }
   });
 }
@@ -12435,4 +12398,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QFabAction, QField, QGallery, QGallerySlider, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemDelimiter, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QFabAction, QField, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemDelimiter, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QDoubleRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
