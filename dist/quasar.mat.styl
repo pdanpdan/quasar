@@ -3,15 +3,11 @@
  * (c) 2017 Razvan Stoenescu
  * Released under the MIT License.
  */
-$generic-border-radius       ?= 2px
-$toolbar-color               ?= white
-$toolbar-background          ?= $primary
-$typography-font-family      ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
 $breakpoint-xs ?= 575px
 $breakpoint-sm ?= 767px
 $breakpoint-md ?= 991px
 $breakpoint-lg ?= 1199px
-$grid-cols = 12
+$grid-cols ?= 12
 $sizes = {
   xs: 0,
   sm: $breakpoint-xs + 1, 
@@ -29,6 +25,8 @@ $breakpoint-lg-min = $sizes[lg]
 $breakpoint-lg-max = $breakpoint-lg
 $breakpoint-xl-min = $sizes[xl]
 $breakpoint-xl-max = 9999px
+$backdrop-opacity     ?= .3
+$backdrop-background  ?= rgba(0, 0, 0, $backdrop-opacity)
 $primary   ?= #027be3
 $secondary ?= #26A69A
 $tertiary  ?= #555
@@ -329,37 +327,6 @@ $blue-grey-11 = #cfd8dc
 $blue-grey-12 = #b0bec5
 $blue-grey-13 = #78909c
 $blue-grey-14 = #455a64
-$colors ?= {
-  primary: $primary,
-  secondary: $secondary,
-  tertiary: $tertiary,
-  positive: $positive,
-  negative: $negative,
-  warning: $warning,
-  info: $info,
-  light: $light,
-  dark: $dark,
-  white: $white,
-  red: $red,
-  pink: $pink,
-  purple: $purple,
-  deep-purple: $deep-purple,
-  indigo: $indigo,
-  blue: $blue,
-  light-blue: $light-blue,
-  cyan: $cyan,
-  teal: $teal,
-  green: $green,
-  light-green: $light-green,
-  lime: $lime,
-  yellow: $yellow,
-  amber: $amber,
-  orange: $orange,
-  deep-orange: $deep-orange,
-  brown: $brown,
-  grey: $grey,
-  blue-grey: $blue-grey
-}
 active-color($color)
   if luminosity($color) > .29
     darken($color, 10%)
@@ -400,75 +367,6 @@ max(value1, value2)
     value2
   else
     value1
-*, *:before, *:after 
-  box-sizing inherit
-  -webkit-tap-highlight-color transparent
-  -moz-tap-highlight-color transparent
-html, body, #q-app
-  width 100%
-html, body
-  margin 0
-  box-sizing border-box
-input[type='text'], input[type='email'], input[type='search'], input[type='password']
-  -webkit-appearance none
-  -moz-appearance none /* mobile firefox too! */
-article,
-aside,
-details,
-figcaption,
-figure,
-footer,
-header,
-main,
-menu,
-nav,
-section,
-summary
-  display block
-audio:not([controls])
-  display none
-  height 0
-abbr[title]
-  border-bottom none 
-  text-decoration underline 
-  text-decoration underline dotted 
-dfn
-  font-style italic
-img
-  border-style none
-svg:not(:root)
-  overflow hidden
-code, kbd, pre, samp
-  font-family monospace, monospace 
-  font-size 1em 
-hr
-  box-sizing content-box 
-  height 0 
-  overflow visible 
-button,
-input,
-select,
-textarea
-  font inherit
-  margin 0
-optgroup
-  font-weight bold
-button,
-input, 
-select 
-  overflow visible
-button::-moz-focus-inner, input::-moz-focus-inner
-  border 0
-  padding 0
-button:-moz-focusring, input:-moz-focusring
-  outline 1px dotted ButtonText
-textarea
-  overflow auto
-input[type='search']
-  -webkit-appearance textfield
-input[type='search']::-webkit-search-cancel-button,
-input[type='search']::-webkit-search-decoration
-  -webkit-appearance none
 $ios-statusbar-height ?= 20px
 $z-side           ?= 1000
 $z-marginals      ?= 2000
@@ -538,16 +436,15 @@ $shadow-up-21 = 0 -10px 13px -6px $elevation-umbra, 0 -21px 33px 3px $elevation-
 $shadow-up-22 = 0 -10px 14px -6px $elevation-umbra, 0 -22px 35px 3px $elevation-penumbra, 0 -8px 42px 7px $elevation-ambient
 $shadow-up-23 = 0 -11px 14px -7px $elevation-umbra, 0 -23px 36px 3px $elevation-penumbra, 0 -9px 44px 8px $elevation-ambient
 $shadow-up-24 = 0 -11px 15px -7px $elevation-umbra, 0 -24px 38px 3px $elevation-penumbra, 0 -9px 46px 8px $elevation-ambient
-$form-darker-color     ?= $grey-5
-$form-lighter-color    ?= $grey-3
-$form-active-color     ?= $primary
-$form-border           ?= 3px solid $form-darker-color
-$form-border-radius    ?= $generic-border-radius
-$form-shadow           ?= 0 1px 3px 1px rgba(0, 0, 0, .4)
-$form-focus-box-shadow ?= 0 0 7px 1px $form-darker-color
-$backdrop-opacity     ?= .3
-$backdrop-background  ?= rgba(0, 0, 0, $backdrop-opacity)
-$generic-margin       ?= 5px
+$generic-border-radius       ?= 2px
+$typography-font-family      ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
+$action-sheet-avatar-padding   ?= .6rem 1.2rem
+$action-sheet-hover-background ?= #d0d0d0
+$alert-padding       ?= .7rem
+$alert-color         ?= white
+$alert-background    ?= $negative
+$alert-border-radius ?= $generic-border-radius
+$alert-min-width     ?= 200px
 $breadcrumb-radius    ?= $generic-border-radius
 $breadcrumb-height    ?= 34px
 $breadcrumb-separator ?= 15px
@@ -555,190 +452,44 @@ $breadcrumb-primary   ?= $primary
 $breadcrumb-secondary ?= lighten($breadcrumb-primary, 10%)
 $breadcrumb-hover     ?= $tertiary
 $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
-ul.breadcrumb
-  list-style none
-  display inline-flex
-  flex-wrap nowrap
-  margin ($breadcrumb-height / 3) 0 0 0
-  padding 0
-  i
-    font-size 1.7em
-  li
-    float left
-    margin-bottom ($breadcrumb-height / 3)
-    a
-      color white
-      display block
-      background $breadcrumb-primary
-      text-decoration none
-      position relative
-      height $breadcrumb-height
-      line-height $breadcrumb-height
-      padding 0 10px 0 5px
-      text-align center
-      margin-right 23px
-    &:nth-child(even) a
-      background $breadcrumb-secondary
-      &:before
-        border-color $breadcrumb-secondary
-        border-left-color transparent
-      &:after
-        border-left-color $breadcrumb-secondary
-    &:first-child a
-      padding-left $breadcrumb-separator
-      border-radius $breadcrumb-radius 0 0 $breadcrumb-radius
-      &:before
-        border 0
-    &:last-child a
-      padding-right $breadcrumb-separator
-      border-radius 0 $breadcrumb-radius $breadcrumb-radius 0
-      &:after
-        border 0
-    a
-      &:before, &:after
-        content ''
-        position absolute
-        top 0
-        bottom 0
-        border 0 solid $breadcrumb-primary
-        border-width ($breadcrumb-height / 2) 10px
-      &:before
-        left (- $breadcrumb-separator)
-        border-left-color transparent
-      &:after
-        left 100%
-        border-color transparent
-        border-left-color $breadcrumb-primary
-      &:active
-        background $breadcrumb-active
-        &:before
-          border-color $breadcrumb-active
-          border-left-color transparent
-        &:after
-          border-left-color $breadcrumb-active
-body.desktop ul.breadcrumb a
-  &:hover
-    background $breadcrumb-hover
-    &:before
-      border-color $breadcrumb-hover
-      border-left-color transparent
-    &:after
-      border-left-color $breadcrumb-hover
-$dot-color             ?= $red
-$dot-opacity           ?= .8
-$dot-size              ?= 10px
-$dot-position-top      ?= 10px
-$dot-position-right    ?= 10px
-.q-dot
-  position absolute
-  top $dot-position-top
-  right $dot-position-right
-  height $dot-size
-  width $dot-size
-  border-radius 50%
-  background $dot-color
-  opacity $dot-opacity
-$table-stripe-color          ?= rgba(0, 0, 0, .07)
-$table-highlight-color       ?= rgba(0, 0, 0, .14)
-$table-border                ?= 1px solid rgba(0, 0, 0, .12)
-table.q-table
-  border-spacing 0
-  empty-cells show
-  thead
-    text-align left
-    vertical-align bottom
-    font-weight 700
-  th, td
-    &:first-child
-      border-left-width 0
-    margin 0
-    overflow visible
-    padding .5rem .7rem
-  &.compact
-    th, td
-      padding .1rem .3rem
-  &.loose
-    th, td
-      padding 1rem
-  &.bordered, &.cell-delimiter:not(.responsive):not(.flipped)
-    border $table-border
-  &:not(.responsive):not(.flipped)
-    &.horizontal-delimiter, &.cell-delimiter
-      th, td
-        border-bottom $table-border
-    &.vertical-delimiter, &.cell-delimiter
-      th, td
-        border-left $table-border
-        &:last-child
-          border-right $table-border
-  &.striped-odd, &.striped
-    tbody tr:nth-child(odd)
-      background $table-stripe-color
-  &.striped-even
-    tbody tr:nth-child(even)
-      background $table-stripe-color
-  &.flipped
-    display flex
-    overflow hidden
-    background none
-    thead
-      display flex
-      flex-shrink 0
-      min-width min-content
-    tbody
-      display flex
-      position relative
-      overflow-x auto
-      overflow-y hidden
-    tr
-      display flex
-      flex-direction column
-      min-width min-content
-      flex-shrink 0
-    td, th
-      display block
-    td
-      background-image none !important
-      border-left 0
-    th:not(:last-child),
-    td:not(:last-child)
-      border-bottom 0
-    &.horizontal-delimiter, &.cell-delimiter
-      tr
-        border-left $table-border
-        border-right $table-border
-    &.vertical-delimiter, &.cell-delimiter
-      th, td
-        border-top $table-border
-        &:last-child
-          border-bottom $table-border
-  @media (max-width $breakpoint-sm-max)
-    &.responsive:not(.flipped)
-      thead
-        display none
-      tr, td
-        display block
-      tr
-        position relative
-      td:before
-        content attr(data-th)
-        display block
-        text-align left
-        font-weight bold
-      &.horizontal-delimiter
-        tr:not(:last-child)
-          border-bottom $table-border
-      &.cell-delimiter
-        tr
-          border $table-border
-      &.vertical-delimiter, &.cell-delimiter
-        th, td
-          border-left $table-border
-          border-right $table-border
-body.desktop table.q-table.highlight tbody tr
-  transition all .28s ease-in
-  &:hover
-    background $table-highlight-color
+$button-border-radius ?= $generic-border-radius
+$button-padding       ?= 0 16px
+$button-transition    ?= .12s ease-in
+$button-font-weight   ?= 500
+$button-sizes = {
+  small: 28px,
+  standard: 36px,
+  big: 44px
+}
+$button-round-sizes = {
+  small: 40px,
+  standard: 56px,
+  big: 72px
+}
+$card-faded-color          ?= rgba(0, 0, 0, .4)
+$card-separator-color      ?= rgba(0, 0, 0, .1)
+$card-overlay-color        ?= rgba(0, 0, 0, .47)
+$card-shadow               ?= $shadow-2
+$card-dark-faded-color     ?= rgba(255, 255, 255, .6)
+$card-dark-separator-color ?= rgba(255, 255, 255, .2)
+$chat-message-received-color     ?= black
+$chat-message-received-bg        ?= $green-4
+$chat-message-sent-color         ?= black
+$chat-message-sent-bg            ?= $grey-4
+$chat-message-avatar-size        ?= 48px
+$chat-message-border-radius      ?= $generic-border-radius
+$chat-message-distance           ?= 8px
+$chat-message-text-padding       ?= 8px
+$chip-border             ?= #e0e0e0
+$chip-border-radius      ?= 2rem
+$chip-font-size          ?= 14px
+$chip-padding-horizontal ?= 0
+$chip-padding-vertical   ?= 12px
+$chip-height             ?= 32px
+$chip-icon-size          ?= 24px
+$chip-small-height       ?= 26px
+$chip-color              ?= black
+$chip-background         ?= $light
 $item-dense-factor                 ?= .2
 $item-sparse-factor                ?= 1.4
 $item-base-color                   ?= $grey-5
@@ -759,136 +510,180 @@ $item-icon-size                    ?= round($item-primary-size * .63)
 $item-image-size                   ?= round(3 * $item-primary-size)
 $item-font-size                    ?= 1rem
 $item-stamp-font-size              ?= .8rem
-.q-item-stamp
-  font-size $item-stamp-font-size
-  line-height $item-stamp-font-size
-  white-space nowrap
-  margin .3rem 0
-.q-item-side-right
-  text-align right
-  color $item-secondary-color
-  display flex
-  flex-direction column
-  align-items flex-end
-.q-item-side
-  color $item-primary-color
-  min-width $item-primary-size
-.q-item-avatar, .q-item-avatar img
-  width $item-primary-size
-  height $item-primary-size
-  border-radius 50%
-.q-item-letter, .q-item-icon
-  font-size $item-icon-size
-.q-item-icon-inverted
-  border-radius 50%
-  font-size $item-inverted-icon-size
-  color white
-  background $primary
-  padding 9px
-.q-item-main
-  flex 1 1 auto
-  min-width 0
-.q-item-main-inset
-  margin-left ($item-gutter + $item-primary-size)
-.q-item-label > span
-  color $item-content-secondary-text-color
-.q-item-sublabel
-  color $item-content-secondary-text-color
-  font-size 90%
-  margin-top .2rem
-  > span
-    font-weight 500
-.q-item-section + .q-item-section
-  margin-left $item-gutter
-.q-item
-  position relative
-  display flex
-  align-items center
-  font-size $item-font-size
-  text-align left
-  padding ($item-padding / 2) $item-padding
-  min-height $item-min-height
-  &.active, &.router-link-active, &:focus
-    background $item-active-color
-  &:focus
-    outline 0
-.q-item-image
-  min-width $item-image-size
-  max-width $item-image-size
-  max-height $item-image-size
-.q-list-multiline > .q-item, .q-item-multiline
-  align-items flex-start
-.q-list-link > .q-item, .q-item-link
-  cursor pointer
-.q-list-highlight > .q-item, .q-item-highlight,
-.q-list-link > .q-item, .q-item-link
-  &:hover
-    background $item-highlight-color
-.q-list-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-delimiter
-  border-top 1px solid $item-delimiter-color
-.q-list-inset-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-inset-delimiter
-  &:after
-    content ''
-    position absolute
-    top 0
-    right 0
-    left ($item-padding + $item-gutter + $item-primary-size)
-    height 1px
-    background $item-delimiter-color
-.q-list-dense > .q-item, .q-item-dense
-  padding round($item-padding * $item-dense-factor) $item-padding
-  min-height round($item-min-height * $item-dense-factor)
-.q-list-sparse > .q-item, .q-item-sparse
-  padding ($item-padding * $item-sparse-factor) $item-padding
-  min-height ($item-min-height * $item-sparse-factor)
-.q-list-striped .q-item:nth-child(even)
-  background-color $item-stripe-color
-.q-list-striped-odd .q-item:nth-child(odd)
-  background-color $item-stripe-color
-.q-list
-  border 1px solid $item-delimiter-color
-  padding ($item-padding / 2) 0
-  & + .q-list
-    margin-top 32px
-.q-item-delimiter-component
-  margin ($item-padding / 2) 0
-  height 1px
-  border 0
-  background-color $item-delimiter-color
-  &:last-child
-    display none
-  & + .q-list-header
-    margin-top (- $item-padding / 2)
-.q-item-delimiter-inset-component
-  margin-left ($item-padding + $item-gutter + $item-primary-size)
-.q-list-header
-  color $item-label-color
-  font-size 14px
-  font-weight 500
-  line-height 48px
-  padding-left $item-padding
-.q-list-header-inset
-  padding-left ($item-padding + $item-gutter + $item-primary-size)
-$media-avatar-box-shadow    ?= $shadow-1
+$collapsible-padding             ?= 8px 16px
+$collapsible-indent-left-padding ?= ($item-primary-size + $item-gutter)
+$collapsible-active-color        ?= $item-active-color
+$datatable-border    ?= 1px solid $grey-4
+$datatable-font-size ?= 85%
+$datetime-range-space     ?= 10px
+$datetime-input-min-width ?= 70px
+$dot-color             ?= $red
+$dot-opacity           ?= .8
+$dot-size              ?= 10px
+$dot-position-top      ?= 10px
+$dot-position-right    ?= 10px
+$fab-margin    ?= 5px
+$field-icon-size   ?= 28px
+$field-label-color ?= rgba(0, 0, 0, .54)
+$table-stripe-color          ?= rgba(0, 0, 0, .07)
+$table-highlight-color       ?= rgba(0, 0, 0, .14)
+$table-border                ?= 1px solid rgba(0, 0, 0, .12)
+$input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
+$toolbar-color              ?= white
+$toolbar-background         ?= $primary
+$toolbar-min-height         ?= 50px
+$toolbar-padding            ?= 4px 12px
+$toolbar-title-font-size    ?= 18px
+$toolbar-subtitle-font-size ?= 12px
+$toolbar-title-font-weight  ?= 500
+$toolbar-title-padding      ?= 0 12px
+$layout-aside-background   ?= white
+$layout-aside-left-width   ?= 300px
+$layout-aside-right-width  ?= 300px
+$layout-header-shadow      ?= $shadow-4
+$layout-footer-shadow      ?= $shadow-up-4
+$layout-aside-shadow       ?= $shadow-8
+$loading-background ?= $dimmed-background
+$modal-background        ?= white
+$modal-width             ?= 80vw
+$modal-max-width         ?= 1000px
+$modal-height            ?= 80vh
+$modal-max-height        ?= 1000px
+$modal-header-font-size  ?= 1.6rem
+$modal-header-padding    ?= 24px 24px 20px 24px
+$modal-header-text-align ?= left
+$modal-body-text-align   ?= left
+$modal-body-color        ?= rgba(0, 0, 0, .5)
+$modal-body-padding      ?= 5px 24px 24px 24px
+$modal-slim-body-padding ?= 0 24px
+$modal-scroll-size       ?= 240px
+$modal-buttons-padding   ?= 8px 8px 12px 24px
+$label-offset ?= 8px
+$paralax-text-shadow ?= 0 0 5px white
+$popover-background   ?= white
+$popover-box-shadow   ?= $shadow-24
+$popover-max-width    ?= 100vw
+$progress-track-height         ?= 5px
+$progress-track-color          ?= currentColor
+$progress-color                ?= $primary
+$progress-track-opacity        ?= .2
+$progress-transition           ?= width .3s linear
+$pull-to-refresh-color              ?= $primary
+$pull-to-refresh-font-size          ?= 1rem
+$pull-to-refresh-icon-size          ?= 2rem
+$rating-grade-color     ?= $yellow
+$rating-shadow          ?= 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
+$slider-min-height       ?= 200px
+$slider-padding          ?= 2.3rem
+$slider-arrow-size       ?= 2rem
+$slider-ovelay-color     ?= rgba(0, 0, 0, .3)
+$slider-opacity          ?= .6
+$slider-opacity-active   ?= 1
+$slider-button-size      ?= 1.5rem
+$slider-dots-size        ?= .9rem
+$stepper-color                 ?= $primary
+$stepper-divider-color         ?= rgba(0, 0, 0, .12)
+$stepper-label-color           ?= rgba(0, 0, 0, .56)
+$stepper-label-inactive-color  ?= rgba(0, 0, 0, .42)
+$stepper-hover-background      ?= rgba(0, 0, 0, .05)
+$stepper-pane-padding          ?= 16px
+$stepper-border-radius         ?= $generic-border-radius
+$tabs-padding                  ?= 14px 12px
+$tabs-padding-with-icon        ?= 8px 10px
+$tabs-big-screen-horiz-padding ?= 25px
+$tabs-min-height               ?= 48px
+$tabs-min-height-with-icon     ?= 72px
+$tabs-big-screen-side-padding  ?= 12px
+$tabs-pane-padding             ?= 12px
+$tabs-color                    ?= $toolbar-color
+$tabs-background               ?= $toolbar-background
+$tabs-pane-border              ?= 1px solid rgba(0, 0, 0, .1)
+$tabs-unselected-opacity       ?= .7
+$tabs-font-size                ?= .95rem
+$tabs-icon-font-size           ?= 27px
+$tabs-font-weight              ?= 500
+$tabs-text-transform           ?= uppercase
+$tabs-border-width             ?= 2px
+$tooltip-color         ?= #fafafa
+$tooltip-background    ?= #747474
+$tooltip-box-shadow    ?= $shadow-6
+$tooltip-padding       ?= 10px
+$tooltip-border-radius ?= $generic-border-radius
+$tree-connector-color            ?= #ccc
+$tree-label-padding              ?= 5px
+$tree-label-border-radius        ?= $generic-border-radius
+$tree-highlight-color            ?= inherit
+$tree-highlight-background       ?= $tree-connector-color
+$tree-label-icon-font-size       ?= 1.3rem
+*, *:before, *:after 
+  box-sizing inherit
+  -webkit-tap-highlight-color transparent
+  -moz-tap-highlight-color transparent
+html, body, #q-app
+  width 100%
+html, body
+  margin 0
+  box-sizing border-box
+input[type='text'], input[type='email'], input[type='search'], input[type='password']
+  -webkit-appearance none
+  -moz-appearance none /* mobile firefox too! */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+main,
+menu,
+nav,
+section,
+summary
+  display block
+audio:not([controls])
+  display none
+  height 0
+abbr[title]
+  border-bottom none 
+  text-decoration underline 
+  text-decoration underline dotted 
+dfn
+  font-style italic
 img
-  &.responsive
-    max-width 100%
-    height auto
-  &.avatar
-    width 50px
-    height 50px
-    border-radius 50%
-    box-shadow $media-avatar-box-shadow
-    vertical-align middle
-.q-video
-  position relative
+  border-style none
+svg:not(:root)
   overflow hidden
-  border-radius inherit
-  iframe, object, embed
-    width 100%
-    height 100%
-$action-sheet-avatar-padding   ?= .6rem 1.2rem
-$action-sheet-hover-background ?= #d0d0d0
+code, kbd, pre, samp
+  font-family monospace, monospace 
+  font-size 1em 
+hr
+  box-sizing content-box 
+  height 0 
+  overflow visible 
+button,
+input,
+select,
+textarea
+  font inherit
+  margin 0
+optgroup
+  font-weight bold
+button,
+input, 
+select 
+  overflow visible
+button::-moz-focus-inner, input::-moz-focus-inner
+  border 0
+  padding 0
+button:-moz-focusring, input:-moz-focusring
+  outline 1px dotted ButtonText
+textarea
+  overflow auto
+input[type='search']
+  -webkit-appearance textfield
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration
+  -webkit-appearance none
 .q-action-sheet-gallery
   > div
     padding $action-sheet-avatar-padding
@@ -926,11 +721,6 @@ $action-sheet-hover-background ?= #d0d0d0
     width 100%
     height 100%
     transition height 1s
-$alert-padding = .7rem
-$alert-color ?= white
-$alert-background ?= $negative
-$alert-border-radius ?= $generic-border-radius
-$alert-min-width ?= 200px
 .q-alert
   color $alert-color
   background $alert-background
@@ -954,20 +744,75 @@ $alert-min-width ?= 200px
     cursor pointer
   span + span
     margin-left 16px
-$button-border-radius ?= $generic-border-radius
-$button-padding       ?= 0 16px
-$button-transition    ?= .12s ease-in
-$button-font-weight   ?= 500
-$button-sizes = {
-  small: 28px,
-  standard: 36px,
-  big: 44px
-}
-$button-round-sizes = {
-  small: 40px,
-  standard: 56px,
-  big: 72px
-}
+ul.breadcrumb
+  list-style none
+  display inline-flex
+  flex-wrap nowrap
+  margin round($breadcrumb-height / 3) 0 0 0
+  padding 0
+  i
+    font-size 1.7em
+  li
+    float left
+    margin-bottom round($breadcrumb-height / 3)
+    a
+      color white
+      display block
+      background $breadcrumb-primary
+      text-decoration none
+      position relative
+      height $breadcrumb-height
+      line-height $breadcrumb-height
+      padding 0 10px 0 5px
+      text-align center
+      margin-right 23px
+    &:nth-child(even) a
+      background $breadcrumb-secondary
+      &:before
+        border-color $breadcrumb-secondary
+        border-left-color transparent
+      &:after
+        border-left-color $breadcrumb-secondary
+    &:first-child a
+      padding-left $breadcrumb-separator
+      border-radius $breadcrumb-radius 0 0 $breadcrumb-radius
+      &:before
+        border 0
+    &:last-child a
+      padding-right $breadcrumb-separator
+      border-radius 0 $breadcrumb-radius $breadcrumb-radius 0
+      &:after
+        border 0
+    a
+      &:before, &:after
+        content ''
+        position absolute
+        top 0
+        bottom 0
+        border 0 solid $breadcrumb-primary
+        border-width round($breadcrumb-height / 2) 10px
+      &:before
+        left (- $breadcrumb-separator)
+        border-left-color transparent
+      &:after
+        left 100%
+        border-color transparent
+        border-left-color $breadcrumb-primary
+      &:active
+        background $breadcrumb-active
+        &:before
+          border-color $breadcrumb-active
+          border-left-color transparent
+        &:after
+          border-left-color $breadcrumb-active
+body.desktop ul.breadcrumb a
+  &:hover
+    background $breadcrumb-hover
+    &:before
+      border-color $breadcrumb-hover
+      border-left-color transparent
+    &:after
+      border-left-color $breadcrumb-hover
 button-round-factor($size)
   if $size == 'small'
     .54
@@ -1036,6 +881,11 @@ for $name, $size in $button-sizes
       height $size
       display inline-block
       vertical-align middle
+      transition $button-transition
+    &.q-btn-push:active:not(.disabled)
+      .q-btn-inner:before
+        height $size + 3px
+        transition 0s
     .q-icon
       font-size round($size * .68)
     .q-spinner
@@ -1049,12 +899,6 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
-$card-faded-color          ?= rgba(0, 0, 0, .4)
-$card-separator-color      ?= rgba(0, 0, 0, .1)
-$card-overlay-color        ?= rgba(0, 0, 0, .47)
-$card-shadow               ?= $shadow-2
-$card-dark-faded-color     ?= rgba(255, 255, 255, .6)
-$card-dark-separator-color ?= rgba(255, 255, 255, .2)
 .q-card
   border-radius 2px
   box-shadow $card-shadow
@@ -1118,14 +962,6 @@ $card-dark-separator-color ?= rgba(255, 255, 255, .2)
     background $card-dark-separator-color
   .q-card-subtitle, .q-card-title-extra
     color $card-dark-faded-color
-$chat-message-received-color     ?= black
-$chat-message-received-bg        ?= $green-4
-$chat-message-sent-color         ?= black
-$chat-message-sent-bg            ?= $grey-4
-$chat-message-avatar-size        ?= 48px
-$chat-message-border-radius      ?= $generic-border-radius
-$chat-message-distance           ?= 8px
-$chat-message-text-padding       ?= 8px
 .q-message-name, .q-message-stamp, .q-message-label
   font-size small
 .q-message-label
@@ -1198,16 +1034,6 @@ $checkbox-size = 21px
   width $checkbox-size
   font-size $checkbox-size
   opacity 0
-$chip-border             ?= #e0e0e0
-$chip-border-radius      ?= 2rem
-$chip-font-size          ?= 14px
-$chip-padding-horizontal ?= 0
-$chip-padding-vertical   ?= 12px
-$chip-height             ?= 32px
-$chip-icon-size          ?= 24px
-$chip-small-height       ?= 26px
-$chip-color              ?= black
-$chip-background         ?= $light
 .q-chip
   height $chip-height
   padding $chip-padding-horizontal $chip-padding-vertical
@@ -1309,9 +1135,6 @@ $chip-background         ?= $light
       height $chip-small-height
       width $chip-small-height
       min-width $chip-small-height
-$collapsible-padding             ?= 8px 16px
-$collapsible-indent-left-padding ?= ($item-primary-size + $item-gutter)
-$collapsible-active-color        ?= $item-active-color
 .q-collapsible-sub-item
   padding $collapsible-padding
   &.indent
@@ -1321,8 +1144,6 @@ $collapsible-active-color        ?= $item-active-color
     margin-bottom 0
 .q-collapsible.router-link-active > .q-item
   background $collapsible-active-color
-$datatable-border    ?= 1px solid $grey-4
-$datatable-font-size ?= 85%
 .q-data-table
   font-size $datatable-font-size
   border $datatable-border
@@ -1403,8 +1224,6 @@ $datatable-font-size ?= 85%
 .q-data-table-selection
   color $primary
   background alpha($primary, 20%)
-$datetime-range-space     ?= 10px
-$datetime-input-min-width ?= 70px
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime-controls
@@ -1599,7 +1418,15 @@ for $pos in 0..23
       border-width 1px 1px 1px 0
       border-style solid
       border-color $grey-4
-$fab-margin    ?= 5px
+.q-dot
+  position absolute
+  top $dot-position-top
+  right $dot-position-right
+  height $dot-size
+  width $dot-size
+  border-radius 50%
+  background $dot-color
+  opacity $dot-opacity
 .q-fab
   position relative
   vertical-align middle
@@ -1660,8 +1487,6 @@ $fab-margin    ?= 5px
 body.platform-ios .q-fab
   &[class*='absolute-'], &[class*='fixed-']
     transform translate3d(0, -50px, 0)
-$field-icon-size   ?= 28px
-$field-label-color ?= rgba(0, 0, 0, .54)
 .q-field
   margin-top 16px
   margin-bottom 8px
@@ -1780,6 +1605,104 @@ $field-label-color ?= rgba(0, 0, 0, .54)
       border 1px solid white
 body.desktop .q-gallery-slider-quickview img:hover
   opacity 1
+table.q-table
+  border-spacing 0
+  empty-cells show
+  thead
+    text-align left
+    vertical-align bottom
+    font-weight 700
+  th, td
+    &:first-child
+      border-left-width 0
+    margin 0
+    overflow visible
+    padding .5rem .7rem
+  &.compact
+    th, td
+      padding .1rem .3rem
+  &.loose
+    th, td
+      padding 1rem
+  &.bordered, &.cell-delimiter:not(.responsive):not(.flipped)
+    border $table-border
+  &:not(.responsive):not(.flipped)
+    &.horizontal-delimiter, &.cell-delimiter
+      th, td
+        border-bottom $table-border
+    &.vertical-delimiter, &.cell-delimiter
+      th, td
+        border-left $table-border
+        &:last-child
+          border-right $table-border
+  &.striped-odd, &.striped
+    tbody tr:nth-child(odd)
+      background $table-stripe-color
+  &.striped-even
+    tbody tr:nth-child(even)
+      background $table-stripe-color
+  &.flipped
+    display flex
+    overflow hidden
+    background none
+    thead
+      display flex
+      flex-shrink 0
+      min-width min-content
+    tbody
+      display flex
+      position relative
+      overflow-x auto
+      overflow-y hidden
+    tr
+      display flex
+      flex-direction column
+      min-width min-content
+      flex-shrink 0
+    td, th
+      display block
+    td
+      background-image none !important
+      border-left 0
+    th:not(:last-child),
+    td:not(:last-child)
+      border-bottom 0
+    &.horizontal-delimiter, &.cell-delimiter
+      tr
+        border-left $table-border
+        border-right $table-border
+    &.vertical-delimiter, &.cell-delimiter
+      th, td
+        border-top $table-border
+        &:last-child
+          border-bottom $table-border
+  @media (max-width $breakpoint-sm-max)
+    &.responsive:not(.flipped)
+      thead
+        display none
+      tr, td
+        display block
+      tr
+        position relative
+      td:before
+        content attr(data-th)
+        display block
+        text-align left
+        font-weight bold
+      &.horizontal-delimiter
+        tr:not(:last-child)
+          border-bottom $table-border
+      &.cell-delimiter
+        tr
+          border $table-border
+      &.vertical-delimiter, &.cell-delimiter
+        th, td
+          border-left $table-border
+          border-right $table-border
+body.desktop table.q-table.highlight tbody tr
+  transition all .28s ease-in
+  &:hover
+    background $table-highlight-color
 .q-icon
   line-height 1
   letter-spacing normal
@@ -1798,9 +1721,8 @@ body.desktop .q-gallery-slider-quickview img:hover
   background $light-dimmed-background
   &.dark
     background $dimmed-background
-$input-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
 .q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
-  transition $input-transition
+  transition $input-frame-transition
 .q-if
   font-size 16px
   min-height 32px
@@ -1977,13 +1899,6 @@ input.q-input-target
   bottom 0
   i
     font-size 130%
-$layout-aside-background   ?= white
-$layout-aside-left-width   ?= 300px
-$layout-aside-right-width  ?= 300px
-$toolbar-min-height        ?= 50px
-$layout-header-shadow      ?= $shadow-4
-$layout-footer-shadow      ?= $shadow-up-4
-$layout-aside-shadow       ?= $shadow-8
 .layout
   width 100%
   min-height 100vh
@@ -2044,7 +1959,116 @@ body.cordova.platform-ios
     margin auto
     &.horizontal
       padding 0 4rem
-$loading-background ?= $dimmed-background
+.q-item-stamp
+  font-size $item-stamp-font-size
+  line-height $item-stamp-font-size
+  white-space nowrap
+  margin .3rem 0
+.q-item-side-right
+  text-align right
+  color $item-secondary-color
+  display flex
+  flex-direction column
+  align-items flex-end
+.q-item-side
+  color $item-primary-color
+  min-width $item-primary-size
+.q-item-avatar, .q-item-avatar img
+  width $item-primary-size
+  height $item-primary-size
+  border-radius 50%
+.q-item-letter, .q-item-icon
+  font-size $item-icon-size
+.q-item-icon-inverted
+  border-radius 50%
+  font-size $item-inverted-icon-size
+  color white
+  background $primary
+  padding 9px
+.q-item-main
+  flex 1 1 auto
+  min-width 0
+.q-item-main-inset
+  margin-left ($item-gutter + $item-primary-size)
+.q-item-label > span
+  color $item-content-secondary-text-color
+.q-item-sublabel
+  color $item-content-secondary-text-color
+  font-size 90%
+  margin-top .2rem
+  > span
+    font-weight 500
+.q-item-section + .q-item-section
+  margin-left $item-gutter
+.q-item
+  position relative
+  display flex
+  align-items center
+  font-size $item-font-size
+  text-align left
+  padding ($item-padding / 2) $item-padding
+  min-height $item-min-height
+  &.active, &.router-link-active, &:focus
+    background $item-active-color
+  &:focus
+    outline 0
+.q-item-image
+  min-width $item-image-size
+  max-width $item-image-size
+  max-height $item-image-size
+.q-list-multiline > .q-item, .q-item-multiline
+  align-items flex-start
+.q-list-link > .q-item, .q-item-link
+  cursor pointer
+.q-list-highlight > .q-item, .q-item-highlight,
+.q-list-link > .q-item, .q-item-link
+  &:hover
+    background $item-highlight-color
+.q-list-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-delimiter
+  border-top 1px solid $item-delimiter-color
+.q-list-inset-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-inset-delimiter
+  &:after
+    content ''
+    position absolute
+    top 0
+    right 0
+    left ($item-padding + $item-gutter + $item-primary-size)
+    height 1px
+    background $item-delimiter-color
+.q-list-dense > .q-item, .q-item-dense
+  padding round($item-padding * $item-dense-factor) $item-padding
+  min-height round($item-min-height * $item-dense-factor)
+.q-list-sparse > .q-item, .q-item-sparse
+  padding ($item-padding * $item-sparse-factor) $item-padding
+  min-height ($item-min-height * $item-sparse-factor)
+.q-list-striped .q-item:nth-child(even)
+  background-color $item-stripe-color
+.q-list-striped-odd .q-item:nth-child(odd)
+  background-color $item-stripe-color
+.q-list
+  border 1px solid $item-delimiter-color
+  padding ($item-padding / 2) 0
+  & + .q-list
+    margin-top 32px
+.q-item-delimiter-component
+  margin ($item-padding / 2) 0
+  height 1px
+  border 0
+  background-color $item-delimiter-color
+  &:last-child
+    display none
+  & + .q-list-header
+    margin-top (- $item-padding / 2)
+.q-item-delimiter-inset-component
+  margin-left ($item-padding + $item-gutter + $item-primary-size)
+.q-list-header
+  color $item-label-color
+  font-size 14px
+  font-weight 500
+  line-height 48px
+  padding-left $item-padding
+.q-list-header-inset
+  padding-left ($item-padding + $item-gutter + $item-primary-size)
 body.with-loading
   overflow hidden
 .q-loading
@@ -2054,20 +2078,6 @@ body.with-loading
     max-width 450px
     text-align center
     text-shadow 0 0 7px black
-$modal-background        ?= white
-$modal-width             ?= 80vw
-$modal-max-width         ?= 1000px
-$modal-height            ?= 80vh
-$modal-max-height        ?= 1000px
-$modal-header-font-size  ?= 1.6rem
-$modal-header-padding    ?= 24px 24px 20px 24px
-$modal-header-text-align ?= left
-$modal-body-text-align   ?= left
-$modal-body-color        ?= rgba(0, 0, 0, .5)
-$modal-body-padding      ?= 5px 24px 24px 24px
-$modal-slim-body-padding ?= 0 24px
-$modal-scroll-size       ?= 240px
-$modal-buttons-padding   ?= 8px 8px 12px 24px
 body.with-modal
   overflow hidden !important
 minimized-modal()
@@ -2172,7 +2182,6 @@ maximized-modal()
   opacity 0
   .modal-content
     transform translateX(-101%)
-$label-offset ?= 8px
 .q-option-inner
   display inline-block
   color $grey-5
@@ -2205,7 +2214,6 @@ $label-offset ?= 8px
     padding 0 5px !important
     &.disabled
       color $faded
-$paralax-text-shadow ?= 0 0 5px white
 .q-parallax
   position relative
   width 100%
@@ -2223,9 +2231,6 @@ $paralax-text-shadow ?= 0 0 5px white
       visibility visible
 .q-parallax-text
   text-shadow $paralax-text-shadow
-$popover-background   ?= white
-$popover-box-shadow   ?= $shadow-24
-$popover-max-width    ?= 100vw
 .q-popover
   position fixed
   box-shadow $popover-box-shadow
@@ -2234,11 +2239,6 @@ $popover-max-width    ?= 100vw
   overflow-y auto
   overflow-x hidden
   max-width $popover-max-width
-$progress-track-height         ?= 5px
-$progress-track-color          ?= currentColor
-$progress-color                ?= $primary
-$progress-track-opacity        ?= .2
-$progress-transition           ?= width .3s linear
 .q-progress
   position relative
   height $progress-track-height
@@ -2316,9 +2316,6 @@ $progress-transition           ?= width .3s linear
     background-position 40px 0
   to
     background-position 0 0
-$pull-to-refresh-color              ?= $primary
-$pull-to-refresh-font-size          ?= 1rem
-$pull-to-refresh-icon-size          ?= 2rem
 .pull-to-refresh
   position relative
   max-height 100vh
@@ -2348,7 +2345,6 @@ $radio-size = 21px
     transform scale(0)
   .q-radio-checked
     transform scale(1)
-$range-color              ?= $primary
 $range-height              = 28px
 $range-track-height        = 2px
 $range-mark-height         = 10px
@@ -2446,15 +2442,13 @@ $range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
 .q-range
   height $range-height
   width 100%
-  color $range-color
+  color $primary
   cursor pointer
   &.label-always, &.with-padding
     padding 55px 0 5px
     height 85px
   &.has-error
     color $negative
-$rating-grade-color     ?= $yellow
-$rating-shadow          ?= 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
 .q-rating
   color $rating-grade-color
   vertical-align middle
@@ -2488,14 +2482,6 @@ $rating-shadow          ?= 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0,
   background rgba(255, 255, 255, .25)
   flex 1 1 auto
   margin 0
-$slider-min-height       ?= 200px
-$slider-padding          ?= 2.3rem
-$slider-arrow-size       ?= 2rem
-$slider-ovelay-color     ?= rgba(0, 0, 0, .3)
-$slider-opacity          ?= .6
-$slider-opacity-active   ?= 1
-$slider-button-size      ?= 1.5rem
-$slider-dots-size        ?= .9rem
 .q-slider
   overflow hidden
   &.fullscreen
@@ -2591,13 +2577,6 @@ $slider-dots-size        ?= .9rem
   100%
     stroke-dasharray 89, 200
     stroke-dashoffset -124px
-$stepper-color                 ?= $primary
-$stepper-divider-color         ?= rgba(0, 0, 0, .12)
-$stepper-label-color           ?= rgba(0, 0, 0, .56)
-$stepper-label-inactive-color  ?= rgba(0, 0, 0, .42)
-$stepper-hover-background      ?= rgba(0, 0, 0, .05)
-$stepper-pane-padding          ?= 16px
-$stepper-border-radius         ?= $generic-border-radius
 .q-stepper
   color $stepper-color
   border-radius $generic-border-radius
@@ -2745,22 +2724,6 @@ body.desktop .q-stepper-tab.step-done:hover
       margin 0
     .q-stepper-label
       display none
-$tabs-padding                  ?= 14px 12px
-$tabs-padding-with-icon        ?= 8px 10px
-$tabs-big-screen-horiz-padding ?= 25px
-$tabs-min-height               ?= 48px
-$tabs-min-height-with-icon     ?= 72px
-$tabs-big-screen-side-padding  ?= 12px
-$tabs-pane-padding             ?= 12px
-$tabs-color                    ?= $toolbar-color
-$tabs-background               ?= $toolbar-background
-$tabs-pane-border              ?= 1px solid rgba(0, 0, 0, .1)
-$tabs-unselected-opacity       ?= .7
-$tabs-font-size                ?= .95rem
-$tabs-icon-font-size           ?= 27px
-$tabs-font-weight              ?= 500
-$tabs-text-transform           ?= uppercase
-$tabs-border-width             ?= 2px
 .q-tabs-scroller
   overflow hidden
   color $tabs-color
@@ -3008,11 +2971,6 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
       left ($toggle-width - $toggle-handle-size)
     .q-toggle-icon
       color white
-$toolbar-padding            ?= 4px 12px
-$toolbar-title-font-size    ?= 18px
-$toolbar-subtitle-font-size ?= 12px
-$toolbar-title-font-weight  ?= 500
-$toolbar-title-padding      ?= 0 12px
 .q-toolbar
   padding $toolbar-padding
   min-height $toolbar-min-height
@@ -3044,11 +3002,6 @@ $toolbar-title-padding      ?= 0 12px
   text-overflow ellipsis
   white-space nowrap
   overflow hidden
-$tooltip-color         ?= #fafafa
-$tooltip-background    ?= #747474
-$tooltip-box-shadow    ?= $shadow-6
-$tooltip-padding       ?= 10px
-$tooltip-border-radius ?= $generic-border-radius
 .q-tooltip
   position fixed
   color $tooltip-color
@@ -3060,12 +3013,6 @@ $tooltip-border-radius ?= $generic-border-radius
   overflow-y auto
   overflow-x hidden
   pointer-events none
-$tree-connector-color            ?= #ccc
-$tree-label-padding              ?= 5px
-$tree-label-border-radius        ?= $generic-border-radius
-$tree-highlight-color            ?= inherit
-$tree-highlight-background       ?= $tree-connector-color
-$tree-label-icon-font-size       ?= 1.3rem
 .q-tree
   li
     margin 0
@@ -3144,6 +3091,23 @@ body.desktop .q-tree-link .q-tree-label:hover
   opacity .1
   right 44px
   bottom 0
+img
+  &.responsive
+    max-width 100%
+    height auto
+  &.avatar
+    width 50px
+    height 50px
+    border-radius 50%
+    box-shadow $shadow-1
+    vertical-align middle
+.q-video
+  position relative
+  overflow hidden
+  border-radius inherit
+  iframe, object, embed
+    width 100%
+    height 100%
 .text-primary
   color $primary !important
 .bg-primary
@@ -4332,168 +4296,19 @@ body.desktop .q-tree-link .q-tree-label:hover
   background $blue-grey-13 !important
 .bg-blue-grey-14
   background $blue-grey-14 !important
-body
-  min-width 320px
-  font-family $typography-font-family
-  -ms-text-size-adjust 100%
-  -webkit-text-size-adjust 100%
-  -webkit-font-smoothing antialiased
-  -moz-osx-font-smoothing grayscale
-  font-smoothing antialiased
-a
-  color $link-color
-  text-decoration none
-  cursor pointer
-  outline 0
-  transition color .25s
-  &:hover
-    color $link-color-active
-  &:active, &:hover
-    outline-width 0
-h1, h2, h3, h4, h5, h6
-  font-weight 400
-  line-height 110%
-  -webkit-font-smoothing antialised
-h1
-  font-size 4.2rem
-  letter-spacing -.04em
-  margin 2.1rem 0 1.68rem
-  font-weight 300
-h2
-  font-size 3.56rem
-  letter-spacing -.02em
-  margin 1.78rem 0 1.424rem
-h3
-  font-size 2.92rem
-  margin 1.46rem 0 1.168rem
-h4
-  font-size 2.28rem
-  margin 1.14rem 0 .912rem
-h5
-  font-size 1.64rem
-  margin .82rem 0 .656rem
-  -moz-osx-font-smoothing grayscale
-h6
-  font-size 1rem
-  letter-spacing .02em
-  margin .5rem 0 .4rem
-  font-weight 500
-p
-  font-size 1rem
-  letter-spacing 0
-  margin 0 0 1rem
-  line-height 24px
-  padding 0
-  -webkit-font-smoothing antialiased
-  &.caption
-    font-weight 300
-    &:not(:first-child)
-      margin-top 2rem
-.token
-  color opposite-non-color($primary)
-  background alpha($primary, .7)
-  border-radius $generic-border-radius
-  padding 3px 5px
-  font-size 90%
-.uppercase
-  text-transform uppercase
-.lowercase
-  text-transform lowercase
-.capitalize
-  text-transform capitalize
-+prefix-classes('text-')
-  .center
-    text-align center
-  .left
-    text-align left
-  .right
-    text-align right
-  .justify
-    text-align justify
-    hyphens auto
-  .italic
-    font-style italic
-  .bold
-    font-weight bold
-.light-paragraph
-  font-weight 300
-.thin-paragraph
-  font-weight 200
-small
-  font-size 80%
-big
-  font-size 170%
-sub
-  bottom -.25em
-sup
-  top -.5em
-.strong
-  font-weight bold
-.emphasize
-  font-style italic
-blockquote
-  padding 10px 20px
-  margin 0 0 20px
-  font-size 17.5px
-  border-left 5px solid $primary
-  &.text-right
-    padding-right 15px
-    padding-left 0
-    border-right 5px solid $primary
-    border-left 0
-    text-align right
-  small
-    display block
-    line-height 1.4
-    color $faded
-    &:before
-      content '\2014 \00A0'
-.quote
-  padding 10px 20px
-  margin 0 0 20px
-  border-left 5px solid $primary
-  &.text-right
-    padding-right 15px
-    padding-left 0
-    border-right 5px solid $primary
-    border-left 0
-    text-align right
-dt
-  font-weight bold
-dd
-  margin-left 0
-dt, dd
-  line-height 1.4
-dl
-  margin-top 0
-  margin-bottom 20px
-  &.horizontal
-    dt
-      float left
-      width 25%
-      clear left
-      text-align right
-      overflow hidden
-      text-overflow ellipsis
-      white-space nowrap
-    dd
-      margin-left 30%
-::-webkit-selection,
-::-moz-selection,
-::selection
-  background $primary
-  color alpha(opposite-non-color($primary), .87)
-textarea::-webkit-selection,
-input::-webkit-selection,
-textarea::-moz-selection,
-input::-moz-selection,
-textarea::selection,
-input::selection
-  background alpha($primary, .4)
-  color alpha(opposite-non-color($primary), .87)
-*:-webkit-full-screen 
-  width 100%
-  height 100%
+.shadow-transition
+  transition $shadow-transition !important
+for $z in 1..24
+  .shadow-{$z}
+    box-shadow $shadow-+$z
+.no-shadow, .shadow-0
+  box-shadow none !important
+.inset-shadow
+  box-shadow $inset-shadow !important
+.z-marginals
+  z-index $z-marginals
+.z-alert
+  z-index $z-alert
 .row, .column, .flex
   display flex
   flex-wrap wrap
@@ -4615,19 +4430,6 @@ for $name, $size in $sizes
         max-width (round($i / $grid-cols * 100, 4))%
       .offset-{$name}-{$i}
         margin-left (round($i / $grid-cols * 100, 4))%
-.shadow-transition
-  transition $shadow-transition !important
-for $z in 1..24
-  .shadow-{$z}
-    box-shadow $shadow-+$z
-.no-shadow, .shadow-0
-  box-shadow none !important
-.inset-shadow
-  box-shadow $inset-shadow !important
-.z-marginals
-  z-index $z-marginals
-.z-alert
-  z-index $z-alert
 .backdrop
   display none
   position fixed
@@ -4938,6 +4740,168 @@ for $z in 1..24
   touch-action pan-x
 .q-touch-y
   touch-action pan-y
+body
+  min-width 320px
+  font-family $typography-font-family
+  -ms-text-size-adjust 100%
+  -webkit-text-size-adjust 100%
+  -webkit-font-smoothing antialiased
+  -moz-osx-font-smoothing grayscale
+  font-smoothing antialiased
+a
+  color $link-color
+  text-decoration none
+  cursor pointer
+  outline 0
+  transition color .25s
+  &:hover
+    color $link-color-active
+  &:active, &:hover
+    outline-width 0
+h1, h2, h3, h4, h5, h6
+  font-weight 400
+  line-height 110%
+  -webkit-font-smoothing antialised
+h1
+  font-size 4.2rem
+  letter-spacing -.04em
+  margin 2.1rem 0 1.68rem
+  font-weight 300
+h2
+  font-size 3.56rem
+  letter-spacing -.02em
+  margin 1.78rem 0 1.424rem
+h3
+  font-size 2.92rem
+  margin 1.46rem 0 1.168rem
+h4
+  font-size 2.28rem
+  margin 1.14rem 0 .912rem
+h5
+  font-size 1.64rem
+  margin .82rem 0 .656rem
+  -moz-osx-font-smoothing grayscale
+h6
+  font-size 1rem
+  letter-spacing .02em
+  margin .5rem 0 .4rem
+  font-weight 500
+p
+  font-size 1rem
+  letter-spacing 0
+  margin 0 0 1rem
+  line-height 24px
+  padding 0
+  -webkit-font-smoothing antialiased
+  &.caption
+    font-weight 300
+    &:not(:first-child)
+      margin-top 2rem
+.token
+  color opposite-non-color($primary)
+  background alpha($primary, .7)
+  border-radius $generic-border-radius
+  padding 3px 5px
+  font-size 90%
+.uppercase
+  text-transform uppercase
+.lowercase
+  text-transform lowercase
+.capitalize
+  text-transform capitalize
++prefix-classes('text-')
+  .center
+    text-align center
+  .left
+    text-align left
+  .right
+    text-align right
+  .justify
+    text-align justify
+    hyphens auto
+  .italic
+    font-style italic
+  .bold
+    font-weight bold
+.light-paragraph
+  font-weight 300
+.thin-paragraph
+  font-weight 200
+small
+  font-size 80%
+big
+  font-size 170%
+sub
+  bottom -.25em
+sup
+  top -.5em
+.strong
+  font-weight bold
+.emphasize
+  font-style italic
+blockquote
+  padding 10px 20px
+  margin 0 0 20px
+  font-size 17.5px
+  border-left 5px solid $primary
+  &.text-right
+    padding-right 15px
+    padding-left 0
+    border-right 5px solid $primary
+    border-left 0
+    text-align right
+  small
+    display block
+    line-height 1.4
+    color $faded
+    &:before
+      content '\2014 \00A0'
+.quote
+  padding 10px 20px
+  margin 0 0 20px
+  border-left 5px solid $primary
+  &.text-right
+    padding-right 15px
+    padding-left 0
+    border-right 5px solid $primary
+    border-left 0
+    text-align right
+dt
+  font-weight bold
+dd
+  margin-left 0
+dt, dd
+  line-height 1.4
+dl
+  margin-top 0
+  margin-bottom 20px
+  &.horizontal
+    dt
+      float left
+      width 25%
+      clear left
+      text-align right
+      overflow hidden
+      text-overflow ellipsis
+      white-space nowrap
+    dd
+      margin-left 30%
+::-webkit-selection,
+::-moz-selection,
+::selection
+  background $primary
+  color alpha(opposite-non-color($primary), .87)
+textarea::-webkit-selection,
+input::-webkit-selection,
+textarea::-moz-selection,
+input::-moz-selection,
+textarea::selection,
+input::selection
+  background alpha($primary, .4)
+  color alpha(opposite-non-color($primary), .87)
+*:-webkit-full-screen 
+  width 100%
+  height 100%
 .no-margin
   margin 0 !important
 .no-padding

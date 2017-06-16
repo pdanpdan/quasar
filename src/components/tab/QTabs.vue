@@ -13,6 +13,7 @@
       ref="tabs"
       :class="{
         [`q-tabs-align-${align}`]: true,
+        glossy: glossy,
         [`bg-${color}`]: !inverted && color
       }"
     >
@@ -87,7 +88,8 @@ export default {
     color: String,
     inverted: Boolean,
     twoLines: Boolean,
-    noPaneBorder: Boolean
+    noPaneBorder: Boolean,
+    glossy: Boolean
   },
   data () {
     return {
@@ -137,7 +139,7 @@ export default {
       posbarClass.remove('expand', 'contract')
 
       if (!el) {
-        this.__setPositionBar(0, 0)
+        posbarClass.add('invisible')
         this.__setTab({name}, emitInput)
         return
       }
@@ -160,9 +162,9 @@ export default {
         this.tab.index = this.$children.findIndex(child => child.name === this.tab.name)
 
         this.__setPositionBar(this.tab.width, this.tab.offsetLeft)
-        posbarClass.remove('invisible')
 
         this.timer = setTimeout(() => {
+          posbarClass.remove('invisible')
           posbarClass.add('expand')
 
           if (this.tab.index < index) {
@@ -214,7 +216,6 @@ export default {
       else if (cls.contains('contract')) {
         cls.remove('contract')
         cls.add('invisible')
-        this.__setPositionBar(0, 0)
       }
     },
     __redraw () {

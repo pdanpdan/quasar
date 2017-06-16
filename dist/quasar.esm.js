@@ -685,9 +685,7 @@ var QIcon = {
  * Also import the necessary CSS into the app.
  *
  * Example:
- * import 'animate.css/source/_base.css'
- * import 'animate.css/source/bouncing_entrances/bounceInLeft.css'
- * import 'animate.css/source/bouncing_exits/bounceOutRight.css'
+ * import 'quasar-extras/animate/bounceInLeft.css'
  */
 
 var QTransition = {
@@ -2393,7 +2391,7 @@ var QItem = {
       prop = ctx.props,
       cls = itemClasses(prop);
 
-    if (prop.to !== void 0) {
+    if (prop.to !== void 0 || prop.link) {
       data.props = prop;
       data.directives = data.directives || [];
       data.directives.push({
@@ -2477,9 +2475,6 @@ var QItemMain = {
 var QItemSide = {
   name: 'q-item-side',
   functional: true,
-  components: {
-    QIcon: QIcon
-  },
   props: {
     right: Boolean,
 
@@ -2528,7 +2523,7 @@ var QItemSide = {
       }));
     }
     if (prop.icon) {
-      child.push(h('q-icon', {
+      child.push(h(QIcon, {
         props: { name: prop.icon },
         staticClass: 'q-item-icon',
         class: { 'q-item-icon-inverted': prop.inverted }
@@ -2556,9 +2551,6 @@ var QItemSide = {
 var QItemTile = {
   name: 'q-item-tile',
   functional: true,
-  components: {
-    QIcon: QIcon
-  },
   props: {
     icon: String,
     inverted: Boolean,
@@ -2593,7 +2585,7 @@ var QItemTile = {
       if (prop.inverted) {
         data.staticClass += ' q-item-icon-inverted';
       }
-      return h('q-icon', data, ctx.children)
+      return h(QIcon, data, ctx.children)
     }
     if ((prop.label || prop.sublabel) && prop.lines) {
       if (prop.lines === '1' || prop.lines === 1) {
@@ -2619,11 +2611,6 @@ function push (child, h, name, slot, replace, conf) {
 
 var QItemWrapper = {
   name: 'q-item-wrapper',
-  components: {
-    QItem: QItem,
-    QItemMain: QItemMain,
-    QItemSide: QItemSide
-  },
   functional: true,
   props: {
     cfg: {
@@ -2641,14 +2628,14 @@ var QItemWrapper = {
       slot = ctx.slots(),
       child = [];
 
-    push(child, h, 'q-item-side', slot.left, replace, {
+    push(child, h, QItemSide, slot.left, replace, {
       icon: cfg.icon,
       avatar: cfg.avatar,
       letter: cfg.letter,
       image: cfg.image
     });
 
-    push(child, h, 'q-item-main', slot.main, replace, {
+    push(child, h, QItemMain, slot.main, replace, {
       label: cfg.label,
       sublabel: cfg.sublabel,
       labelLines: cfg.labelLines,
@@ -2656,7 +2643,7 @@ var QItemWrapper = {
       inset: cfg.inset
     });
 
-    push(child, h, 'q-item-side', slot.right, replace, {
+    push(child, h, QItemSide, slot.right, replace, {
       right: true,
       icon: cfg.rightIcon,
       avatar: cfg.rightAvatar,
@@ -2670,7 +2657,7 @@ var QItemWrapper = {
     }
 
     ctx.data.props = cfg;
-    return h('q-item', ctx.data, child)
+    return h(QItem, ctx.data, child)
   }
 };
 
@@ -10298,7 +10285,7 @@ var QTabPane = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 var scrollNavigationSpeed = 5;
 var debounceDelay = 50; // in ms
 
-var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs column",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch"},[_c('div',{ref:"posbar",staticClass:"q-tabs-position-bar",class:( obj$1 = {}, obj$1[("text-" + (_vm.color))] = _vm.inverted && _vm.color, obj$1 ),on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])
+var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs column",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = { glossy: _vm.glossy }, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch"},[_c('div',{ref:"posbar",staticClass:"q-tabs-position-bar",class:( obj$1 = {}, obj$1[("text-" + (_vm.color))] = _vm.inverted && _vm.color, obj$1 ),on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])
 var obj;
 var obj$1;},staticRenderFns: [],
   name: 'q-tabs',
@@ -10320,7 +10307,8 @@ var obj$1;},staticRenderFns: [],
     color: String,
     inverted: Boolean,
     twoLines: Boolean,
-    noPaneBorder: Boolean
+    noPaneBorder: Boolean,
+    glossy: Boolean
   },
   data: function data () {
     return {
@@ -10372,7 +10360,7 @@ var obj$1;},staticRenderFns: [],
       posbarClass.remove('expand', 'contract');
 
       if (!el) {
-        this.__setPositionBar(0, 0);
+        posbarClass.add('invisible');
         this.__setTab({name: name}, emitInput);
         return
       }
@@ -10395,9 +10383,9 @@ var obj$1;},staticRenderFns: [],
         this$1.tab.index = this$1.$children.findIndex(function (child) { return child.name === this$1.tab.name; });
 
         this$1.__setPositionBar(this$1.tab.width, this$1.tab.offsetLeft);
-        posbarClass.remove('invisible');
 
         this$1.timer = setTimeout(function () {
+          posbarClass.remove('invisible');
           posbarClass.add('expand');
 
           if (this$1.tab.index < index) {
@@ -10452,7 +10440,6 @@ var obj$1;},staticRenderFns: [],
       else if (cls.contains('contract')) {
         cls.remove('contract');
         cls.add('invisible');
-        this.__setPositionBar(0, 0);
       }
     },
     __redraw: function __redraw () {
@@ -10602,7 +10589,8 @@ var QToolbar = {
   functional: true,
   props: {
     color: String,
-    inverted: Boolean
+    inverted: Boolean,
+    glossy: Boolean
   },
   render: function render (h, ctx) {
     var
@@ -10612,6 +10600,9 @@ var QToolbar = {
     var classes = "q-toolbar-" + (prop.inverted ? 'inverted' : 'normal');
     if (prop.color) {
       classes += " " + (prop.inverted ? 'text' : 'bg') + "-" + (prop.color);
+    }
+    if (prop.glossy) {
+      classes += " glossy";
     }
 
     ctx.data.staticClass = "q-toolbar row no-wrap items-center relative-position " + classes + (cls ? (" " + cls) : '');
@@ -11624,13 +11615,10 @@ function create (opts) {
   var state = extend({position: 'top-right'}, opts, {value: true, appear: true, dismissible: !opts.actions || !opts.actions.length});
 
   var vm = new Vue({
-    components: {
-      QAlert: QAlert
-    },
     functional: true,
     render: function render (h, ctx) {
       return h(
-        'q-alert', {
+        QAlert, {
           style: {
             margin: '18px'
           },
