@@ -40,18 +40,14 @@
   outline 0
   cursor pointer
 
-.q-if-inner:before
-  content ""
-  height 24px
-  display inline-block
-  vertical-align middle
+.q-if-inner
+  min-height 24px !important
 
 .q-if-has-label
   min-height 41px
   .q-if-inner
+    min-height 34px !important
     padding-top 15px
-    &:before
-      height 19px
 
 .q-if-label
   color rgba(0, 0, 0, .46)
@@ -129,3 +125,9 @@
     background-position bottom
     background-size 3px 1px
     background-repeat repeat-x
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .row > .col.q-if-inner
+    flex-basis auto
+    width auto
+    height 0

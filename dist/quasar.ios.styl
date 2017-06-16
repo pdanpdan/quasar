@@ -770,6 +770,12 @@ input[type='search']::-webkit-search-decoration
     cursor pointer
   span + span
     margin-left 16px
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .q-alert-container
+    max-width 100%
+  .row > .col.q-alert-content
+    flex-basis auto
+    width auto
 ul.breadcrumb
   list-style none
   display inline-flex
@@ -862,15 +868,7 @@ button-round-factor($size)
   transition $button-transition
   &.full-width
     border-radius 0 !important
-    align-items stretch
-  .q-btn-inner
-    flex 1 0 auto
-    flex-wrap nowrap
     white-space normal
-    &> :not(.q-btn-inner-content)
-     flex 0 0 auto
-    .q-btn-inner-content
-      flex 1 1 auto
 .q-btn-rectangle
   border-radius $button-border-radius
 .q-btn-outline
@@ -888,17 +886,8 @@ button-round-factor($size)
   padding 0
 for $name, $size in $button-sizes
   .q-btn-{$name}
+    min-height $size
     font-size round($size * .38)
-    .q-btn-inner:before
-      content ""
-      height $size
-      display inline-block
-      vertical-align middle
-      transition $button-transition
-    &.q-btn-push:active:not(.disabled)
-      .q-btn-inner:before
-        height $size + 3px
-        transition 0s
     .q-icon
       font-size round($size * .68)
     .q-spinner
@@ -912,6 +901,20 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .q-btn
+    .q-btn-inner
+      flex-basis auto
+      height 0
+  for $name, $size in $button-sizes
+    .q-btn-{$name}:not(.q-btn-round)
+      .q-btn-inner
+        min-height $size
+      &.q-btn-push .q-btn-inner
+        min-height $size - 3
+        padding-top 1px
+      &.q-btn-outline .q-btn-inner
+        min-height $size - 2
 .q-card
   border-radius 2px
   box-shadow $card-shadow
@@ -1677,17 +1680,13 @@ body.desktop table.q-table.highlight tbody tr
 .q-if-focusable
   outline 0
   cursor pointer
-.q-if-inner:before
-  content ""
-  height 24px
-  display inline-block
-  vertical-align middle
+.q-if-inner
+  min-height 24px !important
 .q-if-has-label
   min-height 41px
   .q-if-inner
+    min-height 34px !important
     padding-top 15px
-    &:before
-      height 19px
 .q-if-label
   color rgba(0, 0, 0, .46)
   pointer-events none
@@ -1757,6 +1756,11 @@ body.desktop table.q-table.highlight tbody tr
     background-position bottom
     background-size 3px 1px
     background-repeat repeat-x
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .row > .col.q-if-inner
+    flex-basis auto
+    width auto
+    height 0
 @-webkit-keyframes autofill
   to
     background transparent
@@ -2145,10 +2149,6 @@ maximized-modal()
   input
     text-align center
     -moz-appearance textfield
-  .q-if
-    margin 8px 0 0 0
-  .q-input-target
-    width 100%
   .q-btn
     padding 0 5px !important
     &.disabled
@@ -2355,6 +2355,8 @@ $range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
       background transparent
       border-radius inherit
       border 2px solid currentColor
+  .q-range-chip
+    display table
 .q-range-ring
   position absolute
   top -50%
@@ -2852,6 +2854,13 @@ body.mobile .q-tabs-scroller
     > img, > i
       font-size 2rem
       margin-right 48px
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .q-toast
+    a
+      white-space nowrap
+  .col.q-toast-message
+    flex-basis auto
+    width auto
 $toggle-width           = 42px
 $toggle-height          = 24px
 $toggle-span            = 2px
@@ -4217,6 +4226,8 @@ img
 for $z in 1..24
   .shadow-{$z}
     box-shadow $shadow-+$z
+  .shadow-up-{$z}
+    box-shadow $shadow-up-+$z
 .no-shadow, .shadow-0
   box-shadow none !important
 .inset-shadow
@@ -4252,7 +4263,6 @@ for $z in 1..24
     width 100%
 for $name, $size in $sizes
   .row > .col-{$name}
-  .row > .col-{$name}-grow
     width 100%
   .col-{$name}
     min-height 1px
@@ -4331,14 +4341,8 @@ for $name, $size in $sizes
       flex-basis 0
       flex-grow 1
     .col-{$name}-auto
-      min-height 1px
       width auto
       flex 0 0 auto
-    .col-{$name}-grow
-      min-height 1px
-      flex 1 1 auto
-    .row > .col-{$name}-grow
-      width auto
     for $i in (1..$grid-cols)
       .col-{$name}-{$i}
         flex 0 0 (round($i / $grid-cols * 100, 4))%

@@ -16,7 +16,7 @@
         <div class="q-alert-icon row col-auto items-center justify-center">
           <q-icon :name="alertIcon"></q-icon>
         </div>
-        <div class="q-alert-content col-grow self-center">
+        <div class="q-alert-content col self-center">
           <slot></slot>
           <div
             v-if="actions && actions.length"
@@ -97,15 +97,11 @@ export default {
     },
     containerClass () {
       if (this.position) {
-        return `fixed-${this.position}`
+        return `fixed-${this.position} z-alert`
       }
     },
     classes () {
-      let cls = `bg-${this.color}`
-      if (this.position) {
-        cls += ' shadow-2 z-alert'
-      }
-      return cls
+      return `shadow-2 bg-${this.color}`
     }
   },
   methods: {
