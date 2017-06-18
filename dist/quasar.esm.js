@@ -975,9 +975,268 @@ function frameDebounce (fn) {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("after"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
+function getEvent (e) {
+  return e || window.event
+}
+
+function rightClick (e) {
+  e = getEvent(e);
+
+  if (e.which) {
+    return e.which === 3 // eslint-disable-line
+  }
+  if (e.button) {
+    return e.button === 2 // eslint-disable-line
+  }
+
+  return false
+}
+
+function position (e) {
+  var posx, posy;
+  e = getEvent(e);
+
+  if (e.touches && e.touches[0]) {
+    e = e.touches[0];
+  }
+  else if (e.changedTouches && e.changedTouches[0]) {
+    e = e.changedTouches[0];
+  }
+
+  if (e.clientX || e.clientY) {
+    posx = e.clientX;
+    posy = e.clientY;
+  }
+  else if (e.pageX || e.pageY) {
+    posx = e.pageX - document.body.scrollLeft - document.documentElement.scrollLeft;
+    posy = e.pageY - document.body.scrollTop - document.documentElement.scrollTop;
+  }
+
+  return {
+    top: posy,
+    left: posx
+  }
+}
+
+function targetElement (e) {
+  var target;
+  e = getEvent(e);
+
+  if (e.target) {
+    target = e.target;
+  }
+  else if (e.srcElement) {
+    target = e.srcElement;
+  }
+
+  // defeat Safari bug
+  if (target.nodeType === 3) {
+    target = target.parentNode;
+  }
+
+  return target
+}
+
+// Reasonable defaults
+var PIXEL_STEP = 10;
+var LINE_HEIGHT = 40;
+var PAGE_HEIGHT = 800;
+
+function getMouseWheelDistance (e) {
+  var
+    sX = 0, sY = 0,       // spinX, spinY
+    pX = 0, pY = 0;        // pixelX, pixelY
+
+  // Legacy
+  if ('detail' in e) { sY = e.detail; }
+  if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
+  if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
+  if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
+
+  // side scrolling on FF with DOMMouseScroll
+  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
+    sX = sY;
+    sY = 0;
+  }
+
+  pX = sX * PIXEL_STEP;
+  pY = sY * PIXEL_STEP;
+
+  if ('deltaY' in e) { pY = e.deltaY; }
+  if ('deltaX' in e) { pX = e.deltaX; }
+
+  if ((pX || pY) && e.deltaMode) {
+    if (e.deltaMode === 1) {          // delta in LINE units
+      pX *= LINE_HEIGHT;
+      pY *= LINE_HEIGHT;
+    }
+    else {                             // delta in PAGE units
+      pX *= PAGE_HEIGHT;
+      pY *= PAGE_HEIGHT;
+    }
+  }
+
+  // Fall-back if spin cannot be determined
+  if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
+  if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
+
+  /*
+   * spinX  -- normalized spin speed (use for zoom) - x plane
+   * spinY  -- " - y plane
+   * pixelX -- normalized distance (to pixels) - x plane
+   * pixelY -- " - y plane
+   */
+  return {
+    spinX: sX,
+    spinY: sY,
+    pixelX: pX,
+    pixelY: pY
+  }
+}
+
+
+var event = Object.freeze({
+	rightClick: rightClick,
+	position: position,
+	targetElement: targetElement,
+	getMouseWheelDistance: getMouseWheelDistance
+});
+
+function showRipple (evt, el, stopPropagation) {
+  if (stopPropagation) {
+    evt.stopPropagation();
+  }
+
+  var
+    container = document.createElement('span'),
+    animNode = document.createElement('span');
+
+  container.appendChild(animNode);
+  container.className = 'q-ripple-container';
+
+  var size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight;
+  size = (size * 2) + "px";
+  animNode.className = 'q-ripple-animation';
+  css(animNode, { width: size, height: size });
+
+  el.appendChild(container);
+
+  var
+    offset$$1 = el.getBoundingClientRect(),
+    pos = position(evt),
+    x = pos.left - offset$$1.left,
+    y = pos.top - offset$$1.top;
+
+  animNode.classList.add('q-ripple-animation-enter', 'q-ripple-animation-visible');
+  css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px) scale(.001)")));
+  animNode.dataset.activated = Date.now();
+
+  setTimeout(function () {
+    animNode.classList.remove('q-ripple-animation-enter');
+    css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px)")));
+  }, 0);
+}
+
+function hideRipple (el) {
+  var ripples = el.getElementsByClassName('q-ripple-animation');
+
+  if (!ripples.length) {
+    return
+  }
+
+  var animNode = ripples[ripples.length - 1];
+  var diff = Date.now() - Number(animNode.dataset.activated);
+
+  setTimeout(function () {
+    animNode.classList.remove('q-ripple-animation-visible');
+
+    setTimeout(function () {
+      animNode.parentNode.remove();
+    }, 300);
+  }, Math.max(0, 400 - diff));
+}
+
+function shouldAbort (ref) {
+  var mat = ref.mat;
+  var ios = ref.ios;
+
+  return (
+    (mat && current !== 'mat') ||
+    (ios && current !== 'ios')
+  )
+}
+
+var Ripple = {
+  name: 'ripple',
+  inserted: function inserted (el, ref) {
+    var value = ref.value;
+    var modifiers = ref.modifiers;
+
+    if (shouldAbort(modifiers)) {
+      return
+    }
+
+    function show (evt) {
+      if (ctx.enabled) {
+        showRipple(evt, el, modifiers.stop);
+      }
+    }
+    function hide () {
+      if (ctx.enabled) {
+        hideRipple(el);
+      }
+    }
+
+    var
+      ctx = {enabled: value !== false},
+      h = {};
+
+    if (Platform.is.desktop) {
+      h.mousedown = show;
+      h.mouseup = hide;
+      h.mouseleave = hide;
+    }
+    if (Platform.has.touch) {
+      h.touchstart = show;
+      h.touchend = hide;
+      h.touchcancel = hide;
+    }
+
+    ctx.h = h;
+    el.__qripple = ctx;
+    Object.keys(h).forEach(function (evt) {
+      el.addEventListener(evt, h[evt], false);
+    });
+  },
+  update: function update (el, ref) {
+    var value = ref.value;
+    var oldValue = ref.oldValue;
+
+    if (value !== oldValue) {
+      el.__qripple.enabled = value !== false;
+    }
+  },
+  unbind: function unbind (el, ref) {
+    var modifiers = ref.modifiers;
+
+    if (shouldAbort(modifiers)) {
+      return
+    }
+
+    var ctx = el.__qripple;
+    Object.keys(ctx.h).forEach(function (evt) {
+      el.removeEventListener(evt, ctx.h[evt], false);
+    });
+    delete el.__qripple;
+  }
+};
+
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("after"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
+  directives: {
+    Ripple: Ripple
+  },
   props: {
     topAddons: Boolean,
     focused: Boolean,
@@ -1418,272 +1677,13 @@ var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   mixins: [mixin]
 };
 
-function getEvent (e) {
-  return e || window.event
-}
-
-function rightClick (e) {
-  e = getEvent(e);
-
-  if (e.which) {
-    return e.which === 3 // eslint-disable-line
-  }
-  if (e.button) {
-    return e.button === 2 // eslint-disable-line
-  }
-
-  return false
-}
-
-function position (e) {
-  var posx, posy;
-  e = getEvent(e);
-
-  if (e.touches && e.touches[0]) {
-    e = e.touches[0];
-  }
-  else if (e.changedTouches && e.changedTouches[0]) {
-    e = e.changedTouches[0];
-  }
-
-  if (e.clientX || e.clientY) {
-    posx = e.clientX;
-    posy = e.clientY;
-  }
-  else if (e.pageX || e.pageY) {
-    posx = e.pageX - document.body.scrollLeft - document.documentElement.scrollLeft;
-    posy = e.pageY - document.body.scrollTop - document.documentElement.scrollTop;
-  }
-
-  return {
-    top: posy,
-    left: posx
-  }
-}
-
-function targetElement (e) {
-  var target;
-  e = getEvent(e);
-
-  if (e.target) {
-    target = e.target;
-  }
-  else if (e.srcElement) {
-    target = e.srcElement;
-  }
-
-  // defeat Safari bug
-  if (target.nodeType === 3) {
-    target = target.parentNode;
-  }
-
-  return target
-}
-
-// Reasonable defaults
-var PIXEL_STEP = 10;
-var LINE_HEIGHT = 40;
-var PAGE_HEIGHT = 800;
-
-function getMouseWheelDistance (e) {
-  var
-    sX = 0, sY = 0,       // spinX, spinY
-    pX = 0, pY = 0;        // pixelX, pixelY
-
-  // Legacy
-  if ('detail' in e) { sY = e.detail; }
-  if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
-  if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
-  if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
-
-  // side scrolling on FF with DOMMouseScroll
-  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
-    sX = sY;
-    sY = 0;
-  }
-
-  pX = sX * PIXEL_STEP;
-  pY = sY * PIXEL_STEP;
-
-  if ('deltaY' in e) { pY = e.deltaY; }
-  if ('deltaX' in e) { pX = e.deltaX; }
-
-  if ((pX || pY) && e.deltaMode) {
-    if (e.deltaMode === 1) {          // delta in LINE units
-      pX *= LINE_HEIGHT;
-      pY *= LINE_HEIGHT;
-    }
-    else {                             // delta in PAGE units
-      pX *= PAGE_HEIGHT;
-      pY *= PAGE_HEIGHT;
-    }
-  }
-
-  // Fall-back if spin cannot be determined
-  if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
-  if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
-
-  /*
-   * spinX  -- normalized spin speed (use for zoom) - x plane
-   * spinY  -- " - y plane
-   * pixelX -- normalized distance (to pixels) - x plane
-   * pixelY -- " - y plane
-   */
-  return {
-    spinX: sX,
-    spinY: sY,
-    pixelX: pX,
-    pixelY: pY
-  }
-}
-
-
-var event = Object.freeze({
-	rightClick: rightClick,
-	position: position,
-	targetElement: targetElement,
-	getMouseWheelDistance: getMouseWheelDistance
-});
-
-function showRipple (evt, el, stopPropagation) {
-  if (stopPropagation) {
-    evt.stopPropagation();
-  }
-
-  var
-    container = document.createElement('span'),
-    animNode = document.createElement('span');
-
-  container.appendChild(animNode);
-  container.className = 'q-ripple-container';
-
-  var size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight;
-  size = (size * 2) + "px";
-  animNode.className = 'q-ripple-animation';
-  css(animNode, { width: size, height: size });
-
-  el.appendChild(container);
-
-  var
-    offset$$1 = el.getBoundingClientRect(),
-    pos = position(evt),
-    x = pos.left - offset$$1.left,
-    y = pos.top - offset$$1.top;
-
-  animNode.classList.add('q-ripple-animation-enter', 'q-ripple-animation-visible');
-  css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px) scale(.001)")));
-  animNode.dataset.activated = Date.now();
-
-  setTimeout(function () {
-    animNode.classList.remove('q-ripple-animation-enter');
-    css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px)")));
-  }, 0);
-}
-
-function hideRipple (el) {
-  var ripples = el.getElementsByClassName('q-ripple-animation');
-
-  if (!ripples.length) {
-    return
-  }
-
-  var animNode = ripples[ripples.length - 1];
-  var diff = Date.now() - Number(animNode.dataset.activated);
-
-  setTimeout(function () {
-    animNode.classList.remove('q-ripple-animation-visible');
-
-    setTimeout(function () {
-      animNode.parentNode.remove();
-    }, 300);
-  }, Math.max(0, 400 - diff));
-}
-
-function shouldAbort (ref) {
-  var mat = ref.mat;
-  var ios = ref.ios;
-
-  return (
-    (mat && current !== 'mat') ||
-    (ios && current !== 'ios')
-  )
-}
-
-var Ripple = {
-  name: 'ripple',
-  inserted: function inserted (el, ref) {
-    var value = ref.value;
-    var modifiers = ref.modifiers;
-
-    if (shouldAbort(modifiers)) {
-      return
-    }
-
-    function show (evt) {
-      if (ctx.enabled) {
-        showRipple(evt, el, modifiers.stop);
-      }
-    }
-    function hide () {
-      if (ctx.enabled) {
-        hideRipple(el);
-      }
-    }
-
-    var
-      ctx = {enabled: value !== false},
-      h = {};
-
-    if (Platform.is.desktop) {
-      h.mousedown = show;
-      h.mouseup = hide;
-      h.mouseleave = hide;
-    }
-    if (Platform.has.touch) {
-      h.touchstart = show;
-      h.touchend = hide;
-      h.touchcancel = hide;
-    }
-
-    ctx.h = h;
-    el.__qripple = ctx;
-    Object.keys(h).forEach(function (evt) {
-      el.addEventListener(evt, h[evt], false);
-    });
-  },
-  update: function update (el, ref) {
-    var value = ref.value;
-    var oldValue = ref.oldValue;
-
-    if (value !== oldValue) {
-      el.__qripple.enabled = value !== false;
-    }
-  },
-  unbind: function unbind (el, ref) {
-    var modifiers = ref.modifiers;
-
-    if (shouldAbort(modifiers)) {
-      return
-    }
-
-    var ctx = el.__qripple;
-    Object.keys(ctx.h).forEach(function (evt) {
-      el.removeEventListener(evt, ctx.h[evt], false);
-    });
-    delete el.__qripple;
-  }
-};
-
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"after"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"after"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"after"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),(_vm.isPassword && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"after"}):_vm._e(),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"cancel"},on:{"click":_vm.clear},slot:"after"}):_vm._e(),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"size":"24px"},slot:"after"}):_vm._e(),_vm._t("after"),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
     QInputFrame: QInputFrame,
     QSpinner: QSpinner,
     QResizeObservable: QResizeObservable
-  },
-  directives: {
-    Ripple: Ripple
   },
   props: {
     value: { required: true },
@@ -5180,17 +5180,7 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     inline: Boolean,
     disable: Boolean
   },
-  created: function created () {
-    var isArray = Array.isArray(this.value);
-    if (this.type === 'radio') {
-      if (isArray) {
-        console.error('q-option-group: model should not be array');
-      }
-    }
-    else if (!isArray) {
-      console.error('q-option-group: model should be array in your case');
-    }
-  },
+  inject: ['__field'],
   computed: {
     component: function component () {
       return ("q-" + (this.type))
@@ -5202,6 +5192,11 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       set: function set (value) {
         this.$emit('input', value);
       }
+    },
+    length: function length () {
+      return this.value
+        ? (this.type === 'radio' ? 1 : this.value.length)
+        : 0
     }
   },
   methods: {
@@ -5217,6 +5212,26 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     },
     __onBlur: function __onBlur () {
       this.$emit('blur');
+    }
+  },
+  created: function created () {
+    var isArray = Array.isArray(this.value);
+    if (this.type === 'radio') {
+      if (isArray) {
+        console.error('q-option-group: model should not be array');
+      }
+    }
+    else if (!isArray) {
+      console.error('q-option-group: model should be array in your case');
+    }
+    if (this.__field) {
+      this.field = this.__field;
+      this.field.__registerInput(this, true);
+    }
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (this.__field) {
+      this.field.__unregisterInput();
     }
   }
 };
@@ -5656,7 +5671,7 @@ var obj;},staticRenderFns: [],
     },
     max: {
       type: Number,
-      required: true
+      default: 5
     },
     icon: {
       type: String,
@@ -8398,7 +8413,7 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       return ['icon', 'full'].includes(this.inset)
     },
     hasNoInput: function hasNoInput () {
-      return !this.input.$options
+      return !this.input.$options || this.input.__needsBottom
     },
     counter: function counter () {
       if (this.count) {
@@ -8415,7 +8430,8 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     }
   },
   methods: {
-    __registerInput: function __registerInput (vm) {
+    __registerInput: function __registerInput (vm, needsBottom) {
+      vm.__needsBottom = needsBottom;
       this.input = vm;
     },
     __unregisterInput: function __unregisterInput () {
