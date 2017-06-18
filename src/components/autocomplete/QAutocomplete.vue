@@ -13,7 +13,7 @@
         :key="result"
         :cfg="result"
         link
-        :active="selectedIndex === index"
+        :class="{active: selectedIndex === index}"
         @click="setValue(result)"
       ></q-item-wrapper>
     </div>

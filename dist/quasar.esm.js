@@ -975,7 +975,7 @@ function frameDebounce (fn) {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: (item.content !== void 0 && !item.content === _vm.length > 0) || (item.error !== void 0 && !item.error === _vm.hasError)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position",on:{"click":_vm.__onClick}},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("control"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: (item.content !== void 0 && !item.content === _vm.length > 0) || (item.error !== void 0 && !item.error === _vm.hasError)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: (item.content !== void 0 && !item.content === _vm.length > 0) || (item.error !== void 0 && !item.error === _vm.hasError)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("control"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: (item.content !== void 0 && !item.content === _vm.length > 0) || (item.error !== void 0 && !item.error === _vm.hasError)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
   props: {
@@ -1774,8 +1774,10 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     __set: function __set (e) {
       var val = e.target ? e.target.value : e;
       if (val !== this.value) {
-        if (this.isNumber && Number.isInteger(this.maxDecimals)) {
-          val = parseFloat(val).toFixed(this.maxDecimals);
+        if (this.isNumber) {
+          val = Number.isInteger(this.maxDecimals)
+            ? parseFloat(val).toFixed(this.maxDecimals)
+            : parseFloat(val);
         }
         this.$emit('input', val);
         this.$emit('change', val);
@@ -2711,7 +2713,7 @@ function prevent (e) {
   e.stopPropagation();
 }
 
-var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('open');}}},[_c('div',{staticClass:"list no-border",class:{delimiter: _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result,attrs:{"cfg":result,"link":"","active":_vm.selectedIndex === index},on:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
+var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('open');}}},[_c('div',{staticClass:"list no-border",class:{delimiter: _vm.delimiter},style:(_vm.computedWidth)},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result,class:{active: _vm.selectedIndex === index},attrs:{"cfg":result,"link":""},on:{"click":function($event){_vm.setValue(result);}}})}))])},staticRenderFns: [],
   name: 'q-autocomplete',
   components: {
     QInput: QInput,
@@ -8302,7 +8304,7 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn',{attrs:{"round":"","small":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.click}},[_c('q-icon',{attrs:{"name":_vm.icon}}),_vm._t("default")],2)},staticRenderFns: [],
+var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn',{attrs:{"round":"","small":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color,"glossy":_vm.glossy},on:{"click":_vm.click}},[_c('q-icon',{attrs:{"name":_vm.icon}}),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-fab-action',
   mixins: [FabMixin],
   components: {
@@ -9961,7 +9963,7 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
-var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step,attrs:{"vm":step}})})):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
+var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden relative-position",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step,attrs:{"vm":step}})})):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-stepper',
   components: {
     StepTab: StepTab
