@@ -721,11 +721,14 @@ input[type='search']::-webkit-search-decoration
     width 100%
     height 100%
     transition height 1s
+.q-alert-container
+  pointer-events none
 .q-alert
   color $alert-color
   background $alert-background
   border-radius $alert-border-radius
   min-width $alert-min-width
+  pointer-events all
 .q-alert-icon, .q-alert-content
   padding $alert-padding
 .q-alert-icon
@@ -4582,6 +4585,8 @@ for $name, $size in $sizes
   transform rotate(205deg)
 .rotate-270
   transform rotate(270deg)
+.rotate-315
+  transform rotate(315deg)
 .flip-horizontal
   transform scale(-1, 1)
 .flip-vertical

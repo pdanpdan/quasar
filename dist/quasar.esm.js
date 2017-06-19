@@ -766,8 +766,9 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       return this.icon || typeIcon[this.color] || typeIcon.warning
     },
     containerClass: function containerClass () {
-      if (this.position) {
-        return ("fixed-" + (this.position) + " z-alert")
+      var pos = this.position;
+      if (pos) {
+        return ("fixed-" + pos + (pos === 'left' || pos === 'right' ? ' row items-center' : '') + " z-alert")
       }
     },
     classes: function classes () {
@@ -4581,7 +4582,7 @@ var ColumnSelection = {
   }
 };
 
-var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":_vm.inverted,"max-length":_vm.maxLength,"color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keyup":_vm.__onKeyup,"keydown":_vm.__onKeydown},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_vm._t("default")],2)},staticRenderFns: [],
+var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":_vm.inverted,"dark":_vm.dark,"max-length":_vm.maxLength,"color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keyup":_vm.__onKeyup,"keydown":_vm.__onKeydown},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-search',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -4937,16 +4938,22 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 var SelectMixin = {
   components: {
     QIcon: QIcon,
-    QInputFrame: QInputFrame
+    QInputFrame: QInputFrame,
+    QChip: QChip
   },
   mixins: [FrameMixin],
   props: {
+    value: {
+      required: true
+    },
+    multiple: Boolean,
+    toggle: Boolean,
+    chips: Boolean,
     options: {
       type: Array,
       required: true,
       validator: function (v) { return v.every(function (o) { return 'label' in o && 'value' in o; }); }
     },
-    chips: Boolean,
     frameColor: String,
     displayValue: String
   },
@@ -4957,6 +4964,27 @@ var SelectMixin = {
     }
   },
   computed: {
+    actualValue: function actualValue () {
+      var this$1 = this;
+
+      if (this.displayValue) {
+        return this.displayValue
+      }
+      if (!this.multiple) {
+        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
+        return opt$1 ? opt$1.label : ''
+      }
+
+      var opt = this.selectedOptions.map(function (opt) { return opt.label; });
+      return opt.length ? opt.join(', ') : ''
+    },
+    selectedOptions: function selectedOptions () {
+      var this$1 = this;
+
+      if (this.multiple) {
+        return this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
+      }
+    },
     hasChips: function hasChips () {
       return this.multiple && this.chips
     },
@@ -4994,7 +5022,7 @@ function defaultFilterFn (terms, obj) {
 var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"align":_vm.align,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips"},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"after"}),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"!click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"value":_vm.optModel[opt.index]},slot:"right"}):_c('q-checkbox',{attrs:{"value":_vm.optModel[opt.index]},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"value":_vm.value,"val":opt.value},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(_vm._s(label))])})):_c('div',{staticClass:"col row items-center q-input-target",class:[("text-" + (_vm.align))],domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"after"}),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[(_vm.filter)?_c('q-search',{staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","delimiter":_vm.delimiter}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":""},on:{"!click":function($event){_vm.__toggle(opt.value);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"color":_vm.color,"value":_vm.optModel[opt.index]},slot:"right"}):_c('q-checkbox',{attrs:{"color":_vm.color,"value":_vm.optModel[opt.index]},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:opt,attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__select(opt.value);}}},[(_vm.radio)?_c('q-radio',{attrs:{"color":_vm.color,"value":_vm.value,"val":opt.value},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -5004,53 +5032,24 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     QItemWrapper: QItemWrapper,
     QCheckbox: QCheckbox,
     QRadio: QRadio,
-    QToggle: QToggle,
-    QChip: QChip
+    QToggle: QToggle
   },
   props: {
-    value: {
-      required: true
-    },
-    multiple: Boolean,
-    radio: Boolean,
-    toggle: Boolean,
-    chips: Boolean,
     filter: [Function, Boolean],
     filterPlaceholder: {
       type: String,
       default: 'Filter'
     },
+    radio: Boolean,
     placeholder: String,
     delimiter: Boolean
   },
   computed: {
-    actualValue: function actualValue () {
-      var this$1 = this;
-
-      if (this.displayValue) {
-        return this.displayValue
-      }
-      if (!this.multiple) {
-        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
-        return opt$1 ? opt$1.label : ''
-      }
-
-      var opt = this.selectedOptions.map(function (opt) { return opt.label; });
-      return opt.length ? opt.join(', ') : ''
-    },
     optModel: function optModel () {
       var this$1 = this;
 
-      /* Used by multiple selection only */
       if (this.multiple) {
         return this.options.map(function (opt) { return this$1.value.includes(opt.value); })
-      }
-    },
-    selectedOptions: function selectedOptions () {
-      var this$1 = this;
-
-      if (this.multiple) {
-        return this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
       }
     },
     visibleOptions: function visibleOptions () {
@@ -5874,14 +5873,6 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
-    value: {
-      required: true
-    },
-    type: {
-      type: String,
-      default: 'radio',
-      validator: function (v) { return ['radio', 'checkbox', 'toggle'].includes(v); }
-    },
     okLabel: {
       type: String,
       default: 'OK'
@@ -5902,29 +5893,10 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
     }
   },
   computed: {
-    actualValue: function actualValue () {
-      var this$1 = this;
-
-      if (this.displayValue) {
-        return this.displayValue
-      }
-      if (!this.multiple) {
-        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
-        return opt$1 ? opt$1.label : ''
-      }
-
-      var opt = this.selectedOptions.map(function (opt) { return opt.label; });
-      return opt.length ? opt.join(', ') : ''
-    },
-    selectedOptions: function selectedOptions () {
-      var this$1 = this;
-
-      if (this.multiple) {
-        return this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
-      }
-    },
-    multiple: function multiple () {
-      return ['checkbox', 'toggle'].includes(this.type)
+    type: function type () {
+      return this.multiple
+        ? (this.toggle ? 'toggle' : 'checkbox')
+        : 'radio'
     }
   },
   methods: {
@@ -5945,13 +5917,18 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
           select: {
             type: this.type,
             model: clone(this.value),
+            color: this.color,
             items: this.options
           }
         },
         buttons: [
-          this.cancelLabel,
+          {
+            label: this.cancelLabel,
+            color: this.color
+          },
           {
             label: this.okLabel,
+            color: this.color,
             handler: function (data) {
               if (JSON.stringify(this$1.value) !== JSON.stringify(data.select)) {
                 this$1.$emit('input', data.select);
@@ -8149,7 +8126,14 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     QInlineDatetime: QInlineDatetime,
     QBtn: QBtn
   },
-  props: extend({defaultSelection: [String, Number, Date]}, input, inline),
+  props: extend(
+    {
+      defaultSelection: [String, Number, Date],
+      displayValue: String
+    },
+    input,
+    inline
+  ),
   data: function data () {
     var data = this.$q.platform.is.desktop ? {} : {
       css: contentCSS[current],
@@ -8163,6 +8147,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   computed: {
     actualValue: function actualValue () {
+      if (this.displayValue) {
+        return this.displayValue
+      }
       if (!this.value) {
         return this.placeholder || ''
       }
@@ -8236,7 +8223,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.value.from=$$v;},expression:"value.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.value.to=$$v;},expression:"value.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range"},[_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.value.from=$$v;},expression:"value.from"}}),_c('q-datetime',{staticClass:"inline",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.value.to=$$v;},expression:"value.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   mixins: [FrameMixin],
   components: {
