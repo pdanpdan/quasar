@@ -500,7 +500,7 @@ $item-primary-color                ?= rgba(0, 0, 0, .54)
 $item-secondary-color              ?= $item-primary-color
 $item-label-color                  ?= $grey-7
 $item-content-secondary-text-color ?= $grey-7
-$item-delimiter-color              ?= rgb(224, 224, 224)
+$item-separator-color              ?= rgb(224, 224, 224)
 $item-min-height                   ?= 40px
 $item-padding                      ?= 16px
 $item-gutter                       ?= 10px
@@ -926,7 +926,7 @@ for $name, $size in $button-round-sizes
 .q-card-container
   padding 16px
 .q-card-title
-  font-size 24px
+  font-size 18px
   font-weight 400
   letter-spacing normal
   line-height 2rem
@@ -1705,13 +1705,13 @@ table.q-table
   &.loose
     th, td
       padding 1rem
-  &.bordered, &.cell-delimiter:not(.responsive):not(.flipped)
+  &.bordered, &.cell-separator:not(.responsive):not(.flipped)
     border $table-border
   &:not(.responsive):not(.flipped)
-    &.horizontal-delimiter, &.cell-delimiter
+    &.horizontal-separator, &.cell-separator
       th, td
         border-bottom $table-border
-    &.vertical-delimiter, &.cell-delimiter
+    &.vertical-separator, &.cell-separator
       th, td
         border-left $table-border
         &:last-child
@@ -1748,11 +1748,11 @@ table.q-table
     th:not(:last-child),
     td:not(:last-child)
       border-bottom 0
-    &.horizontal-delimiter, &.cell-delimiter
+    &.horizontal-separator, &.cell-separator
       tr
         border-left $table-border
         border-right $table-border
-    &.vertical-delimiter, &.cell-delimiter
+    &.vertical-separator, &.cell-separator
       th, td
         border-top $table-border
         &:last-child
@@ -1770,13 +1770,13 @@ table.q-table
         display block
         text-align left
         font-weight bold
-      &.horizontal-delimiter
+      &.horizontal-separator
         tr:not(:last-child)
           border-bottom $table-border
-      &.cell-delimiter
+      &.cell-separator
         tr
           border $table-border
-      &.vertical-delimiter, &.cell-delimiter
+      &.vertical-separator, &.cell-separator
         th, td
           border-left $table-border
           border-right $table-border
@@ -2106,9 +2106,9 @@ body.cordova.platform-ios
 .q-list-link > .q-item, .q-item-link
   &:hover
     background $item-highlight-color
-.q-list-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-delimiter
-  border-top 1px solid $item-delimiter-color
-.q-list-inset-delimiter > .q-item-division + .q-item-division, .q-item-division + .q-item-inset-delimiter
+.q-list-separator > .q-item-division + .q-item-division, .q-item-division + .q-item-separator
+  border-top 1px solid $item-separator-color
+.q-list-inset-separator > .q-item-division + .q-item-division, .q-item-division + .q-item-inset-separator
   &:after
     content ''
     position absolute
@@ -2116,7 +2116,7 @@ body.cordova.platform-ios
     right 0
     left ($item-padding + $item-gutter + $item-primary-size)
     height 1px
-    background $item-delimiter-color
+    background $item-separator-color
 .q-list-dense > .q-item, .q-item-dense
   padding round($item-padding * $item-dense-factor) $item-padding
   min-height round($item-min-height * $item-dense-factor)
@@ -2128,20 +2128,20 @@ body.cordova.platform-ios
 .q-list-striped-odd .q-item:nth-child(odd)
   background-color $item-stripe-color
 .q-list
-  border 1px solid $item-delimiter-color
+  border 1px solid $item-separator-color
   padding ($item-padding / 2) 0
   & + .q-list
     margin-top 32px
-.q-item-delimiter-component
+.q-item-separator-component
   margin ($item-padding / 2) 0
   height 1px
   border 0
-  background-color $item-delimiter-color
+  background-color $item-separator-color
   &:last-child
     display none
   & + .q-list-header
     margin-top (- $item-padding / 2)
-.q-item-delimiter-inset-component
+.q-item-separator-inset-component
   margin-left ($item-padding + $item-gutter + $item-primary-size)
 .q-list-header
   color $item-label-color
@@ -2423,112 +2423,6 @@ $radio-size = 21px
     transform scale(0)
   .q-radio-checked
     transform scale(1)
-$range-height              = 28px
-$range-track-height        = 2px
-$range-mark-height         = 10px
-$range-handle-size         = 12px
-$range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
-.q-range-track, .q-range-mark
-  opacity .4
-  background currentColor
-.q-range-track
-  position absolute
-  top 50%
-  left 0
-  transform translateY(-50%)
-  height $range-track-height
-  width 100%
-  &:not(.dragging)
-    transition all .3s ease
-  &.active-track
-    opacity 1
-  &.track-draggable.dragging
-    height ($range-track-height * 2)
-    transition height .3s ease
-  &.handle-at-minimum
-    background transparent
-.q-range-mark
-  position absolute
-  top 50%
-  height $range-mark-height
-  width 2px
-  transform translateX(-50%) translateY(-50%)
-.q-range-handle-container
-  position relative
-  height 100%
-  margin-left ($range-handle-size / 2)
-  margin-right ($range-handle-size / 2)
-.q-range-label
-  top 0
-  left ($range-handle-size / 2)
-  opacity 0
-  transform translateX(-50%) translateY(0) scale(0)
-  transition all .2s
-  padding 5px 9px
-  &.label-always
-    opacity 1
-    transform $range-label-transform
-.q-range-handle
-  position absolute
-  top 50%
-  transform translate3d(-50%, -50%, 0)
-  transform-origin center
-  transition all .3s ease
-  width $range-handle-size
-  height $range-handle-size
-  &.dragging
-    transform translate3d(-50%, -50%, 0) scale(1.3)
-    transition opacity .3s ease, transform .3s ease
-    .q-range-label
-      opacity 1
-      transform $range-label-transform
-  background currentColor
-  &.handle-at-minimum
-    background white
-    &:after
-      content ''
-      position absolute
-      top 0
-      right 0
-      bottom 0
-      left 0
-      background transparent
-      border-radius inherit
-      border 2px solid currentColor
-  .q-range-chip
-    display table
-.q-range-ring
-  position absolute
-  top -50%
-  left -50%
-  width 200%
-  height 200%
-  border-radius inherit
-  pointer-events none
-  opacity 0
-  transform scale(0)
-  transition all .2s ease-in
-  background currentColor
-.q-range:not(.disabled)
-  &:focus, &:hover
-    .q-range-ring
-      opacity .4
-      transform scale(1)
-.q-range.disabled
-  .q-range-handle
-    border 2px solid white
-  .q-range-handle.handle-at-minimum
-    background currentColor
-.q-range
-  height $range-height
-  width 100%
-  color $primary
-  cursor pointer
-  &.label-always, &.with-padding
-    padding 55px 0 5px
-    height 85px
-  &.has-error
-    color $negative
 .q-rating
   color $rating-grade-color
   vertical-align middle
@@ -2562,6 +2456,112 @@ $range-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   background rgba(255, 255, 255, .25)
   flex 1 1 auto
   margin 0
+$slider-height              = 28px
+$slider-track-height        = 2px
+$slider-mark-height         = 10px
+$slider-handle-size         = 12px
+$slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
+.q-slider-track, .q-slider-mark
+  opacity .4
+  background currentColor
+.q-slider-track
+  position absolute
+  top 50%
+  left 0
+  transform translateY(-50%)
+  height $slider-track-height
+  width 100%
+  &:not(.dragging)
+    transition all .3s ease
+  &.active-track
+    opacity 1
+  &.track-draggable.dragging
+    height ($slider-track-height * 2)
+    transition height .3s ease
+  &.handle-at-minimum
+    background transparent
+.q-slider-mark
+  position absolute
+  top 50%
+  height $slider-mark-height
+  width 2px
+  transform translateX(-50%) translateY(-50%)
+.q-slider-handle-container
+  position relative
+  height 100%
+  margin-left ($slider-handle-size / 2)
+  margin-right ($slider-handle-size / 2)
+.q-slider-label
+  top 0
+  left ($slider-handle-size / 2)
+  opacity 0
+  transform translateX(-50%) translateY(0) scale(0)
+  transition all .2s
+  padding 5px 9px
+  &.label-always
+    opacity 1
+    transform $slider-label-transform
+.q-slider-handle
+  position absolute
+  top 50%
+  transform translate3d(-50%, -50%, 0)
+  transform-origin center
+  transition all .3s ease
+  width $slider-handle-size
+  height $slider-handle-size
+  &.dragging
+    transform translate3d(-50%, -50%, 0) scale(1.3)
+    transition opacity .3s ease, transform .3s ease
+    .q-slider-label
+      opacity 1
+      transform $slider-label-transform
+  background currentColor
+  &.handle-at-minimum
+    background white
+    &:after
+      content ''
+      position absolute
+      top 0
+      right 0
+      bottom 0
+      left 0
+      background transparent
+      border-radius inherit
+      border 2px solid currentColor
+  .q-slider-chip
+    display table
+.q-slider-ring
+  position absolute
+  top -50%
+  left -50%
+  width 200%
+  height 200%
+  border-radius inherit
+  pointer-events none
+  opacity 0
+  transform scale(0)
+  transition all .2s ease-in
+  background currentColor
+.q-slider:not(.disabled)
+  &:focus, &:hover
+    .q-slider-ring
+      opacity .4
+      transform scale(1)
+.q-slider.disabled
+  .q-slider-handle
+    border 2px solid white
+  .q-slider-handle.handle-at-minimum
+    background currentColor
+.q-slider
+  height $slider-height
+  width 100%
+  color $primary
+  cursor pointer
+  &.label-always, &.with-padding
+    padding 55px 0 5px
+    height 85px
+  &.has-error
+    color $negative
 .q-spinner
   vertical-align middle
 .q-spinner-mat
