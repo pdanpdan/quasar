@@ -1298,17 +1298,16 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   top: 1.7%;
   left: 37.06%;
 }
-.q-datetime-range {
-  display: flex;
+.q-datetime-range.row .q-datetime-range-left {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
-.q-datetime-range > div {
-  flex: 0 1 auto;
+.q-datetime-range.row .q-datetime-range-right {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
-.q-datetime-range.full-width > div {
-  flex-grow: 1;
-}
-.q-datetime-range > div + div {
-  margin-left: 10px;
+.q-datetime-range.column > div + div {
+  margin-top: 10px;
 }
 @media (max-width: 767px) {
   .q-datetime-ampm {
@@ -1611,7 +1610,6 @@ table.q-table thead {
 table.q-table th,
 table.q-table td {
   margin: 0;
-  overflow: visible;
   padding: 0.5rem 0.7rem;
 }
 table.q-table th:first-child,
@@ -2433,6 +2431,7 @@ body.with-modal {
 .q-option-inner {
   display: inline-block;
   color: #bdbdbd;
+  line-height: 0;
 }
 .q-option-inner.active {
   color: #027be3;
@@ -6979,7 +6978,7 @@ img.avatar {
   touch-action: pan-y;
 }
 body {
-  min-width: 320px;
+  min-width: 200px;
   font-family: 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
@@ -7094,7 +7093,7 @@ p.caption:not(:first-child) {
   font-weight: 300;
 }
 .thin-paragraph {
-  font-weight: 200;
+  font-weight: 100;
 }
 small {
   font-size: 80%;

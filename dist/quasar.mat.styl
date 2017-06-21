@@ -1456,13 +1456,15 @@ for $pos in 0..23
     top round(((1 + sin($degree * 1deg)) * 100%) / 2, 2)
     left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2)
 .q-datetime-range
-    display flex
-    > div
-      flex 0 1 auto
-    &.full-width > div
-      flex-grow 1
-    > div + div
-      margin-left $datetime-range-space
+  &.row
+    .q-datetime-range-left
+      border-top-right-radius 0
+      border-bottom-right-radius 0
+    .q-datetime-range-right
+      border-top-left-radius 0
+      border-bottom-left-radius 0
+  &.column > div + div
+    margin-top $datetime-range-space
 @media (max-width $breakpoint-sm-max)
   .q-datetime-ampm
     margin-left 1.5rem
@@ -1697,7 +1699,6 @@ table.q-table
     &:first-child
       border-left-width 0
     margin 0
-    overflow visible
     padding .5rem .7rem
   &.compact
     th, td
@@ -2267,6 +2268,7 @@ maximized-modal()
 .q-option-inner
   display inline-block
   color $grey-5
+  line-height 0
   &.active
     color $primary
   & + .q-option-label
@@ -4750,7 +4752,7 @@ for $name, $size in $sizes
 .q-touch-y
   touch-action pan-y
 body
-  min-width 320px
+  min-width 200px
   font-family $typography-font-family
   -ms-text-size-adjust 100%
   -webkit-text-size-adjust 100%
@@ -4835,7 +4837,7 @@ p
 .light-paragraph
   font-weight 300
 .thin-paragraph
-  font-weight 200
+  font-weight 100
 small
   font-size 80%
 big
