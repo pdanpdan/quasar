@@ -9248,6 +9248,7 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     },
     computedLeftClass: function computedLeftClass () {
       var classes = {
+        'on-layout': this.leftOnLayout,
         'fixed': this.fixed.left || !this.leftOnLayout,
         'on-top': !this.leftOverBreakpoint || this.leftState.inTransit,
         'transition-generic': !this.leftState.inTransit,
@@ -9260,6 +9261,7 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     },
     computedRightClass: function computedRightClass () {
       var classes = {
+        'on-layout': this.rightOnLayout,
         'fixed': this.fixed.right || !this.rightOnLayout,
         'on-top': !this.rightOverBreakpoint || this.rightState.inTransit,
         'transition-generic': !this.rightState.inTransit,
