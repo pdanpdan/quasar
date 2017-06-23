@@ -6,6 +6,7 @@
       :leave="leave"
       :duration="duration"
       :appear="appear"
+      @after-leave="$emit('dismiss-end')"
     >
       <div
         v-if="active"

@@ -721,7 +721,7 @@ var QTransition = {
   }
 };
 
-var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto items-center justify-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
+var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto items-center justify-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-alert',
   components: {
     QIcon: QIcon,
@@ -11645,21 +11645,22 @@ function create (opts) {
   var vm = new Vue({
     functional: true,
     render: function render (h, ctx) {
+      var on = {};
+      on[opts.leave === void 0 ? 'dismiss' : 'dismiss-end'] = function () {
+        vm.$destroy();
+        vm.$el.parentNode.removeChild(vm.$el);
+        if (opts.onDismiss) {
+          opts.onDismiss();
+        }
+      };
+
       return h(
         QAlert, {
           style: {
             padding: '18px'
           },
-          props: state,
-          on: {
-            dismiss: function dismiss () {
-              vm.$destroy();
-              vm.$el.parentNode.removeChild(vm.$el);
-              if (opts.onDismiss) {
-                opts.onDismiss();
-              }
-            }
-          }
+          on: on,
+          props: state
         },
         opts.html
       )
