@@ -854,7 +854,6 @@ button-round-factor($size)
   else
     .47
 .q-btn
-  position relative
   display inline-flex
   align-items center
   justify-content center
@@ -869,9 +868,17 @@ button-round-factor($size)
   color inherit
   background transparent
   transition $button-transition
+  &.disabled
+    opacity .7 !important
   &.full-width
     border-radius 0 !important
     white-space normal
+.q-btn-progress
+  transition all .3s
+  height 100%
+  background rgba(255, 255, 255, .25)
+  &.q-btn-dark-progress
+    background rgba(0, 0, 0, .2)
 .q-btn-rectangle
   border-radius $button-border-radius
 .q-btn-outline

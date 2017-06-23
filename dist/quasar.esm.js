@@ -1213,7 +1213,7 @@ var Ripple = {
     var value = ref.value;
     var oldValue = ref.oldValue;
 
-    if (value !== oldValue) {
+    if (value !== oldValue && el.__qripple) {
       el.__qripple.enabled = value !== false;
     }
   },
@@ -2941,7 +2941,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
   }
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-btn row inline items-center justify-center q-focusable q-hoverable",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col items-center justify-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline items-center justify-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col items-center justify-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
   name: 'q-btn',
   components: {
     QSpinner: QSpinner,
@@ -2953,7 +2953,6 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   props: {
     value: Boolean,
     disable: Boolean,
-    loader: Boolean,
     noCaps: {
       type: Boolean,
       default: false
@@ -2968,7 +2967,11 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     small: Boolean,
     big: Boolean,
     color: String,
-    glossy: Boolean
+    glossy: Boolean,
+
+    loader: Boolean,
+    percentage: Number,
+    darkPercentage: Boolean
   },
   data: function data () {
     return {
@@ -2989,12 +2992,18 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     shape: function shape () {
       return ("q-btn-" + (this.round ? 'round' : 'rectangle'))
     },
+    hasPercentage: function hasPercentage () {
+      return this.percentage !== void 0
+    },
+    width: function width () {
+      return ((between(this.percentage, 0, 100)) + "%")
+    },
+    isDisabled: function isDisabled () {
+      return this.disable || this.loading
+    },
     classes: function classes () {
       var cls = [this.shape, this.size];
 
-      if (this.disable || this.loading) {
-        cls.push('disabled');
-      }
       if (this.flat) {
         cls.push('q-btn-flat');
       }
@@ -3005,6 +3014,7 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
         cls.push('q-btn-push');
       }
 
+      this.isDisabled && cls.push('disabled');
       this.noCaps && cls.push('q-btn-no-uppercase');
       this.rounded && cls.push('q-btn-rounded');
       this.glossy && cls.push('glossy');
@@ -3028,7 +3038,7 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
 
       this.$el.blur();
 
-      if (this.disable || this.loading) {
+      if (this.isDisabled) {
         return
       }
       if (this.loader !== false || this.$slots.loading) {
