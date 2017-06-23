@@ -5340,7 +5340,7 @@ var mixin$1 = {
   }
 };
 
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.value))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
+var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.displayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
   name: 'q-slider',
   directives: {
     TouchPan: TouchPan
@@ -5350,7 +5350,8 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     value: {
       type: Number,
       required: true
-    }
+    },
+    labelValue: String
   },
   data: function data () {
     return {
@@ -5364,6 +5365,11 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         return (this.value - this.min) / (this.max - this.min) * 100 + '%'
       }
       return 100 * this.currentPercentage + '%'
+    },
+    displayValue: function displayValue () {
+      return this.labelValue !== void 0
+        ? this.labelValue
+        : this.value
     }
   },
   watch: {
@@ -5433,7 +5439,7 @@ var dragType = {
   MAX: 2
 };
 
-var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.value.min))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()]),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.value.max))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
+var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.leftDisplayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()]),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.rightDisplayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
   name: 'q-range',
   directives: {
     TouchPan: TouchPan
@@ -5448,7 +5454,9 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       }
     },
     dragRange: Boolean,
-    dragOnlyRange: Boolean
+    dragOnlyRange: Boolean,
+    leftLabelValue: String,
+    rightLabelValue: String
   },
   data: function data () {
     return {
@@ -5466,6 +5474,16 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     activeTrackWidth: function activeTrackWidth () {
       return 100 * (this.percentageMax - this.percentageMin) + '%'
+    },
+    leftDisplayValue: function leftDisplayValue () {
+      return this.leftLabelValue !== void 0
+        ? this.leftLabelValue
+        : this.value.min
+    },
+    rightDisplayValue: function rightDisplayValue () {
+      return this.rightLabelValue !== void 0
+        ? this.rightLabelValue
+        : this.value.max
     }
   },
   watch: {
@@ -9053,14 +9071,14 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
     leftBreakpoint: {
       type: Number,
-      default: 996
+      default: 992
     },
     leftStyle: Object,
     leftClass: Object,
 
     rightBreakpoint: {
       type: Number,
-      default: 996
+      default: 992
     },
     rightStyle: Object,
     rightClass: Object,
