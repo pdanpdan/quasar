@@ -3902,7 +3902,7 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj )},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._t("default"),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj ),on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row items-center justify-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._t("default"),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row items-center justify-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
 var obj;},staticRenderFns: [],
   name: 'q-chip',
   components: {
@@ -3923,6 +3923,11 @@ var obj;},staticRenderFns: [],
     avatar: String,
     closable: Boolean,
     detail: Boolean
+  },
+  methods: {
+    __onClick: function __onClick (e) {
+      this.$emit('click', e);
+    }
   }
 };
 
