@@ -59,7 +59,7 @@
       </div>
     </template>
 
-    <div v-else class="q-data-table-container" @mousewheel="mouseWheel" @DOMMouseScroll="mouseWheel">
+    <div v-else class="q-data-table-container" @wheel="mouseWheel" @mousewheel="mouseWheel" @DOMMouseScroll="mouseWheel">
       <div v-if="hasHeader" class="q-data-table-head" ref="head" :style="{marginRight: scroll.vert}">
         <table-content head :cols="cols" :sorting="sorting" :scroll="scroll" :selection="config.selection" @sort="setSortField"></table-content>
       </div>
@@ -226,7 +226,7 @@ export default {
       return this.config.bodyStyle || {}
     },
     hasToolbar () {
-      return this.config.title || this.filteringCols.length || this.config.columnPicker || this.config.refresh
+      return this.config.title || this.config.columnPicker || this.config.refresh
     },
     hasHeader () {
       return !this.config.noHeader
