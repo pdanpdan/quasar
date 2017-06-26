@@ -25,7 +25,7 @@
     <div class="col row items-center q-input-target" :class="[`text-${align}`]">{{ actualValue }}</div>
 
     <q-popover
-      v-if="$q.platform.is.desktop"
+      v-if="usingPopover"
       ref="popup"
       :offset="[0, 10]"
       :disable="disable"
@@ -42,6 +42,7 @@
         :max="max"
         :format24h="format24h"
         :monday-first="mondayFirst"
+        :saturday-first="saturdayFirst"
         :color="color"
         class="no-border"
       >
@@ -76,6 +77,7 @@
         :max="max"
         :format24h="format24h"
         :monday-first="mondayFirst"
+        :saturday-first="saturdayFirst"
         :color="color"
         class="no-border"
         :class="{'full-width': $q.theme === 'ios'}"
@@ -139,7 +141,7 @@ export default {
     inline
   ),
   data () {
-    let data = this.$q.platform.is.desktop ? {} : {
+    let data = this.usingPopover ? {} : {
       css: contentCSS[theme],
       position: theme === 'ios' ? 'items-end justify-center' : 'items-center justify-center',
       transition: theme === 'ios' ? 'q-modal-bottom' : 'q-modal',
@@ -150,6 +152,9 @@ export default {
     return data
   },
   computed: {
+    usingPopover () {
+      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    },
     actualValue () {
       if (this.displayValue) {
         return this.displayValue

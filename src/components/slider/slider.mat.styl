@@ -76,8 +76,6 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
       background transparent
       border-radius inherit
       border 2px solid currentColor
-  .q-slider-chip
-    display table
 
 .q-slider-ring
   position absolute
@@ -116,3 +114,8 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
 
   &.has-error
     color $negative
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .q-slider-handle
+    > .q-chip.inline.row
+      display -ms-inline-grid

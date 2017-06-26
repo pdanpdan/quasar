@@ -23,18 +23,16 @@
         :style="{left: percentage, borderRadius: square ? '0' : '50%'}"
         :class="{dragging: dragging, 'handle-at-minimum': value === min}"
       >
-        <div class="q-slider-chip">
-          <q-chip
-            pointing="down"
-            square
-            :color="labelColor"
-            class="q-slider-label no-pointer-events"
-            :class="{'label-always': labelAlways}"
-            v-if="label || labelAlways"
-          >
-            {{ displayValue }}
-          </q-chip>
-        </div>
+        <q-chip
+          pointing="down"
+          square
+          :color="labelColor"
+          class="q-slider-label no-pointer-events"
+          :class="{'label-always': labelAlways}"
+          v-if="label || labelAlways"
+        >
+          {{ displayValue }}
+        </q-chip>
 
         <div v-if="$q.theme !== 'ios'" class="q-slider-ring"></div>
       </div>

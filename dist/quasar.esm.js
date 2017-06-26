@@ -470,7 +470,7 @@ function inc (p, amount) {
     else if (p < 65) {
       amount = Math.random() * 3;
     }
-    else if (p < 90) {
+    else if (p < 85) {
       amount = Math.random() * 2;
     }
     else if (p < 99) {
@@ -506,7 +506,7 @@ function restoreAjax () {
   xhr.prototype.send = send;
 }
 
-var QAjaxBar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-loading-bar shadow-1",class:[_vm.position, _vm.animate ? '' : 'no-transition'],style:(_vm.containerStyle)},[_c('div',{staticClass:"q-loading-bar-inner",style:(_vm.innerStyle)})])},staticRenderFns: [],
+var QAjaxBar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-loading-bar shadow-1",class:[_vm.position, _vm.animate ? '' : 'no-transition'],style:(_vm.containerStyle)},[_c('div',{staticClass:"q-loading-bar-inner",class:("bg-" + (_vm.color))})])},staticRenderFns: [],
   name: 'q-ajax-bar',
   props: {
     position: {
@@ -522,7 +522,7 @@ var QAjaxBar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     },
     color: {
       type: String,
-      default: '#e21b0c'
+      default: 'red'
     },
     speed: {
       type: Number,
@@ -553,9 +553,6 @@ var QAjaxBar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       });
       o[this.sizeProp] = this.size;
       return o
-    },
-    innerStyle: function innerStyle () {
-      return {background: this.color}
     },
     horizontal: function horizontal () {
       return this.position === 'top' || this.position === 'bottom'
@@ -645,7 +642,8 @@ var QIcon = {
     name: String,
     mat: String,
     ios: String,
-    color: String
+    color: String,
+    size: String
   },
   render: function render (h, ctx) {
     var name, text;
@@ -664,7 +662,7 @@ var QIcon = {
     else if (icon.startsWith('fa-')) {
       name = "fa " + icon;
     }
-    else if (icon.startsWith('ion-')) {
+    else if (icon.startsWith('ion-') || icon.startsWith('icon-')) {
       name = "" + icon;
     }
     else {
@@ -673,10 +671,19 @@ var QIcon = {
     }
 
     data.staticClass = (cls ? cls + ' ' : '') + "q-icon" + (name.length ? (" " + name) : '') + (prop.color ? (" text-" + (prop.color)) : '');
+
     if (!data.hasOwnProperty('attrs')) {
       data.attrs = {};
     }
     data.attrs['aria-hidden'] = 'true';
+
+    if (prop.size) {
+      var style = "font-size: " + (prop.size) + ";";
+      data.style = data.style
+        ? [data.style, style]
+        : style;
+    }
+
     return h('i', data, text ? [text, ctx.children] : [' ', ctx.children])
   }
 };
@@ -1213,7 +1220,7 @@ var Ripple = {
     var value = ref.value;
     var oldValue = ref.oldValue;
 
-    if (value !== oldValue && el.__qripple) {
+    if (el.__qripple && value !== oldValue) {
       el.__qripple.enabled = value !== false;
     }
   },
@@ -5355,7 +5362,7 @@ var mixin$1 = {
   }
 };
 
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.displayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
+var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.displayValue))]):_vm._e(),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
   name: 'q-slider',
   directives: {
     TouchPan: TouchPan
@@ -5454,7 +5461,7 @@ var dragType = {
   MAX: 2
 };
 
-var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.leftDisplayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()]),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[_c('div',{staticClass:"q-slider-chip"},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.rightDisplayValue))]):_vm._e()],1),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()])],2)])},staticRenderFns: [],
+var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.leftDisplayValue))]):_vm._e(),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(_vm._s(_vm.rightDisplayValue))]):_vm._e(),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
   name: 'q-range',
   directives: {
     TouchPan: TouchPan
@@ -7520,6 +7527,7 @@ var inline = {
     default: function () { return dayNames; }
   },
   mondayFirst: Boolean,
+  saturdayFirst: Boolean,
   format24h: Boolean
 };
 
@@ -7977,12 +7985,17 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
       return cls
     },
     firstDayOfWeek: function firstDayOfWeek () {
-      return this.mondayFirst ? 1 : 0
+      return this.mondayFirst
+        ? 1
+        : (this.saturdayFirst ? 6 : 0)
     },
     headerDayNames: function headerDayNames () {
-      var days = this.dayNames.map(function (day) { return day.slice(0, 3); });
-      return this.mondayFirst
-        ? days.slice(1, 7).concat(days[0])
+      var
+        days = this.dayNames.map(function (day) { return day.slice(0, 3); }),
+        first = this.firstDayOfWeek;
+
+      return first > 0
+        ? days.slice(first, 7).concat(days.slice(0, first))
         : days
     },
 
@@ -8000,7 +8013,11 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
     },
 
     fillerDays: function fillerDays () {
-      return Math.max(0, (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.firstDayOfWeek))
+      var days = (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.firstDayOfWeek);
+      if (days < 0) {
+        days += 7;
+      }
+      return days
     },
     beforeMinDays: function beforeMinDays () {
       if (this.pmin === null || !isSameDate(this.pmin, this.model, 'month')) {
@@ -8175,7 +8192,7 @@ var contentCSS = {
   }
 };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:[("text-" + (_vm.align))]},[_vm._v(_vm._s(_vm.actualValue))]),(_vm.$q.platform.is.desktop)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_c('div',{staticClass:"col"}),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_c('div',{staticClass:"col"}),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:[("text-" + (_vm.align))]},[_vm._v(_vm._s(_vm.actualValue))]),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_c('div',{staticClass:"col"}),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_c('div',{staticClass:"col"}),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1),_c('q-icon',{staticClass:"q-if-control",attrs:{"name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
   name: 'q-datetime',
   mixins: [FrameMixin],
   components: {
@@ -8194,7 +8211,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     inline
   ),
   data: function data () {
-    var data = this.$q.platform.is.desktop ? {} : {
+    var data = this.usingPopover ? {} : {
       css: contentCSS[current],
       position: current === 'ios' ? 'items-end justify-center' : 'items-center justify-center',
       transition: current === 'ios' ? 'q-modal-bottom' : 'q-modal',
@@ -8205,6 +8222,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     return data
   },
   computed: {
+    usingPopover: function usingPopover () {
+      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    },
     actualValue: function actualValue () {
       if (this.displayValue) {
         return this.displayValue
@@ -10268,15 +10288,15 @@ var TabMixin = {
 
       return cls
     },
-    borderClasses: function borderClasses () {
-      if (this.data.inverted && this.data.color) {
-        return ("text-" + (this.data.color))
+    barStyle: function barStyle () {
+      if (!this.active || !this.data.highlight) {
+        return 'display: none;'
       }
     }
   }
 };
 
-var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-link',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column items-center justify-center relative-position",class:_vm.classes,attrs:{"tag":"div","to":_vm.to,"replace":_vm.replace,"append":_vm.append,"exact":_vm.exact,"event":_vm.routerLinkEventName},nativeOn:{"click":function($event){_vm.select($event);}}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('span',{staticClass:"floating label circular"},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),_c('div',{staticClass:"q-tab-border",class:_vm.borderClasses})],2)},staticRenderFns: [],
+var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-link',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column items-center justify-center relative-position",class:_vm.classes,attrs:{"tag":"div","to":_vm.to,"replace":_vm.replace,"append":_vm.append,"exact":_vm.exact,"event":_vm.routerLinkEventName},nativeOn:{"click":function($event){_vm.select($event);}}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('span',{staticClass:"floating label circular"},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tabs-bar",style:(_vm.barStyle)}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-route-tab',
   components: {
     QIcon: QIcon
@@ -10312,7 +10332,7 @@ var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column items-center justify-center relative-position",class:_vm.classes,on:{"click":_vm.select}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.count)?_c('q-chip',{attrs:{"floating":""}},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tab-border",class:_vm.borderClasses}):_vm._e()],2)},staticRenderFns: [],
+var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column items-center justify-center relative-position",class:_vm.classes,on:{"click":_vm.select}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.count)?_c('q-chip',{attrs:{"floating":""}},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._t("default"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tabs-bar",style:(_vm.barStyle)}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-tab',
   components: {
     QIcon: QIcon,
@@ -10358,9 +10378,8 @@ var QTabPane = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
 var scrollNavigationSpeed = 5;
 var debounceDelay = 50; // in ms
 
-var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = { glossy: _vm.glossy }, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch"},[_c('div',{ref:"posbar",staticClass:"q-tabs-position-bar",class:( obj$1 = {}, obj$1[("text-" + (_vm.color))] = _vm.inverted && _vm.color, obj$1 ),on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])
-var obj;
-var obj$1;},staticRenderFns: [],
+var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex no-wrap",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = { glossy: _vm.glossy }, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_c('div',{ref:"leftScroll",staticClass:"row items-center justify-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_c('div',{ref:"rightScroll",staticClass:"row items-center justify-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])
+var obj;},staticRenderFns: [],
   name: 'q-tabs',
   components: {
     QIcon: QIcon
@@ -10385,8 +10404,13 @@ var obj$1;},staticRenderFns: [],
   },
   data: function data () {
     return {
-      tab: {},
+      currentEl: null,
+      posbar: {
+        width: 0,
+        left: 0
+      },
       data: {
+        highlight: true,
         tabName: this.value || '',
         color: this.color,
         inverted: this.inverted
@@ -10412,108 +10436,101 @@ var obj$1;},staticRenderFns: [],
   },
   methods: {
     selectTab: function selectTab (name) {
-      var this$1 = this;
-
-      clearTimeout(this.timer);
-      this.__beforePositionContract = function () {};
-
-      var emitInput = this.value !== name;
-      if (!emitInput && this.data.tabName === name) {
+      if (this.data.tabName === name) {
         return
+      }
+
+      this.data.tabName = name;
+      this.$emit('select', name);
+
+      if (this.value !== name) {
+        this.$emit('input', name);
       }
 
       var el = this.__getTabElByName(name);
 
-      if (this.$q.theme === 'ios') {
-        this.__setTab({name: name, el: el}, emitInput);
-        return
+      if (el) {
+        this.__scrollToTab(el);
       }
 
-      var posbarClass = this.$refs.posbar.classList;
-      posbarClass.remove('expand', 'contract');
+      if (this.$q.theme !== 'ios') {
+        this.currentEl = el;
+        this.__repositionBar();
+      }
+    },
+    __repositionBar: function __repositionBar () {
+      var this$1 = this;
+
+      clearTimeout(this.timer);
+
+      var needsUpdate = false;
+      var
+        ref = this.$refs.posbar,
+        el = this.currentEl;
+
+      if (this.data.highlight !== false) {
+        this.data.highlight = false;
+        needsUpdate = true;
+      }
 
       if (!el) {
-        posbarClass.add('invisible');
-        this.__setTab({name: name}, emitInput);
+        this.finalPosbar = {width: 0, left: 0};
+        this.__setPositionBar(0, 0);
         return
       }
 
-      var
-        offsetReference = this.$refs.posbar.parentNode.offsetLeft,
-        width$$1 = el.getBoundingClientRect().width,
-        offsetLeft = el.offsetLeft - offsetReference,
-        index = this.$children.findIndex(function (child) { return child.name === name; });
+      var offsetReference = ref.parentNode.offsetLeft;
+
+      if (needsUpdate && this.oldEl) {
+        this.__setPositionBar(
+          this.oldEl.getBoundingClientRect().width,
+          this.oldEl.offsetLeft - offsetReference
+        );
+      }
 
       this.timer = setTimeout(function () {
-        if (!this$1.tab.el) {
-          posbarClass.add('invisible');
-          this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput);
-          return
-        }
+        var
+          width$$1 = el.getBoundingClientRect().width,
+          left = el.offsetLeft - offsetReference;
 
-        this$1.tab.width = this$1.tab.el.getBoundingClientRect().width;
-        this$1.tab.offsetLeft = this$1.tab.el.offsetLeft - offsetReference;
-        this$1.tab.index = this$1.$children.findIndex(function (child) { return child.name === this$1.tab.name; });
-
-        this$1.__setPositionBar(this$1.tab.width, this$1.tab.offsetLeft);
-
-        this$1.timer = setTimeout(function () {
-          posbarClass.remove('invisible');
-          posbarClass.add('expand');
-
-          if (this$1.tab.index < index) {
-            if (offsetLeft + width$$1 - this$1.tab.offsetLeft === this$1.tab.offsetLeft) {
-              return this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput)
-            }
-            this$1.__setPositionBar(
-              offsetLeft + width$$1 - this$1.tab.offsetLeft,
-              this$1.tab.offsetLeft
-            );
-          }
-          else {
-            if (this$1.tab.offsetLeft === offsetLeft) {
-              return this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput)
-            }
-            this$1.__setPositionBar(
-              this$1.tab.offsetLeft + this$1.tab.width - offsetLeft,
-              offsetLeft
-            );
-          }
-
-          this$1.__beforePositionContract = function () {
-            this$1.__setTab({name: name, el: el, width: width$$1, offsetLeft: offsetLeft, index: index}, emitInput);
-          };
-        }, 30);
-      }, 30);
-    },
-    __setTab: function __setTab (data, emitInput) {
-      this.data.tabName = data.name;
-      if (emitInput) {
-        this.$emit('input', data.name);
-      }
-      this.$emit('select', data.name);
-      this.__scrollToTab(data.el);
-      this.tab = data;
+        ref.classList.remove('contract');
+        this$1.oldEl = el;
+        this$1.finalPosbar = {width: width$$1, left: left};
+        this$1.__setPositionBar(
+          this$1.posbar.left < left
+            ? left + width$$1 - this$1.posbar.left
+            : this$1.posbar.left + this$1.posbar.width - left,
+          this$1.posbar.left < left
+            ? this$1.posbar.left
+            : left
+        );
+      }, 20);
     },
     __setPositionBar: function __setPositionBar (width$$1, left) {
       if ( width$$1 === void 0 ) width$$1 = 0;
       if ( left === void 0 ) left = 0;
 
+      if (this.posbar.width === width$$1 && this.posbar.left === left) {
+        this.__updatePosbarTransition();
+        return
+      }
+      this.posbar = {width: width$$1, left: left};
       css(this.$refs.posbar, cssTransform(("translateX(" + left + "px) scaleX(" + width$$1 + ")")));
     },
     __updatePosbarTransition: function __updatePosbarTransition () {
-      var cls = this.$refs.posbar.classList;
+      if (
+        this.finalPosbar.width === this.posbar.width &&
+        this.finalPosbar.left === this.posbar.left
+      ) {
+        this.posbar = {};
+        if (this.data.highlight !== true) {
+          this.data.highlight = true;
+        }
+        return
+      }
 
-      if (cls.contains('expand')) {
-        this.__beforePositionContract();
-        cls.remove('expand');
-        cls.add('contract');
-        this.__setPositionBar(this.tab.width, this.tab.offsetLeft);
-      }
-      else if (cls.contains('contract')) {
-        cls.remove('contract');
-        cls.add('invisible');
-      }
+      this.$refs.posbar.classList.add('contract');
+      this.__setPositionBar(this.finalPosbar.width, this.finalPosbar.left);
     },
     __redraw: function __redraw () {
       if (!this.$q.platform.is.desktop) {

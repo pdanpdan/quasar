@@ -25,18 +25,16 @@
         :style="{left: `${percentageMin * 100}%`, borderRadius: square ? '0' : '50%'}"
         :class="{dragging: dragging, 'handle-at-minimum': value.min === min}"
       >
-        <div class="q-slider-chip">
-          <q-chip
-            pointing="down"
-            square
-            :color="labelColor"
-            class="q-slider-label no-pointer-events"
-            :class="{'label-always': labelAlways}"
-            v-if="label || labelAlways"
-          >
-            {{ leftDisplayValue }}
-          </q-chip>
-        </div>
+        <q-chip
+          pointing="down"
+          square
+          :color="labelColor"
+          class="q-slider-label no-pointer-events"
+          :class="{'label-always': labelAlways}"
+          v-if="label || labelAlways"
+        >
+          {{ leftDisplayValue }}
+        </q-chip>
 
         <div v-if="$q.theme !== 'ios'" class="q-slider-ring"></div>
       </div>
@@ -45,18 +43,16 @@
         :style="{left: `${percentageMax * 100}%`, borderRadius: square ? '0' : '50%'}"
         :class="{dragging: dragging, 'handle-at-maximum': value.max === max}"
       >
-        <div class="q-slider-chip">
-          <q-chip
-            pointing="down"
-            square
-            :color="labelColor"
-            class="q-slider-label no-pointer-events"
-            :class="{'label-always': labelAlways}"
-            v-if="label || labelAlways"
-          >
-            {{ rightDisplayValue }}
-          </q-chip>
-        </div>
+        <q-chip
+          pointing="down"
+          square
+          :color="labelColor"
+          class="q-slider-label no-pointer-events"
+          :class="{'label-always': labelAlways}"
+          v-if="label || labelAlways"
+        >
+          {{ rightDisplayValue }}
+        </q-chip>
 
         <div v-if="$q.theme !== 'ios'" class="q-slider-ring"></div>
       </div>

@@ -728,20 +728,24 @@ input[type='search']::-webkit-search-decoration
   z-index $z-absolute
   transition all .2s cubic-bezier(0, 0, .2, 1)
   &.top
+    left 0
+    right 0
     top 0
     width 100%
   &.bottom
+    left 0
+    right 0
     bottom 0
     width 100%
   &.right
     top 0
-    right 0
     bottom 0
+    right 0
     height 100%
   &.left
     top 0
-    left 0
     bottom 0
+    left 0
     height 100%
   .q-loading-bar-inner
     width 100%
@@ -1265,14 +1269,14 @@ $checkbox-size = 21px
     width 100%
     table-layout fixed
     empty-cells hide
-    tr
-      background white
     td, th
+      background white
       text-overflow ellipsis
       white-space nowrap
       overflow hidden
     tbody tr:nth-child(odd)
-      background $grey-3
+      td, th
+        background $grey-3
     thead tr
       border-bottom 2px solid $grey-3
       min-height 56px
@@ -2464,8 +2468,6 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     .q-slider-label
       opacity 1
       transform $slider-label-transform
-  .q-slider-chip
-    display table
 .q-slider-ring
   position absolute
   top -50%
@@ -2498,6 +2500,10 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     height 85px
   &.has-error
     color $negative
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  .q-slider-handle
+    > .q-chip.inline.row
+      display -ms-inline-grid
 .q-spinner
   vertical-align middle
 .q-spinner-mat
@@ -2667,6 +2673,8 @@ body.desktop .q-stepper-tab.step-done:hover
       margin 0
     .q-stepper-label
       display none
+.q-tabs
+  flex-direction column
 .q-tabs-scroller
   overflow hidden
   color $tabs-color
