@@ -219,15 +219,6 @@ input[type='search']::-webkit-search-decoration {
 .q-alert-actions span + span {
   margin-left: 16px;
 }
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .q-alert-container {
-    max-width: 100%;
-  }
-  .row > .col.q-alert-content {
-    flex-basis: auto;
-    width: auto;
-  }
-}
 ul.breadcrumb {
   list-style: none;
   display: inline-flex;
@@ -430,42 +421,6 @@ body.desktop ul.breadcrumb a:hover:after {
   height: 34px;
   width: 34px;
   font-size: 34px;
-}
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .q-btn .q-btn-inner {
-    flex-basis: auto;
-    height: 0;
-  }
-  .q-btn-small:not(.q-btn-round) .q-btn-inner {
-    min-height: 28px;
-  }
-  .q-btn-small:not(.q-btn-round).q-btn-push .q-btn-inner {
-    min-height: 25px;
-    padding-top: 1px;
-  }
-  .q-btn-small:not(.q-btn-round).q-btn-outline .q-btn-inner {
-    min-height: 26px;
-  }
-  .q-btn-standard:not(.q-btn-round) .q-btn-inner {
-    min-height: 36px;
-  }
-  .q-btn-standard:not(.q-btn-round).q-btn-push .q-btn-inner {
-    min-height: 33px;
-    padding-top: 1px;
-  }
-  .q-btn-standard:not(.q-btn-round).q-btn-outline .q-btn-inner {
-    min-height: 34px;
-  }
-  .q-btn-big:not(.q-btn-round) .q-btn-inner {
-    min-height: 44px;
-  }
-  .q-btn-big:not(.q-btn-round).q-btn-push .q-btn-inner {
-    min-height: 41px;
-    padding-top: 1px;
-  }
-  .q-btn-big:not(.q-btn-round).q-btn-outline .q-btn-inner {
-    min-height: 42px;
-  }
 }
 .q-card {
   border-radius: 2px;
@@ -880,6 +835,9 @@ body.desktop ul.breadcrumb a:hover:after {
   width: 26px;
   min-width: 26px;
 }
+.q-chips-input input {
+  min-width: 70px;
+}
 .q-collapsible-sub-item {
   padding: 8px 16px;
 }
@@ -1149,8 +1107,6 @@ body.desktop .q-datetime-col-wrapper {
 .q-fab-icon,
 .q-fab-active-icon {
   position: absolute;
-  top: 15px;
-  left: 15px;
   transition: opacity 0.4s, transform 0.4s;
 }
 .q-fab-icon {
@@ -1198,10 +1154,6 @@ body.desktop .q-datetime-col-wrapper {
   top: 120%;
   left: 0;
   right: 0;
-}
-body.platform-ios .q-fab[class*='absolute-'],
-body.platform-ios .q-fab[class*='fixed-'] {
-  transform: translate3d(0, -50px, 0);
 }
 .q-field {
   margin-top: 16px;
@@ -1683,13 +1635,6 @@ body.desktop table.q-table.highlight tbody tr:hover {
   background-size: 3px 1px;
   background-repeat: repeat-x;
 }
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .row > .col.q-if-inner {
-    flex-basis: auto;
-    width: auto;
-    height: 0;
-  }
-}
 @-webkit-keyframes autofill {
   to {
     background: transparent;
@@ -1706,10 +1651,8 @@ body.desktop table.q-table.highlight tbody tr:hover {
   padding: 0;
   color: #000;
   background: transparent;
-  min-width: 70px;
   min-height: 18px;
   font-size: inherit;
-  line-height: 1;
   overflow: hidden;
   resize: none;
   display: flex;
@@ -2417,9 +2360,6 @@ body.with-modal {
 .q-scrollarea-thumb.invisible-thumb {
   opacity: 0 !important;
 }
-.q-scrollarea > .absolute {
-  width: 100%;
-}
 .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
   flex: 1 1 auto;
@@ -2532,11 +2472,6 @@ body.with-modal {
 }
 .q-slider.has-error {
   color: #db2828;
-}
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .q-slider-handle > .q-chip.inline.row {
-    display: -ms-inline-grid;
-  }
 }
 .q-spinner {
   vertical-align: middle;
@@ -3008,15 +2943,6 @@ body.mobile .q-tabs-scroller {
   .q-toast > i {
     font-size: 2rem;
     margin-right: 48px;
-  }
-}
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .q-toast a {
-    white-space: nowrap;
-  }
-  .col.q-toast-message {
-    flex-basis: auto;
-    width: auto;
   }
 }
 .q-toggle-base {
@@ -5780,6 +5706,36 @@ img.avatar {
 }
 .offset-12 {
   margin-left: 100%;
+}
+.xs-gutter {
+  margin: -8px 0 0 -8px;
+}
+.xs-gutter > div {
+  padding: 8px 0 0 8px;
+}
+.sm-gutter {
+  margin: -16px 0 0 -16px;
+}
+.sm-gutter > div {
+  padding: 16px 0 0 16px;
+}
+.md-gutter {
+  margin: -32px 0 0 -32px;
+}
+.md-gutter > div {
+  padding: 32px 0 0 32px;
+}
+.lg-gutter {
+  margin: -48px 0 0 -48px;
+}
+.lg-gutter > div {
+  padding: 48px 0 0 48px;
+}
+.xl-gutter {
+  margin: -64px 0 0 -64px;
+}
+.xl-gutter > div {
+  padding: 64px 0 0 64px;
 }
 @media (min-width: 0) {
   .col-xs {

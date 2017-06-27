@@ -7,7 +7,19 @@ $breakpoint-xs ?= 575px
 $breakpoint-sm ?= 767px
 $breakpoint-md ?= 991px
 $breakpoint-lg ?= 1199px
-$grid-cols ?= 12
+$flex-cols      ?= 12
+$flex-gutter-xs ?= 8px
+$flex-gutter-sm ?= 16px
+$flex-gutter-md ?= 32px
+$flex-gutter-lg ?= 48px
+$flex-gutter-xl ?= 64px
+$flex-gutter = {
+  xs: $flex-gutter-xs,
+  sm: $flex-gutter-sm,
+  md: $flex-gutter-md,
+  lg: $flex-gutter-lg,
+  xl: $flex-gutter-xl
+}
 $sizes = {
   xs: 0,
   sm: $breakpoint-xs + 1, 
@@ -457,18 +469,24 @@ $breadcrumb-primary   ?= $primary
 $breadcrumb-secondary ?= lighten($breadcrumb-primary, 10%)
 $breadcrumb-hover     ?= $tertiary
 $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
-$button-border-radius ?= $generic-border-radius
-$button-padding       ?= 0 16px
-$button-transition    ?= .12s ease-in
+$button-border-radius  ?= $generic-border-radius
+$button-padding        ?= 0 16px
+$button-transition     ?= .12s ease-in
+$button-small          ?= 28px
+$button-standard       ?= 36px
+$button-big            ?= 44px
+$button-round-small    ?= 40px
+$button-round-standard ?= 56px
+$button-round-big      ?= 72px
 $button-sizes = {
-  small: 28px,
-  standard: 36px,
-  big: 44px
+  small: $button-small,
+  standard: $button-standard,
+  big: $button-big
 }
 $button-round-sizes = {
-  small: 40px,
-  standard: 56px,
-  big: 72px
+  small: $button-round-small,
+  standard: $button-round-standard,
+  big: $button-round-big
 }
 $card-faded-color          ?= rgba(0, 0, 0, .4)
 $card-separator-color      ?= rgba(0, 0, 0, .1)
@@ -777,12 +795,6 @@ input[type='search']::-webkit-search-decoration
     cursor pointer
   span + span
     margin-left 16px
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
-  .q-alert-container
-    max-width 100%
-  .row > .col.q-alert-content
-    flex-basis auto
-    width auto
 ul.breadcrumb
   list-style none
   display inline-flex
@@ -915,20 +927,6 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
-  .q-btn
-    .q-btn-inner
-      flex-basis auto
-      height 0
-  for $name, $size in $button-sizes
-    .q-btn-{$name}:not(.q-btn-round)
-      .q-btn-inner
-        min-height $size
-      &.q-btn-push .q-btn-inner
-        min-height $size - 3
-        padding-top 1px
-      &.q-btn-outline .q-btn-inner
-        min-height $size - 2
 .q-card
   border-radius 2px
   box-shadow $card-shadow
@@ -1253,6 +1251,8 @@ $checkbox-size = 21px
       height $chip-small-height
       width $chip-small-height
       min-width $chip-small-height
+.q-chips-input input
+  min-width 70px
 .q-collapsible-sub-item
   padding $collapsible-padding
   &.indent
@@ -1458,8 +1458,6 @@ body.desktop .q-datetime-col-wrapper
     opacity 1
 .q-fab-icon, .q-fab-active-icon
   position absolute
-  top 15px
-  left 15px
   transition opacity .4s, transform .4s
 .q-fab-icon
   opacity 1
@@ -1499,9 +1497,6 @@ body.desktop .q-datetime-col-wrapper
   top 120%
   left 0
   right 0
-body.platform-ios .q-fab
-  &[class*='absolute-'], &[class*='fixed-']
-    transform translate3d(0, -50px, 0)
 .q-field
   margin-top 16px
   margin-bottom 8px
@@ -1846,11 +1841,6 @@ body.desktop table.q-table.highlight tbody tr
     background-position bottom
     background-size 3px 1px
     background-repeat repeat-x
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
-  .row > .col.q-if-inner
-    flex-basis auto
-    width auto
-    height 0
 @-webkit-keyframes autofill
   to
     background transparent
@@ -1863,10 +1853,8 @@ body.desktop table.q-table.highlight tbody tr
   padding 0
   color black
   background transparent
-  min-width 70px
   min-height 18px
   font-size inherit
-  line-height 1
   overflow hidden
   resize none
   display flex
@@ -2401,8 +2389,6 @@ $radio-size = 21px
   transition opacity .3s
   &.invisible-thumb
     opacity 0 !important
-.q-scrollarea > .absolute
-  width 100%
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
   flex 1 1 auto
@@ -2500,10 +2486,6 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     height 85px
   &.has-error
     color $negative
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
-  .q-slider-handle
-    > .q-chip.inline.row
-      display -ms-inline-grid
 .q-spinner
   vertical-align middle
 .q-spinner-mat
@@ -2863,13 +2845,6 @@ body.mobile .q-tabs-scroller
     > img, > i
       font-size 2rem
       margin-right 48px
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
-  .q-toast
-    a
-      white-space nowrap
-  .col.q-toast-message
-    flex-basis auto
-    width auto
 $toggle-width           = 42px
 $toggle-height          = 24px
 $toggle-span            = 2px
@@ -4275,7 +4250,7 @@ for $name, $size in $sizes
     width 100%
   .col-{$name}
     min-height 1px
-  for $i in (1..$grid-cols)
+  for $i in (1..$flex-cols)
     .row > .col-{$name}-{$i}
       width 100%
     .col-{$name}-{$i}
@@ -4336,13 +4311,18 @@ for $name, $size in $sizes
     align-self baseline
   &stretch
     align-self stretch
-for $i in (1..$grid-cols)
+for $i in (1..$flex-cols)
   .col-{$i}
-    flex 0 0 (round($i / $grid-cols * 100, 4))%
+    flex 0 0 (round($i / $flex-cols * 100, 4))%
   .row > .col-{$i}
-    max-width (round($i / $grid-cols * 100, 4))%
+    max-width (round($i / $flex-cols * 100, 4))%
   .offset-{$i}
-    margin-left (round($i / $grid-cols * 100, 4))%
+    margin-left (round($i / $flex-cols * 100, 4))%
+for $name, $size in $flex-gutter
+  .{$name}-gutter
+    margin (- $size) 0 0 (- $size)
+    > div
+      padding $size 0 0 $size
 for $name, $size in $sizes
   @media (min-width $size)
     .col-{$name}
@@ -4352,13 +4332,13 @@ for $name, $size in $sizes
     .col-{$name}-auto
       width auto
       flex 0 0 auto
-    for $i in (1..$grid-cols)
+    for $i in (1..$flex-cols)
       .col-{$name}-{$i}
-        flex 0 0 (round($i / $grid-cols * 100, 4))%
+        flex 0 0 (round($i / $flex-cols * 100, 4))%
       .row > .col-{$name}-{$i}
-        max-width (round($i / $grid-cols * 100, 4))%
+        max-width (round($i / $flex-cols * 100, 4))%
       .offset-{$name}-{$i}
-        margin-left (round($i / $grid-cols * 100, 4))%
+        margin-left (round($i / $flex-cols * 100, 4))%
 .backdrop
   display none
   position fixed
