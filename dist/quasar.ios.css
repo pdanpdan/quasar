@@ -318,7 +318,6 @@ body.desktop ul.breadcrumb a:hover:after {
   -webkit-appearance: button;
   padding: 0 16px;
   text-decoration: none;
-  white-space: nowrap;
   color: inherit;
   background: transparent;
   transition: 0.12s ease-in;
@@ -1106,7 +1105,6 @@ body.desktop .q-datetime-col-wrapper {
 }
 .q-fab-icon,
 .q-fab-active-icon {
-  position: absolute;
   transition: opacity 0.4s, transform 0.4s;
 }
 .q-fab-icon {
@@ -5736,6 +5734,18 @@ img.avatar {
 }
 .xl-gutter > div {
   padding: 64px 0 0 64px;
+}
+.no-horiz-gutter {
+  margin-left: 0;
+}
+.no-horiz-gutter > div {
+  padding-left: 0;
+}
+.no-vert-gutter {
+  margin-top: 0;
+}
+.no-vert-gutter > div {
+  padding-top: 0;
 }
 @media (min-width: 0) {
   .col-xs {
