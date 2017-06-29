@@ -6,16 +6,15 @@
   "module": "dist/quasar.esm.js",
   "jsnext:main": "dist/quasar.esm.js",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "clean": "node build/script.clean.js",
     "dev": "node build/script.dev.js",
     "build": "node build/script.build.js",
     "lint": "eslint --ext .js,.vue src dev",
-    "deploy": "npm run build simple && rm -rf deploy && mkdir deploy && cp -R dist src LICENSE package.json deploy && cp build/README-edge.md deploy/README.md",
-    "publish": "npm run build simple && rm -rf deploy && mkdir deploy && cp -R dist src LICENSE package.json deploy && cp build/README-edge.md deploy/README.md && sh node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bmaster -rhttps://github.com/pdanpdan/quasar.git && rm -rf deploy"
+    "deploy": "npm run build simple && rm -rf deploy && mkdir deploy && cp -R dist LICENSE package.json deploy && cp build/README-edge.md deploy/README.md",
+    "publish": "npm run build simple && rm -rf deploy && mkdir deploy && cp -R dist LICENSE package.json deploy && cp build/README-edge.md deploy/README.md && sh node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bmaster -rhttps://github.com/pdanpdan/quasar.git && rm -rf deploy"
   },
   "repository": {
     "type": "git",
@@ -74,7 +73,6 @@
     "git-directory-deploy": "^1.5.1",
     "html-webpack-plugin": "^2.22.0",
     "json-loader": "^0.5.4",
-    "object.values": "^1.0.4",
     "opn": "^4.0.2",
     "parse5": "^2.1.0",
     "postcss-loader": "^1.0.0",
@@ -84,7 +82,6 @@
     "rollup": "^0.41.4",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-buble": "^0.15.0",
-    "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-json": "^2.1.0",
     "rollup-plugin-local-resolve": "^1.0.7",
     "rollup-plugin-vue": "2.3.1",
@@ -106,5 +103,8 @@
   "peerDependencies": {
     "vue": "^2.3.0",
     "quasar-extras": "0.x"
+  },
+  "dependencies": {
+    "asap": "^2.0.5"
   }
 }

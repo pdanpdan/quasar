@@ -4309,6 +4309,9 @@ for $name, $size in $sizes
     align-self baseline
   &stretch
     align-self stretch
+.flex-center
+  @extend .items-center
+  @extend .justify-center
 for $i in (1..$flex-cols)
   .col-{$i}
     flex 0 0 (round($i / $flex-cols * 100, 4))%
@@ -4336,8 +4339,9 @@ for $name, $size in $sizes
       flex-basis 0
       flex-grow 1
     .col-{$name}-auto
-      width auto
       flex 0 0 auto
+      .row > &
+        width auto
     for $i in (1..$flex-cols)
       .col-{$name}-{$i}
         flex 0 0 (round($i / $flex-cols * 100, 4))%
