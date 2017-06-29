@@ -37,4 +37,7 @@
     display: block;
     white-space: nowrap;
   }
+  .q-tabs-panes {
+    overflow: hidden;
+  }
 }

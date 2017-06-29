@@ -44,6 +44,7 @@
   "homepage": "http://quasar-framework.org",
   "devDependencies": {
     "amdefine": "^1.0.1",
+    "asap": "^2.0.5",
     "autoprefixer": "^6.5.0",
     "babel-core": "^6.17.0",
     "babel-eslint": "^7.0.0",
@@ -103,8 +104,5 @@
   "peerDependencies": {
     "vue": "^2.3.0",
     "quasar-extras": "0.x"
-  },
-  "dependencies": {
-    "asap": "^2.0.5"
   }
 }

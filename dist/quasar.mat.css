@@ -3016,6 +3016,7 @@ body.desktop .q-stepper-tab.step-done:hover {
   font-weight: 500;
   transition: color 0.18s ease-in, box-shadow 0.18s ease-in;
   position: relative;
+  flex-shrink: 0;
 }
 .q-tabs-head:not(.scrollable) .q-tabs-left-scroll,
 .q-tabs-head:not(.scrollable) .q-tabs-right-scroll {
@@ -3061,8 +3062,7 @@ body.desktop .q-stepper-tab.step-done:hover {
   justify-content: flex-end;
 }
 .q-tabs-bar {
-  border: 2px solid currentColor;
-  border-width: 0;
+  border: 0 solid currentColor;
   position: absolute;
   height: 0;
   left: 0;
