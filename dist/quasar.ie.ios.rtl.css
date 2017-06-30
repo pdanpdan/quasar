@@ -21,16 +21,16 @@
     display: block;
   }
   .q-btn.row:active .q-btn-inner {
-    margin: -1px 1px 1px -1px;
+    margin: -1px -1px 1px 1px;
   }
   .q-btn.row:active.q-btn-push .q-btn-inner {
-    margin: 0 1px 0 -1px;
+    margin: 0 -1px 0 1px;
   }
   .q-btn .q-chip {
     display: inline-block;
   }
   .q-tab .q-chip {
-    left: auto;
+    right: auto;
   }
   .q-fab-actions.q-fab-left,
   .q-fab-actions.q-fab-right {

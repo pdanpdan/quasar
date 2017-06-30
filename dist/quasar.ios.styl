@@ -645,6 +645,7 @@ $tree-label-icon-font-size       ?= 1.3rem
   -moz-tap-highlight-color transparent
 html, body, #q-app
   width 100%
+  direction ltr
 html, body
   margin 0
   box-sizing border-box
@@ -2655,16 +2656,20 @@ body.desktop .q-stepper-tab.step-done:hover
       display none
 .q-tabs
   flex-direction column
+  width 100%
 .q-tabs-scroller
   overflow hidden
   color $tabs-color
 .q-tab-pane
   padding $tabs-pane-padding
   border $tabs-pane-border
+  flex-grow 1
 .q-tabs-no-pane-border .q-tab-pane
   border 0
-.q-tabs-panes:empty
-  display none
+.q-tabs-panes
+  flex-grow 1
+  &:empty
+    display none
 .q-tab-icon, .q-tab-label
   opacity $tabs-unselected-opacity
 .q-tab
@@ -2723,7 +2728,6 @@ body.desktop .q-stepper-tab.step-done:hover
   font-weight $tabs-font-weight
   transition color .18s ease-in, box-shadow .18s ease-in
   position relative
-  flex-shrink 0
   &:not(.scrollable)
     .q-tabs-left-scroll, .q-tabs-right-scroll
       display none !important
