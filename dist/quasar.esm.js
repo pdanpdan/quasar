@@ -894,6 +894,9 @@ var InputMixin = {
     blur: function blur () {
       this.$refs.input.blur();
     },
+    select: function select () {
+      this.$refs.input.select();
+    },
 
     __onFocus: function __onFocus (e) {
       this.focused = true;

@@ -943,6 +943,7 @@ body.desktop ul.breadcrumb a:hover:after {
   top: 0;
   pointer-events: none;
   overflow: hidden;
+  min-width: 100%;
 }
 .q-data-table-sticky-left th:not(.invisible),
 .q-data-table-sticky-right th:not(.invisible),
@@ -952,9 +953,6 @@ body.desktop ul.breadcrumb a:hover:after {
 }
 .q-data-table-sticky-left {
   right: 0;
-}
-.q-data-table-sticky-right {
-  left: 0;
 }
 .q-data-table-spinner {
   margin-top: 25px;
@@ -1672,6 +1670,7 @@ body.desktop table.q-table.highlight tbody tr:hover {
 }
 input.q-input-target {
   height: 18px;
+  outline: 0;
 }
 .q-input-chips {
   min-height: 36px !important;
