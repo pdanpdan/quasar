@@ -935,68 +935,43 @@ var inputTypes = [
   'password', 'url'
 ];
 
-var now = Date.now;
-
 function debounce (fn, wait, immediate) {
   if ( wait === void 0 ) wait = 250;
 
-  var
-    timeout, params, context, timestamp, result,
-    later = function () {
-      var last = now() - timestamp;
-
-      if (last < wait && last >= 0) {
-        timeout = setTimeout(later, wait - last);
-      }
-      else {
-        timeout = null;
-        if (!immediate) {
-          result = fn.apply(context, params);
-          if (!timeout) {
-            context = params = null;
-          }
-        }
-      }
-    };
-
+  var timeout;
   return function () {
+    var this$1 = this;
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
 
-    context = this;
-    timestamp = now();
-    params = args;
+    var later = function () {
+      timeout = null;
+      if (!immediate) {
+        fn.apply(this$1, args);
+      }
+    };
 
-    if (!timeout) {
-      timeout = setTimeout(later, wait);
-    }
+    clearTimeout(timeout);
     if (immediate && !timeout) {
-      result = fn.apply(context, args);
-      context = params = null;
+      fn.apply(this, args);
     }
-
-    return result
+    timeout = setTimeout(later, wait);
   }
 }
 
 function frameDebounce (fn) {
-  var
-    wait = false,
-    param;
+  var wait = false;
 
   return function () {
     var this$1 = this;
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
 
-    param = args;
-    if (wait) {
-      return
-    }
+    if (wait) { return }
 
     wait = true;
     window.requestAnimationFrame(function () {
-      fn.apply(this$1, param);
+      fn.apply(this$1, args);
       wait = false;
     });
   }
@@ -2915,7 +2890,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
       }
     },
     __delayTrigger: function __delayTrigger () {
-      clearTimeout(this.timer);
+      this.__clearSearch();
       if (!this.__input.hasFocus()) {
         return
       }
