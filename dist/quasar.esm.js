@@ -825,7 +825,7 @@ var uid = function () {
 
 var marginal = {
   type: Array,
-  validator: function (v) { return v.every(function (i) { return 'icon' in i && 'handler' in i; }); }
+  validator: function (v) { return v.every(function (i) { return 'icon' in i; }); }
 };
 
 var align = {
@@ -1233,7 +1233,7 @@ var Ripple = {
   }
 };
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("after"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":item.handler}})}):_vm._e()],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.inverted),expression:"inverted",modifiers:{"mat":true}}],staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":function($event){item.handler || _vm.__defaultHander;}}})}):_vm._e(),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._t("default"),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._t("after"),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.length)},attrs:{"name":item.icon},on:{"click":function($event){item.handler || _vm.__defaultHandler;}}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
   directives: {
@@ -1301,7 +1301,8 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         (item.content !== void 0 && !item.content === (length > 0)) ||
         (item.error !== void 0 && !item.error === hasError)
       )
-    }
+    },
+    __defaultHandler: function __defaultHandler () {}
   },
   created: function created () {
     if (this.__field) {
