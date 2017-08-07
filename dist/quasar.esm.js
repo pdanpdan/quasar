@@ -1768,7 +1768,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         : this.type
     },
     length: function length () {
-      return this.value
+      return this.value || (this.isNumber && this.value !== null)
         ? ('' + this.value).length
         : 0
     }
@@ -4131,7 +4131,7 @@ var QSlideTransition = {
 
 var eventName = 'q:collapsible:close';
 
-var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:{ 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator }},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle),expression:"!iconToggle",modifiers:{"mat":true}}],attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.active},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
+var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:{ 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator }},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.active, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
   name: 'q-collapsible',
   components: {
     QItemWrapper: QItemWrapper,
@@ -4143,6 +4143,7 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   },
   props: {
     opened: Boolean,
+    disable: Boolean,
     indent: Boolean,
     group: String,
     iconToggle: Boolean,
@@ -4203,7 +4204,9 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   },
   methods: {
     toggle: function toggle () {
-      this.active = !this.active;
+      if (!this.disable) {
+        this.active = !this.active;
+      }
     },
     open: function open () {
       this.active = true;
@@ -9220,13 +9223,13 @@ var QLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   },
   computed: {
     leftOverBreakpoint: function leftOverBreakpoint () {
-      return !this.leftState.openedSmall && this.layout.w >= this.leftBreakpoint
+      return !this.leftState.openedSmall && this.leftBreakpoint !== 0 && this.layout.w >= this.leftBreakpoint
     },
     leftOnLayout: function leftOnLayout () {
       return this.leftOverBreakpoint && this.leftState.openedBig
     },
     rightOverBreakpoint: function rightOverBreakpoint () {
-      return !this.rightState.openedSmall && this.layout.w >= this.rightBreakpoint
+      return !this.rightState.openedSmall && this.rightBreakPoint !== 0 && this.layout.w >= this.rightBreakpoint
     },
     rightOnLayout: function rightOnLayout () {
       return this.rightOverBreakpoint && this.rightState.openedBig
@@ -10082,7 +10085,7 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
-var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden relative-position",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step,attrs:{"vm":step}})})):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
+var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden relative-position",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step.name,attrs:{"vm":step}})})):_vm._e(),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-stepper',
   components: {
     StepTab: StepTab
@@ -10740,7 +10743,7 @@ var QToolbarTitle = {
   }
 };
 
-var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.model.handler || _vm.isExpandable},on:{"click":_vm.toggle}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center"},[(_vm.model.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.model.icon}}):_vm._e(),(_vm.model.safe)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.model.title)}}):_c('span',[_vm._v(_vm._s(_vm.model.title))])],1),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.model.expanded ? _vm.contractHtml : _vm.expandHtml)}}):_vm._e()]),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.model.expanded),expression:"isExpandable && model.expanded"}]},_vm._l((_vm.model.children),function(item){return _c('q-tree-item',{key:item.id || ((item.icon) + "-" + (item.title)),attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
+var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.model.handler || _vm.isExpandable}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center",on:{"click":_vm.tap}},[(_vm.model.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.model.icon}}):_vm._e(),(_vm.model.safe)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.model.title)}}):_c('span',[_vm._v(_vm._s(_vm.model.title))])],1),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.model.expanded ? _vm.contractHtml : _vm.expandHtml)},on:{"click":_vm.toggle}}):_vm._e()]),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.model.expanded),expression:"isExpandable && model.expanded"}]},_vm._l((_vm.model.children),function(item){return _c('q-tree-item',{key:item.id || ((item.icon) + "-" + (item.title)),attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
   name: 'q-tree-item',
   components: {
     QIcon: QIcon,
@@ -10751,14 +10754,15 @@ var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   props: ['model', 'contractHtml', 'expandHtml'],
   methods: {
+    tap: function tap () {
+      if (typeof this.model.handler === 'function') {
+        this.model.handler(this.model);
+      }
+      this.toggle();
+    },
     toggle: function toggle () {
       if (this.isExpandable) {
         this.model.expanded = !this.model.expanded;
-        return
-      }
-
-      if (typeof this.model.handler === 'function') {
-        this.model.handler(this.model);
       }
     }
   },
