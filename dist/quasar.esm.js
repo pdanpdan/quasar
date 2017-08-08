@@ -7009,7 +7009,7 @@ function isDate (v) {
 var MILLISECONDS_IN_DAY = 86400000;
 var MILLISECONDS_IN_HOUR = 3600000;
 var MILLISECONDS_IN_MINUTE = 60000;
-var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|[QExX]'/g;
+var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
 
 var dayNames = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -7444,6 +7444,21 @@ var formatter = {
   // Millisecond: 000, 001, ..., 999
   SSS: function SSS (date) {
     return pad(date.getMilliseconds(), 3)
+  },
+
+  // Meridiem: AM, PM
+  A: function A (date) {
+    return this.H(date) < 12 ? 'AM' : 'PM'
+  },
+
+  // Meridiem: am, pm
+  a: function a (date) {
+    return this.H(date) < 12 ? 'am' : 'pm'
+  },
+
+  // Meridiem: a.m., p.m
+  aa: function aa (date) {
+    return this.H(date) < 12 ? 'a.m.' : 'p.m.'
   },
 
   // Timezone: -01:00, +00:00, ... +12:00
