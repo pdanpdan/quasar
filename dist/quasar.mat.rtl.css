@@ -872,6 +872,9 @@ body.desktop ul.breadcrumb a:hover:after {
 .q-data-table-toolbar.bottom-toolbar {
   border-top: 2px solid #eee;
 }
+.q-data-table-toolbar.bottom-toolbar .q-data-table-row-label {
+  margin-left: 15px;
+}
 .q-data-table-toolbar > div + div {
   margin-right: 30px;
 }
