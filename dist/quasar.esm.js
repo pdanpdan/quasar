@@ -9904,6 +9904,9 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     }
   },
   methods: {
+    setScrollPosition: function setScrollPosition$1 (offset, duration) {
+      setScrollPosition(this.$refs.target, offset, duration);
+    },
     __updateContainer: function __updateContainer (size) {
       if (this.containerHeight !== size.height) {
         this.containerHeight = size.height;
@@ -10354,6 +10357,7 @@ var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   methods: {
     select: function select () {
+      this.$emit('click', this.name);
       if (!this.disable) {
         this.$el.dispatchEvent(evt);
         this.selectTab(this.name);
@@ -10389,6 +10393,7 @@ var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   },
   methods: {
     select: function select () {
+      this.$emit('click', this.name);
       if (!this.disable) {
         this.selectTab(this.name);
       }
