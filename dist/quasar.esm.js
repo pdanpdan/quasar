@@ -1279,14 +1279,12 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       }];
 
       var color = this.hasError ? 'negative' : this.color;
-      if (color) {
-        if (this.inverted) {
-          cls.push(("bg-" + color));
-          cls.push("text-white");
-        }
-        else {
-          cls.push(("text-" + color));
-        }
+      if (this.inverted) {
+        cls.push(("bg-" + color));
+        cls.push("text-white");
+      }
+      else {
+        cls.push(("text-" + color));
       }
       return cls
     },
@@ -10367,7 +10365,7 @@ var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       var this$1 = this;
 
       this.$nextTick(function () {
-        if (this$1.$el.classList.contains('router-link-active')) {
+        if (this$1.$el.classList.contains('router-link-active') || this$1.$el.classList.contains('router-link-exact-active')) {
           this$1.selectTab(this$1.name);
         }
       });
