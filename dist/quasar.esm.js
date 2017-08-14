@@ -2507,7 +2507,7 @@ var QItemSide = {
       prop = ctx.props,
       cls = data.staticClass;
 
-    data.staticClass = "q-item-side q-item-section" + (prop.color ? (" text-" + (prop.color)) : '') + (prop.right ? ' q-item-side-right' : '') + (cls ? (" " + cls) : '');
+    data.staticClass = "q-item-side q-item-side-" + (prop.right ? 'right' : 'left') + " q-item-section" + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
 
     if (prop.image) {
       if (!data.hasOwnProperty('attrs')) {
@@ -10915,29 +10915,28 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       var files = Array.prototype.slice.call(e.target.files);
       this.$refs.file.value = '';
 
-      files = files
-      .filter(function (file) { return !this$1.queue.some(function (f) { return file.name === f.name; }); })
-      .map(function (file) {
-        initFile(file);
-        file.__size = humanStorageSize(file.size);
+      files = files.filter(function (file) { return !this$1.queue.some(function (f) { return file.name === f.name; }); })
+        .map(function (file) {
+          initFile(file);
+          file.__size = humanStorageSize(file.size);
 
-        if (this$1.noThumbnails || !file.type.startsWith('image')) {
-          this$1.queue.push(file);
-        }
-        else {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            var img = new Image();
-            img.src = e.target.result;
-            file.__img = img;
+          if (this$1.noThumbnails || !file.type.startsWith('image')) {
             this$1.queue.push(file);
-            this$1.__computeTotalSize();
-          };
-          reader.readAsDataURL(file);
-        }
+          }
+          else {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              var img = new Image();
+              img.src = e.target.result;
+              file.__img = img;
+              this$1.queue.push(file);
+              this$1.__computeTotalSize();
+            };
+            reader.readAsDataURL(file);
+          }
 
-        return file
-      });
+          return file
+        });
 
       this.files = this.files.concat(files);
       this.$emit('add', files);
@@ -11074,11 +11073,10 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         }
       };
 
-      this.queue
-      .map(function (file) { return this$1.__getUploadPromise(file); })
-      .forEach(function (promise) {
-        promise.then(solved).catch(solved);
-      });
+      this.queue.map(function (file) { return this$1.__getUploadPromise(file); })
+        .forEach(function (promise) {
+          promise.then(solved).catch(solved);
+        });
     },
     abort: function abort () {
       this.xhrs.forEach(function (xhr) { xhr.abort(); });
