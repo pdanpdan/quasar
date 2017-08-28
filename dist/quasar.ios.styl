@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.14.0
+ * Quasar Framework v0.14.3
  * (c) 2017 Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -13,6 +13,8 @@ $flex-gutter-sm ?= 16px
 $flex-gutter-md ?= 32px
 $flex-gutter-lg ?= 48px
 $flex-gutter-xl ?= 64px
+$body-background ?= white
+$body-color      ?= #0c0c0c
 $flex-gutter = {
   xs: $flex-gutter-xs,
   sm: $flex-gutter-sm,
@@ -536,6 +538,7 @@ $item-stamp-font-size              ?= .8rem
 $collapsible-padding             ?= 8px 16px
 $collapsible-indent-left-padding ?= ($item-primary-size + $item-gutter)
 $collapsible-active-color        ?= $item-active-color
+$collapsible-menu-left-padding   ?= 48px
 $datatable-border    ?= 1px solid $grey-4
 $datatable-font-size ?= 85%
 $datetime-range-space    ?= 10px
@@ -1151,19 +1154,21 @@ $checkbox-size = 21px
   font-size $checkbox-size
   opacity 0
 .q-chip
-  height $chip-height
+  min-height $chip-height
   padding $chip-padding-horizontal $chip-padding-vertical
   font-size $chip-font-size
   border $chip-border
   border-radius $chip-border-radius
   cursor default
-  white-space nowrap
   vertical-align middle
   color $chip-color
   background $chip-background
   .q-icon
     font-size $chip-icon-size
     line-height 1
+  .q-chip-main
+    padding 8px 0 8px
+    line-height initial
   .q-chip-side
     border-radius 50%
     height $chip-height
@@ -1246,7 +1251,10 @@ $checkbox-size = 21px
     border-top-right-radius 0
     border-bottom-right-radius 0
   &.small
-    height $chip-small-height
+    min-height $chip-small-height
+    .q-chip-main
+      padding 4px 0 4px
+      line-height initial
     .q-chip-side
       height $chip-small-height
       width $chip-small-height
@@ -1411,7 +1419,7 @@ body.desktop .q-datetime-col-wrapper
   left 0
   height 100%
   width 100%
-  background linear-gradient(to top, white, transparent 50%, white)
+  background linear-gradient(to top, white, rgba(255, 255, 255, 0.0) 50%, white)
   pointer-events none
 .q-datetime-highlight
   height 36px
@@ -2273,7 +2281,6 @@ maximized-modal()
     position absolute
     top 0
     bottom 0
-    border-radius $progress-border-radius
     transition $progress-transition
   &.indeterminate
     &:before, &:after
@@ -4676,6 +4683,8 @@ body
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
   font-smoothing antialiased
+  background $body-background
+  color $body-color
 a
   color $link-color
   text-decoration none

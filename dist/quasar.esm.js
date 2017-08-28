@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.14.0
+ * Quasar Framework v0.14.3
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -312,7 +312,7 @@ var theme = Object.freeze({
 	get current () { return current; }
 });
 
-var version = "0.14.0";
+var version = "0.14.3";
 
 var Vue;
 
@@ -999,6 +999,11 @@ function rightClick (e) {
   return false
 }
 
+function getEventKey (e) {
+  e = getEvent(e);
+  return e.which || e.keyCode
+}
+
 function position (e) {
   var posx, posy;
   e = getEvent(e);
@@ -1104,6 +1109,7 @@ function getMouseWheelDistance (e) {
 
 var event = Object.freeze({
 	rightClick: rightClick,
+	getEventKey: getEventKey,
 	position: position,
 	targetElement: targetElement,
 	getMouseWheelDistance: getMouseWheelDistance
@@ -2961,7 +2967,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
   }
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
   name: 'q-btn',
   components: {
     QSpinner: QSpinner,
@@ -3504,6 +3510,7 @@ var CarouselMixin = {
       type: Boolean,
       default: true
     },
+    handleArrowKeys: Boolean,
     autoplay: [Number, Boolean]
   }
 };
@@ -3533,6 +3540,9 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     infinite: function infinite () {
       this.__planAutoPlay();
+    },
+    handleArrowKeys: function handleArrowKeys (v) {
+      this.__setArrowKeys(v);
     }
   },
   computed: {
@@ -3726,6 +3736,20 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           );
         }
       });
+    },
+    __handleArrowKey: function __handleArrowKey (e) {
+      var key = getEventKey(e);
+
+      if (key === 37) { // left arrow key
+        this.previous();
+      }
+      else if (key === 39) { // right arrow key
+        this.next();
+      }
+    },
+    __setArrowKeys: function __setArrowKeys (/* boolean */ state) {
+      var op = (state === true ? 'add' : 'remove') + "EventListener";
+      document[op]('keydown', this.__handleArrowKey);
     }
   },
   beforeUpdate: function beforeUpdate () {
@@ -3743,10 +3767,16 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this$1.container = this$1.$el.parentNode;
       this$1.slidesNumber = this$1.__getSlidesNumber();
       this$1.__planAutoPlay();
+      if (this$1.handleArrowKeys) {
+        this$1.__setArrowKeys(true);
+      }
     });
   },
   beforeDestroy: function beforeDestroy () {
     this.__cleanup();
+    if (this.handleArrowKeys) {
+      this.__setArrowKeys(false);
+    }
   }
 };
 
@@ -3934,7 +3964,7 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row inline items-center",class:( obj = { tag: _vm.tag, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj ),on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._t("default"),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],2)
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:( obj = { tag: _vm.tag, square: _vm.square, floating: _vm.floating, pointing: _vm.pointing, small: _vm.small || _vm.floating, 'text-white': _vm.color }, obj[("pointing-" + (_vm.pointing))] = _vm.pointing, obj[("bg-" + (_vm.color))] = _vm.color, obj ),on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],1)
 var obj;},staticRenderFns: [],
   name: 'q-chip',
   components: {
@@ -4134,7 +4164,7 @@ var QSlideTransition = {
 
 var eventName = 'q:collapsible:close';
 
-var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:{ 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator }},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.active, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
+var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:[ ("q-collapsible-" + (_vm.active ? 'opened' : 'closed')), { 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator } ]},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.active, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
   name: 'q-collapsible',
   components: {
     QItemWrapper: QItemWrapper,
@@ -8581,7 +8611,7 @@ var QGallery = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   }
 };
 
-var QGalleryCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-carousel',{ref:"slider",staticClass:"text-white bg-black q-gallery-carousel",attrs:{"dots":_vm.dots,"arrows":_vm.arrows,"fullscreen":_vm.fullscreen,"infinite":_vm.infinite,"actions":"","animation":_vm.animation,"autoplay":_vm.autoplay},on:{"slide":_vm.__updateCurrentSlide}},[_vm._l((_vm.src),function(img){return _c('div',{key:img,staticClass:"no-padding row flex-center",slot:"slide"},[_c('div',{staticClass:"full-width"},[_c('img',{attrs:{"src":img}})])])}),_c('div',{staticClass:"q-gallery-carousel-overlay",class:{active: _vm.quickView},on:{"click":function($event){_vm.toggleQuickView();}}}),_c('q-icon',{attrs:{"name":"view_carousel"},on:{"click":function($event){_vm.toggleQuickView();}},slot:"action"}),_c('div',{staticClass:"q-gallery-carousel-quickview",class:{active: _vm.quickView, row: _vm.horizontalQuickView, horizontal: _vm.horizontalQuickView},on:{"!touchstart":function($event){$event.stopPropagation();},"!touchmove":function($event){$event.stopPropagation();},"!touchend":function($event){$event.stopPropagation();},"!mousedown":function($event){$event.stopPropagation();},"!mousemove":function($event){$event.stopPropagation();},"!mouseend":function($event){$event.stopPropagation();}}},_vm._l((_vm.src),function(img,index){return _c('div',{key:img},[_c('img',{class:{active: _vm.currentSlide === index},attrs:{"src":img},on:{"click":function($event){_vm.__selectImage(index);}}})])}))],2)},staticRenderFns: [],
+var QGalleryCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-carousel',{ref:"slider",staticClass:"text-white bg-black q-gallery-carousel",attrs:{"dots":_vm.dots,"arrows":_vm.arrows,"fullscreen":_vm.fullscreen,"infinite":_vm.infinite,"actions":"","animation":_vm.animation,"autoplay":_vm.autoplay,"handle-arrow-keys":_vm.handleArrowKeys},on:{"slide":_vm.__updateCurrentSlide}},[_vm._l((_vm.src),function(img){return _c('div',{key:img,staticClass:"no-padding row flex-center",slot:"slide"},[_c('div',{staticClass:"full-width"},[_c('img',{attrs:{"src":img}})])])}),_c('div',{staticClass:"q-gallery-carousel-overlay",class:{active: _vm.quickView},on:{"click":function($event){_vm.toggleQuickView();}}}),_c('q-icon',{attrs:{"name":"view_carousel"},on:{"click":function($event){_vm.toggleQuickView();}},slot:"action"}),_c('div',{staticClass:"q-gallery-carousel-quickview",class:{active: _vm.quickView, row: _vm.horizontalQuickView, horizontal: _vm.horizontalQuickView},on:{"!touchstart":function($event){$event.stopPropagation();},"!touchmove":function($event){$event.stopPropagation();},"!touchend":function($event){$event.stopPropagation();},"!mousedown":function($event){$event.stopPropagation();},"!mousemove":function($event){$event.stopPropagation();},"!mouseend":function($event){$event.stopPropagation();}}},_vm._l((_vm.src),function(img,index){return _c('div',{key:img},[_c('img',{class:{active: _vm.currentSlide === index},attrs:{"src":img},on:{"click":function($event){_vm.__selectImage(index);}}})])}))],2)},staticRenderFns: [],
   name: 'q-gallery-carousel',
   components: {
     QCarousel: QCarousel,
@@ -11754,7 +11784,13 @@ function create (opts) {
           on: on,
           props: state
         },
-        opts.html
+        [
+          h('span', {
+            domProps: {
+              innerHTML: opts.html
+            }
+          })
+        ]
       )
     }
   });
