@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.14.3
+ * Quasar Framework v0.15.0
  * (c) 2017 Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -333,8 +333,8 @@ body.desktop ul.breadcrumb a:hover:after {
   background: transparent !important;
 }
 .q-btn-push {
-  border-bottom: 3px solid rgba(0,0,0,0.15);
   border-radius: 7px;
+  border-bottom: 3px solid rgba(0,0,0,0.15);
 }
 .q-btn-push:active:not(.disabled) {
   border-bottom: 0;
@@ -413,6 +413,47 @@ body.desktop ul.breadcrumb a:hover:after {
   height: 34px;
   width: 34px;
   font-size: 34px;
+}
+.q-btn-dropdown-arrow {
+  padding: 0 4px;
+}
+.q-btn-dropdown-split .q-btn-dropdown-arrow {
+  border-left: 1px solid rgba(255,255,255,0.25);
+}
+.q-btn-group {
+  border-radius: 2px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+  vertical-align: middle;
+}
+.q-btn-group .q-btn {
+  box-shadow: none !important;
+}
+.q-btn-group .q-btn:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.q-btn-group .q-btn + .q-btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.q-btn-group-push {
+  border-radius: 7px;
+}
+.q-btn-group-rounded {
+  border-radius: 28px;
+}
+.q-btn-group-flat,
+.q-btn-group-outline {
+  box-shadow: none;
+}
+.q-btn-group-outline .q-btn + .q-btn {
+  border-left: 0;
+}
+.q-btn-group-outline .q-btn:not(:first-child) {
+  border-left: 0;
+}
+.q-btn-group-outline .q-btn:not(:last-child) {
+  border-right: 0;
 }
 .q-card {
   border-radius: 2px;
@@ -1348,6 +1389,35 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   border-radius: 50%;
   background: #f44336;
   opacity: 0.8;
+}
+.q-editor {
+  border: 1px solid #bbb;
+}
+.q-editor-content {
+  outline: 0;
+  padding: 10px;
+  min-height: 10rem;
+}
+.q-editor-content hr {
+  border: 0;
+  outline: 0;
+  margin: 25px 10px;
+  height: 1px;
+  background: #ccc;
+}
+.q-editor-toolbar {
+  background: #ddd;
+  border-bottom: 1px solid #bbb;
+}
+.q-editor-toolbar .q-btn {
+  border-radius: 0;
+}
+.q-editor-toolbar .q-editor-btn-active {
+  color: #fff;
+  background: #027be3;
+}
+.q-editor-toolbar-group + .q-editor-toolbar-group {
+  border-left: 1px solid #ccc;
 }
 .q-fab {
   position: relative;
@@ -6966,7 +7036,7 @@ img.avatar {
   touch-action: pan-y;
 }
 body {
-  min-width: 200px;
+  min-width: 100px;
   font-family: 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
@@ -6975,6 +7045,7 @@ body {
   font-smoothing: antialiased;
   background: #fff;
   color: #0c0c0c;
+  min-height: 100vh;
 }
 a {
   color: #2e9dfd;

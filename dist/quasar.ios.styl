@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.14.3
+ * Quasar Framework v0.15.0
  * (c) 2017 Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -471,15 +471,17 @@ $breadcrumb-primary   ?= $primary
 $breadcrumb-secondary ?= lighten($breadcrumb-primary, 10%)
 $breadcrumb-hover     ?= $tertiary
 $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
-$button-border-radius  ?= $generic-border-radius
-$button-padding        ?= 0 16px
-$button-transition     ?= .12s ease-in
-$button-small          ?= 28px
-$button-standard       ?= 36px
-$button-big            ?= 44px
-$button-round-small    ?= 40px
-$button-round-standard ?= 56px
-$button-round-big      ?= 72px
+$button-border-radius         ?= $generic-border-radius
+$button-padding               ?= 0 16px
+$button-transition            ?= .12s ease-in
+$button-small                 ?= 28px
+$button-standard              ?= 36px
+$button-big                   ?= 44px
+$button-round-small           ?= 40px
+$button-round-standard        ?= 56px
+$button-round-big             ?= 72px
+$button-rounded-border-radius ?= 28px
+$button-push-border-radius    ?= 7px
 $button-sizes = {
   small: $button-small,
   standard: $button-standard,
@@ -904,12 +906,12 @@ button-round-factor($size)
   border 1px solid currentColor
   background transparent !important
 .q-btn-push
+  border-radius $button-push-border-radius
   border-bottom 3px solid rgba(0, 0, 0, .15)
-  border-radius 7px
   &:active:not(.disabled)
     border-bottom 0
 .q-btn-rounded
-  border-radius 28px
+  border-radius $button-rounded-border-radius
 .q-btn-round
   border-radius 50%
   padding 0
@@ -930,6 +932,30 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
+.q-btn-dropdown-arrow
+  padding 0 4px
+.q-btn-dropdown-split .q-btn-dropdown-arrow
+  border-left 1px solid rgba(255, 255, 255, .25)
+.q-btn-group
+  border-radius $button-border-radius
+  vertical-align middle
+  .q-btn:not(:last-child)
+    border-top-right-radius 0
+    border-bottom-right-radius 0
+  .q-btn + .q-btn
+    border-top-left-radius 0
+    border-bottom-left-radius 0
+.q-btn-group-push
+  border-radius $button-push-border-radius
+.q-btn-group-rounded
+  border-radius $button-rounded-border-radius
+.q-btn-group-outline
+  .q-btn + .q-btn
+    border-left 0
+  .q-btn:not(:first-child)
+    border-left 0
+  .q-btn:not(:last-child)
+    border-right 0
 .q-card
   border-radius 2px
   box-shadow $card-shadow
@@ -4676,7 +4702,7 @@ for $name, $size in $sizes
 .q-touch-y
   touch-action pan-y
 body
-  min-width 200px
+  min-width 100px
   font-family $typography-font-family
   -ms-text-size-adjust 100%
   -webkit-text-size-adjust 100%
@@ -4685,6 +4711,7 @@ body
   font-smoothing antialiased
   background $body-background
   color $body-color
+  min-height 100vh
 a
   color $link-color
   text-decoration none
