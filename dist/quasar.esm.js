@@ -7417,13 +7417,28 @@ function formatTimezone (offset, delimeter) {
   return sign + pad(hours) + delimeter + pad(minutes)
 }
 
+function setMonth (date, newMonth /* 1-based */) {
+  var
+    test = new Date(date.getFullYear(), newMonth, 0, 0, 0, 0, 0),
+    days = test.getDate();
+
+  date.setMonth(newMonth - 1, Math.min(days, date.getDate()));
+}
+
 function getChange (date, mod, add) {
   var
     t = new Date(date),
     sign = (add ? 1 : -1);
 
   Object.keys(mod).forEach(function (key) {
-    var op = capitalize(key === 'days' ? 'date' : key);
+    if (key === 'month') {
+      setMonth(t, t.getMonth() + 1 + sign * mod.month);
+      return
+    }
+
+    var op = key === 'year'
+      ? 'FullYear'
+      : capitalize(key === 'days' ? 'date' : key);
     t[("set" + op)](t[("get" + op)]() + sign * mod[key]);
   });
   return t
@@ -7487,6 +7502,11 @@ function adjustDate (date, mod, utc) {
     prefix = "set" + (utc ? 'UTC' : '');
 
   Object.keys(mod).forEach(function (key) {
+    if (key === 'month') {
+      setMonth(t, mod.month);
+      return
+    }
+
     var op = key === 'year'
       ? 'FullYear'
       : key.charAt(0).toUpperCase() + key.slice(1);
@@ -8201,7 +8221,7 @@ var InlineDatetimeIOS = {render: function(){var _vm=this;var _h=_vm.$createEleme
     },
     setMonth: function setMonth (value) {
       if (this.editable) {
-        this.model = new Date(this.model.setMonth(this.__parseTypeValue('month', value) - 1));
+        this.model = adjustDate(this.model, {month: value});
       }
     },
     setDay: function setDay (value) {
@@ -8341,7 +8361,7 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.day)+" ")]),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:n,staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":""},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:index,staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":""},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.beforeMinDays,"icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setMonth(_vm.month - 1, true);}}}),_c('div',{staticClass:"col q-datetime-dark"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.afterMaxDays,"icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setMonth(_vm.month + 1, true);}}})],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"row items-center content-center justify-center cursor-pointer",class:{active: monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._l((_vm.afterMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
+var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(_vm._s(_vm.monthString)+" ")]),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(_vm._s(_vm.day)+" ")]),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(_vm._s(_vm.year))])])]):_vm._e(),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(_vm._s(_vm.__pad(_vm.minute)))])]),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:n,staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":""},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(_vm._s(n + _vm.yearMin))])})):_vm._e(),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:index,staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":""},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(_vm._s(_vm.monthNames[index + _vm.monthMin - 1]))])})):_vm._e(),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.beforeMinDays,"icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_c('div',{staticClass:"col q-datetime-dark"},[_vm._v(_vm._s(_vm.monthStamp))]),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.afterMaxDays,"icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay))]):_vm._e()}),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"row items-center content-center justify-center cursor-pointer",class:{active: monthDay === _vm.day},on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._l((_vm.afterMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(_vm._s(fillerDay + _vm.maxDay))]):_vm._e()})],2)]):_vm._e(),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-inline-datetime',
   mixins: [DateMixin],
   props: {
@@ -8494,10 +8514,10 @@ var InlineDatetimeMat = {render: function(){var _vm=this;var _h=_vm.$createEleme
         this.model = new Date(this.model.setFullYear(this.__parseTypeValue('year', value)));
       }
     },
-    setMonth: function setMonth (value, force) {
+    setMonth: function setMonth (value) {
       if (this.editable) {
         this.view = 'day';
-        this.model = new Date(this.model.setMonth((force ? value : this.__parseTypeValue('month', value)) - 1));
+        this.model = adjustDate(this.model, {month: value});
       }
     },
     setDay: function setDay (value) {
@@ -8761,6 +8781,474 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
         this$1.$emit('change', this$1.value);
       });
     }
+  }
+};
+
+function getBtn (h, vm, btn) {
+  var child = [];
+  if (btn.tip) {
+    var Key = btn.key
+      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
+      : null;
+    child.push(h(QTooltip, { props: {delay: 1000} }, [btn.tip, Key]));
+  }
+
+  if (btn.type === 'toggle') {
+    return h(QBtnToggle, {
+      props: {
+        icon: btn.icon,
+        label: btn.label,
+        toggled: vm.attrib[btn.test || btn.cmd],
+        toggleColor: 'primary'
+      },
+      on: {
+        click: function click () {
+          vm.runCmd(btn.cmd, btn.param);
+        }
+      }
+    }, child)
+  }
+  else if (btn.type === 'execute') {
+    return h(QBtn, {
+      props: {
+        icon: btn.icon,
+        label: btn.label,
+        disable: btn.disable ? btn.disable(vm) : false
+      },
+      on: {
+        click: function click () {
+          vm.runCmd(btn.cmd, btn.param);
+        }
+      }
+    }, child)
+  }
+  else if (Array.isArray(btn)) {
+    var Items = btn.map(function (item) {
+      return h(QItem, [
+        h(QItemMain, {
+          props: {
+            label: item.tip
+          },
+          on: {
+            click: function click () {
+              instance.componentInstance.close();
+              vm.$refs.content.focus();
+              vm.runCmd(item.cmd, item.param);
+            }
+          }
+        })
+      ])
+    });
+
+    var instance = h(QBtnDropdown, { props: { split: true, label: 'Select' } }, [
+      h(QList, { props: { link: true, separator: true } }, [
+        Items
+      ])
+    ]);
+    return instance
+  }
+}
+
+function getToolbar (h, vm) {
+  return vm.buttons.map(function (group) { return h(
+    QBtnGroup,
+    group.map(function (btn) { return getBtn(h, vm, btn); })
+  ); })
+}
+
+var buttons = {
+  // toggle
+  bold: {type: 'toggle', cmd: 'bold', icon: 'format_bold', tip: 'Bold', key: 66},
+  italic: {type: 'toggle', cmd: 'italic', icon: 'format_italic', tip: 'Italic', key: 73},
+  strike: {type: 'toggle', cmd: 'strikeThrough', icon: 'strikethrough_s', tip: 'Strikethrough', key: 83},
+  underline: {type: 'toggle', cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
+  bullet: {type: 'toggle', cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Bullet style list'},
+  number: {type: 'toggle', cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Numbered style list'},
+  subscript: {type: 'toggle', cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript'},
+  superscript: {type: 'toggle', cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript'},
+
+  quote: {type: 'toggle', test: 'BLOCKQUOTE', cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
+  left: {type: 'toggle', cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Align to left'},
+  center: {type: 'toggle', cmd: 'justifyCenter', icon: 'format_align_center', tip: 'Align to center'},
+  right: {type: 'toggle', cmd: 'justifyRight', icon: 'format_align_right', tip: 'Align to right'},
+  justify: {type: 'toggle', cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify'},
+
+  // execute
+  outdent: {type: 'execute', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
+  indent: {type: 'execute', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
+  highlight: {type: 'execute', cmd: 'hiliteColor', param: '#D4FF00', icon: 'format_color_text', tip: 'Highlight'}, // no IE
+  removeFormat: {type: 'execute', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
+  hr: {type: 'execute', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Horizontal line'},
+  undo: {type: 'execute', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
+  redo: {type: 'execute', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
+
+  h1: {type: 'toggle', test: 'H1', cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Heading H1'},
+  h2: {type: 'toggle', test: 'H2', cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Heading H2'},
+  h3: {type: 'toggle', test: 'H3', cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Heading H3'},
+  h4: {type: 'toggle', test: 'H4', cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Heading H4'},
+  h5: {type: 'toggle', test: 'H5', cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Heading H5'},
+  h6: {type: 'toggle', test: 'H6', cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Heading H6'},
+  paragraph: {type: 'toggle', test: 'DIV', cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'}
+
+  /*
+  link: {cmd: 'link', icon: 'link', tip: 'Link', key: 76},
+
+  font_arial: {cmd: 'fontname', param: 'Arial', icon: 'font_download', tip: 'Arial'},
+  font_arial_black: {cmd: 'fontname', param: 'Arial Black', icon: 'font_download', tip: 'Arial Black'},
+  font_courier_new: {cmd: 'fontname', param: 'Courier New', icon: 'font_download', tip: 'Courier New'},
+  font_times_new_roman: {cmd: 'fontname', param: 'Times New Roman', icon: 'font_download', tip: 'Times New Roman'},
+
+  div: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'DIV'},
+
+  heading: {cmd: 'heading', icon: 'format_size', tip: 'Heading', key: 72},
+  */
+};
+
+function getBlockElement (el, parent) {
+  if (parent && el === parent) {
+    return null
+  }
+
+  var
+    style = window.getComputedStyle
+      ? window.getComputedStyle(el)
+      : el.currentStyle,
+    display = style.display;
+
+  if (display === 'block' || display === 'table') {
+    return el
+  }
+
+  return getBlockElement(el.parentNode)
+}
+
+function isChildOf (el, parent) {
+  if (!el) {
+    return false
+  }
+  while ((el = el.parentNode)) {
+    if (el === document.body) {
+      return false
+    }
+    if (el === parent) {
+      return true
+    }
+  }
+  return false
+}
+
+var Caret = function Caret (el) {
+  this.el = el;
+};
+
+var prototypeAccessors = { selection: {},range: {},parent: {},blockParent: {} };
+
+prototypeAccessors.selection.get = function () {
+  var sel = document.getSelection();
+  if (!this.el) {
+    return sel
+  }
+  // only when the selection in element
+  if (isChildOf(sel.anchorNode, this.el) && isChildOf(sel.focusNode, this.el)) {
+    return sel
+  }
+};
+
+prototypeAccessors.range.get = function () {
+  var sel = this.selection;
+
+  if (!sel) {
+    return null
+  }
+
+  return sel.rangeCount
+    ? sel.getRangeAt(0)
+    : null
+};
+
+prototypeAccessors.parent.get = function () {
+  var range = this.range;
+  if (!range) {
+    return null
+  }
+
+  var node = range.startContainer;
+  return node.nodeType === document.ELEMENT_NODE
+    ? node
+    : node.parentNode
+};
+
+prototypeAccessors.blockParent.get = function () {
+  var parent = this.parent;
+  if (!parent) {
+    return null
+  }
+  return getBlockElement(parent, this.el)
+};
+
+Caret.prototype.save = function save (range) {
+    if ( range === void 0 ) range = this.range;
+
+  this._range = range;
+};
+
+Caret.prototype.restore = function restore (range) {
+    if ( range === void 0 ) range = this._range;
+
+  var
+    r = document.createRange(),
+    sel = document.getSelection();
+
+  if (range) {
+    r.setStart(range.startContainer, range.startOffset);
+    r.setEnd(range.endContainer, range.endOffset);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+  else {
+    sel.selectAllChildren(this.element);
+    sel.collapseToEnd();
+  }
+};
+
+Caret.prototype.hasParent = function hasParent (name, spanLevel) {
+  var el = spanLevel
+    ? this.parent
+    : this.blockParent;
+
+  return el
+    ? el.nodeName.toLowerCase() === name.toLowerCase()
+    : false
+};
+
+Caret.prototype.hasParents = function hasParents (list) {
+  var el = this.parent;
+  return el
+    ? list.includes(el.nodeName.toLowerCase())
+    : false
+};
+
+Caret.prototype.is = function is (name) {
+  if (['BLOCKQUOTE', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'A', 'IMG'].includes(name)) {
+    console.log('HIIIT');
+    return this.hasParent(name)
+  }
+  return document.queryCommandState(name)
+};
+
+Caret.prototype.can = function can (name) {
+  if (name === 'outdent') {
+    return this.hasParents(['blockquote', 'li'])
+  }
+  if (name === 'indent') {
+    var parentName = this.parent ? this.parent.nodeName.toLowerCase() : false;
+    if (parentName === 'blockquote') {
+      return false
+    }
+    if (parentName === 'li') {
+      var previousEl = this.parent.previousSibling;
+      return previousEl && previousEl.nodeName.toLowerCase() === 'li'
+    }
+    return false
+  }
+};
+
+Caret.prototype.apply = function apply (cmd, param) {
+  if (cmd === 'formatBlock' && ['BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'A', 'IMG'].includes(param)) {
+    if (this.is(param)) {
+      this.apply('outdent');
+      return
+    }
+  }
+  document.execCommand(cmd, false, param);
+};
+
+Object.defineProperties( Caret.prototype, prototypeAccessors );
+
+var QEditor = {
+  name: 'q-editor',
+  provide: function provide () {
+    return {
+      __editor: this
+    }
+  },
+  props: {
+    value: {
+      type: String,
+      required: true
+    },
+    readonly: Boolean,
+    disable: Boolean,
+    toggleColor: String,
+    definitions: {
+      type: Object,
+      default: function () { return ({}); }
+    },
+    toolbar: {
+      type: Array,
+      validator: function (v) {
+        var names = Object.keys(buttons);
+        return v.length > 0 && v.every(function (group) {
+          return group.length > 0 && group.every(function (btn) {
+            if (Array.isArray(btn)) {
+              return btn.every(function (item) { return names.includes(item); })
+            }
+            return names.includes(btn)
+          })
+        })
+      },
+      default: function default$1 () {
+        return [
+          ['left', 'center', 'right', 'justify'],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['undo', 'redo']
+        ]
+      }
+    }
+  },
+  computed: {
+    editable: function editable () {
+      return !this.readonly && !this.disable
+    },
+    buttons: function buttons$1 () {
+      var this$1 = this;
+
+      var getBtn = function (name) {
+        var btn = this$1.definitions[name] || buttons[name];
+        if (btn.type === 'toggle' || btn.disable) {
+          this$1.attrib[btn.test || btn.cmd] = false;
+        }
+        return btn
+      };
+
+      return this.toolbar.map(
+        function (group) { return group.map(function (name) {
+          if (Array.isArray(name)) {
+            return name.map(function (item) { return getBtn(item); })
+          }
+          return getBtn(name)
+        }); }
+      )
+    },
+    keys: function keys () {
+      var k = {};
+      this.buttons.forEach(function (group) {
+        group.forEach(function (btn) {
+          if (Array.isArray(btn)) {
+            btn.forEach(function (item) {
+              if (item.key) {
+                k[item.key] = {
+                  cmd: btn.cmd,
+                  param: btn.param
+                };
+              }
+            });
+          }
+          else if (btn.key) {
+            k[btn.key] = {
+              cmd: btn.cmd,
+              param: btn.param
+            };
+          }
+        });
+      });
+      return k
+    }
+  },
+  data: function data () {
+    return {
+      editWatcher: true,
+      attrib: {}
+    }
+  },
+  watch: {
+    value: function value (v) {
+      if (this.editWatcher) {
+        this.$refs.content.innerHTML = v;
+      }
+      else {
+        this.editWatcher = true;
+      }
+    }
+  },
+  methods: {
+    onInput: function onInput (e) {
+      if (this.editWatcher) {
+        this.editWatcher = false;
+        this.$emit('input', this.$refs.content.innerHTML);
+      }
+    },
+    onKeydown: function onKeydown (e) {
+      var key = getEventKey(e);
+      this.updateAttributes();
+
+      if (!e.ctrlKey || key === 17 || key === 65) {
+        return
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var ref = this.keys[key];
+      var cmd = ref.cmd;
+      var param = ref.param;
+      if (this.keys[key] !== void 0) {
+        this.runCmd(cmd, param, false);
+      }
+    },
+    runCmd: function runCmd (cmd, param, update) {
+      if ( update === void 0 ) update = true;
+
+      console.log('applying', cmd, param);
+      this.caret.apply(cmd, param);
+      this.$refs.content.focus();
+
+      if (update) {
+        this.updateAttributes();
+      }
+    },
+    updateAttributes: function updateAttributes () {
+      var this$1 = this;
+
+      console.log(this.buttons);
+      setTimeout(function () {
+        Object.keys(this$1.attrib).forEach(function (cmd) {
+          this$1.attrib[cmd] = this$1.caret.is(cmd);
+        });
+        this$1.$forceUpdate();
+      }, 1);
+    }
+  },
+  mounted: function mounted () {
+    this.$refs.content.innerHTML = this.value;
+    this.caret = new Caret(this.$refs.content);
+    this.runCmd('defaultParagraphSeparator', 'p');
+  },
+  render: function render (h) {
+    return h(
+      'div',
+      { staticClass: 'q-editor' },
+      [
+        h(
+          'div',
+          { staticClass: 'q-editor-toolbar overflow-auto row no-wrap' },
+          getToolbar(h, this)
+        ),
+        h(
+          'div',
+          {
+            ref: 'content',
+            staticClass: 'q-editor-content',
+            attrs: { contenteditable: this.editable },
+            on: {
+              input: this.onInput,
+              keydown: this.onKeydown,
+              click: this.updateAttributes
+            }
+          }
+        )
+      ]
+    )
   }
 };
 
@@ -12883,4 +13371,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;

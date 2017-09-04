@@ -1391,7 +1391,7 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   opacity: 0.8;
 }
 .q-editor {
-  border: 1px solid #bbb;
+  border: 1px solid #ccc;
 }
 .q-editor-content {
   outline: 0;
@@ -1406,18 +1406,13 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   background: #ccc;
 }
 .q-editor-toolbar {
-  background: #ddd;
-  border-bottom: 1px solid #bbb;
+  padding: 5px;
 }
-.q-editor-toolbar .q-btn {
-  border-radius: 0;
+.q-editor-toolbar .q-btn-group {
+  background: #fff;
 }
-.q-editor-toolbar .q-editor-btn-active {
-  color: #fff;
-  background: #027be3;
-}
-.q-editor-toolbar-group + .q-editor-toolbar-group {
-  border-right: 1px solid #ccc;
+.q-editor-toolbar .q-btn-group + .q-btn-group {
+  margin-right: 5px;
 }
 .q-fab {
   position: relative;
