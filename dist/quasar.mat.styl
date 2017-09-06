@@ -920,14 +920,19 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
-.q-btn-dropdown-arrow
-  padding 0 4px
+.q-btn-dropdown-simple
+  padding-right 0
+  .q-btn-dropdown-arrow
+    margin-right 8px
 .q-btn-dropdown-split .q-btn-dropdown-arrow
+  padding 0 4px
   border-left 1px solid rgba(255, 255, 255, .25)
 .q-btn-group
   border-radius $button-border-radius
   box-shadow $button-shadow
   vertical-align middle
+  > .q-btn-group
+    box-shadow none
   .q-btn
     box-shadow none !important
   .q-btn:not(:last-child)

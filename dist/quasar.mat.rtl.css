@@ -414,16 +414,23 @@ body.desktop ul.breadcrumb a:hover:after {
   width: 34px;
   font-size: 34px;
 }
-.q-btn-dropdown-arrow {
-  padding: 0 4px;
+.q-btn-dropdown-simple {
+  padding-left: 0;
+}
+.q-btn-dropdown-simple .q-btn-dropdown-arrow {
+  margin-left: 8px;
 }
 .q-btn-dropdown-split .q-btn-dropdown-arrow {
+  padding: 0 4px;
   border-right: 1px solid rgba(255,255,255,0.25);
 }
 .q-btn-group {
   border-radius: 2px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
   vertical-align: middle;
+}
+.q-btn-group > .q-btn-group {
+  box-shadow: none;
 }
 .q-btn-group .q-btn {
   box-shadow: none !important;

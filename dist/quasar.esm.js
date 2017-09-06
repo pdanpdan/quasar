@@ -2977,10 +2977,8 @@ var BtnMixin = {
   props: {
     disable: Boolean,
     label: String,
-    noCaps: {
-      type: Boolean,
-      default: false
-    },
+    noCaps: Boolean,
+    noWrap: Boolean,
     icon: String,
     iconRight: String,
     round: Boolean,
@@ -3041,7 +3039,7 @@ var BtnMixin = {
   }
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center"},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap}},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
   name: 'q-btn',
   mixins: [BtnMixin],
   components: {
@@ -3094,7 +3092,7 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QBtnToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col flex-center"},[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)])},staticRenderFns: [],
+var QBtnToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap}},[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)])},staticRenderFns: [],
   name: 'q-btn-toggle',
   mixins: [BtnMixin],
   model: {
@@ -3196,7 +3194,8 @@ var QBtnDropdown = {
           staticClass: 'transition-generic',
           'class': {
             'rotate-180': this.opened,
-            'on-right': !this.split
+            'on-right': !this.split,
+            'q-btn-dropdown-arrow': !this.split
           }
         }
       ),
@@ -3209,6 +3208,7 @@ var QBtnDropdown = {
           props: {
             disable: this$1.disable,
             noCaps: this$1.noCaps,
+            noWrap: this$1.noWrap,
             icon: this$1.icon,
             label: this$1.label,
             iconRight: this$1.split ? this$1.iconRight : null,
@@ -3249,7 +3249,7 @@ var QBtnDropdown = {
           rounded: this.rounded,
           push: this.push
         },
-        staticClass: 'q-btn-dropdown q-btn-dropdown-split'
+        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap'
       },
       [
         getBtn(),
@@ -8786,7 +8786,7 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
 
 function getBtn (h, vm, btn) {
   var child = [];
-  if (btn.tip) {
+  if (btn.tip && vm.$q.platform.is.desktop) {
     var Key = btn.key
       ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
       : null;
@@ -8798,7 +8798,7 @@ function getBtn (h, vm, btn) {
       props: {
         icon: btn.icon,
         label: btn.label,
-        toggled: vm.attrib[btn.test || btn.cmd],
+        toggled: vm.caret.is(btn.cmd, btn.param),
         toggleColor: 'primary'
       },
       on: {
@@ -8808,7 +8808,7 @@ function getBtn (h, vm, btn) {
       }
     }, child)
   }
-  else if (btn.type === 'execute') {
+  else if (btn.type === 'run') {
     return h(QBtn, {
       props: {
         icon: btn.icon,
@@ -8823,8 +8823,17 @@ function getBtn (h, vm, btn) {
     }, child)
   }
   else if (Array.isArray(btn)) {
+    var label = '';
+
     var Items = btn.map(function (item) {
-      return h(QItem, [
+      var active = item.type === 'toggle'
+        ? vm.caret.is(item.cmd, item.param)
+        : false;
+
+      if (active) {
+        label = item.tip;
+      }
+      return h(QItem, {props: {active: active}}, [
         h(QItemMain, {
           props: {
             label: item.tip
@@ -8833,6 +8842,7 @@ function getBtn (h, vm, btn) {
             click: function click () {
               instance.componentInstance.close();
               vm.$refs.content.focus();
+              vm.caret.restore();
               vm.runCmd(item.cmd, item.param);
             }
           }
@@ -8840,7 +8850,7 @@ function getBtn (h, vm, btn) {
       ])
     });
 
-    var instance = h(QBtnDropdown, { props: { split: true, label: 'Select' } }, [
+    var instance = h(QBtnDropdown, { props: { noCaps: true, noWrap: true, label: label } }, [
       h(QList, { props: { link: true, separator: true } }, [
         Items
       ])
@@ -8850,10 +8860,12 @@ function getBtn (h, vm, btn) {
 }
 
 function getToolbar (h, vm) {
-  return vm.buttons.map(function (group) { return h(
-    QBtnGroup,
-    group.map(function (btn) { return getBtn(h, vm, btn); })
-  ); })
+  if (vm.caret) {
+    return vm.buttons.map(function (group) { return h(
+      QBtnGroup,
+      group.map(function (btn) { return getBtn(h, vm, btn); })
+    ); })
+  }
 }
 
 var buttons = {
@@ -8866,6 +8878,7 @@ var buttons = {
   number: {type: 'toggle', cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Numbered style list'},
   subscript: {type: 'toggle', cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript'},
   superscript: {type: 'toggle', cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript'},
+  link: {type: 'toggle', cmd: 'link', icon: 'link', tip: 'Link', key: 76},
 
   quote: {type: 'toggle', test: 'BLOCKQUOTE', cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
   left: {type: 'toggle', cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Align to left'},
@@ -8873,22 +8886,32 @@ var buttons = {
   right: {type: 'toggle', cmd: 'justifyRight', icon: 'format_align_right', tip: 'Align to right'},
   justify: {type: 'toggle', cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify'},
 
-  // execute
-  outdent: {type: 'execute', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
-  indent: {type: 'execute', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
-  highlight: {type: 'execute', cmd: 'hiliteColor', param: '#D4FF00', icon: 'format_color_text', tip: 'Highlight'}, // no IE
-  removeFormat: {type: 'execute', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
-  hr: {type: 'execute', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Horizontal line'},
-  undo: {type: 'execute', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
-  redo: {type: 'execute', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
+  // run
+  print: {type: 'run', cmd: 'print', icon: 'print', tip: 'Print'},
+  outdent: {type: 'run', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
+  indent: {type: 'run', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
+  highlight: {type: 'run', cmd: 'hiliteColor', param: '#D4FF00', icon: 'format_color_text', tip: 'Highlight'}, // no IE
+  removeFormat: {type: 'run', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
+  hr: {type: 'run', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Horizontal line'},
+  undo: {type: 'run', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
+  redo: {type: 'run', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
 
-  h1: {type: 'toggle', test: 'H1', cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Heading H1'},
-  h2: {type: 'toggle', test: 'H2', cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Heading H2'},
-  h3: {type: 'toggle', test: 'H3', cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Heading H3'},
-  h4: {type: 'toggle', test: 'H4', cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Heading H4'},
-  h5: {type: 'toggle', test: 'H5', cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Heading H5'},
-  h6: {type: 'toggle', test: 'H6', cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Heading H6'},
-  paragraph: {type: 'toggle', test: 'DIV', cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'}
+  h1: {type: 'toggle', cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Title H1'},
+  h2: {type: 'toggle', cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Title H2'},
+  h3: {type: 'toggle', cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Title H3'},
+  h4: {type: 'toggle', cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Title H4'},
+  h5: {type: 'toggle', cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Title H5'},
+  h6: {type: 'toggle', cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Title H6'},
+  p: {type: 'toggle', cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
+  code: {type: 'toggle', cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: 'Code'},
+
+  'size-1': {type: 'toggle', cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small'},
+  'size-2': {type: 'toggle', cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small'},
+  'size-3': {type: 'toggle', cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal'},
+  'size-4': {type: 'toggle', cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large'},
+  'size-5': {type: 'toggle', cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big'},
+  'size-6': {type: 'toggle', cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big'},
+  'size-7': {type: 'toggle', cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum'}
 
   /*
   link: {cmd: 'link', icon: 'link', tip: 'Link', key: 76},
@@ -8944,10 +8967,10 @@ var Caret = function Caret (el) {
 var prototypeAccessors = { selection: {},range: {},parent: {},blockParent: {} };
 
 prototypeAccessors.selection.get = function () {
-  var sel = document.getSelection();
   if (!this.el) {
-    return sel
+    return
   }
+  var sel = document.getSelection();
   // only when the selection in element
   if (isChildOf(sel.anchorNode, this.el) && isChildOf(sel.focusNode, this.el)) {
     return sel
@@ -8958,7 +8981,7 @@ prototypeAccessors.range.get = function () {
   var sel = this.selection;
 
   if (!sel) {
-    return null
+    return
   }
 
   return sel.rangeCount
@@ -8969,7 +8992,7 @@ prototypeAccessors.range.get = function () {
 prototypeAccessors.parent.get = function () {
   var range = this.range;
   if (!range) {
-    return null
+    return
   }
 
   var node = range.startContainer;
@@ -8981,7 +9004,7 @@ prototypeAccessors.parent.get = function () {
 prototypeAccessors.blockParent.get = function () {
   var parent = this.parent;
   if (!parent) {
-    return null
+    return
   }
   return getBlockElement(parent, this.el)
 };
@@ -9006,7 +9029,7 @@ Caret.prototype.restore = function restore (range) {
     sel.addRange(r);
   }
   else {
-    sel.selectAllChildren(this.element);
+    sel.selectAllChildren(this.el);
     sel.collapseToEnd();
   }
 };
@@ -9028,12 +9051,27 @@ Caret.prototype.hasParents = function hasParents (list) {
     : false
 };
 
-Caret.prototype.is = function is (name) {
-  if (['BLOCKQUOTE', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'A', 'IMG'].includes(name)) {
-    console.log('HIIIT');
-    return this.hasParent(name)
+Caret.prototype.is = function is (cmd, param) {
+  switch (cmd) {
+    case 'formatBlock':
+      if (param === 'DIV' && this.parent === this.el) {
+        return true
+      }
+      return this.hasParent(param, param === 'PRE')
+    case 'link':
+      return this.hasParent('A', true)
+    case 'fontSize':
+      return document.queryCommandValue(cmd) === param
+    default:
+      var state = document.queryCommandState(cmd);
+      return param ? state === param : state
   }
-  return document.queryCommandState(name)
+};
+
+Caret.prototype.getParentAttribute = function getParentAttribute (attrib) {
+  if (this.parent) {
+    return this.parent.getAttribute(attrib)
+  }
 };
 
 Caret.prototype.can = function can (name) {
@@ -9053,17 +9091,71 @@ Caret.prototype.can = function can (name) {
   }
 };
 
-Caret.prototype.apply = function apply (cmd, param) {
-  if (cmd === 'formatBlock' && ['BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'A', 'IMG'].includes(param)) {
-    if (this.is(param)) {
+Caret.prototype.apply = function apply (cmd, param, done) {
+    var this$1 = this;
+    if ( done === void 0 ) done = function () {};
+
+  if (cmd === 'formatBlock') {
+    if (['BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(param) && this.is(param)) {
       this.apply('outdent');
+      done();
       return
     }
   }
+  else if (cmd === 'print') {
+    var win = window.open('', '_blank', 'width=600,height=700,left=200,top=100,menubar=no,toolbar=no,location=no,scrollbars=yes');
+    win.document.open();
+    win.document.write(("<!doctype html><html><head><title>Print</title></head><body onload=\"print();\"><div>" + (this.el.innerHTML) + "</div></body></html>"));
+    win.document.close();
+    done();
+    return
+  }
+  else if (cmd === 'link') {
+    var link = this.getParentAttribute('href');
+    if (link && this.range) {
+      this.range.selectNodeContents(this.parent);
+    }
+    this.save();
+    Dialog.create({
+      title: 'Link',
+      message: this.selection ? this.selection.toString() : null,
+      form: {
+        url: {
+          type: 'text',
+          label: 'URL',
+          model: link || 'http://'
+        }
+      },
+      buttons: [
+        {
+          label: link ? 'Remove' : 'Cancel',
+          handler: function () {
+            if (link) {
+              this$1.restore();
+              document.execCommand('unlink');
+              done();
+            }
+          }
+        },
+        {
+          label: link ? 'Update' : 'Create',
+          handler: function (data) {
+            this$1.restore();
+            document.execCommand('createLink', false, data.url);
+            done();
+          }
+        }
+      ]
+    });
+    return
+  }
   document.execCommand(cmd, false, param);
+  done();
 };
 
 Object.defineProperties( Caret.prototype, prototypeAccessors );
+
+document.execCommand('defaultParagraphSeparator', false, 'div');
 
 var QEditor = {
   name: 'q-editor',
@@ -9113,42 +9205,30 @@ var QEditor = {
     buttons: function buttons$1 () {
       var this$1 = this;
 
-      var getBtn = function (name) {
-        var btn = this$1.definitions[name] || buttons[name];
-        if (btn.type === 'toggle' || btn.disable) {
-          this$1.attrib[btn.test || btn.cmd] = false;
-        }
-        return btn
-      };
-
+      var getBtn = function (name) { return this$1.definitions[name] || buttons[name]; };
       return this.toolbar.map(
-        function (group) { return group.map(function (name) {
-          if (Array.isArray(name)) {
-            return name.map(function (item) { return getBtn(item); })
-          }
-          return getBtn(name)
-        }); }
+        function (group) { return group.map(function (name) { return Array.isArray(name) ? name.map(function (item) { return getBtn(item); }) : getBtn(name); }); }
       )
     },
     keys: function keys () {
-      var k = {};
-      this.buttons.forEach(function (group) {
-        group.forEach(function (btn) {
-          if (Array.isArray(btn)) {
-            btn.forEach(function (item) {
-              if (item.key) {
-                k[item.key] = {
-                  cmd: btn.cmd,
-                  param: btn.param
-                };
-              }
-            });
-          }
-          else if (btn.key) {
+      var
+        k = {},
+        add = function (btn) {
+          if (btn.key) {
             k[btn.key] = {
               cmd: btn.cmd,
               param: btn.param
             };
+          }
+        };
+
+      this.buttons.forEach(function (group) {
+        group.forEach(function (btn) {
+          if (Array.isArray(btn)) {
+            btn.forEach(add);
+          }
+          else {
+            add(btn);
           }
         });
       });
@@ -9157,8 +9237,7 @@ var QEditor = {
   },
   data: function data () {
     return {
-      editWatcher: true,
-      attrib: {}
+      editWatcher: true
     }
   },
   watch: {
@@ -9180,9 +9259,9 @@ var QEditor = {
     },
     onKeydown: function onKeydown (e) {
       var key = getEventKey(e);
-      this.updateAttributes();
+      this.refreshToolbar();
 
-      if (!e.ctrlKey || key === 17 || key === 65) {
+      if (!e.ctrlKey || [17, 65, 67, 86].includes(key)) {
         return
       }
 
@@ -9197,34 +9276,39 @@ var QEditor = {
       }
     },
     runCmd: function runCmd (cmd, param, update) {
+      var this$1 = this;
       if ( update === void 0 ) update = true;
 
       console.log('applying', cmd, param);
-      this.caret.apply(cmd, param);
-      this.$refs.content.focus();
+      this.caret.apply(cmd, param, function () {
+        this$1.$refs.content.focus();
 
-      if (update) {
-        this.updateAttributes();
-      }
+        if (update) {
+          this$1.refreshToolbar();
+        }
+      });
     },
-    updateAttributes: function updateAttributes () {
+    refreshToolbar: function refreshToolbar () {
       var this$1 = this;
 
-      console.log(this.buttons);
       setTimeout(function () {
-        Object.keys(this$1.attrib).forEach(function (cmd) {
-          this$1.attrib[cmd] = this$1.caret.is(cmd);
-        });
         this$1.$forceUpdate();
       }, 1);
     }
   },
   mounted: function mounted () {
-    this.$refs.content.innerHTML = this.value;
-    this.caret = new Caret(this.$refs.content);
-    this.runCmd('defaultParagraphSeparator', 'p');
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      this$1.caret = new Caret(this$1.$refs.content);
+      this$1.$refs.content.innerHTML = this$1.value;
+      this$1.$nextTick(this$1.refreshToolbar);
+    });
   },
   render: function render (h) {
+    var this$1 = this;
+
+    var attr = this.attrib;
     return h(
       'div',
       { staticClass: 'q-editor' },
@@ -9243,10 +9327,16 @@ var QEditor = {
             on: {
               input: this.onInput,
               keydown: this.onKeydown,
-              click: this.updateAttributes
+              click: this.refreshToolbar,
+              blur: function () {
+                this$1.caret.save();
+              }
             }
           }
-        )
+        ),
+        h('div', {style: {
+          wordWrap: 'break-word'
+        }}, [JSON.stringify(attr)])
       ]
     )
   }
