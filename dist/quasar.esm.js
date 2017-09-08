@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0
+ * Quasar Framework v0.14.0
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -312,7 +312,7 @@ var theme = Object.freeze({
 	get current () { return current; }
 });
 
-var version = "0.15.0";
+var version = "0.14.0";
 
 var Vue;
 
