@@ -1400,6 +1400,9 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-editor {
   border: 1px solid #ccc;
 }
+.q-editor.disabled {
+  border-style: dashed;
+}
 .q-editor-content {
   outline: 0;
   padding: 10px;
@@ -1408,7 +1411,7 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-editor-content hr {
   border: 0;
   outline: 0;
-  margin: 25px 10px;
+  margin: 24px 8px;
   height: 1px;
   background: #ccc;
 }

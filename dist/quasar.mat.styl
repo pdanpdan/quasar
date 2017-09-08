@@ -546,6 +546,11 @@ $dot-opacity           ?= .8
 $dot-size              ?= 10px
 $dot-position-top      ?= 10px
 $dot-position-right    ?= 10px
+$editor-border                  ?= 1px solid #ccc
+$editor-padding                 ?= 10px
+$editor-hr-color                ?= #ccc
+$editor-button-group-background ?= white
+$editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
 $field-icon-size   ?= 28px
 $field-label-color ?= rgba(0, 0, 0, .54)
@@ -1568,25 +1573,25 @@ for $pos in 0..23
   background $dot-color
   opacity $dot-opacity
 .q-editor
-  border 1px solid #ccc
+  border $editor-border
+  &.disabled
+    border-style dashed
 .q-editor-content
   outline 0
-  padding 10px
+  padding $editor-padding
   min-height 10rem
   hr
     border 0
     outline 0
-    margin 25px 10px
+    margin 24px 8px
     height 1px
-    background #ccc
+    background $editor-hr-color
 .q-editor-toolbar
   padding 5px
-  
-  
   .q-btn-group
-    background white
+    background $editor-button-group-background
   .q-btn-group + .q-btn-group
-    margin-left 5px
+    margin-left $editor-button-gutter
 .q-fab
   position relative
   vertical-align middle

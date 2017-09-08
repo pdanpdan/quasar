@@ -1128,6 +1128,33 @@ body.desktop .q-datetime-col-wrapper {
   background: #f44336;
   opacity: 0.8;
 }
+.q-editor {
+  border: 1px solid #ccc;
+}
+.q-editor.disabled {
+  border-style: dashed;
+}
+.q-editor-content {
+  outline: 0;
+  padding: 10px;
+  min-height: 10rem;
+}
+.q-editor-content hr {
+  border: 0;
+  outline: 0;
+  margin: 24px 8px;
+  height: 1px;
+  background: #ccc;
+}
+.q-editor-toolbar {
+  padding: 5px;
+}
+.q-editor-toolbar .q-btn-group {
+  background: #fff;
+}
+.q-editor-toolbar .q-btn-group + .q-btn-group {
+  margin-right: 5px;
+}
 .q-fab {
   position: relative;
   vertical-align: middle;
