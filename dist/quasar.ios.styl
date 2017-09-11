@@ -550,10 +550,10 @@ $dot-opacity           ?= .8
 $dot-size              ?= 10px
 $dot-position-top      ?= 10px
 $dot-position-right    ?= 10px
-$editor-border                  ?= 1px solid #ccc
+$editor-border-color            ?= #ccc
+$editor-border                  ?= 1px solid $editor-border-color
 $editor-padding                 ?= 10px
 $editor-hr-color                ?= #ccc
-$editor-button-group-background ?= white
 $editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
 $field-icon-size   ?= 28px
@@ -937,10 +937,18 @@ for $name, $size in $button-round-sizes
       height round(button-round-factor($name) * $size)
       width round(button-round-factor($name) * $size)
       font-size round(button-round-factor($name) * $size)
-.q-btn-dropdown-arrow
-  padding 0 4px
+.q-btn-compact
+  padding 0 6px
+  .on-left
+    margin-right 6px
+  .on-right
+    margin-left 6px
+.q-btn-dropdown-simple .q-btn-dropdown-arrow
+  margin-left 6px
+  width 10px
 .q-btn-dropdown-split .q-btn-dropdown-arrow
-  border-left 1px solid rgba(255, 255, 255, .25)
+  padding 0 4px
+  border-left 1px solid rgba(255, 255, 255, .3)
 .q-btn-group
   border-radius $button-border-radius
   vertical-align middle
@@ -1489,7 +1497,6 @@ body.desktop .q-datetime-col-wrapper
 .q-editor-content
   outline 0
   padding $editor-padding
-  min-height 10rem
   hr
     border 0
     outline 0
@@ -1498,10 +1505,23 @@ body.desktop .q-datetime-col-wrapper
     background $editor-hr-color
 .q-editor-toolbar
   padding 5px
+  border-bottom $editor-border
   .q-btn-group
-    background $editor-button-group-background
+    box-shadow none
   .q-btn-group + .q-btn-group
     margin-left $editor-button-gutter
+.q-editor-toolbar-separator
+  .q-btn-group + .q-btn-group
+    padding-left $editor-button-gutter
+    &:before
+      content ''
+      position absolute
+      left 0
+      top 0
+      bottom 0
+      height 100%
+      width 1px
+      background $editor-border-color
 .q-fab
   position relative
   vertical-align middle

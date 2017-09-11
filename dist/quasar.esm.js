@@ -2410,7 +2410,7 @@ var QItem = {
       prop = ctx.props,
       cls = itemClasses(prop);
 
-    if (prop.to !== void 0 || prop.link) {
+    if (prop.to !== void 0) {
       data.props = prop;
     }
     else {
@@ -2989,7 +2989,8 @@ var BtnMixin = {
     small: Boolean,
     big: Boolean,
     color: String,
-    glossy: Boolean
+    glossy: Boolean,
+    compact: Boolean
   },
   computed: {
     size: function size () {
@@ -3009,6 +3010,10 @@ var BtnMixin = {
       if (this.toggled) {
         cls.push('q-btn-toggle-active');
       }
+      if (this.compact) {
+        cls.push('q-btn-compact');
+      }
+
       if (this.flat) {
         cls.push('q-btn-flat');
       }
@@ -3220,7 +3225,8 @@ var QBtnDropdown = {
             small: this$1.small,
             big: this$1.big,
             color: this$1.color,
-            glossy: this$1.glossy
+            glossy: this$1.glossy,
+            compact: this$1.compact
           },
           staticClass: ("" + (this$1.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple')),
           on: {
@@ -4629,8 +4635,8 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       type: String,
       default: 'flex-center'
     },
-    contentClasses: [Object, String],
-    contentCss: [Object, String],
+    contentClasses: [Object, Array, String],
+    contentCss: [Object, Array, String],
     noBackdropDismiss: {
       type: Boolean,
       default: false
@@ -4670,13 +4676,19 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     modalCss: function modalCss () {
       if (this.position) {
-        return extend(
+        var css = Array.isArray(this.contentCss)
+          ? this.contentCss
+          : [this.contentCss];
+
+        css.unshift(extend(
           {},
           positionCSS[this.$q.theme],
-          additionalCSS(this.$q.theme, this.position),
-          this.contentCss
-        )
+          additionalCSS(this.$q.theme, this.position)
+        ));
+
+        return css
       }
+
       return this.contentCss
     }
   },
@@ -4688,8 +4700,12 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         return
       }
 
-      document.body.appendChild(this.$el);
-      document.body.classList.add('with-modal');
+      var body = document.body;
+
+      body.appendChild(this.$el);
+      body.classList.add('with-modal');
+      this.bodyPadding = window.getComputedStyle(body).paddingRight;
+      body.style.paddingRight = (getScrollbarWidth()) + "px";
       EscapeKey.register(function () {
         if (this$1.noEscDismiss) {
           return
@@ -4718,7 +4734,8 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
 
         setTimeout(function () {
           if (!openedModalNumber) {
-            document.body.classList.remove('with-modal');
+            body.classList.remove('with-modal');
+            body.style.paddingRight = this$1.bodyPadding;
           }
           if (typeof this$1.__onClose === 'function') {
             this$1.__onClose();
@@ -8794,23 +8811,26 @@ function run (btn, vm) {
 }
 
 function getBtn (h, vm, btn) {
-  var child = [];
-
   if (btn.type === 'slot') {
     return vm.$slots[btn.slot]
   }
+
   if (btn.type === 'dropdown') {
-    var label = btn.label;
+    var
+      label = btn.label,
+      icon = btn.icon;
 
     var Items = btn.options.map(function (btn) {
       var disable = btn.disable ? btn.disable(vm) : false;
-      var active = !disable && btn.type === void 0
+      var active = btn.type === void 0
         ? vm.caret.is(btn.cmd, btn.param)
         : false;
 
       if (active) {
         label = btn.tip;
+        icon = btn.icon;
       }
+
       return h(
         QItem,
         {
@@ -8827,6 +8847,7 @@ function getBtn (h, vm, btn) {
           }
         },
         [
+          h(QItemSide, {props: {icon: btn.icon}}),
           h(QItemMain, {
             props: {
               label: btn.tip
@@ -8842,21 +8863,22 @@ function getBtn (h, vm, btn) {
         props: extend({
           noCaps: true,
           noWrap: true,
-          color: label !== btn.label ? vm.toggleColor : vm.color,
-          label: label
+          color: btn.highlight && label !== btn.label ? vm.toggleColor : vm.color,
+          label: btn.fixedLabel ? btn.label : label,
+          icon: btn.fixedIcon ? btn.icon : icon
         }, vm.buttonProps)
       },
       [ h(QList, { props: { separator: true } }, [ Items ]) ]
     );
     return instance
   }
-  else {
-    if (btn.tip && vm.$q.platform.is.desktop) {
-      var Key = btn.key
-        ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
-        : null;
-      child.push(h(QTooltip, { props: {delay: 1000} }, [btn.tip, Key]));
-    }
+
+  var child = [];
+  if (btn.tip && vm.$q.platform.is.desktop) {
+    var Key = btn.key
+      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
+      : null;
+    child.push(h(QTooltip, { props: {delay: 1000} }, [btn.tip, Key]));
   }
 
   if (btn.type === void 0) {
@@ -8897,7 +8919,7 @@ function getToolbar (h, vm) {
   if (vm.caret) {
     return vm.buttons.map(function (group) { return h(
       QBtnGroup,
-      { props: vm.buttonProps },
+      { props: vm.buttonProps, staticClass: 'relative-position' },
       group.map(function (btn) { return getBtn(h, vm, btn); })
     ); })
   }
@@ -8909,8 +8931,8 @@ var buttons = {
   italic: {cmd: 'italic', icon: 'format_italic', tip: 'Italic', key: 73},
   strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: 'Strikethrough', key: 83},
   underline: {cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
-  bullet: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Bullet list'},
-  number: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Numbered list'},
+  unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Unordered List'},
+  ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Ordered List'},
   subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript'},
   superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript'},
   link: {cmd: 'link', icon: 'link', tip: 'Hyperlink', key: 76},
@@ -8921,13 +8943,12 @@ var buttons = {
   right: {cmd: 'justifyRight', icon: 'format_align_right', tip: 'Right align'},
   justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify align'},
 
-  // run
   print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print'},
   outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
   indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
   highlight: {type: 'no-state', cmd: 'hiliteColor', param: '#D4FF00', icon: 'format_color_text', tip: 'Highlight'}, // no IE
   removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
-  hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Horizontal line'},
+  hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Insert Horizontal Rule'},
   undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
   redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
 
@@ -8940,13 +8961,13 @@ var buttons = {
   p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
   code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: 'Code'},
 
-  'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small'},
-  'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small'},
-  'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal'},
-  'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large'},
-  'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big'},
-  'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big'},
-  'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum'}
+  'size-1': {cmd: 'fontSize', param: '1', icon: 'looks_one', tip: 'Very small'},
+  'size-2': {cmd: 'fontSize', param: '2', icon: 'looks_two', tip: 'A bit small'},
+  'size-3': {cmd: 'fontSize', param: '3', icon: 'looks_3', tip: 'Normal'},
+  'size-4': {cmd: 'fontSize', param: '4', icon: 'looks_4', tip: 'Medium-large'},
+  'size-5': {cmd: 'fontSize', param: '5', icon: 'looks_5', tip: 'Big'},
+  'size-6': {cmd: 'fontSize', param: '6', icon: 'looks_6', tip: 'Very big'},
+  'size-7': {cmd: 'fontSize', param: '7', icon: 'looks_7', tip: 'Maximum'}
 };
 
 function getBlockElement (el, parent) {
@@ -9203,11 +9224,13 @@ var QEditor = {
       type: String,
       default: 'primary'
     },
-    outline: Boolean,
+    toolbarColor: {
+      type: String,
+      default: 'grey-4'
+    },
     flat: Boolean,
-    rounded: Boolean,
+    outline: Boolean,
     push: Boolean,
-    glossy: Boolean,
     definitions: Object,
     toolbar: {
       type: Array,
@@ -9229,9 +9252,9 @@ var QEditor = {
       return {
         outline: this.outline,
         flat: this.flat,
-        rounded: this.rounded,
         push: this.push,
-        glossy: this.glossy
+        small: true,
+        compact: true
       }
     },
     buttons: function buttons$1 () {
@@ -9244,7 +9267,10 @@ var QEditor = {
           if (token.options) {
             return {
               type: 'dropdown',
+              icon: token.icon,
               label: token.label,
+              fixedLabel: token.fixedLabel,
+              fixedIcon: token.fixedIcon,
               options: token.options.map(function (item) { return def[item]; })
             }
           }
@@ -9377,7 +9403,12 @@ var QEditor = {
       [
         this.readonly ? '' : h(
           'div',
-          { staticClass: 'q-editor-toolbar overflow-auto row no-wrap' },
+          {
+            staticClass: ("q-editor-toolbar overflow-auto row no-wrap bg-" + (this.toolbarColor)),
+            'class': {
+              'q-editor-toolbar-separator': !this.outline && !this.push
+            }
+          },
           getToolbar(h, this)
         ),
         h(
@@ -9396,7 +9427,8 @@ var QEditor = {
               }
             }
           }
-        )
+        ),
+        h('div', {domProps: {innerHTML: JSON.stringify(this.buttons)}})
       ]
     )
   }

@@ -291,7 +291,7 @@ body.desktop ul.breadcrumb a:hover:after {
   vertical-align: middle;
   cursor: pointer;
   -webkit-appearance: button;
-  padding: 0 16px;
+  padding: 3px 16px;
   font-weight: 500;
   text-decoration: none;
   color: inherit;
@@ -414,15 +414,22 @@ body.desktop ul.breadcrumb a:hover:after {
   width: 34px;
   font-size: 34px;
 }
-.q-btn-dropdown-simple {
-  padding-right: 0;
+.q-btn-compact {
+  padding: 2px 6px;
+}
+.q-btn-compact .on-left {
+  margin-right: 6px;
+}
+.q-btn-compact .on-right {
+  margin-left: 6px;
 }
 .q-btn-dropdown-simple .q-btn-dropdown-arrow {
-  margin-right: 8px;
+  margin-left: 6px;
+  width: 10px;
 }
 .q-btn-dropdown-split .q-btn-dropdown-arrow {
   padding: 0 4px;
-  border-left: 1px solid rgba(255,255,255,0.25);
+  border-left: 1px solid rgba(255,255,255,0.3);
 }
 .q-btn-group {
   border-radius: 2px;
@@ -1406,7 +1413,6 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-editor-content {
   outline: 0;
   padding: 10px;
-  min-height: 10rem;
 }
 .q-editor-content hr {
   border: 0;
@@ -1417,12 +1423,26 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-editor-toolbar {
   padding: 5px;
+  border-bottom: 1px solid #ccc;
 }
 .q-editor-toolbar .q-btn-group {
-  background: #fff;
+  box-shadow: none;
 }
 .q-editor-toolbar .q-btn-group + .q-btn-group {
   margin-left: 5px;
+}
+.q-editor-toolbar-separator .q-btn-group + .q-btn-group {
+  padding-left: 5px;
+}
+.q-editor-toolbar-separator .q-btn-group + .q-btn-group:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: 1px;
+  background: #ccc;
 }
 .q-fab {
   position: relative;
