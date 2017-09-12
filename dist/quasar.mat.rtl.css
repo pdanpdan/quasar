@@ -308,7 +308,6 @@ body.desktop ul.breadcrumb a:hover:after {
 }
 .q-btn.full-width {
   border-radius: 0 !important;
-  white-space: normal;
 }
 .q-btn-progress {
   transition: all 0.3s;
@@ -1413,6 +1412,7 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-editor-content {
   outline: 0;
   padding: 10px;
+  min-height: 10em;
 }
 .q-editor-content hr {
   border: 0;
@@ -1421,8 +1421,10 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   height: 1px;
   background: #ccc;
 }
-.q-editor-toolbar {
+.q-editor-toolbar-padding {
   padding: 5px;
+}
+.q-editor-toolbar {
   border-bottom: 1px solid #ccc;
 }
 .q-editor-toolbar .q-btn-group {
@@ -7140,13 +7142,6 @@ p.caption {
 p.caption:not(:first-child) {
   margin-top: 2rem;
 }
-.token {
-  color: #fff;
-  background: rgba(2,123,227,0.7);
-  border-radius: 2px;
-  padding: 3px 5px;
-  font-size: 90%;
-}
 .uppercase {
   text-transform: uppercase;
 }
@@ -7174,6 +7169,9 @@ p.caption:not(:first-child) {
 }
 .text-bold {
   font-weight: bold;
+}
+.text-no-wrap {
+  white-space: nowrap;
 }
 .light-paragraph {
   font-weight: 300;

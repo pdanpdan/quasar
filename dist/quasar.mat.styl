@@ -548,7 +548,9 @@ $dot-position-top      ?= 10px
 $dot-position-right    ?= 10px
 $editor-border-color            ?= #ccc
 $editor-border                  ?= 1px solid $editor-border-color
-$editor-padding                 ?= 10px
+$editor-content-padding         ?= 10px
+$editor-content-min-height      ?= 10em
+$editor-toolbar-padding         ?= 5px
 $editor-hr-color                ?= #ccc
 $editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
@@ -878,7 +880,6 @@ button-round-factor($size)
     box-shadow $shadow-8
   &.full-width
     border-radius 0 !important
-    white-space normal
 .q-btn-progress
   transition all .3s
   height 100%
@@ -1583,15 +1584,17 @@ for $pos in 0..23
     border-style dashed
 .q-editor-content
   outline 0
-  padding $editor-padding
+  padding $editor-content-padding
+  min-height $editor-content-min-height
   hr
     border 0
     outline 0
     margin 24px 8px
     height 1px
     background $editor-hr-color
+.q-editor-toolbar-padding
+  padding $editor-toolbar-padding
 .q-editor-toolbar
-  padding 5px
   border-bottom $editor-border
   .q-btn-group
     box-shadow none
@@ -4895,32 +4898,28 @@ p
     font-weight 300
     &:not(:first-child)
       margin-top 2rem
-.token
-  color opposite-non-color($primary)
-  background alpha($primary, .7)
-  border-radius $generic-border-radius
-  padding 3px 5px
-  font-size 90%
 .uppercase
   text-transform uppercase
 .lowercase
   text-transform lowercase
 .capitalize
   text-transform capitalize
-+prefix-classes('text-')
-  .center
+.text-
+  &center
     text-align center
-  .left
+  &left
     text-align left
-  .right
+  &right
     text-align right
-  .justify
+  &justify
     text-align justify
     hyphens auto
-  .italic
+  &italic
     font-style italic
-  .bold
+  &bold
     font-weight bold
+  &no-wrap
+    white-space nowrap
 .light-paragraph
   font-weight 300
 .thin-paragraph

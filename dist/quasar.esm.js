@@ -3044,7 +3044,7 @@ var BtnMixin = {
   }
 };
 
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap}},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
+var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap, 'text-no-wrap': _vm.noWrap}},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
   name: 'q-btn',
   mixins: [BtnMixin],
   components: {
@@ -3097,7 +3097,7 @@ var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   }
 };
 
-var QBtnToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap}},[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)])},staticRenderFns: [],
+var QBtnToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap, 'text-no-wrap': _vm.noWrap}},[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._t("default"),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)])},staticRenderFns: [],
   name: 'q-btn-toggle',
   mixins: [BtnMixin],
   model: {
@@ -3297,7 +3297,7 @@ var QBtnDropdown = {
   }
 };
 
-var QBtnToggleGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn-group',{staticClass:"q-btn-toggle-group",attrs:{"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push}},_vm._l((_vm.options),function(opt,i){return _c('q-btn-toggle',{key:("" + (opt.label) + (opt.icon) + (opt.iconRight)),attrs:{"toggled":_vm.val[i],"label":opt.label,"color":opt.color || _vm.color,"toggle-color":opt.toggleColor || _vm.toggleColor,"icon":opt.icon,"icon-right":opt.iconRight,"no-caps":_vm.noCaps,"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push,"glossy":_vm.glossy,"small":_vm.small,"big":_vm.big},on:{"change":function($event){_vm.set(opt.value, opt);}}})}))},staticRenderFns: [],
+var QBtnToggleGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn-group',{staticClass:"q-btn-toggle-group",attrs:{"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push}},_vm._l((_vm.options),function(opt,i){return _c('q-btn-toggle',{key:("" + (opt.label) + (opt.icon) + (opt.iconRight)),attrs:{"toggled":_vm.val[i],"label":opt.label,"color":opt.color || _vm.color,"toggle-color":opt.toggleColor || _vm.toggleColor,"icon":opt.icon,"icon-right":opt.iconRight,"no-caps":_vm.noCaps,"no-wrap":_vm.noWrap,"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push,"glossy":_vm.glossy,"small":_vm.small,"big":_vm.big,"compact":_vm.compact},on:{"change":function($event){_vm.set(opt.value, opt);}}})}))},staticRenderFns: [],
   name: 'q-btn-toggle-group',
   components: {
     QBtnGroup: QBtnGroup,
@@ -3780,6 +3780,58 @@ var CarouselMixin = {
   }
 };
 
+var FullscreenMixin = {
+  data: function data () {
+    return {
+      inFullscreen: false
+    }
+  },
+  created: function created () {
+    this.fillerNode = document.createElement('span');
+  },
+  methods: {
+    toggleFullscreen: function toggleFullscreen () {
+      if (this.inFullscreen) {
+        if (!Platform.has.popstate) {
+          this.__setFullscreen(false);
+        }
+        else {
+          window.history.go(-1);
+        }
+        return
+      }
+
+      this.__setFullscreen(true);
+      if (Platform.has.popstate) {
+        window.history.pushState({}, '');
+        window.addEventListener('popstate', this.__popState);
+      }
+    },
+    __setFullscreen: function __setFullscreen (state) {
+      if (this.inFullscreen === state) {
+        return
+      }
+
+      if (state) {
+        this.container = this.$el.parentNode;
+        this.container.replaceChild(this.fillerNode, this.$el);
+        document.body.appendChild(this.$el);
+        this.inFullscreen = true;
+        return
+      }
+
+      this.inFullscreen = false;
+      this.container.replaceChild(this.$el, this.fillerNode);
+    },
+    __popState: function __popState () {
+      if (this.inFullscreen) {
+        this.__setFullscreen(false);
+      }
+      window.removeEventListener('popstate', this.__popState);
+    }
+  }
+};
+
 var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-carousel",class:{fullscreen: _vm.inFullscreen}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-carousel-inner"},[_c('div',{ref:"track",staticClass:"q-carousel-track",class:{'with-arrows': _vm.arrows, 'with-toolbar': _vm.toolbar, 'infinite-left': _vm.infiniteLeft, 'infinite-right': _vm.infiniteRight},style:(_vm.trackPosition)},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteRight),expression:"infiniteRight"}]}),_vm._t("slide"),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteLeft),expression:"infiniteLeft"}]})],2),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToPrevious),expression:"arrows && canGoToPrevious"}],staticClass:"q-carousel-left-button row flex-center"},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"},on:{"click":_vm.previous}})],1),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToNext),expression:"arrows && canGoToNext"}],staticClass:"q-carousel-right-button row flex-center",on:{"click":_vm.next}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),(_vm.toolbar)?_c('div',{staticClass:"q-carousel-toolbar row items-center justify-end"},[_c('div',{staticClass:"q-carousel-dots col row flex-center"},_vm._l((_vm.slidesNumber),function(n){return (_vm.dots)?_c('q-icon',{key:n,attrs:{"name":(n - 1) !== _vm.slide ? 'panorama_fish_eye' : 'lens'},on:{"click":function($event){_vm.goToSlide(n - 1);}}}):_vm._e()})),_c('div',{staticClass:"row items-center"},[_vm._t("action"),(_vm.fullscreen)?_c('q-icon',{attrs:{"name":_vm.inFullscreen ? 'fullscreen_exit' : 'fullscreen'},on:{"click":_vm.toggleFullscreen}}):_vm._e()],2)]):_vm._e(),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-carousel',
   components: {
@@ -3788,7 +3840,7 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   directives: {
     TouchPan: TouchPan
   },
-  mixins: [CarouselMixin],
+  mixins: [CarouselMixin, FullscreenMixin],
   data: function data () {
     return {
       position: 0,
@@ -3943,44 +3995,6 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         }
       });
     },
-    toggleFullscreen: function toggleFullscreen () {
-      if (this.inFullscreen) {
-        if (!Platform.has.popstate) {
-          this.__setFullscreen(false);
-        }
-        else {
-          window.history.go(-1);
-        }
-        return
-      }
-
-      this.__setFullscreen(true);
-      if (Platform.has.popstate) {
-        window.history.pushState({}, '');
-        window.addEventListener('popstate', this.__popState);
-      }
-    },
-    __setFullscreen: function __setFullscreen (state) {
-      if (this.inFullscreen === state) {
-        return
-      }
-
-      if (state) {
-        this.container.replaceChild(this.fillerNode, this.$el);
-        document.body.appendChild(this.$el);
-        this.inFullscreen = true;
-        return
-      }
-
-      this.inFullscreen = false;
-      this.container.replaceChild(this.$el, this.fillerNode);
-    },
-    __popState: function __popState () {
-      if (this.inFullscreen) {
-        this.__setFullscreen(false);
-      }
-      window.removeEventListener('popstate', this.__popState);
-    },
     stopAnimation: function stopAnimation () {
       stop(this.animUid);
       this.animationInProgress = false;
@@ -4028,8 +4042,6 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     var this$1 = this;
 
     this.$nextTick(function () {
-      this$1.fillerNode = document.createElement('span');
-      this$1.container = this$1.$el.parentNode;
       this$1.slidesNumber = this$1.__getSlidesNumber();
       this$1.__planAutoPlay();
       if (this$1.handleArrowKeys) {
@@ -8801,26 +8813,95 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
   }
 };
 
-function run (btn, vm) {
+function run (e, btn, vm) {
   if (btn.handler) {
-    btn.handler(vm);
+    btn.handler(e, vm, vm.caret);
   }
   else {
     vm.runCmd(btn.cmd, btn.param);
   }
 }
 
-function getBtn (h, vm, btn) {
-  if (btn.type === 'slot') {
-    return vm.$slots[btn.slot]
+function getBtn (h, vm, btn, clickHandler) {
+  var
+    child = [],
+    events = {
+      click: function click (e) {
+        clickHandler && clickHandler();
+        run(e, btn, vm);
+      }
+    };
+
+  if (btn.tip && vm.$q.platform.is.desktop) {
+    var Key = btn.key
+      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
+      : null;
+    child.push(h(QTooltip, { props: {delay: 1000} }, [
+      h('div', { domProps: { innerHTML: btn.tip } }),
+      Key
+    ]));
   }
 
-  if (btn.type === 'dropdown') {
-    var
-      label = btn.label,
-      icon = btn.icon;
+  if (btn.type === void 0) {
+    return h(QBtnToggle, {
+      props: extend({
+        icon: btn.icon,
+        label: btn.label,
+        toggled: vm.caret.is(btn.cmd, btn.param),
+        color: vm.color,
+        toggleColor: vm.toggleColor,
+        disable: btn.disable ? btn.disable(vm) : false
+      }, vm.buttonProps),
+      on: events
+    }, child)
+  }
+  if (btn.type === 'no-state') {
+    return h(QBtn, {
+      props: extend({
+        icon: btn.icon,
+        color: vm.color,
+        label: btn.label,
+        disable: btn.disable ? btn.disable(vm) : false
+      }, vm.buttonProps),
+      on: events
+    }, child)
+  }
+}
 
-    var Items = btn.options.map(function (btn) {
+function getDropdown (h, vm, btn) {
+  var
+    label = btn.label,
+    icon = btn.icon,
+    noIcons = btn.list === 'no-icons',
+    onlyIcons = btn.list === 'only-icons',
+    Items;
+
+  function closeDropdown () {
+    Dropdown.componentInstance.close();
+  }
+
+  if (onlyIcons) {
+    Items = btn.options.map(function (btn) {
+      var active = btn.type === void 0
+        ? vm.caret.is(btn.cmd, btn.param)
+        : false;
+
+      if (active) {
+        label = btn.tip;
+        icon = btn.icon;
+      }
+      return getBtn(h, vm, btn, closeDropdown)
+    });
+    Items = [
+      h(
+        QBtnGroup,
+        { props: vm.buttonProps, staticClass: 'relative-position q-editor-toolbar-padding' },
+        Items
+      )
+    ];
+  }
+  else {
+    Items = btn.options.map(function (btn) {
       var disable = btn.disable ? btn.disable(vm) : false;
       var active = btn.type === void 0
         ? vm.caret.is(btn.cmd, btn.param)
@@ -8837,82 +8918,42 @@ function getBtn (h, vm, btn) {
           props: { active: active, link: !disable },
           staticClass: disable ? 'disabled' : '',
           on: {
-            click: function click () {
+            click: function click (e) {
               if (disable) { return }
-              instance.componentInstance.close();
+              closeDropdown();
               vm.$refs.content.focus();
               vm.caret.restore();
-              run(btn, vm);
+              run(e, btn, vm);
             }
           }
         },
         [
-          h(QItemSide, {props: {icon: btn.icon}}),
+          noIcons ? '' : h(QItemSide, {props: {icon: btn.icon}}),
           h(QItemMain, {
             props: {
-              label: btn.tip
+              label: btn.htmlTip || btn.tip
             }
           })
         ]
       )
     });
-
-    var instance = h(
-      QBtnDropdown,
-      {
-        props: extend({
-          noCaps: true,
-          noWrap: true,
-          color: btn.highlight && label !== btn.label ? vm.toggleColor : vm.color,
-          label: btn.fixedLabel ? btn.label : label,
-          icon: btn.fixedIcon ? btn.icon : icon
-        }, vm.buttonProps)
-      },
-      [ h(QList, { props: { separator: true } }, [ Items ]) ]
-    );
-    return instance
+    Items = [ h(QList, { props: { separator: true } }, [ Items ]) ];
   }
 
-  var child = [];
-  if (btn.tip && vm.$q.platform.is.desktop) {
-    var Key = btn.key
-      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
-      : null;
-    child.push(h(QTooltip, { props: {delay: 1000} }, [btn.tip, Key]));
-  }
-
-  if (btn.type === void 0) {
-    return h(QBtnToggle, {
+  var Dropdown = h(
+    QBtnDropdown,
+    {
       props: extend({
-        icon: btn.icon,
-        label: btn.label,
-        toggled: vm.caret.is(btn.cmd, btn.param),
-        color: vm.color,
-        toggleColor: vm.toggleColor,
-        disable: btn.disable ? btn.disable(vm) : false
-      }, vm.buttonProps),
-      on: {
-        click: function click () {
-          run(btn, vm);
-        }
-      }
-    }, child)
-  }
-  if (btn.type === 'no-state') {
-    return h(QBtn, {
-      props: extend({
-        icon: btn.icon,
-        color: vm.color,
-        label: btn.label,
-        disable: btn.disable ? btn.disable(vm) : false
-      }, vm.buttonProps),
-      on: {
-        click: function click () {
-          run(btn, vm);
-        }
-      }
-    }, child)
-  }
+        noCaps: true,
+        noWrap: true,
+        color: btn.highlight && label !== btn.label ? vm.toggleColor : vm.color,
+        label: btn.fixedLabel ? btn.label : label,
+        icon: btn.fixedIcon ? btn.icon : icon
+      }, vm.buttonProps)
+    },
+    Items
+  );
+  return Dropdown
 }
 
 function getToolbar (h, vm) {
@@ -8920,9 +8961,50 @@ function getToolbar (h, vm) {
     return vm.buttons.map(function (group) { return h(
       QBtnGroup,
       { props: vm.buttonProps, staticClass: 'relative-position' },
-      group.map(function (btn) { return getBtn(h, vm, btn); })
+      group.map(function (btn) {
+        if (btn.type === 'slot') {
+          return vm.$slots[btn.slot]
+        }
+
+        if (btn.type === 'dropdown') {
+          return getDropdown(h, vm, btn)
+        }
+
+        return getBtn(h, vm, btn)
+      })
     ); })
   }
+}
+
+function getFonts (defaultFont, fonts) {
+  if ( fonts === void 0 ) fonts = {};
+
+  var aliases = Object.keys(fonts);
+  if (aliases.length === 0) {
+    return {}
+  }
+
+  var def = {
+    default_font: {
+      cmd: 'fontName',
+      param: defaultFont,
+      icon: 'font_download',
+      tip: 'Default Font'
+    }
+  };
+
+  aliases.forEach(function (alias) {
+    var name = fonts[alias];
+    def[alias] = {
+      cmd: 'fontName',
+      param: name,
+      icon: 'font_download',
+      tip: name,
+      htmlTip: ("<font face=\"" + name + "\">" + name + "</font>")
+    };
+  });
+
+  return def
 }
 
 var buttons = {
@@ -8933,9 +9015,10 @@ var buttons = {
   underline: {cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
   unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Unordered List'},
   ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Ordered List'},
-  subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript'},
-  superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript'},
+  subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript', htmlTip: 'x<subscript>2</subscript>'},
+  superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript', htmlTip: 'x<superscript>2</superscript>'},
   link: {cmd: 'link', icon: 'link', tip: 'Hyperlink', key: 76},
+  fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: 'Toggle Fullscreen', key: 70},
 
   quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
   left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Left align'},
@@ -8943,31 +9026,30 @@ var buttons = {
   right: {cmd: 'justifyRight', icon: 'format_align_right', tip: 'Right align'},
   justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify align'},
 
-  print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print'},
+  print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print', key: 80},
   outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
   indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
-  highlight: {type: 'no-state', cmd: 'hiliteColor', param: '#D4FF00', icon: 'format_color_text', tip: 'Highlight'}, // no IE
   removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
   hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Insert Horizontal Rule'},
   undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
   redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
 
-  h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Title H1'},
-  h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Title H2'},
-  h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Title H3'},
-  h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Title H4'},
-  h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Title H5'},
-  h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Title H6'},
+  h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Header 1', htmlTip: '<h1>Header 1</h1>'},
+  h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Header 2', htmlTip: '<h2>Header 2</h2>'},
+  h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Header 3', htmlTip: '<h3>Header 3</h3>'},
+  h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Header 4', htmlTip: '<h4>Header 4</h4>'},
+  h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Header 5', htmlTip: '<h5>Header 5</h5>'},
+  h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Header 6', htmlTip: '<h6>Header 6</h6>'},
   p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
-  code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: 'Code'},
+  code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: '<code>Code</code>'},
 
-  'size-1': {cmd: 'fontSize', param: '1', icon: 'looks_one', tip: 'Very small'},
-  'size-2': {cmd: 'fontSize', param: '2', icon: 'looks_two', tip: 'A bit small'},
-  'size-3': {cmd: 'fontSize', param: '3', icon: 'looks_3', tip: 'Normal'},
-  'size-4': {cmd: 'fontSize', param: '4', icon: 'looks_4', tip: 'Medium-large'},
-  'size-5': {cmd: 'fontSize', param: '5', icon: 'looks_5', tip: 'Big'},
-  'size-6': {cmd: 'fontSize', param: '6', icon: 'looks_6', tip: 'Very big'},
-  'size-7': {cmd: 'fontSize', param: '7', icon: 'looks_7', tip: 'Maximum'}
+  'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small', htmlTip: '<font size="1">Very small</font>'},
+  'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small', htmlTip: '<font size="2">A bit small</font>'},
+  'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal', htmlTip: '<font size="3">Normal</font>'},
+  'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large', htmlTip: '<font size="4">Medium-large</font>'},
+  'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big', htmlTip: '<font size="5">Big</font>'},
+  'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big', htmlTip: '<font size="6">Very big</font>'},
+  'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum', htmlTip: '<font size="7">Maximum</font>'}
 };
 
 function getBlockElement (el, parent) {
@@ -9003,8 +9085,9 @@ function isChildOf (el, parent) {
   return false
 }
 
-var Caret = function Caret (el) {
+var Caret = function Caret (el, vm) {
   this.el = el;
+  this.vm = vm;
 };
 
 var prototypeAccessors = { selection: {},hasSelection: {},range: {},parent: {},blockParent: {} };
@@ -9112,7 +9195,10 @@ Caret.prototype.is = function is (cmd, param) {
     case 'fontSize':
       return document.queryCommandValue(cmd) === param
     case 'fontName':
-      return document.queryCommandValue(cmd) === ("\"" + param + "\"")
+      var res = document.queryCommandValue(cmd);
+      return res === ("\"" + param + "\"") || res === param
+    case 'fullscreen':
+      return this.vm.inFullscreen
     default:
       var state = document.queryCommandState(cmd);
       return param ? state === param : state
@@ -9147,7 +9233,7 @@ Caret.prototype.apply = function apply (cmd, param, done) {
     if ( done === void 0 ) done = function () {};
 
   if (cmd === 'formatBlock') {
-    if (['BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(param) && this.is(param)) {
+    if (['BLOCKQUOTE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE'].includes(param) && this.is(cmd, param)) {
       cmd = 'outdent';
       param = null;
     }
@@ -9199,6 +9285,11 @@ Caret.prototype.apply = function apply (cmd, param, done) {
     });
     return
   }
+  else if (cmd === 'fullscreen') {
+    this.vm.toggleFullscreen();
+    done();
+    return
+  }
 
   document.execCommand(cmd, false, param);
   done();
@@ -9208,6 +9299,7 @@ Object.defineProperties( Caret.prototype, prototypeAccessors );
 
 var QEditor = {
   name: 'q-editor',
+  mixins: [FullscreenMixin],
   props: {
     value: {
       type: String,
@@ -9219,6 +9311,8 @@ var QEditor = {
       type: String,
       default: '10rem'
     },
+    maxHeight: String,
+    height: String,
     color: String,
     toggleColor: {
       type: String,
@@ -9228,10 +9322,15 @@ var QEditor = {
       type: String,
       default: 'grey-4'
     },
+    contentColor: {
+      type: String,
+      default: 'white'
+    },
     flat: Boolean,
     outline: Boolean,
     push: Boolean,
     definitions: Object,
+    fonts: Object,
     toolbar: {
       type: Array,
       validator: function (v) { return v.length > 0 && v.every(function (group) { return group.length; }); },
@@ -9258,8 +9357,8 @@ var QEditor = {
       }
     },
     buttons: function buttons$1 () {
-      var def = this.definitions
-        ? extend(true, {}, buttons, this.definitions)
+      var def = this.definitions || this.fonts
+        ? extend(true, {}, buttons, this.definitions || {}, getFonts(this.defaultFont, this.fonts))
         : buttons;
 
       return this.toolbar.map(
@@ -9271,6 +9370,8 @@ var QEditor = {
               label: token.label,
               fixedLabel: token.fixedLabel,
               fixedIcon: token.fixedIcon,
+              highlight: token.highlight,
+              list: token.list,
               options: token.options.map(function (item) { return def[item]; })
             }
           }
@@ -9342,14 +9443,14 @@ var QEditor = {
       var key = getEventKey(e);
       this.refreshToolbar();
 
-      if (!e.ctrlKey || [17, 65, 67, 86].includes(key)) {
+      if (!e.ctrlKey) {
         return
       }
 
-      var ref = this.keys[key];
-      var cmd = ref.cmd;
-      var param = ref.param;
-      if (this.keys[key] !== void 0) {
+      var target = this.keys[key];
+      if (target !== void 0) {
+        var cmd = target.cmd;
+        var param = target.param;
         e.preventDefault();
         e.stopPropagation();
         this.runCmd(cmd, param, false);
@@ -9359,6 +9460,7 @@ var QEditor = {
       var this$1 = this;
       if ( update === void 0 ) update = true;
 
+      this.focus();
       this.caret.apply(cmd, param, function () {
         this$1.focus();
         if (update) {
@@ -9379,12 +9481,13 @@ var QEditor = {
   },
   created: function created () {
     document.execCommand('defaultParagraphSeparator', false, 'div');
+    this.defaultFont = window.getComputedStyle(document.body).fontFamily;
   },
   mounted: function mounted () {
     var this$1 = this;
 
     this.$nextTick(function () {
-      this$1.caret = new Caret(this$1.$refs.content);
+      this$1.caret = new Caret(this$1.$refs.content, this$1);
       this$1.$refs.content.innerHTML = this$1.value;
       this$1.$nextTick(this$1.refreshToolbar);
     });
@@ -9396,15 +9499,20 @@ var QEditor = {
       'div',
       {
         staticClass: 'q-editor',
+        style: {
+          height: this.inFullscreen ? '100vh' : null
+        },
         'class': {
-          disabled: this.disable
+          disabled: this.disable,
+          fullscreen: this.inFullscreen,
+          column: this.inFullscreen
         }
       },
       [
         this.readonly ? '' : h(
           'div',
           {
-            staticClass: ("q-editor-toolbar overflow-auto row no-wrap bg-" + (this.toolbarColor)),
+            staticClass: ("q-editor-toolbar q-editor-toolbar-padding overflow-auto row no-wrap bg-" + (this.toolbarColor)),
             'class': {
               'q-editor-toolbar-separator': !this.outline && !this.push
             }
@@ -9415,8 +9523,14 @@ var QEditor = {
           'div',
           {
             ref: 'content',
-            staticClass: 'q-editor-content',
-            style: { minHeight: this.minHeight },
+            staticClass: ("q-editor-content bg-" + (this.contentColor)),
+            style: this.inFullscreen
+              ? {}
+              : { minHeight: this.minHeight, height: this.height, maxHeight: this.maxHeight },
+            class: {
+              col: this.inFullscreen,
+              'overflow-auto': this.inFullscreen
+            },
             attrs: { contenteditable: this.editable },
             on: {
               input: this.onInput,
@@ -9427,8 +9541,7 @@ var QEditor = {
               }
             }
           }
-        ),
-        h('div', {domProps: {innerHTML: JSON.stringify(this.buttons)}})
+        )
       ]
     )
   }
@@ -11009,6 +11122,7 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     error: Boolean,
     activeIcon: String,
     errorIcon: String,
+    doneIcon: String,
     disable: Boolean
   },
   inject: ['__stepper'],
