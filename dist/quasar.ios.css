@@ -2856,6 +2856,9 @@ body.desktop .q-stepper-tab.step-done:hover {
   .q-tab.hide-label .q-tab-label {
     display: none !important;
   }
+  .q-tab.hide-icon .q-tab-label {
+    margin-top: 0;
+  }
 }
 @media (max-width: 991px) {
   .q-tabs-head:not(.scrollable) .q-tabs-scroller,
