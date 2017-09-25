@@ -7313,12 +7313,8 @@ input::selection {
 .ellipsis-3-lines {
   -webkit-line-clamp: 3;
 }
-.readonly,
-[readonly],
 .disabled,
 [disabled],
-.readonly *,
-[readonly] *,
 .disabled *,
 [disabled] * {
   cursor: not-allowed !important;
