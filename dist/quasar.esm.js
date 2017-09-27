@@ -2616,8 +2616,10 @@ var QItemTile = {
 };
 
 function push (child, h, name, slot, replace, conf) {
+  var defaultProps = { props: { right: conf.right } };
+
   if (slot && replace) {
-    child.push(h(name, slot));
+    child.push(h(name, defaultProps, slot));
     return
   }
   var props, v = false;
@@ -2633,7 +2635,7 @@ function push (child, h, name, slot, replace, conf) {
     }
   }
   if (props || slot) {
-    child.push(h(name, props ? {props: conf} : {}, slot));
+    child.push(h(name, props ? {props: conf} : defaultProps, slot));
   }
 }
 
@@ -2643,9 +2645,7 @@ var QItemWrapper = {
   props: {
     cfg: {
       type: Object,
-      default: function default$1 () {
-        return {}
-      }
+      default: function () { return ({}); }
     },
     slotReplace: Boolean
   },
@@ -7426,7 +7426,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   props: {
     data: {
       type: Array,
-      default: []
+      default: function default$1 () { return [] }
     },
     columns: {
       type: Array,
@@ -7434,7 +7434,7 @@ var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     },
     config: {
       type: Object,
-      default: function default$1 () { return {} }
+      default: function default$2 () { return {} }
     }
   },
   data: function data () {
@@ -9668,7 +9668,7 @@ var FabMixin = {
   }
 };
 
-var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab row inline justify-center",class:{'q-fab-opened': _vm.opened}},[_c('q-btn',{class:{glossy: _vm.glossy},attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_c('q-icon',{staticClass:"q-fab-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.icon}}),_c('q-icon',{staticClass:"q-fab-active-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.activeIcon}})],1),_c('div',{staticClass:"q-fab-actions flex no-wrap inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
+var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab row inline justify-center",class:{'q-fab-opened': _vm.opened}},[_c('q-btn',{class:{glossy: _vm.glossy},attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_vm._t("tooltip"),_c('q-icon',{staticClass:"q-fab-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.icon}}),_c('q-icon',{staticClass:"q-fab-active-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.activeIcon}})],2),_c('div',{staticClass:"q-fab-actions flex no-wrap inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
   name: 'q-fab',
   mixins: [FabMixin, ModelToggleMixin],
   components: {
