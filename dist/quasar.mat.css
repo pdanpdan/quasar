@@ -1450,6 +1450,9 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   position: relative;
   vertical-align: middle;
 }
+.z-fab {
+  z-index: 990;
+}
 .q-fab-opened .q-fab-actions {
   opacity: 1;
   transform: scaleX(1) scaleY(1) translateX(0) translateY(0);
@@ -7357,7 +7360,7 @@ body.dimmed:after,
 body.light-dimmed:after {
   z-index: 10000 !important;
 }
-.z-absolute {
+.z-max {
   z-index: 20000 !important;
 }
 body:not(.desktop) .desktop-only,
