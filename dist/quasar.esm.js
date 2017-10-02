@@ -11487,6 +11487,9 @@ var QStepperNavigation = {
 };
 
 var TabMixin = {
+  directives: {
+    Ripple: Ripple
+  },
   props: {
     label: String,
     icon: String,
@@ -11540,17 +11543,53 @@ var TabMixin = {
         return 'display: none;'
       }
     }
+  },
+  methods: {
+    __getTabContent: function __getTabContent (h) {
+      var child = [];
+
+      this.icon && child.push(h(QIcon, {
+        staticClass: 'q-tab-icon',
+        props: {
+          name: this.icon
+        }
+      }));
+
+      this.label && child.push(h('span', {
+        staticClass: 'q-tab-label',
+        domProps: {
+          innerHTML: this.label
+        }
+      }));
+
+      if (this.count) {
+        child.push(h(QChip, {
+          props: {
+            floating: true
+          }
+        }, [ this.count ]));
+      }
+      else if (this.alert) {
+        child.push(h('div', {
+          staticClass: 'q-dot'
+        }));
+      }
+
+      child.push(this.$slots.default);
+      if (this.$q.theme !== 'ios') {
+        child.push(h('div', {
+          staticClass: 'q-tabs-bar',
+          style: this.barStyle
+        }));
+      }
+
+      return child
+    }
   }
 };
 
-var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-link',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column flex-center relative-position",class:_vm.classes,attrs:{"tag":"div","to":_vm.to,"replace":_vm.replace,"append":_vm.append,"exact":_vm.exact,"event":_vm.routerLinkEventName},nativeOn:{"click":function($event){_vm.select($event);}}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('span',{staticClass:"floating label circular"},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tabs-bar",style:(_vm.barStyle)}):_vm._e()],2)},staticRenderFns: [],
+var QRouteTab = {
   name: 'q-route-tab',
-  components: {
-    QIcon: QIcon
-  },
-  directives: {
-    Ripple: Ripple
-  },
   mixins: [TabMixin, RouterLinkMixin],
   watch: {
     $route: function $route () {
@@ -11577,18 +11616,33 @@ var QRouteTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   created: function created () {
     this.checkIfSelected();
+  },
+  render: function render (h) {
+    return h('router-link', {
+      props: {
+        tag: 'div',
+        to: this.to,
+        replace: this.replace,
+        append: this.append,
+        event: routerLinkEventName
+      },
+      nativeOn: {
+        click: this.select
+      },
+      staticClass: 'q-tab column flex-center relative-position',
+      'class': this.classes,
+      directives: [{
+        name: 'ripple',
+        modifiers: {
+          mat: true
+        }
+      }]
+    }, this.__getTabContent(h))
   }
 };
 
-var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tab column flex-center relative-position",class:_vm.classes,on:{"click":_vm.select}},[(_vm.icon)?_c('q-icon',{staticClass:"q-tab-icon",attrs:{"name":_vm.icon}}):_vm._e(),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-tab-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.count)?_c('q-chip',{attrs:{"floating":""}},[_vm._v(_vm._s(_vm.count))]):(_vm.alert)?_c('div',{staticClass:"q-dot"}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-tabs-bar",style:(_vm.barStyle)}):_vm._e()],2)},staticRenderFns: [],
+var QTab = {
   name: 'q-tab',
-  components: {
-    QIcon: QIcon,
-    QChip: QChip
-  },
-  directives: {
-    Ripple: Ripple
-  },
   mixins: [TabMixin],
   props: {
     default: Boolean
@@ -11605,6 +11659,21 @@ var QTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     if (this.default && !this.disable) {
       this.select();
     }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-tab column flex-center relative-position',
+      'class': this.classes,
+      on: {
+        click: this.select
+      },
+      directives: [{
+        name: 'ripple',
+        modifiers: {
+          mat: true
+        }
+      }]
+    }, this.__getTabContent(h))
   }
 };
 
