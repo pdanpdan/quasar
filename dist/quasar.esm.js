@@ -4299,7 +4299,7 @@ var OptionMixin = {
   },
   computed: {
     classes: function classes () {
-      if (this.isActive) {
+      if (this.isActive || this.indeterminate) {
         var cls = [];
         cls.push('active');
         if (this.color) {
@@ -4311,13 +4311,14 @@ var OptionMixin = {
   }
 };
 
-var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline q-focusable row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel},attrs:{"tabindex":"0"},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32)&&_vm._k($event.keyCode,"enter",13)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.classes},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":_vm.__change,"__c":function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}}}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-unchecked cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-checked cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline q-focusable row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel},attrs:{"tabindex":"0"},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32)&&_vm._k($event.keyCode,"enter",13)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.classes},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":_vm.__change,"__c":function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}}}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-checkbox',
   mixins: [Mixin, OptionMixin],
   components: {
     QIcon: QIcon
   },
   props: {
+    indeterminate: Boolean,
     checkedIcon: {
       type: String,
       default: current === 'ios' ? 'check_circle' : 'check_box'
@@ -4325,11 +4326,20 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     uncheckedIcon: {
       type: String,
       default: current === 'ios' ? 'radio_button_unchecked' : 'check_box_outline_blank'
+    },
+    indeterminateIcon: {
+      type: String,
+      default: current === 'ios' ? '' : 'indeterminate_check_box'
     }
   },
   computed: {
     checkedStyle: function checkedStyle () {
       return this.isActive
+        ? {transition: 'opacity 0ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 800ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', opacity: 1, transform: 'scale(1)'}
+        : {transition: 'opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms', opacity: 0, transform: 'scale(0)'}
+    },
+    indeterminateStyle: function indeterminateStyle () {
+      return this.indeterminate
         ? {transition: 'opacity 0ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 800ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', opacity: 1, transform: 'scale(1)'}
         : {transition: 'opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms', opacity: 0, transform: 'scale(0)'}
     },
@@ -5017,36 +5027,414 @@ var QContextMenu = {
   }
 };
 
-var clone = function (data) {
-  return JSON.parse(JSON.stringify(data))
+var Top = {
+  methods: {
+    getTop: function getTop (h) {
+      if (this.noTop) {
+        return
+      }
+
+      var
+        top = this.$scopedSlots.top,
+        topLeft = this.$scopedSlots['top-left'],
+        topRight = this.$scopedSlots['top-right'],
+        topSelection = this.$scopedSlots['top-selection'],
+        hasSelection = this.selection && topSelection && this.rowsSelectedNumber > 0,
+        cls = 'q-datatable-top relative-position row no-wrap items-center',
+        child = [],
+        props = {
+          hasSelection: hasSelection
+        };
+
+      if (top) {
+        return h('div', { staticClass: cls }, [ top(props) ])
+      }
+
+      if (hasSelection) {
+        child.push(topSelection(props));
+      }
+      else {
+        if (topLeft) {
+          child.push(topLeft(props));
+        }
+        else if (this.title) {
+          child.push(h('div', { staticClass: 'q-datatable-title' }, this.title));
+        }
+      }
+
+      if (topRight) {
+        child.push(h('div', { staticClass: 'q-datatable-separator col' }));
+        child.push(topRight(props));
+      }
+
+      if (child.length === 0) {
+        return
+      }
+
+      return h('div', {
+        staticClass: ("" + cls + (hasSelection ? (" text-" + (this.color) + " q-datatable-top-selection") : ''))
+      }, child)
+    }
+  }
 };
 
-var ColumnSelection = {
+function width$1 (val) {
+  return {width: (val + "%")}
+}
+
+var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-progress",class:_vm.color ? ("text-" + (_vm.color)) : ''},[(_vm.buffer && !_vm.indeterminate)?_c('div',{staticClass:"q-progress-buffer",style:(_vm.bufferStyle)},[_vm._v(" ")]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-progress-track",style:(_vm.trackStyle)},[_vm._v(" ")]),_vm._v(" "),_c('div',{staticClass:"q-progress-model",class:{ animate: _vm.animate, stripe: _vm.stripe, indeterminate: _vm.indeterminate },style:(_vm.modelStyle)},[_vm._v(" ")])])},staticRenderFns: [],
+  name: 'q-progress',
+  props: {
+    percentage: {
+      type: Number,
+      default: 0
+    },
+    color: String,
+    stripe: Boolean,
+    animate: Boolean,
+    indeterminate: Boolean,
+    buffer: Number
+  },
+  computed: {
+    model: function model () {
+      return between(this.percentage, 0, 100)
+    },
+    bufferModel: function bufferModel () {
+      return between(this.buffer || 0, 0, 100 - this.model)
+    },
+    modelStyle: function modelStyle () {
+      return width$1(this.model)
+    },
+    bufferStyle: function bufferStyle () {
+      return width$1(this.bufferModel)
+    },
+    trackStyle: function trackStyle () {
+      return width$1(this.buffer ? 100 - this.buffer : 100)
+    }
+  }
+};
+
+var TableHeader = {
+  methods: {
+    getTableHeader: function getTableHeader (h) {
+      if (this.noHeader) {
+        return
+      }
+
+      var child = [ this.getTableHeaderRow(h) ];
+
+      if (this.loader) {
+        child.push(h('tr', { staticClass: 'q-datatable-progress animate-fade' }, [
+          h('td', { attrs: {colspan: '100%'} }, [
+            h(QProgress, {
+              props: {
+                color: this.color,
+                indeterminate: true
+              }
+            })
+          ])
+        ]));
+      }
+
+      return h('thead', child)
+    },
+    getTableHeaderRow: function getTableHeaderRow (h) {
+      var this$1 = this;
+
+      var
+        header = this.$scopedSlots.header,
+        headerCell = this.$scopedSlots['header-cell'];
+
+      if (header) {
+        return header(this.addTableHeaderRowMeta({cols: this.computedColumns, sort: this.sort}))
+      }
+
+      var mapFn;
+
+      if (headerCell) {
+        mapFn = function (col) { return headerCell({col: col, cols: this$1.computedColumns, sort: this$1.sort}); };
+      }
+      else {
+        mapFn = function (col) { return h('th',
+          {
+            staticClass: col.__thClass,
+            on: {click: function () { if (col.sortable) { this$1.sort(col); } }}
+          }, [
+            col.label,
+            h(QIcon, {
+              props: { name: 'arrow_upward' },
+              staticClass: col.__iconClass
+            })
+          ]
+        ); };
+      }
+      var child = this.computedColumns.map(mapFn);
+
+      if (this.singleSelection) {
+        child.unshift(h('th', [' ']));
+      }
+      else if (this.multipleSelection) {
+        child.unshift(h('th', [
+          h(QCheckbox, {
+            props: {
+              color: this.color,
+              value: this.allRowsSelected,
+              indeterminate: this.someRowsSelected
+            },
+            on: {
+              input: function (val) {
+                if (this$1.someRowsSelected) {
+                  val = false;
+                }
+                this$1.computedRows.forEach(function (row) {
+                  this$1.$set(this$1.multipleSelected, row[this$1.rowKey], val);
+                });
+              }
+            }
+          })
+        ]));
+      }
+
+      return h('tr', child)
+    },
+    addTableHeaderRowMeta: function addTableHeaderRowMeta (data) {
+      var this$1 = this;
+
+      if (this.multipleSelection) {
+        Object.defineProperty(data, 'selected', {
+          get: function () { return this$1.allRowsSelected; },
+          set: function (val) {
+            if (this$1.someRowsSelected) {
+              val = false;
+            }
+            this$1.computedRows.forEach(function (row) {
+              this$1.$set(this$1.multipleSelected, row[this$1.rowKey], val);
+            });
+          }
+        });
+        data.partialSelected = this.someRowsSelected;
+        data.multipleSelect = true;
+      }
+
+      return data
+    }
+  }
+};
+
+var TableBody = {
+  methods: {
+    getTableBody: function getTableBody (h) {
+      var this$1 = this;
+
+      var
+        body = this.$scopedSlots.body,
+        bodyCell = this.$scopedSlots['body-cell'],
+        topRow = this.$scopedSlots['top-row'],
+        bottomRow = this.$scopedSlots['bottom-row'];
+      var
+        child = [];
+
+      console.log('RENDER');
+
+      if (body) {
+        child = this.computedRows.map(function (row) {
+          var
+            key = row[this$1.rowKey],
+            selected = this$1.isRowSelected(key);
+
+          return body(this$1.addTableBodyRowMeta({
+            key: key,
+            row: row,
+            cols: this$1.computedColumns,
+            __trClass: selected ? 'selected' : ''
+          }))
+        });
+      }
+      else {
+        child = this.computedRows.map(function (row) {
+          var
+            key = row[this$1.rowKey],
+            selected = this$1.isRowSelected(key),
+            child = bodyCell
+              ? this$1.computedColumns.map(function (col) { return bodyCell({ row: row, col: col, value: typeof col.field === 'function' ? col.field(row) : row[col.field] }); })
+              : this$1.computedColumns.map(function (col) {
+                var slot = this$1.$scopedSlots[("body-cell-" + (col.name))];
+                return slot
+                  ? slot({ row: row, col: col, value: typeof col.field === 'function' ? col.field(row) : row[col.field] })
+                  : h('td', { staticClass: col.__tdClass }, typeof col.field === 'function' ? col.field(row) : row[col.field])
+              });
+
+          if (this$1.selection) {
+            child.unshift(h('td', { staticClass: 'q-table-select' }, [
+              h(QCheckbox, {
+                props: {
+                  value: this$1.multipleSelection
+                    ? this$1.multipleSelected[key] === true
+                    : this$1.singleSelected === key,
+                  color: this$1.color
+                },
+                on: {
+                  input: function (val) {
+                    if (this$1.multipleSelection) {
+                      this$1.$set(this$1.multipleSelected, key, val);
+                    }
+                    else {
+                      this$1.singleSelected = val ? key : null;
+                    }
+                  }
+                }
+              })
+            ]));
+          }
+
+          return h('tr', { key: key, 'class': { selected: selected } }, child)
+        });
+      }
+
+      if (topRow) {
+        child.unshift(topRow({cols: this.computedColumns}));
+      }
+      if (bottomRow) {
+        child.push(bottomRow({cols: this.computedColumns}));
+      }
+
+      return h('tbody', child)
+    },
+    addTableBodyRowMeta: function addTableBodyRowMeta (data) {
+      var this$1 = this;
+
+      if (this.selection) {
+        Object.defineProperty(data, 'selected', {
+          get: function () { return this$1.isRowSelected(data.key); },
+          set: function (val) {
+            if (this$1.multipleSelection) {
+              this$1.$set(this$1.multipleSelected, data.key, val);
+            }
+            else {
+              this$1.singleSelected = val ? data.key : null;
+            }
+          }
+        });
+      }
+
+      Object.defineProperty(data, 'expand', {
+        get: function () { return this$1.rowsExpanded[data.key] === true; },
+        set: function (val) {
+          this$1.$set(this$1.rowsExpanded, data.key, val);
+        }
+      });
+
+      data.cols = data.cols.map(function (col) {
+        var c = Object.assign({}, col);
+        Object.defineProperty(c, 'value', {
+          get: function () { return typeof col.field === 'function' ? col.field(data.row) : data.row[col.field]; }
+        });
+        return c
+      });
+
+      return data
+    }
+  }
+};
+
+var TableFooter = {
+  methods: {
+    getTableFooter: function getTableFooter (h) {
+      return h('tfoot', [])
+    }
+  }
+};
+
+var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-field row no-wrap items-start",class:{ 'q-field-floating': _vm.childHasLabel, 'q-field-no-label': !this.label && !this.$slots.label, 'q-field-with-error': _vm.hasError, 'q-field-dark': _vm.isDark }},[(_vm.icon)?_c('q-icon',{staticClass:"q-field-icon q-field-margin",attrs:{"name":_vm.icon}}):(_vm.insetIcon)?_c('div',{staticClass:"q-field-icon"}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row col"},[(_vm.hasLabel)?_c('div',{staticClass:"q-field-label col-xs-12 q-field-margin",class:("col-sm-" + (_vm.labelWidth))},[_c('div',{staticClass:"q-field-label-inner row items-center"},[(_vm.label)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("label")],2)]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-field-content col-xs-12 col-sm"},[_vm._t("default"),_vm._v(" "),(_vm.hasBottom)?_c('div',{staticClass:"q-field-bottom row no-wrap",class:{'q-field-no-input': _vm.hasNoInput}},[(_vm.hasError && _vm.errorLabel)?_c('div',{staticClass:"q-field-error col",domProps:{"innerHTML":_vm._s(_vm.errorLabel)}}):(_vm.helper)?_c('div',{staticClass:"q-field-helper col",domProps:{"innerHTML":_vm._s(_vm.helper)}}):_c('div',{staticClass:"col"}),_vm._v(" "),(_vm.counter)?_c('div',{staticClass:"q-field-counter col-auto"},[_vm._v(_vm._s(_vm.counter))]):_vm._e()]):_vm._e()],2)])],1)},staticRenderFns: [],
+  name: 'q-field',
+  components: {
+    QIcon: QIcon
+  },
+  props: {
+    labelWidth: {
+      type: Number,
+      default: 5,
+      validator: function validator (val) {
+        return val >= 1 && val < 12
+      }
+    },
+    inset: {
+      type: String,
+      validator: function validator (val) {
+        return ['icon', 'label', 'full'].includes(val)
+      }
+    },
+    label: String,
+    count: {
+      type: [Number, Boolean],
+      default: false
+    },
+    error: Boolean,
+    errorLabel: String,
+    helper: String,
+    icon: String,
+    dark: Boolean
+  },
   data: function data () {
     return {
-      columnSelection: this.columns.map(function (col) { return col.field; })
-    }
-  },
-  watch: {
-    'config.columnPicker': function config_columnPicker (value) {
-      if (!value) {
-        this.columnSelection = this.columns.map(function (col) { return col.field; });
-      }
+      input: {}
     }
   },
   computed: {
-    cols: function cols () {
-      var this$1 = this;
-
-      return this.columns.filter(function (col) { return this$1.columnSelection.includes(col.field); })
+    hasError: function hasError () {
+      return this.input.error || this.error
     },
-    columnSelectionOptions: function columnSelectionOptions () {
-      return this.columns.map(function (col) {
-        return {
-          label: col.label,
-          value: col.field
-        }
-      })
+    hasBottom: function hasBottom () {
+      return (this.hasError && this.errorLabel) || this.helper || this.count
+    },
+    hasLabel: function hasLabel () {
+      return this.label || this.$slots.label || ['label', 'full'].includes(this.inset)
+    },
+    childHasLabel: function childHasLabel () {
+      return this.input.floatLabel || this.input.stackLabel
+    },
+    isDark: function isDark () {
+      return this.input.dark || this.dark
+    },
+    insetIcon: function insetIcon () {
+      return ['icon', 'full'].includes(this.inset)
+    },
+    hasNoInput: function hasNoInput () {
+      return !this.input.$options || this.input.__needsBottom
+    },
+    counter: function counter () {
+      if (this.count) {
+        var length = this.input.length || '0';
+        return Number.isInteger(this.count)
+          ? (length + " / " + (this.count))
+          : length
+      }
+    }
+  },
+  provide: function provide () {
+    return {
+      __field: this
+    }
+  },
+  methods: {
+    __registerInput: function __registerInput (vm, needsBottom) {
+      vm.__needsBottom = needsBottom;
+      this.input = vm;
+    },
+    __unregisterInput: function __unregisterInput () {
+      this.input = {};
+    }
+  }
+};
+
+var QFieldReset = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-field-reset',
+  data: function data () {
+    return {}
+  },
+  provide: function provide () {
+    return {
+      __field: undefined
     }
   }
 };
@@ -5155,100 +5543,6 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   },
   beforeDestroy: function beforeDestroy () {
     clearTimeout(this.timer);
-  }
-};
-
-var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-field row no-wrap items-start",class:{ 'q-field-floating': _vm.childHasLabel, 'q-field-no-label': !this.label && !this.$slots.label, 'q-field-with-error': _vm.hasError, 'q-field-dark': _vm.isDark }},[(_vm.icon)?_c('q-icon',{staticClass:"q-field-icon q-field-margin",attrs:{"name":_vm.icon}}):(_vm.insetIcon)?_c('div',{staticClass:"q-field-icon"}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row col"},[(_vm.hasLabel)?_c('div',{staticClass:"q-field-label col-xs-12 q-field-margin",class:("col-sm-" + (_vm.labelWidth))},[_c('div',{staticClass:"q-field-label-inner row items-center"},[(_vm.label)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("label")],2)]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-field-content col-xs-12 col-sm"},[_vm._t("default"),_vm._v(" "),(_vm.hasBottom)?_c('div',{staticClass:"q-field-bottom row no-wrap",class:{'q-field-no-input': _vm.hasNoInput}},[(_vm.hasError && _vm.errorLabel)?_c('div',{staticClass:"q-field-error col",domProps:{"innerHTML":_vm._s(_vm.errorLabel)}}):(_vm.helper)?_c('div',{staticClass:"q-field-helper col",domProps:{"innerHTML":_vm._s(_vm.helper)}}):_c('div',{staticClass:"col"}),_vm._v(" "),(_vm.counter)?_c('div',{staticClass:"q-field-counter col-auto"},[_vm._v(_vm._s(_vm.counter))]):_vm._e()]):_vm._e()],2)])],1)},staticRenderFns: [],
-  name: 'q-field',
-  components: {
-    QIcon: QIcon
-  },
-  props: {
-    labelWidth: {
-      type: Number,
-      default: 5,
-      validator: function validator (val) {
-        return val >= 1 && val < 12
-      }
-    },
-    inset: {
-      type: String,
-      validator: function validator (val) {
-        return ['icon', 'label', 'full'].includes(val)
-      }
-    },
-    label: String,
-    count: {
-      type: [Number, Boolean],
-      default: false
-    },
-    error: Boolean,
-    errorLabel: String,
-    helper: String,
-    icon: String,
-    dark: Boolean
-  },
-  data: function data () {
-    return {
-      input: {}
-    }
-  },
-  computed: {
-    hasError: function hasError () {
-      return this.input.error || this.error
-    },
-    hasBottom: function hasBottom () {
-      return (this.hasError && this.errorLabel) || this.helper || this.count
-    },
-    hasLabel: function hasLabel () {
-      return this.label || this.$slots.label || ['label', 'full'].includes(this.inset)
-    },
-    childHasLabel: function childHasLabel () {
-      return this.input.floatLabel || this.input.stackLabel
-    },
-    isDark: function isDark () {
-      return this.input.dark || this.dark
-    },
-    insetIcon: function insetIcon () {
-      return ['icon', 'full'].includes(this.inset)
-    },
-    hasNoInput: function hasNoInput () {
-      return !this.input.$options || this.input.__needsBottom
-    },
-    counter: function counter () {
-      if (this.count) {
-        var length = this.input.length || '0';
-        return Number.isInteger(this.count)
-          ? (length + " / " + (this.count))
-          : length
-      }
-    }
-  },
-  provide: function provide () {
-    return {
-      __field: this
-    }
-  },
-  methods: {
-    __registerInput: function __registerInput (vm, needsBottom) {
-      vm.__needsBottom = needsBottom;
-      this.input = vm;
-    },
-    __unregisterInput: function __unregisterInput () {
-      this.input = {};
-    }
-  }
-};
-
-var QFieldReset = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-field-reset',
-  data: function data () {
-    return {}
-  },
-  provide: function provide () {
-    return {
-      __field: undefined
-    }
   }
 };
 
@@ -5579,6 +5873,10 @@ var SelectMixin = {
   }
 };
 
+var clone = function (data) {
+  return JSON.parse(JSON.stringify(data))
+};
+
 function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
@@ -5720,7 +6018,7 @@ var Modal = function (component) {
   }
 };
 
-var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
+var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon,"indeterminate-icon":opt.indeterminateIcon,"indeterminate":_vm.indeterminate},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
   name: 'q-option-group',
   components: {
     QRadio: QRadio,
@@ -5738,6 +6036,7 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       }
     },
     color: String,
+    indeterminate: Boolean,
     options: {
       type: Array,
       validator: function validator (opts) {
@@ -6313,42 +6612,6 @@ var obj;},staticRenderFns: [],
   }
 };
 
-function width$1 (val) {
-  return {width: (val + "%")}
-}
-
-var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-progress",class:_vm.color ? ("text-" + (_vm.color)) : ''},[(_vm.buffer && !_vm.indeterminate)?_c('div',{staticClass:"q-progress-buffer",style:(_vm.bufferStyle)},[_vm._v(" ")]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-progress-track",style:(_vm.trackStyle)},[_vm._v(" ")]),_vm._v(" "),_c('div',{staticClass:"q-progress-model",class:{ animate: _vm.animate, stripe: _vm.stripe, indeterminate: _vm.indeterminate },style:(_vm.modelStyle)},[_vm._v(" ")])])},staticRenderFns: [],
-  name: 'q-progress',
-  props: {
-    percentage: {
-      type: Number,
-      default: 0
-    },
-    color: String,
-    stripe: Boolean,
-    animate: Boolean,
-    indeterminate: Boolean,
-    buffer: Number
-  },
-  computed: {
-    model: function model () {
-      return between(this.percentage, 0, 100)
-    },
-    bufferModel: function bufferModel () {
-      return between(this.buffer || 0, 0, 100 - this.model)
-    },
-    modelStyle: function modelStyle () {
-      return width$1(this.model)
-    },
-    bufferStyle: function bufferStyle () {
-      return width$1(this.bufferModel)
-    },
-    trackStyle: function trackStyle () {
-      return width$1(this.buffer ? 100 - this.buffer : 100)
-    }
-  }
-};
-
 var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"minimized":"","no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss,"position":_vm.position},on:{"close":function($event){_vm.__dismiss();}}},[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),_vm._v(" "),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),_vm._v(" "),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"color":el.color,"placeholder":el.placeholder,"float-label":el.label,"no-pass-toggle":el.noPassToggle},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(el.type === 'chips')?_c('q-chips-input',{attrs:{"color":el.color,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):(['radio', 'checkbox', 'toggle'].includes(el.type))?_c('q-option-group',{attrs:{"type":el.type,"color":el.color,"options":el.items,"inline":el.inline},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}}):_vm._e(),_vm._v(" "),(el.type === 'slider' || el.type === 'range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_vm._v(" "),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap,"square":el.square,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e(),_vm._v(" "),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{staticClass:"block",domProps:{"innerHTML":_vm._s(el.label)}}),_vm._v(" "),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon,"color":el.color},model:{value:(el.model),callback:function ($$v) {el.model=$$v;},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),_vm._v(" "),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{attrs:{"percentage":_vm.progress.model,"color":"progress.color || primary","animate":"","stripe":"","indeterminate":_vm.progress.indeterminate}}),_vm._v(" "),(!_vm.progress.indeterminate)?_c('span',[_vm._v(" "+_vm._s(_vm.progress.model)+" % ")]):_vm._e()],1):_vm._e(),_vm._v(" "),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button,index){return _c('q-btn',{key:index,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),_vm._v(" "),(!_vm.buttons && !_vm.noButtons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
   name: 'q-dialog',
   components: {
@@ -6553,989 +6816,579 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
   }
 };
 
-var TableFilter = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table-toolbar upper-toolbar row col items-center"},[_c('q-search',{staticClass:"col",attrs:{"placeholder":_vm.labels.search},model:{value:(_vm.filtering.terms),callback:function ($$v) {_vm.filtering.terms=$$v;},expression:"filtering.terms"}}),_vm._v(" "),_c('q-select',{staticClass:"no-margin text-right",attrs:{"options":_vm.filterFields,"simple":""},model:{value:(_vm.filtering.field),callback:function ($$v) {_vm.filtering.field=$$v;},expression:"filtering.field"}})],1)},staticRenderFns: [],
-  name: 'q-table-filter',
-  components: {
-    QSearch: QSearch,
-    QSelect: QSelect
-  },
-  props: ['filtering', 'columns', 'labels'],
-  computed: {
-    filterFields: function filterFields () {
-      var cols = this.columns.map(function (col) {
-        return {
-          label: col.label,
-          value: col.field
-        }
-      });
+var Bottom = {
+  methods: {
+    getBottom: function getBottom (h) {
+      if (this.nothingToDisplay) {
+        var message = this.filter
+          ? this.noResultsLabel
+          : (this.loader ? this.loaderLabel : this.noDataLabel);
 
-      return [{label: this.labels.allCols, value: ''}].concat(cols)
+        return h('div', { staticClass: 'q-datatable-bottom row items-center q-datatable-nodata' }, [
+          h(QIcon, {props: {name: 'warning'}}),
+          message
+        ])
+      }
+
+      if (this.noBottom) {
+        return
+      }
+
+      return h('div', { staticClass: 'q-datatable-bottom row items-center' },
+        this.getPaginationRow(h)
+      )
+    },
+    getPaginationRow: function getPaginationRow (h) {
+      var this$1 = this;
+
+      var ref = this.computedPagination;
+      var page = ref.page;
+      var rowsPerPage = ref.rowsPerPage;
+
+      return [
+        h('div', { staticClass: 'col' }, [
+          this.selection && this.rowsSelectedNumber > 0
+            ? this.selectedRowsLabel(this.rowsSelectedNumber)
+            : ''
+        ]),
+        h('div', [
+          h('span', { style: {marginRight: '32px'} }, [
+            this.rowsPerPageLabel
+          ]),
+          h(QSelect, {
+            staticClass: 'inline',
+            style: {
+              margin: '0 15px',
+              minWidth: '50px'
+            },
+            props: {
+              color: this.color,
+              value: rowsPerPage,
+              options: this.computedRowsPerPageOptions,
+              dark: this.dark
+            },
+            on: {
+              input: function (rowsPerPage) {
+                this$1.setPagination({
+                  page: 1,
+                  rowsPerPage: rowsPerPage
+                });
+              }
+            }
+          }),
+          h('span', { style: {margin: '0 32px'} }, [
+            rowsPerPage
+              ? this.paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
+              : this.paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
+          ]),
+          h(QBtn, {
+            props: {
+              color: this.color,
+              round: true,
+              icon: 'chevron_left',
+              small: true,
+              flat: true,
+              disable: page === 1
+            },
+            on: {
+              click: function () {
+                this$1.setPagination({ page: page - 1 });
+              }
+            }
+          }),
+          h(QBtn, {
+            props: {
+              color: this.color,
+              round: true,
+              icon: 'chevron_right',
+              small: true,
+              flat: true,
+              disable: this.lastRowIndex === 0 || page * rowsPerPage >= this.computedRowsNumber
+            },
+            on: {
+              click: function () {
+                this$1.setPagination({ page: page + 1 });
+              }
+            }
+          })
+        ])
+      ]
+    }
+  }
+};
+
+function sortDate (a, b) {
+  return (new Date(a)) - (new Date(b))
+}
+
+var Sort = {
+  props: {
+    sortMethod: {
+      type: Function,
+      default: function default$1 (data, col, descending) {
+        if (col === null || col.field === void 0) {
+          return data
+        }
+
+        var
+          dir = descending ? -1 : 1,
+          val = typeof col.field === 'function'
+            ? function (v) { return col.field(v); }
+            : function (v) { return v[col.field]; };
+
+        return data.sort(function (a, b) {
+          var
+            A = val(a),
+            B = val(b);
+
+          if (A === null || A === void 0) {
+            return -1 * dir
+          }
+          if (B === null || B === void 0) {
+            return 1 * dir
+          }
+          if (col.sort) {
+            return col.sort(A, B) * dir
+          }
+          if (isNumber(A) && isNumber(B)) {
+            return (A - B) * dir
+          }
+          if (isDate(A) && isDate(B)) {
+            return sortDate(A, B) * dir
+          }
+
+          var assign;
+          (assign = [A, B].map(function (s) { return s.toLowerCase(); }), A = assign[0], B = assign[1]);
+
+          return A < B
+            ? -1 * dir
+            : (A === B ? 0 : dir)
+        })
+      }
+    }
+  },
+  computed: {
+    columnToSort: function columnToSort () {
+      var ref = this.computedPagination;
+      var sortBy = ref.sortBy;
+
+      if (sortBy) {
+        var col = this.computedColumns.find(function (def) { return def.name === sortBy; });
+        return col || null
+      }
+    }
+  },
+  methods: {
+    sort: function sort (col /* String(col name) or Object(col definition) */) {
+      if (col === Object(col)) {
+        col = col.name;
+      }
+
+      var ref = this.computedPagination;
+      var sortBy = ref.sortBy;
+      var descending = ref.descending;
+
+      if (sortBy !== col) {
+        sortBy = col;
+        descending = false;
+      }
+      else if (descending) {
+        sortBy = null;
+      }
+      else {
+        descending = true;
+      }
+
+      this.setPagination({ sortBy: sortBy, descending: descending, page: 1 });
     }
   }
 };
 
 var Filter = {
-  data: function data () {
-    return {
-      filtering: {
-        field: '',
-        terms: ''
+  props: {
+    filter: String,
+    filterMethod: {
+      type: Function,
+      default: function default$1 (rows, cols, terms) {
+        return rows.filter(
+          function (row) { return cols.some(function (col) {
+            var val = typeof col.field === 'function'
+              ? col.field(row)
+              : row[col.field];
+
+            return (val + '').toLowerCase().indexOf(terms) > -1
+          }); }
+        )
       }
     }
   },
-  watch: {
-    'filtering.terms': function filtering_terms () {
-      this.resetBody();
-    }
-  },
   computed: {
-    filteringCols: function filteringCols () {
-      return this.cols.filter(function (col) { return col.filter; })
+    hasFilter: function hasFilter () {
+      return this.filter !== void 0
     }
   },
-  methods: {
-    filter: function filter (rows) {
+  watch: {
+    filter: function filter () {
       var this$1 = this;
 
-      var
-        field = this.filtering.field,
-        terms = this.filtering.terms.toLowerCase();
-
-      if (field) {
-        return rows.filter(function (row) { return (row[field] + '').toLowerCase().indexOf(terms) > -1; })
-      }
-
-      return rows.filter(function (row) {
-        return this$1.filteringCols.some(function (col) { return (row[col.field] + '').toLowerCase().indexOf(terms) > -1; })
-      })
-    }
-  },
-  components: {
-    TableFilter: TableFilter
-  }
-};
-
-var labels = {
-  columns: 'Columns',
-  allCols: 'All Columns',
-  rows: 'Rows',
-  selected: {
-    singular: 'item selected.',
-    plural: 'items selected.'
-  },
-  clear: 'Clear',
-  search: 'Search',
-  all: 'All'
-};
-
-var I18n = {
-  computed: {
-    labels: function labels$1 () {
-      if (this.config && this.config.labels) {
-        return extend({}, labels, this.config.labels)
-      }
-      return labels
-    },
-    message: function message () {
-      if (this.rows.length) {
-        return false
-      }
-
-      if (this.filtering.terms) {
-        return (this.config.messages && this.config.messages.noDataAfterFiltering) || '<i class="material-icons">warning</i> No results. Please refine your search terms.'
-      }
-
-      return (this.config.messages && this.config.messages.noData) || '<i class="material-icons">warning</i> No data available to show.'
+      this.$nextTick(function () {
+        this$1.setPagination({ page: 1 });
+      });
     }
   }
 };
-
-var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-pagination",class:{disabled: _vm.disable}},[_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"first_page"},on:{"click":function($event){_vm.set(_vm.min);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setByOffset(-1);}}}),_vm._v(" "),_c('q-input',{ref:"input",staticClass:"inline",style:({width: ((_vm.inputPlaceholder.length) + "rem")}),attrs:{"type":"number","min":_vm.min,"max":_vm.max,"color":_vm.color,"placeholder":_vm.inputPlaceholder,"disable":_vm.disable},on:{"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__update($event);},"blur":_vm.__update},model:{value:(_vm.newPage),callback:function ($$v) {_vm.newPage=$$v;},expression:"newPage"}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setByOffset(1);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"last_page"},on:{"click":function($event){_vm.set(_vm.max);}}})],1)},staticRenderFns: [],
-  name: 'q-pagination',
-  components: {
-    QBtn: QBtn,
-    QInput: QInput
-  },
-  props: {
-    value: {
-      type: Number,
-      required: true
-    },
-    min: {
-      type: Number,
-      default: 1
-    },
-    max: {
-      type: Number,
-      required: true
-    },
-    color: {
-      type: String,
-      default: 'primary'
-    },
-    disable: Boolean
-  },
-  data: function data () {
-    return {
-      newPage: ''
-    }
-  },
-  methods: {
-    set: function set (value) {
-      if (!this.disable) {
-        this.model = value;
-      }
-    },
-    setByOffset: function setByOffset (offset) {
-      if (!this.disable) {
-        this.model = this.value + offset;
-      }
-    },
-    __normalize: function __normalize (value) {
-      return between(parseInt(value, 10), 1, this.max)
-    },
-    __update: function __update () {
-      var parsed = parseInt(this.newPage, 10);
-      if (parsed) {
-        this.model = parsed;
-      }
-
-      this.newPage = '';
-    }
-  },
-  computed: {
-    model: {
-      get: function get () {
-        return this.value
-      },
-      set: function set (value) {
-        if (!value) {
-          return
-        }
-        if (value < this.min || value > this.max) {
-          return
-        }
-        if (this.value !== value) {
-          this.$emit('input', value);
-          this.$emit('change', value);
-        }
-      }
-    },
-    inputPlaceholder: function inputPlaceholder () {
-      return this.value + ' / ' + this.max
-    }
-  }
-};
-
-var TablePagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table-toolbar bottom-toolbar row reverse-wrap items-center justify-end"},[_c('div',[_c('span',{staticClass:"q-data-table-row-label"},[_vm._v(_vm._s(_vm.labels.rows))]),_vm._v(" "),_c('q-select',{staticClass:"inline no-margin",attrs:{"options":_vm.pagination.options,"align":"right","simple":""},on:{"input":_vm.resetPage},model:{value:(_vm.pagination.rowsPerPage),callback:function ($$v) {_vm.pagination.rowsPerPage=$$v;},expression:"pagination.rowsPerPage"}})],1),_vm._v(" "),(_vm.entries > 0)?_c('div',[_vm._v(" "+_vm._s(_vm.start)+" - "+_vm._s(_vm.end)+" / "+_vm._s(_vm.entries)+" ")]):_vm._e(),_vm._v(" "),(_vm.pagination.rowsPerPage > 0)?_c('q-pagination',{attrs:{"max":_vm.max},model:{value:(_vm.pagination.page),callback:function ($$v) {_vm.pagination.page=$$v;},expression:"pagination.page"}}):_vm._e()],1)},staticRenderFns: [],
-  name: 'q-table-pagination',
-  components: {
-    QSelect: QSelect,
-    QPagination: QPagination
-  },
-  props: ['pagination', 'entries', 'labels'],
-  watch: {
-    entries: function entries () {
-      this.resetPage();
-    }
-  },
-  computed: {
-    start: function start () {
-      return (this.pagination.page - 1) * this.pagination.rowsPerPage + 1
-    },
-    end: function end () {
-      if (this.pagination.page === this.max || this.pagination.rowsPerPage === 0) {
-        return this.entries
-      }
-      return this.pagination.page * this.pagination.rowsPerPage
-    },
-    max: function max () {
-      return Math.max(1, Math.ceil(this.entries / this.pagination.rowsPerPage))
-    }
-  },
-  methods: {
-    resetPage: function resetPage () {
-      this.pagination.page = 1;
-    }
-  }
-};
-
-var defaultOptions = [
-  { label: 'All', value: 0 },
-  { label: '5', value: 5 },
-  { label: '10', value: 10 },
-  { label: '15', value: 15 },
-  { label: '20', value: 20 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 }
-];
-
-function parseOptions (opts) {
-  return [{ label: 'All', value: 0 }].concat(
-    opts.map(function (opt) {
-      return {
-        label: '' + opt,
-        value: Number(opt)
-      }
-    })
-  )
-}
 
 var Pagination = {
+  props: {
+    pagination: Object,
+    rowsPerPageOptions: {
+      type: Array,
+      default: function () { return [3, 5, 7, 10, 15, 20, 25, 50, 'All']; }
+    }
+  },
   data: function data () {
     return {
-      _pagination: {
+      innerPagination: {
+        sortBy: null,
+        descending: false,
         page: 1,
-        entries: 0,
-        rowsPerPage: null
+        rowsPerPage: 5
       }
     }
   },
   computed: {
-    pagination: function pagination () {
-      var self = this,
-        cfg = this.config.pagination,
-        options = defaultOptions;
-
-      if (cfg) {
-        if (cfg.options) {
-          options = parseOptions(cfg.options);
-        }
-      }
-
-      options[0].label = this.labels.all;
-
-      return {
-        get page () { return self.$data._pagination.page },
-        set page (page) { self.$data._pagination.page = page; },
-        get entries () { return self.$data._pagination.entries },
-        set entries (entries) { self.$data._pagination.entries = entries; },
-        get rowsPerPage () {
-          var rowsPerPage = self.$data._pagination.rowsPerPage;
-          if (rowsPerPage == null) {
-            if (cfg && typeof cfg.rowsPerPage !== 'undefined') {
-              rowsPerPage = cfg.rowsPerPage;
-            }
-            else {
-              rowsPerPage = 0;
-            }
-          }
-          return rowsPerPage
-        },
-        set rowsPerPage (rowsPerPage) { self.$data._pagination.rowsPerPage = rowsPerPage; },
-        options: options
-      }
-    }
-  },
-  watch: {
-    'pagination.page': function pagination_page () {
-      this.$refs.body.scrollTop = 0;
+    computedPagination: function computedPagination () {
+      return Object.assign({}, this.innerPagination, this.pagination)
+    },
+    firstRowIndex: function firstRowIndex () {
+      var ref = this.computedPagination;
+      var page = ref.page;
+      var rowsPerPage = ref.rowsPerPage;
+      return (page - 1) * rowsPerPage
+    },
+    lastRowIndex: function lastRowIndex () {
+      var ref = this.computedPagination;
+      var page = ref.page;
+      var rowsPerPage = ref.rowsPerPage;
+      return page * rowsPerPage
+    },
+    computedRowsPerPageOptions: function computedRowsPerPageOptions () {
+      return this.rowsPerPageOptions.map(function (count) { return ({
+        label: '' + count,
+        value: typeof count === 'string' ? 0 : count
+      }); })
     }
   },
   methods: {
-    paginate: function paginate (rows) {
-      var
-        page = this.pagination.page,
-        number = this.pagination.rowsPerPage;
+    setPagination: function setPagination (val) {
+      var newPagination = Object.assign({}, this.computedPagination, val);
 
-      if (number <= 0) {
-        return rows
+      if (this.isServerSide) {
+        this.requestServerInteraction({
+          pagination: newPagination
+        });
+        return
       }
-      return rows.slice((page - 1) * number, page * number)
+
+      if (this.pagination) {
+        this.$emit('update:pagination', newPagination);
+      }
+      else {
+        this.innerPagination = newPagination;
+      }
     }
-  },
-  components: {
-    TablePagination: TablePagination
   }
 };
-
-var Responsive = {
-  data: function data () {
-    return {
-      responsive: false
-    }
-  },
-  methods: {
-    handleResponsive: function handleResponsive () {
-      if (typeof this.config.responsive !== 'undefined') {
-        if (!this.config.responsive) {
-          this.responsive = false;
-          return
-        }
-      }
-      this.responsive = viewport().width <= 600;
-    }
-  },
-  watch: {
-    'config.responsive': function config_responsive () {
-      this.$nextTick(this.handleResponsive);
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.handleResponsive();
-      window.addEventListener('resize', this$1.handleResponsive);
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.removeEventListener('resize', this.handleResponsive);
-  }
-};
-
-function getRowSelection (rows, selection, multiple) {
-  if (!selection) {
-    return []
-  }
-  return multiple ? rows.map(function () { return false; }) : [-1]
-}
 
 var RowSelection = {
-  data: function data () {
-    return {
-      rowSelection: []
+  props: {
+    selection: {
+      type: String,
+      validator: function (v) { return ['single', 'multiple'].includes(v); }
     }
   },
-  created: function created () {
-    this.rowSelection = getRowSelection(this.rows, this.config.selection, this.multipleSelection);
-  },
-  watch: {
-    'config.selection': function config_selection (value) {
-      this.rowSelection = getRowSelection(this.rows, value, value === 'multiple');
-    },
-    rows: function rows (r) {
-      this.rowSelection = getRowSelection(r, this.config.selection, this.multipleSelection);
-    },
-    rowSelection: function rowSelection () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.$emit('selection', this$1.rowsSelected, this$1.selectedRows);
-
-        if (this$1.rowsSelected) {
-          this$1.toolbar = 'selection';
-          return
-        }
-        if (this$1.toolbar === 'selection') {
-          this$1.toolbar = '';
-        }
-      });
+  data: function data () {
+    return {
+      multipleSelected: {},
+      singleSelected: null
     }
   },
   computed: {
+    singleSelection: function singleSelection () {
+      return this.selection === 'single'
+    },
     multipleSelection: function multipleSelection () {
-      return this.config.selection && this.config.selection === 'multiple'
+      return this.selection === 'multiple'
     },
-    rowsSelected: function rowsSelected () {
-      if (this.multipleSelection) {
-        return this.rowSelection.filter(function (r) { return r; }).length
-      }
-      return this.rowSelection.length && this.rowSelection[0] !== -1 ? 1 : 0
-    },
-    selectedRows: function selectedRows () {
+    someRowsSelected: function someRowsSelected () {
       var this$1 = this;
 
       if (this.multipleSelection) {
-        return this.rowSelection
-          .map(function (selected, index) { return [selected, this$1.rows[index].__index]; })
-          .filter(function (row) { return row[0]; })
-          .map(function (row) {
-            return { index: row[1], data: this$1.data[row[1]] }
-          })
+        return !this.allRowsSelected && this.computedRows.some(function (row) { return this$1.multipleSelected[row[this$1.rowKey]] === true; })
       }
+    },
+    allRowsSelected: function allRowsSelected () {
+      var this$1 = this;
 
-      if (!this.rowSelection.length || this.rowSelection[0] === -1) {
-        return []
+      if (this.multipleSelection) {
+        return this.computedRows.length > 0 && this.computedRows.every(function (row) { return this$1.multipleSelected[row[this$1.rowKey]] === true; })
       }
-      var
-        index = this.rows[this.rowSelection[0]].__index,
-        row = this.data[index];
+    },
+    rowsSelectedNumber: function rowsSelectedNumber () {
+      var this$1 = this;
 
-      return [{index: index, data: row}]
+      return this.multipleSelection
+        ? Object.keys(this.multipleSelected).filter(function (key) { return this$1.multipleSelected[key] === true; }).length
+        : (this.singleSelected !== null ? 1 : 0)
     }
   },
   methods: {
+    isRowSelected: function isRowSelected (key) {
+      return this.multipleSelection
+        ? this.multipleSelected[key] === true
+        : this.singleSelected === key
+    },
     clearSelection: function clearSelection () {
-      if (!this.multipleSelection) {
-        this.rowSelection = [-1];
-        return
-      }
-      this.rowSelection = this.rows.map(function () { return false; });
-    },
-    emitRowClick: function emitRowClick (row) {
-      this.$emit('rowclick', row);
+      this.multipleSelected = {};
+      this.singleSelected = null;
     }
   }
 };
 
-var Scroll = {
-  data: function data () {
-    return {
-      scroll: {
-        horiz: 0,
-        vert: 0
-      }
-    }
-  },
-  methods: {
-    scrollHandler: function scrollHandler (e) {
-      var this$1 = this;
-
-      var
-        left = e.currentTarget.scrollLeft,
-        top = e.currentTarget.scrollTop;
-
-      window.requestAnimationFrame(function () {
-        if (this$1.$refs.head) {
-          this$1.$refs.head.scrollLeft = left;
-        }
-        this$1.updateStickyScroll(top);
-      });
-    },
-    mouseWheel: function mouseWheel (e) {
-      if (!this.scroll.vert) {
-        return
-      }
-
-      var body = this.$refs.body;
-      body.scrollTop += getMouseWheelDistance(e).pixelY;
-      if (body.scrollTop > 0 && body.scrollTop + body.clientHeight < body.scrollHeight) {
-        e.preventDefault();
-      }
-    },
-    resize: function resize () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        window.requestAnimationFrame(function () {
-          if (this$1.responsive) {
-            return
-          }
-          var
-            body = this$1.$refs.body,
-            size = getScrollbarWidth();
-
-          this$1.scroll.horiz = size && body.clientWidth < body.scrollWidth ? size + 'px' : 0;
-          this$1.scroll.vert = size && body.scrollHeight > body.clientHeight ? size + 'px' : 0;
-        });
-      });
-    },
-    updateStickyScroll: function updateStickyScroll (top) {
-      if (this.$refs.stickyLeft) {
-        this.$refs.stickyLeft.scrollTop = top;
-      }
-      if (this.$refs.stickyRight) {
-        this.$refs.stickyRight.scrollTop = top;
-      }
-    }
-  },
-  watch: {
-    $data: {
-      deep: true,
-      handler: function handler () {
-        this.resize();
-      }
-    },
-    bodyStyle: {
-      deep: true,
-      handler: function handler () {
-        var this$1 = this;
-
-        this.$nextTick(function () {
-          this$1.resize();
-        });
-      }
-    },
-    rowStyle: {
-      deep: true,
-      handler: function handler () {
-        var this$1 = this;
-
-        this.$nextTick(function () {
-          this$1.resize();
-        });
-      }
-    },
-    rightStickyColumns: function rightStickyColumns () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.updateStickyScroll(this$1.$refs.body.scrollTop);
-      });
-    },
-    leftStickyColumns: function leftStickyColumns () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.updateStickyScroll(this$1.$refs.body.scrollTop);
-      });
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.resize();
-      window.addEventListener('resize', this$1.resize);
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.removeEventListener('resize', this.resize);
-  }
-};
-
-var sortMethod = {
-  string: function (a, b) { return a.localeCompare(b); },
-  number: function (a, b) { return a - b; },
-  date: function (a, b) { return (new Date(a)) - (new Date(b)); },
-  boolean: function (a, b) {
-    if (a && !b) { return -1 }
-    if (!a && b) { return 1 }
-    return 0
-  }
-};
-
-function nextDirection (dir) {
-  if (dir === 0) { return 1 }
-  if (dir === 1) { return -1 }
-  return 0
-}
-
-function getSortFn (sort, type) {
-  if (typeof sort === 'function') {
-    return sort
-  }
-  return sortMethod[type] || sortMethod.number
-}
-
-var Sort = {
-  data: function data () {
-    return {
-      sorting: {
-        field: '',
-        dir: 0,
-        fn: false
-      }
-    }
-  },
-  watch: {
-    'sorting.dir': function sorting_dir () {
-      this.resetBody();
-    }
-  },
-  methods: {
-    setSortField: function setSortField (col) {
-      if (this.sorting.field === col.field) {
-        this.sorting.dir = nextDirection(this.sorting.dir);
-        if (this.sorting.dir === 0) {
-          this.sorting.field = '';
-        }
-        return
-      }
-
-      this.sorting.field = col.field;
-      this.sorting.dir = 1;
-      this.sorting.fn = getSortFn(col.sort, col.type);
-    },
-    sort: function sort (rows) {
-      var sortFn = this.sorting.fn || (function (a, b) { return a - b; });
-      var
-        field = this.sorting.field,
-        dir = this.sorting.dir;
-
-      rows.sort(function (a, b) { return dir * sortFn(a[field], b[field]); });
-    }
-  }
-};
-
-var SortIcon = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":_vm.icon}})},staticRenderFns: [],
-  name: 'q-sort-icon',
-  components: {
-    QIcon: QIcon
-  },
+var ColumnSelection = {
   props: {
-    field: String,
-    sorting: Object
+    visibleColumns: Array
   },
   computed: {
-    icon: function icon () {
-      if (this.sorting.field !== this.field) {
-        return 'import_export'
-      }
-      return this.sorting.dir === 1 ? 'arrow_downward' : 'arrow_upward'
-    }
-  }
-};
+    computedColumns: function computedColumns () {
+      var this$1 = this;
 
-var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',{staticClass:"q-tooltip animate-scale",style:(_vm.transformCSS)},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-tooltip',
-  mixins: [ModelToggleMixin],
-  props: {
-    anchor: {
-      type: String,
-      default: 'top middle',
-      validator: positionValidator
-    },
-    self: {
-      type: String,
-      default: 'bottom middle',
-      validator: positionValidator
-    },
-    offset: {
-      type: Array,
-      validator: offsetValidator
-    },
-    delay: {
-      type: Number,
-      default: 0
-    },
-    maxHeight: String,
-    disable: Boolean
-  },
-  data: function data () {
-    return {
-      opened: false
-    }
-  },
-  computed: {
-    anchorOrigin: function anchorOrigin () {
-      return parsePosition(this.anchor)
-    },
-    selfOrigin: function selfOrigin () {
-      return parsePosition(this.self)
-    },
-    transformCSS: function transformCSS () {
-      return getTransformProperties({
-        selfOrigin: this.selfOrigin
+      var ref = this.computedPagination;
+      var sortBy = ref.sortBy;
+      var descending = ref.descending;
+
+      var cols = this.visibleColumns
+        ? this.columns.filter(function (col) { return col.required || this$1.visibleColumns.includes(col.name); })
+        : this.columns;
+
+      return cols.map(function (col) {
+        col.align = col.align || 'right';
+        col.__iconClass = "sort-icon sort-icon-" + (col.align);
+        col.__thClass = "text-" + (col.align) + (col.sortable ? ' sortable' : '') + (col.name === sortBy ? (" sorted " + (descending ? 'sort-desc' : '')) : '');
+        col.__tdClass = "text-" + (col.align);
+        return col
       })
     }
-  },
-  methods: {
-    toggle: function toggle () {
-      if (this.opened) {
-        this.close();
-      }
-      else {
-        this.open();
-      }
-    },
-    open: function open () {
-      if (this.disable || this.opened) {
-        return
-      }
-      clearTimeout(this.timer);
-      this.opened = true;
-      document.body.appendChild(this.$el);
-      this.scrollTarget = getScrollTarget(this.anchorEl);
-      this.scrollTarget.addEventListener('scroll', this.close);
-      window.addEventListener('resize', this.__debouncedUpdatePosition);
-      if (Platform.is.mobile) {
-        document.body.addEventListener('click', this.close, true);
-      }
-      this.__updateModel(true);
-      this.$emit('open');
-      this.__updatePosition();
-    },
-    close: function close () {
-      clearTimeout(this.timer);
-      if (this.opened) {
-        this.opened = false;
-        this.scrollTarget.removeEventListener('scroll', this.close);
-        window.removeEventListener('resize', this.__debouncedUpdatePosition);
-        document.body.removeChild(this.$el);
-        if (Platform.is.mobile) {
-          document.body.removeEventListener('click', this.close, true);
-        }
-        this.__updateModel(false);
-        this.$emit('close');
-      }
-    },
-    __updatePosition: function __updatePosition () {
-      setPosition({
-        el: this.$el,
-        offset: this.offset,
-        anchorEl: this.anchorEl,
-        anchorOrigin: this.anchorOrigin,
-        selfOrigin: this.selfOrigin,
-        maxHeight: this.maxHeight
-      });
-    },
-    __delayOpen: function __delayOpen () {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.open, this.delay);
-    }
-  },
-  created: function created () {
-    var this$1 = this;
-
-    this.__debouncedUpdatePosition = debounce(function () {
-      this$1.__updatePosition();
-    }, 70);
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      /*
-        The following is intentional.
-        Fixes a bug in Chrome regarding offsetHeight by requiring browser
-        to calculate this before removing from DOM and using it for first time.
-      */
-      this$1.$el.offsetHeight; // eslint-disable-line
-
-      this$1.anchorEl = this$1.$el.parentNode;
-      this$1.anchorEl.removeChild(this$1.$el);
-      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
-        this$1.anchorEl = this$1.anchorEl.parentNode;
-      }
-      if (Platform.is.mobile) {
-        this$1.anchorEl.addEventListener('click', this$1.open);
-      }
-      else {
-        this$1.anchorEl.addEventListener('mouseenter', this$1.__delayOpen);
-        this$1.anchorEl.addEventListener('focus', this$1.__delayOpen);
-        this$1.anchorEl.addEventListener('mouseleave', this$1.close);
-        this$1.anchorEl.addEventListener('blur', this$1.close);
-      }
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    if (Platform.is.mobile) {
-      this.anchorEl.removeEventListener('click', this.open);
-    }
-    else {
-      this.anchorEl.removeEventListener('mouseenter', this.__delayOpen);
-      this.anchorEl.removeEventListener('focus', this.__delayOpen);
-      this.anchorEl.removeEventListener('mouseleave', this.close);
-      this.anchorEl.removeEventListener('blur', this.close);
-    }
-    this.close();
   }
 };
 
-var TableSticky = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator"},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})})],2),_vm._v(" "),(!_vm.noHeader)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col,index){return _c('th',{class:{invisible: _vm.hidden(index), sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(!_vm.hidden(index))?[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()]:_vm._e()],2)})],2)]):_vm._e(),_vm._v(" "),(!_vm.head)?_c('tbody',[_vm._t("default")],2):_vm._e()])},staticRenderFns: [],
-  name: 'q-table-sticky',
-  components: {
-    SortIcon: SortIcon,
-    QTooltip: QTooltip
-  },
-  props: {
-    stickyCols: Number,
-    cols: Array,
-    head: Boolean,
-    noHeader: Boolean,
-    right: Boolean,
-    sorting: Object,
-    scroll: Object,
-    selection: [String, Boolean]
-  },
+var Expand = {
   data: function data () {
     return {
-      selected: false
-    }
-  },
-  methods: {
-    hidden: function hidden (index) {
-      if (this.right) {
-        return this.cols.length - this.stickyCols > index
-      }
-      return index >= this.stickyCols
-    },
-    sort: function sort (col) {
-      if (col.sort) {
-        this.$emit('sort', col);
-      }
+      rowsExpanded: {}
     }
   }
 };
 
-var StickyColumns = {
-  computed: {
-    leftStickyColumns: function leftStickyColumns () {
-      var this$1 = this;
-
-      var
-        number = this.config.leftStickyColumns || 0,
-        cols = number;
-
-      for (var i = 0; i < cols; i++) {
-        if (!this$1.columnSelection.includes(this$1.columns[i].field)) {
-          number--;
-        }
-      }
-      return number
-    },
-    rightStickyColumns: function rightStickyColumns () {
-      var this$1 = this;
-
-      var
-        number = this.config.rightStickyColumns || 0,
-        cols = number,
-        length = this.columns.length;
-
-      for (var i = 1; i <= cols; i++) {
-        if (!this$1.columnSelection.includes(this$1.columns[length - i].field)) {
-          number--;
-        }
-      }
-      return number
-    },
-    regularCols: function regularCols () {
-      return this.cols.slice(this.leftStickyColumns, this.cols.length - this.rightStickyColumns)
-    },
-    leftCols: function leftCols () {
-      var this$1 = this;
-
-      return Array.apply(null, Array(this.leftStickyColumns)).map(function (col, n) { return this$1.cols[n]; })
-    },
-    rightCols: function rightCols () {
-      var this$1 = this;
-
-      return Array.apply(null, Array(this.rightStickyColumns)).map(function (col, n) { return this$1.cols[this$1.cols.length - this$1.rightStickyColumns + n]; })
-    }
-  },
-  components: {
-    TableSticky: TableSticky
-  }
-};
-
-var TableContent = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('table',{staticClass:"q-table horizontal-separator",style:(_vm.tableStyle)},[_c('colgroup',[(_vm.selection)?_c('col',{staticStyle:{"width":"45px"}}):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('col',{style:({width: col.width})})}),_vm._v(" "),(_vm.head && _vm.scroll.horiz)?_c('col',{style:({width: _vm.scroll.horiz})}):_vm._e()],2),_vm._v(" "),(_vm.head)?_c('thead',[_c('tr',[(_vm.selection)?_c('th',[_vm._v(" ")]):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('th',{class:{sortable: col.sort},on:{"click":function($event){_vm.sort(col);}}},[(col.sort)?_c('sort-icon',{attrs:{"field":col.field,"sorting":_vm.sorting}}):_vm._e(),_vm._v(" "),_c('span',{domProps:{"innerHTML":_vm._s(col.label)}}),_vm._v(" "),(col.label)?_c('q-tooltip',{domProps:{"innerHTML":_vm._s(col.label)}}):_vm._e()],1)}),_vm._v(" "),(_vm.head && _vm.scroll.horiz)?_c('th'):_vm._e()],2)]):_c('tbody',[_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-table-content',
-  components: {
-    SortIcon: SortIcon,
-    QTooltip: QTooltip
-  },
-  props: {
-    cols: Array,
-    head: Boolean,
-    sorting: Object,
-    scroll: Object,
-    selection: [String, Boolean]
-  },
-  computed: {
-    tableStyle: function tableStyle () {
-      return {
-        width: this.head && this.vert ? ("calc(100% - " + (this.scroll.vert) + ")") : '100%'
-      }
-    }
-  },
-  methods: {
-    sort: function sort (col) {
-      if (col.sort) {
-        this.$emit('sort', col);
-      }
-    }
-  }
-};
-
-var QDataTable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-data-table"},[(_vm.hasToolbar && _vm.toolbar === '')?[_c('div',{staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end"},[(_vm.config.title)?_c('div',{staticClass:"q-data-table-title ellipsis col",domProps:{"innerHTML":_vm._s(_vm.config.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row items-center"},[(_vm.config.refresh && !_vm.refreshing)?_c('q-btn',{attrs:{"flat":"","color":"primary","icon":"refresh"},on:{"click":_vm.refresh}}):_vm._e(),_vm._v(" "),(_vm.refreshing)?_c('q-btn',{staticClass:"disabled"},[_c('q-icon',{staticClass:"animate-spin-reverse",attrs:{"name":"cached"}})],1):_vm._e(),_vm._v(" "),(_vm.config.columnPicker)?_c('q-select',{staticStyle:{"margin":"0 0 0 10px"},attrs:{"multiple":"multiple","toggle":"","options":_vm.columnSelectionOptions,"display-value":_vm.labels.columns,"simple":""},model:{value:(_vm.columnSelection),callback:function ($$v) {_vm.columnSelection=$$v;},expression:"columnSelection"}}):_vm._e()],1)])]:_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.toolbar === 'selection'),expression:"toolbar === 'selection'"}],staticClass:"q-data-table-toolbar upper-toolbar row reverse-wrap items-center justify-end q-data-table-selection"},[_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.rowsSelected)+" "),(_vm.rowsSelected === 1)?_c('span',[_vm._v(_vm._s(_vm.labels.selected.singular))]):_c('span',[_vm._v(_vm._s(_vm.labels.selected.plural))]),_vm._v(" "),_c('q-btn',{attrs:{"flat":"","small":"","color":"primary","label":_vm.labels.clear},on:{"click":_vm.clearSelection}})],1),_vm._v(" "),_c('div',[_vm._t("selection",null,{rows:_vm.selectedRows})],2)]),_vm._v(" "),(_vm.filteringCols.length)?_c('table-filter',{attrs:{"filtering":_vm.filtering,"columns":_vm.filteringCols,"labels":_vm.labels}}):_vm._e(),_vm._v(" "),(_vm.responsive)?[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('div',{staticStyle:{"overflow":"auto"},style:(_vm.bodyStyle)},[_c('table',{ref:"body",staticClass:"q-table horizontal-separator responsive"},[_c('tbody',_vm._l((_vm.rows),function(row,index){return _c('tr',{on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.rowSelection[index]),callback:function ($$v) {_vm.$set(_vm.rowSelection, index, $$v);},expression:"rowSelection[index]"}}):_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}})],1):_vm._e(),_vm._v(" "),_vm._l((_vm.cols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field])),attrs:{"data-th":col.label}},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))])])]:_c('div',{staticClass:"q-data-table-container",on:{"wheel":_vm.mouseWheel,"mousewheel":_vm.mouseWheel,"DOMMouseScroll":_vm.mouseWheel}},[(_vm.hasHeader)?_c('div',{ref:"head",staticClass:"q-data-table-head",style:({marginRight: _vm.scroll.vert})},[_c('table-content',{attrs:{"head":"","cols":_vm.cols,"sorting":_vm.sorting,"scroll":_vm.scroll,"selection":_vm.config.selection},on:{"sort":_vm.setSortField}})],1):_vm._e(),_vm._v(" "),_c('div',{ref:"body",staticClass:"q-data-table-body",style:(_vm.bodyStyle),on:{"scroll":_vm.scrollHandler}},[(_vm.message)?_c('div',{staticClass:"q-data-table-message row flex-center",domProps:{"innerHTML":_vm._s(_vm.message)}}):_c('table-content',{attrs:{"cols":_vm.cols,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td'):_vm._e(),_vm._v(" "),(_vm.leftStickyColumns)?_c('td',{attrs:{"colspan":_vm.leftStickyColumns}}):_vm._e(),_vm._v(" "),_vm._l((_vm.regularCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)}),_vm._v(" "),(_vm.rightStickyColumns)?_c('td',{attrs:{"colspan":_vm.rightStickyColumns}}):_vm._e()],2)}))],1),_vm._v(" "),(!_vm.message && (_vm.leftStickyColumns || _vm.config.selection))?[_c('div',{ref:"stickyLeft",staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"sticky-cols":_vm.leftStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row,index){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',[(_vm.config.selection === 'multiple')?_c('q-checkbox',{model:{value:(_vm.rowSelection[index]),callback:function ($$v) {_vm.$set(_vm.rowSelection, index, $$v);},expression:"rowSelection[index]"}}):_c('q-radio',{attrs:{"val":index},model:{value:(_vm.rowSelection[0]),callback:function ($$v) {_vm.$set(_vm.rowSelection, 0, $$v);},expression:"rowSelection[0]"}})],1):_vm._e(),_vm._v(" "),_vm._l((_vm.leftCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-left",style:({bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"head":"","sticky-cols":_vm.leftStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection},on:{"sort":_vm.setSortField}})],1):_vm._e()]:_vm._e(),_vm._v(" "),(!_vm.message && _vm.rightStickyColumns)?[_c('div',{ref:"stickyRight",staticClass:"q-data-table-sticky-right",style:({right: _vm.scroll.vert, bottom: _vm.scroll.horiz})},[_c('table-sticky',{attrs:{"no-header":!_vm.hasHeader,"right":"","sticky-cols":_vm.rightStickyColumns,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection}},_vm._l((_vm.rows),function(row){return _c('tr',{style:(_vm.rowStyle),on:{"click":function($event){_vm.emitRowClick(row);}}},[(_vm.config.selection)?_c('td',{staticClass:"invisible"}):_vm._e(),_vm._v(" "),_c('td',{staticClass:"invisible",attrs:{"colspan":_vm.cols.length - _vm.rightStickyColumns}}),_vm._v(" "),_vm._l((_vm.rightCols),function(col){return _c('td',{class:_vm.formatClass(col, row[col.field]),style:(_vm.formatStyle(col, row[col.field]))},[_vm._t('col-'+col.field,[_c('span',{domProps:{"innerHTML":_vm._s(_vm.format(row, col))}})],{row:row,col:col,data:row[col.field]})],2)})],2)}))],1),_vm._v(" "),(_vm.hasHeader)?_c('div',{staticClass:"q-data-table-sticky-right",style:({right: _vm.scroll.vert})},[_c('table-sticky',{attrs:{"right":"","head":"","sticky-cols":_vm.rightStickyColumns,"scroll":_vm.scroll,"cols":_vm.cols,"sorting":_vm.sorting,"selection":_vm.config.selection},on:{"sort":_vm.setSortField}})],1):_vm._e()]:_vm._e()],2),_vm._v(" "),(_vm.config.pagination)?_c('table-pagination',{attrs:{"pagination":_vm.pagination,"entries":_vm.pagination.entries,"labels":_vm.labels}}):_vm._e()],2)},staticRenderFns: [],
+var QDataTable = {
   name: 'q-data-table',
-  components: {
-    QSelect: QSelect,
-    QBtn: QBtn,
-    QIcon: QIcon,
-    QCheckbox: QCheckbox,
-    QRadio: QRadio,
-    TableContent: TableContent
-  },
-  mixins: [ColumnSelection, Filter, I18n, Pagination, Responsive, RowSelection, Scroll, Sort, StickyColumns],
+  mixins: [
+    Top,
+    TableHeader,
+    TableBody,
+    TableFooter,
+    Bottom,
+    Sort,
+    Filter,
+    Pagination,
+    RowSelection,
+    ColumnSelection,
+    Expand
+  ],
   props: {
     data: {
       type: Array,
-      default: function default$1 () { return [] }
+      default: function () { return []; }
+    },
+    rowKey: {
+      type: String,
+      default: 'id'
+    },
+    color: {
+      type: String,
+      default: 'grey-8'
+    },
+    columns: Array,
+    loader: Boolean,
+    title: String,
+    noTop: Boolean,
+    noHeader: Boolean,
+    noBottom: Boolean,
+    dark: Boolean,
+    compact: Boolean,
+    separator: {
+      type: String,
+      default: 'horizontal',
+      validator: function (v) { return ['horizontal', 'vertical', 'cell', 'none'].includes(v); }
+    },
+    noDataLabel: {
+      type: String,
+      default: 'No data available'
+    },
+    noResultsLabel: {
+      type: String,
+      default: 'No matching records found'
+    },
+    loaderLabel: {
+      type: String,
+      default: 'Loading...'
+    },
+    selectedRowsLabel: {
+      type: Function,
+      default: function (rows) { return (rows + " selected row(s)."); }
+    },
+    rowsPerPageLabel: {
+      type: String,
+      default: 'Rows per page:'
+    },
+    paginationLabel: {
+      type: Function,
+      default: function (start, end, total) { return (start + "-" + end + " of " + total); }
+    },
+    tableStyle: {
+      type: [String, Array, Object],
+      default: ''
+    },
+    tableClass: {
+      type: [String, Array, Object],
+      default: ''
+    }
+  },
+  computed: {
+    computedRows: function computedRows () {
+      var rows = this.data.slice();
+
+      if (rows.length === 0) {
+        return []
+      }
+      if (this.isServerSide) {
+        return rows
+      }
+
+      var ref = this.computedPagination;
+      var descending = ref.descending;
+      var rowsPerPage = ref.rowsPerPage;
+
+      if (this.hasFilter && this.filter) {
+        rows = this.filterMethod(rows, this.computedColumns, this.filter);
+      }
+
+      if (this.columnToSort) {
+        rows = this.sortMethod(rows, this.columnToSort, descending);
+      }
+
+      if (rowsPerPage) {
+        rows = rows.slice(this.firstRowIndex, this.lastRowIndex);
+      }
+
+      return rows
+    },
+    computedRowsNumber: function computedRowsNumber () {
+      return this.isServerSide
+        ? this.computedPagination.rowsNumber || 0
+        : this.data.length
+    },
+    nothingToDisplay: function nothingToDisplay () {
+      return this.computedRows.length === 0
+    },
+    isServerSide: function isServerSide () {
+      return this.computedPagination.rowsNumber !== void 0
+    }
+  },
+  render: function render (h) {
+    return h('div',
+      {
+        'class': {
+          'q-datatable': true,
+          'q-datatable-dark': this.dark,
+          'q-datatable-compact': this.compact
+        }
+      },
+      [
+        this.getTop(h),
+        h('div', { staticClass: 'q-datatable-middle scroll', 'class': this.tableClass, style: this.tableStyle }, [
+          h('table',
+            {
+              'class': [
+                ("q-table-" + (this.separator) + "-separator"),
+                {
+                  'q-table': true,
+                  'q-table-dark': this.dark,
+                  'q-table-compact': this.compact
+                }
+              ]
+            },
+            [
+              this.getTableHeader(h),
+              this.getTableBody(h),
+              this.getTableFooter(h)
+            ]
+          )
+        ]),
+        this.getBottom(h)
+      ]
+    )
+  },
+  methods: {
+    requestServerInteraction: function requestServerInteraction (prop) {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        this$1.$emit('request', {
+          pagination: prop.pagination || this$1.computedPagination,
+          filter: prop.filter || this$1.filter
+        });
+      });
+    }
+  }
+};
+
+var QDataTableColumns = {
+  name: 'q-data-table-columns',
+  props: {
+    value: {
+      type: Array,
+      required: true
+    },
+    label: {
+      type: String,
+      default: 'Columns'
     },
     columns: {
       type: Array,
       required: true
     },
-    config: {
-      type: Object,
-      default: function default$2 () { return {} }
-    }
-  },
-  data: function data () {
-    return {
-      selected: false,
-      toolbar: '',
-      refreshing: false
-    }
+    color: String
   },
   computed: {
-    rows: function rows () {
-      var length = this.data.length;
-
-      if (!length) {
-        return []
-      }
-
-      var rows = clone(this.data);
-
-      rows.forEach(function (row, i) {
-        row.__index = i;
-      });
-
-      if (this.filtering.terms) {
-        rows = this.filter(rows);
-      }
-
-      if (this.sorting.field) {
-        this.sort(rows);
-      }
-
-      this.pagination.entries = rows.length;
-      if (this.pagination.rowsPerPage > 0) {
-        rows = this.paginate(rows);
-      }
-
-      return rows
-    },
-    rowStyle: function rowStyle () {
-      if (this.config.rowHeight) {
-        return {height: this.config.rowHeight}
-      }
-    },
-    bodyStyle: function bodyStyle () {
-      return this.config.bodyStyle || {}
-    },
-    hasToolbar: function hasToolbar () {
-      return this.config.title || this.config.columnPicker || this.config.refresh
-    },
-    hasHeader: function hasHeader () {
-      return !this.config.noHeader
+    computedOptions: function computedOptions () {
+      return this.columns.filter(function (col) { return !col.required; }).map(function (col) { return ({
+        value: col.name,
+        label: col.label
+      }); })
     }
   },
-  methods: {
-    resetBody: function resetBody () {
-      var body = this.$refs.body;
-
-      if (body) {
-        body.scrollTop = 0;
+  render: function render (h) {
+    return h(QSelect, {
+      props: {
+        multiple: true,
+        toggle: true,
+        value: this.value,
+        options: this.computedOptions,
+        displayValue: this.label,
+        color: this.color
       }
-      this.pagination.page = 1;
-    },
-    format: function format (row, col) {
-      return col.format ? col.format(row[col.field], row) : row[col.field]
-    },
-    refresh: function refresh (state) {
-      var this$1 = this;
-
-      if (state === false) {
-        this.refreshing = false;
-      }
-      else if (state === true || !this.refreshing) {
-        this.refreshing = true;
-        this.$emit('refresh', function () {
-          this$1.refreshing = false;
-        });
-      }
-    },
-    formatStyle: function formatStyle (col, value) {
-      return typeof col.style === 'function' ? col.style(value) : col.style
-    },
-    formatClass: function formatClass (col, value) {
-      return typeof col.classes === 'function' ? col.classes(value) : col.classes
-    }
+    })
   }
 };
 
@@ -8934,6 +8787,152 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
   }
 };
 
+var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',{staticClass:"q-tooltip animate-scale",style:(_vm.transformCSS)},[_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-tooltip',
+  mixins: [ModelToggleMixin],
+  props: {
+    anchor: {
+      type: String,
+      default: 'top middle',
+      validator: positionValidator
+    },
+    self: {
+      type: String,
+      default: 'bottom middle',
+      validator: positionValidator
+    },
+    offset: {
+      type: Array,
+      validator: offsetValidator
+    },
+    delay: {
+      type: Number,
+      default: 0
+    },
+    maxHeight: String,
+    disable: Boolean
+  },
+  data: function data () {
+    return {
+      opened: false
+    }
+  },
+  computed: {
+    anchorOrigin: function anchorOrigin () {
+      return parsePosition(this.anchor)
+    },
+    selfOrigin: function selfOrigin () {
+      return parsePosition(this.self)
+    },
+    transformCSS: function transformCSS () {
+      return getTransformProperties({
+        selfOrigin: this.selfOrigin
+      })
+    }
+  },
+  methods: {
+    toggle: function toggle () {
+      if (this.opened) {
+        this.close();
+      }
+      else {
+        this.open();
+      }
+    },
+    open: function open () {
+      if (this.disable || this.opened) {
+        return
+      }
+      clearTimeout(this.timer);
+      this.opened = true;
+      document.body.appendChild(this.$el);
+      this.scrollTarget = getScrollTarget(this.anchorEl);
+      this.scrollTarget.addEventListener('scroll', this.close);
+      window.addEventListener('resize', this.__debouncedUpdatePosition);
+      if (Platform.is.mobile) {
+        document.body.addEventListener('click', this.close, true);
+      }
+      this.__updateModel(true);
+      this.$emit('open');
+      this.__updatePosition();
+    },
+    close: function close () {
+      clearTimeout(this.timer);
+      if (this.opened) {
+        this.opened = false;
+        this.scrollTarget.removeEventListener('scroll', this.close);
+        window.removeEventListener('resize', this.__debouncedUpdatePosition);
+        document.body.removeChild(this.$el);
+        if (Platform.is.mobile) {
+          document.body.removeEventListener('click', this.close, true);
+        }
+        this.__updateModel(false);
+        this.$emit('close');
+      }
+    },
+    __updatePosition: function __updatePosition () {
+      setPosition({
+        el: this.$el,
+        offset: this.offset,
+        anchorEl: this.anchorEl,
+        anchorOrigin: this.anchorOrigin,
+        selfOrigin: this.selfOrigin,
+        maxHeight: this.maxHeight
+      });
+    },
+    __delayOpen: function __delayOpen () {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.open, this.delay);
+    }
+  },
+  created: function created () {
+    var this$1 = this;
+
+    this.__debouncedUpdatePosition = debounce(function () {
+      this$1.__updatePosition();
+    }, 70);
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      /*
+        The following is intentional.
+        Fixes a bug in Chrome regarding offsetHeight by requiring browser
+        to calculate this before removing from DOM and using it for first time.
+      */
+      this$1.$el.offsetHeight; // eslint-disable-line
+
+      this$1.anchorEl = this$1.$el.parentNode;
+      this$1.anchorEl.removeChild(this$1.$el);
+      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode;
+      }
+      if (Platform.is.mobile) {
+        this$1.anchorEl.addEventListener('click', this$1.open);
+      }
+      else {
+        this$1.anchorEl.addEventListener('mouseenter', this$1.__delayOpen);
+        this$1.anchorEl.addEventListener('focus', this$1.__delayOpen);
+        this$1.anchorEl.addEventListener('mouseleave', this$1.close);
+        this$1.anchorEl.addEventListener('blur', this$1.close);
+      }
+    });
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (Platform.is.mobile) {
+      this.anchorEl.removeEventListener('click', this.open);
+    }
+    else {
+      this.anchorEl.removeEventListener('mouseenter', this.__delayOpen);
+      this.anchorEl.removeEventListener('focus', this.__delayOpen);
+      this.anchorEl.removeEventListener('mouseleave', this.close);
+      this.anchorEl.removeEventListener('blur', this.close);
+    }
+    this.close();
+  }
+};
+
 function run (e, btn, vm) {
   if (btn.handler) {
     btn.handler(e, vm, vm.caret);
@@ -9126,6 +9125,64 @@ function getFonts (defaultFont, fonts) {
   });
 
   return def
+}
+
+var camelizeRE = /-(\w)/g;
+function camelize (str) {
+  return str.replace(
+    camelizeRE,
+    function (_, c) { return c ? c.toUpperCase() : ''; }
+  )
+}
+
+function getStyleObject (el) {
+  var output = {};
+
+  el.style.cssText.split(';').forEach(function (rule) {
+    if (rule) {
+      var parts = rule.split(':');
+      output[ camelize(parts[0].trim()) ] = parts[1].trim();
+    }
+  });
+
+  return output
+}
+
+function getContentObject (el) {
+  if (el.nodeType === Node.TEXT_NODE) {
+    return {
+      nodeType: Node.TEXT_NODE,
+      text: el.textContent
+    }
+  }
+
+  var node = {
+    nodeType: el.nodeType,
+    tagName: el.tagName,
+    attributes: {}
+  };
+
+  Array.from(el.attributes, function (ref) {
+    var name = ref.name;
+    var value = ref.value;
+
+    if (name === 'style') {
+      node.style = getStyleObject(el);
+    }
+    else {
+      node.attributes[name] = value;
+    }
+  });
+
+  var children = Array.from(el.childNodes, getContentObject);
+  if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE) {
+    node.text = children[0].text;
+  }
+  else {
+    node.children = children;
+  }
+
+  return node
 }
 
 var buttons = {
@@ -9598,6 +9655,9 @@ var QEditor = {
     },
     focus: function focus () {
       this.$refs.content.focus();
+    },
+    getContentObject: function getContentObject$1 () {
+      return getContentObject(this.$refs.content).children
     }
   },
   created: function created () {
@@ -10802,6 +10862,83 @@ var QSideLink = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.layout.hideCurrentSide(function () {
         this$1.$el.dispatchEvent(evt);
       });
+    }
+  }
+};
+
+var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-pagination",class:{disabled: _vm.disable}},[_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"first_page"},on:{"click":function($event){_vm.set(_vm.min);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setByOffset(-1);}}}),_vm._v(" "),_c('q-input',{ref:"input",staticClass:"inline",style:({width: ((_vm.inputPlaceholder.length) + "rem")}),attrs:{"type":"number","min":_vm.min,"max":_vm.max,"color":_vm.color,"placeholder":_vm.inputPlaceholder,"disable":_vm.disable},on:{"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.__update($event);},"blur":_vm.__update},model:{value:(_vm.newPage),callback:function ($$v) {_vm.newPage=$$v;},expression:"newPage"}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setByOffset(1);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"last_page"},on:{"click":function($event){_vm.set(_vm.max);}}})],1)},staticRenderFns: [],
+  name: 'q-pagination',
+  components: {
+    QBtn: QBtn,
+    QInput: QInput
+  },
+  props: {
+    value: {
+      type: Number,
+      required: true
+    },
+    min: {
+      type: Number,
+      default: 1
+    },
+    max: {
+      type: Number,
+      required: true
+    },
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    disable: Boolean
+  },
+  data: function data () {
+    return {
+      newPage: ''
+    }
+  },
+  methods: {
+    set: function set (value) {
+      if (!this.disable) {
+        this.model = value;
+      }
+    },
+    setByOffset: function setByOffset (offset) {
+      if (!this.disable) {
+        this.model = this.value + offset;
+      }
+    },
+    __normalize: function __normalize (value) {
+      return between(parseInt(value, 10), 1, this.max)
+    },
+    __update: function __update () {
+      var parsed = parseInt(this.newPage, 10);
+      if (parsed) {
+        this.model = parsed;
+      }
+
+      this.newPage = '';
+    }
+  },
+  computed: {
+    model: {
+      get: function get () {
+        return this.value
+      },
+      set: function set (value) {
+        if (!value) {
+          return
+        }
+        if (value < this.min || value > this.max) {
+          return
+        }
+        if (this.value !== value) {
+          this.$emit('input', value);
+          this.$emit('change', value);
+        }
+      }
+    },
+    inputPlaceholder: function inputPlaceholder () {
+      return this.value + ' / ' + this.max
     }
   }
 };
@@ -13626,7 +13763,7 @@ var index$1 = {
 var transitionDuration = 300;
 var displayDuration = 2500; // in ms
 
-function parseOptions$1 (opts, defaults) {
+function parseOptions (opts, defaults) {
   if (!opts) {
     throw new Error('Missing toast options.')
   }
@@ -13678,7 +13815,7 @@ var Toast = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     create: function create (options) {
       var this$1 = this;
 
-      this.stack.push(parseOptions$1(options, this.defaults));
+      this.stack.push(parseOptions(options, this.defaults));
 
       if (this.active || this.inTransition) {
         return
@@ -13866,4 +14003,4 @@ var index_esm = {
   theme: theme
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;
+export { QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDataTableColumns, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };export default index_esm;

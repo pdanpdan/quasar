@@ -1188,7 +1188,7 @@ for $name, $size in $button-round-sizes
       width 7px
       transform translate(-30px, -2px)
 $checkbox-size = 21px
-.q-checkbox-unchecked, .q-checkbox-checked
+.q-checkbox-icon
   height $checkbox-size
   width $checkbox-size
   font-size $checkbox-size
@@ -1310,85 +1310,189 @@ $checkbox-size = 21px
     margin-bottom 0
 .q-collapsible.router-link-active > .q-item
   background $collapsible-active-color
-.q-data-table
-  font-size $datatable-font-size
-  border $datatable-border
-  table
-    width 100%
-    table-layout fixed
-    empty-cells hide
-    td, th
-      background white
-      text-overflow ellipsis
-      white-space nowrap
-      overflow hidden
-    tbody tr:nth-child(odd)
-      td, th
-        background $grey-3
-    thead tr
-      border-bottom 2px solid $grey-3
-      min-height 56px
-      th
-        color rgba(0, 0, 0, .54)
-        vertical-align middle
-        &.sortable
-          cursor pointer
-    &:not(.responsive) th
-      border-bottom 2px solid $grey-5 !important
-.q-data-table-toolbar
-  padding 5px 10px
-  font-weight 300
-  &.upper-toolbar
-    min-height 50px
-  &.bottom-toolbar
-    border-top 2px solid $grey-3
-    .q-data-table-row-label
-      margin-right 15px
-  > div:not(:first-of-type):not(:last-of-type)
-    margin 0 30px
-  .q-search
-    width auto
-    margin 0 15px 0 0
-  @media (max-width $breakpoint-sm-max)
-    flex-wrap wrap-reverse
-    padding 5px 10px
-    .q-btn
-      padding 0 5px
-    > div:not(:first-of-type):not(:last-of-type)
-      margin 10px
-.q-data-table-message
-  min-height 64px
-  i
-    font-size 200%
-    margin 10px
-.q-data-table-title
-  letter-spacing .005rem
-  font-size 120%
-  font-weight 300
-.q-data-table-container
+$datatable-transition               ?= .3s cubic-bezier(.25, .8, .5, 1)
+$datatable-border-radius            ?= $generic-border-radius
+$datatable-box-shadow               ?= $shadow-2
+$datatable-default-background       ?= white
+$datatable-border-color             ?= rgba(0, 0, 0, .12)
+$datatable-color                    ?= rgba(0, 0, 0, .87)
+$datatable-header-color             ?= rgba(0, 0, 0, .54)
+$datatable-hover-background         ?= rgba(0, 0, 0, .03)
+$datatable-selected-background      ?= rgba(0, 0, 0, .06)
+$datatable-dark-border-color        ?= rgba(255, 255, 255, .12)
+$datatable-dark-color               ?= rgba(255, 255, 255, .87)
+$datatable-dark-header-color        ?= rgba(255, 255, 255, .64)
+$datatable-dark-hover-background    ?= rgba(255, 255, 255, .1)
+$datatable-dark-selected-background ?= rgba(255, 255, 255, .2)
+.q-datatable
+  background $datatable-default-background
+  border-radius $datatable-border-radius
+  box-shadow $datatable-box-shadow
+  overflow hidden
   position relative
+.q-datatable-top
+  min-height 64px
+  padding 4px 24px
+  &:before
+    content ''
+    position absolute
+    pointer-events none
+    top 0
+    right 0
+    bottom 0
+    left 0
+    opacity .2
+    transition $datatable-transition
+.q-datatable-top-selection:before
+  background currentColor
+.q-datatable-separator
+  min-width 8px
+.q-datatable-nodata .q-icon
+  font-size 200%
+  padding-right 15px
+.q-datatable-title
+  font-size 20px
+  letter-spacing .005em
+  font-weight 400
+.q-datatable-progress
+  height 0 !important
+  td
+    position relative
+    padding 0 !important
+  .q-progress
+    position absolute
+    height 2px
+    bottom 0
+.q-datatable-middle
+  max-width 100%
+.q-datatable-bottom
+  min-height 56px
+  padding 0 14px 0 24px
+  font-size 12px
+.q-table
+  width 100%
+  max-width 100%
   overflow hidden
-  margin-top 5px
-.q-data-table-head
-  overflow hidden
-.q-data-table-body
-  overflow auto
-.q-data-table-sticky-left, .q-data-table-sticky-right
-  position absolute
-  top 0
-  pointer-events none
-  overflow hidden
-  min-width 100%
+  border-collapse collapse
+  border-spacing 0
+  .sort-icon
+    transition $datatable-transition
+    will-change opacity, transform
+    opacity 0
+    position absolute
+    font-size 120%
+  .sort-icon-left
+    left 5px
+  .sort-icon-center
+    margin-left 3px
+  .sort-icon-right
+    right 5px
+  thead tr
+    height 56px
+  th
+    font-weight 500
+    font-size 12px
+    transition $datatable-transition
+    user-select none
+    &.sortable
+      cursor pointer
+      &:hover .sort-icon
+        opacity .5
+    &.sorted .sort-icon
+      opacity 1 !important
+    &.sort-desc .sort-icon
+      transform rotate(180deg)
+  tbody tr
+    transition $datatable-transition
+    will-change background
   th, td
-    &:not(.invisible)
-      pointer-events all
-.q-data-table-sticky-left
-  left 0
-.q-data-table-spinner
-  margin-top 25px
-.q-data-table-selection
-  color $primary
-  background alpha($primary, 20%)
+    white-space nowrap
+    padding 7px 24px
+    position relative
+  thead, td, th
+    border-style solid
+    border-width 0
+  tbody td
+    height 48px
+    font-weight 400
+    font-size 13px
+.q-table-select
+  width 20px
+  text-align center
+.q-table-horizontal-separator
+  thead, tbody td
+    border-width 0 0 1px 0
+.q-table-vertical-separator
+  thead
+    border-width 0 0 1px 0
+  td
+    border-width 0 0 0 1px
+  td:first-child
+    border-left 0
+.q-table-cell-separator
+  td
+    border-width 1px
+  td:first-child
+    border-left 0
+  td:last-child
+    border-right 0
+.q-datatable-compact
+  .q-datatable-top
+    min-height 54px
+  .q-datatable-top, .q-datatable-bottom
+    padding-left 10px
+    padding-right 10px
+  .q-datatable-bottom
+    min-height 47px
+.q-table-compact
+  .sort-icon
+    font-size 110%
+  .sort-icon-left
+    left -2px
+  .sort-icon-center
+    margin-left 1px
+  .sort-icon-right
+    right -2px
+  th, td
+    padding 5px 10px
+  thead tr
+    height 42px
+  tbody td
+    height 32px
+.q-datatable
+  color $datatable-color
+.q-datatable-bottom 
+  color $datatable-header-color
+  border-top 1px solid $datatable-border-color
+.q-table 
+  thead, tr, th, td
+    border-color $datatable-border-color
+  th
+    color $datatable-header-color
+    &.sortable:hover, &.sorted
+      color $datatable-color
+  tbody tr
+    &.selected
+      background $datatable-selected-background
+    &:hover
+      background $datatable-hover-background
+.q-datatable-dark
+  color $datatable-dark-color
+  .q-datatable-bottom
+    color $datatable-dark-header-color
+    border-top 1px solid $datatable-dark-border-color
+.q-table-dark
+  thead, tr, th, td
+    border-color $datatable-dark-border-color
+  th
+    color $datatable-dark-header-color
+    &.sortable:hover, &.sorted
+      color $datatable-dark-color
+  tbody tr
+    &.selected
+      background $datatable-dark-selected-background
+    &:hover
+      background $datatable-dark-hover-background
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime
@@ -1699,103 +1803,6 @@ body.desktop .q-datetime-col-wrapper
       border 1px solid white
 body.desktop .q-gallery-carousel-quickview img:hover
   opacity 1
-table.q-table
-  border-spacing 0
-  empty-cells show
-  thead
-    text-align left
-    vertical-align bottom
-    font-weight 700
-  th, td
-    &:first-child
-      border-left-width 0
-    margin 0
-    padding .5rem .7rem
-  &.compact
-    th, td
-      padding .1rem .3rem
-  &.loose
-    th, td
-      padding 1rem
-  &.bordered, &.cell-separator:not(.responsive):not(.flipped)
-    border $table-border
-  &:not(.responsive):not(.flipped)
-    &.horizontal-separator, &.cell-separator
-      th, td
-        border-bottom $table-border
-    &.vertical-separator, &.cell-separator
-      th, td
-        border-left $table-border
-        &:last-child
-          border-right $table-border
-  &.striped-odd, &.striped
-    tbody tr:nth-child(odd)
-      background $table-stripe-color
-  &.striped-even
-    tbody tr:nth-child(even)
-      background $table-stripe-color
-  &.flipped
-    display flex
-    overflow hidden
-    background none
-    thead
-      display flex
-      flex-shrink 0
-      min-width min-content
-    tbody
-      display flex
-      position relative
-      overflow-x auto
-      overflow-y hidden
-    tr
-      display flex
-      flex-direction column
-      min-width min-content
-      flex-shrink 0
-    td, th
-      display block
-    td
-      background-image none !important
-      border-left 0
-    th:not(:last-child),
-    td:not(:last-child)
-      border-bottom 0
-    &.horizontal-separator, &.cell-separator
-      tr
-        border-left $table-border
-        border-right $table-border
-    &.vertical-separator, &.cell-separator
-      th, td
-        border-top $table-border
-        &:last-child
-          border-bottom $table-border
-  @media (max-width $breakpoint-sm-max)
-    &.responsive:not(.flipped)
-      thead
-        display none
-      tr, td
-        display block
-      tr
-        position relative
-      td:before
-        content attr(data-th)
-        display block
-        text-align left
-        font-weight bold
-      &.horizontal-separator
-        tr:not(:last-child)
-          border-bottom $table-border
-      &.cell-separator
-        tr
-          border $table-border
-      &.vertical-separator, &.cell-separator
-        th, td
-          border-left $table-border
-          border-right $table-border
-body.desktop table.q-table.highlight tbody tr
-  transition all .28s ease-in
-  &:hover
-    background $table-highlight-color
 .q-icon
   line-height 1
   letter-spacing normal
@@ -1817,7 +1824,6 @@ body.desktop table.q-table.highlight tbody tr
 .q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-frame-transition
 .q-if
-  font-size 16px
   min-height 32px
   margin-top 16px
   margin-bottom 8px
