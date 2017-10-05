@@ -1211,6 +1211,9 @@ div + .q-datetime-time {
 .q-datetime-days div.active > span {
   color: #fff;
 }
+.q-datetime-days div.today {
+  color: currentColor;
+}
 .q-datetime-days div:not(.q-datetime-fillerday):not(.disabled):not(.active):hover {
   background: #e0e0e0;
 }
