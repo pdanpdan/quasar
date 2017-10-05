@@ -1202,19 +1202,21 @@ div + .q-datetime-time {
   height: 35px;
   border-radius: 50%;
 }
-.q-datetime-days div:not(.active) {
+.q-datetime-days div:not(.q-datetime-day-active) {
   color: #000;
 }
-.q-datetime-days div.active {
+.q-datetime-days div.q-datetime-day-active {
   background: currentColor;
 }
-.q-datetime-days div.active > span {
+.q-datetime-days div.q-datetime-day-active > span {
   color: #fff;
 }
-.q-datetime-days div.today {
+.q-datetime-days div.q-datetime-day-today {
   color: currentColor;
+  font-weight: bold;
+  font-size: 105%;
 }
-.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled):not(.active):hover {
+.q-datetime-days div:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover {
   background: #e0e0e0;
 }
 .q-datetime-btn {
