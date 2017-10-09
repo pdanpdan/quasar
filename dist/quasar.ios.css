@@ -3167,12 +3167,7 @@ body.desktop .q-tree-link .q-tree-label:hover {
 .q-tree-label .q-icon {
   font-size: 1.3rem;
 }
-.q-uploader {
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 1px rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
-  overflow: hidden;
-}
-.q-uploader .q-if {
+.q-uploader-expanded .q-if {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -3187,11 +3182,12 @@ body.desktop .q-tree-link .q-tree-label:hover {
   display: none;
 }
 .q-uploader-files {
+  border: 1px solid #e0e0e0;
+  border-top: 0;
   font-size: 14px;
-  min-height: 56px;
   max-height: 500px;
 }
-.q-uploader-file {
+.q-uploader-file:not(:last-child) {
   border-bottom: 1px solid #e0e0e0;
 }
 .q-uploader-progress-bg,
@@ -3207,6 +3203,14 @@ body.desktop .q-tree-link .q-tree-label:hover {
   opacity: 0.1;
   right: 44px;
   bottom: 0;
+}
+.q-uploader-dnd {
+  outline: 2px dashed currentColor;
+  outline-offset: -6px;
+  background: rgba(255,255,255,0.6);
+}
+.q-uploader-dnd.inverted {
+  background: rgba(0,0,0,0.3);
 }
 img.responsive {
   max-width: 100%;
@@ -7427,6 +7431,16 @@ body.platform-android .platform-android-hide {
 }
 @media all and (orientation: landscape) {
   .orientation-portrait {
+    display: none !important;
+  }
+}
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+@media print {
+  .print-hide {
     display: none !important;
   }
 }

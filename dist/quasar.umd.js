@@ -3,6 +3,14 @@
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
+	typeof define === 'function' && define.amd ? define(['vue'], factory) :
+	(global.Quasar = factory(global.Vue));
+}(this, (function (Vue) { 'use strict';
+
+Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
+
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-mixed-operators */
 
@@ -306,18 +314,12 @@ if (typeof __THEME !== 'undefined') {
   set(__THEME);
 }
 
-
-var theme = Object.freeze({
-	set: set,
-	get current () { return current; }
-});
-
 var version = "0.15.0";
 
-var Vue;
+var Vue$1;
 
 function setVue (_Vue) {
-  Vue = _Vue;
+  Vue$1 = _Vue;
 }
 
 var install = function (_Vue, opts) {
@@ -372,7 +374,7 @@ var start = function (cb) {
   var tag = document.createElement('script');
 
   document.addEventListener('deviceready', function () {
-    Vue.prototype.$cordova = cordova;
+    Vue$1.prototype.$cordova = cordova;
     cb();
   }, false);
 
@@ -6003,7 +6005,7 @@ var Modal = function (component) {
       var node = document.createElement('div');
       document.body.appendChild(node);
 
-      var vm = new Vue({
+      var vm = new Vue$1({
         el: node,
         data: function data () {
           return {props: props}
@@ -12622,6 +12624,118 @@ var QVideo = {
   }
 };
 
+
+
+var components = Object.freeze({
+	QAjaxBar: QAjaxBar,
+	QAlert: QAlert,
+	QAutocomplete: QAutocomplete,
+	QBtn: QBtn,
+	QBtnGroup: QBtnGroup,
+	QBtnToggle: QBtnToggle,
+	QBtnDropdown: QBtnDropdown,
+	QBtnToggleGroup: QBtnToggleGroup,
+	QCard: QCard,
+	QCardTitle: QCardTitle,
+	QCardMain: QCardMain,
+	QCardActions: QCardActions,
+	QCardMedia: QCardMedia,
+	QCardSeparator: QCardSeparator,
+	QCarousel: QCarousel,
+	QChatMessage: QChatMessage,
+	QCheckbox: QCheckbox,
+	QChip: QChip,
+	QChipsInput: QChipsInput,
+	QCollapsible: QCollapsible,
+	QContextMenu: QContextMenu,
+	QDataTable: QDataTable,
+	QDataTableColumns: QDataTableColumns,
+	QDatetime: QDatetime,
+	QDatetimeRange: QDatetimeRange,
+	QInlineDatetime: QInlineDatetime,
+	QEditor: QEditor,
+	QFab: QFab,
+	QFabAction: QFabAction,
+	QField: QField,
+	QFieldReset: QFieldReset,
+	QGallery: QGallery,
+	QGalleryCarousel: QGalleryCarousel,
+	QIcon: QIcon,
+	QInfiniteScroll: QInfiniteScroll,
+	QInnerLoading: QInnerLoading,
+	QInput: QInput,
+	QInputFrame: QInputFrame,
+	QKnob: QKnob,
+	QLayout: QLayout,
+	QFixedPosition: QFixedPosition,
+	QSideLink: QSideLink,
+	QItem: QItem,
+	QItemSeparator: QItemSeparator,
+	QItemMain: QItemMain,
+	QItemSide: QItemSide,
+	QItemTile: QItemTile,
+	QItemWrapper: QItemWrapper,
+	QList: QList,
+	QListHeader: QListHeader,
+	QModal: QModal,
+	QModalLayout: QModalLayout,
+	QResizeObservable: QResizeObservable,
+	QScrollObservable: QScrollObservable,
+	QWindowResizeObservable: QWindowResizeObservable,
+	QOptionGroup: QOptionGroup,
+	QPagination: QPagination,
+	QParallax: QParallax,
+	QPopover: QPopover,
+	QProgress: QProgress,
+	QPullToRefresh: QPullToRefresh,
+	QRadio: QRadio,
+	QRange: QRange,
+	QRating: QRating,
+	QScrollArea: QScrollArea,
+	QSearch: QSearch,
+	QSelect: QSelect,
+	QDialogSelect: QDialogSelect,
+	QSlideTransition: QSlideTransition,
+	QSlider: QSlider,
+	QSpinner: QSpinner,
+	QSpinnerAudio: audio,
+	QSpinnerBall: ball,
+	QSpinnerBars: bars,
+	QSpinnerCircles: circles,
+	QSpinnerComment: comment,
+	QSpinnerCube: cube,
+	QSpinnerDots: dots,
+	QSpinnerFacebook: facebook,
+	QSpinnerGears: gears,
+	QSpinnerGrid: grid,
+	QSpinnerHearts: hearts,
+	QSpinnerHourglass: hourglass,
+	QSpinnerInfinity: infinity,
+	QSpinnerIos: QSpinnerIos,
+	QSpinnerMat: QSpinnerMat,
+	QSpinnerOval: oval,
+	QSpinnerPie: pie,
+	QSpinnerPuff: puff,
+	QSpinnerRadio: radio,
+	QSpinnerRings: rings,
+	QSpinnerTail: tail,
+	QStep: QStep,
+	QStepper: QStepper,
+	QStepperNavigation: QStepperNavigation,
+	QRouteTab: QRouteTab,
+	QTab: QTab,
+	QTabPane: QTabPane,
+	QTabs: QTabs,
+	QToggle: QToggle,
+	QToolbar: QToolbar,
+	QToolbarTitle: QToolbarTitle,
+	QTooltip: QTooltip,
+	QTransition: QTransition,
+	QTree: QTree,
+	QUploader: QUploader,
+	QVideo: QVideo
+});
+
 function updateBinding (el, ref) {
   var value = ref.value;
   var ctx = el.__qbacktotop;
@@ -12958,6 +13072,20 @@ var touchHold = {
   }
 };
 
+
+
+var directives = Object.freeze({
+	BackToTop: backToTop,
+	GoBack: goBack,
+	Move: move,
+	Ripple: Ripple,
+	ScrollFire: scrollFire,
+	Scroll: scroll$1,
+	TouchHold: touchHold,
+	TouchPan: TouchPan,
+	TouchSwipe: TouchSwipe
+});
+
 function addClass (className) {
   document.body.classList.add(className);
 }
@@ -13220,7 +13348,7 @@ function create (opts) {
     }
   );
 
-  var vm = new Vue({
+  var vm = new Vue$1({
     functional: true,
     render: function render (h, ctx) {
       var on = {};
@@ -13655,6 +13783,20 @@ var SessionStorage = { // eslint-disable-line one-var
   isEmpty: storageIsEmpty.session
 };
 
+
+
+var features = Object.freeze({
+	AddressbarColor: addressbarColor,
+	Alert: Alert,
+	AppFullscreen: appFullscreen,
+	AppVisibility: appVisibility$1,
+	Cookies: cookies,
+	Events: Events,
+	Platform: Platform,
+	LocalStorage: LocalStorage,
+	SessionStorage: SessionStorage
+});
+
 var ActionSheets = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"position":"bottom","content-css":_vm.contentCss},on:{"close":function($event){_vm.__dismiss();}}},[(_vm.$q.theme === 'ios')?_vm._m(0):_vm._m(1)])},staticRenderFns: [function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"q-action-sheet"},[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)]),_vm._v(" "),(_vm.dismiss)?_c('div',{staticClass:"q-action-sheet"},[_c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],attrs:{"link":"","tabindex":"0"},on:{"click":function($event){_vm.close();},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.close();}}},[_c('q-item-main',[_c('q-item-tile',{staticClass:"text-center",attrs:{"label":""}},[_vm._v(" "+_vm._s(_vm.dismiss.label)+" ")])],1)],1)],1):_vm._e()])},function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)])}],
   name: 'q-action-sheet',
   components: {
@@ -13762,7 +13904,7 @@ function show (ref) {
     document.body.appendChild(node);
     document.body.classList.add('with-loading');
 
-    vm = new Vue({
+    vm = new Vue$1({
       name: 'q-loading',
       el: node,
       functional: true,
@@ -13987,7 +14129,7 @@ function install$1 () {
   ready(function () {
     var node = document.createElement('div');
     document.body.appendChild(node);
-    toast = new Vue(Toast).$mount(node);
+    toast = new Vue$1(Toast).$mount(node);
     if (defaults) {
       toast.setDefaults(defaults);
     }
@@ -14012,6 +14154,15 @@ var index$2 = {
     }
   }
 };
+
+
+
+var globals = Object.freeze({
+	ActionSheet: index,
+	Dialog: Dialog,
+	Loading: index$1,
+	Toast: index$2
+});
 
 var openUrl = function (url, reject) {
   if (Platform.is.cordova && navigator && navigator.app) {
@@ -14054,12 +14205,46 @@ var throttle = function (fn, limit) {
 
 function noop () {}
 
-var index_esm = {
+
+
+
+var utils = Object.freeze({
+	animate: animate,
+	clone: clone,
+	colors: colors,
+	date: date,
+	debounce: debounce,
+	frameDebounce: frameDebounce,
+	dom: dom,
+	easing: easing,
+	event: event,
+	extend: extend,
+	filter: filter,
+	format: format,
+	noop: noop,
+	openURL: openUrl,
+	scroll: scroll,
+	throttle: throttle,
+	uid: uid
+});
+
+set('mat');
+Vue.use({install: install}, {
+  components: components,
+  directives: directives
+});
+
+var index_umd = {
   version: version,
-  install: install,
   start: start,
-  theme: theme
+
+  components: components,
+  directives: directives,
+  features: features,
+  globals: globals,
+  utils: utils
 };
 
-export { QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDataTable, QDataTableColumns, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QFixedPosition, QSideLink, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinnerIos, QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, Alert, appFullscreen as AppFullscreen, appVisibility$1 as AppVisibility, cookies as Cookies, Events, Platform, LocalStorage, SessionStorage, index as ActionSheet, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
-export default index_esm;
+return index_umd;
+
+})));
