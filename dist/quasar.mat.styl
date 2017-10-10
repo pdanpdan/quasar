@@ -158,8 +158,8 @@ $negative  ?= #DB2828
 $info      ?= #31CCEC
 $warning   ?= #F2C037
 $white     ?= #fff
-$light     ?= #f4f4f4
-$dark      ?= #333
+$light     ?= #bdbdbd
+$dark      ?= #757575
 $faded     ?= #777
 $link-color          ?= lighten($primary, 25%)
 $link-color-active   ?= $primary
@@ -621,7 +621,7 @@ $chip-height             ?= 32px
 $chip-icon-size          ?= 24px
 $chip-small-height       ?= 26px
 $chip-color              ?= black
-$chip-background         ?= $light
+$chip-background         ?= $grey-3
 $item-dense-factor                 ?= .2
 $item-sparse-factor                ?= 1.4
 $item-base-color                   ?= $grey-5
@@ -663,8 +663,9 @@ $editor-toolbar-padding         ?= 5px
 $editor-hr-color                ?= #ccc
 $editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
-$field-icon-size   ?= 28px
-$field-label-color ?= rgba(0, 0, 0, .54)
+$field-icon-size        ?= 28px
+$field-label-color      ?= $dark
+$field-dark-label-color ?= $light
 $table-stripe-color          ?= rgba(0, 0, 0, .07)
 $table-highlight-color       ?= rgba(0, 0, 0, .14)
 $table-border                ?= 1px solid rgba(0, 0, 0, .12)
@@ -1915,9 +1916,9 @@ for $pos in 0..23
   padding-left 8px
 .q-field-dark
   .q-field-label, .q-field-icon, .q-field-counter, .q-field-bottom
-    color rgba(255, 255, 255, 60%)
+    color $field-dark-label-color
   .q-field-no-input
-    border-top 1px solid rgba(255, 255, 255, .7)
+    border-top 1px solid $field-label-color
 .q-field-with-error
   .q-field-icon, .q-field-label, .q-field-bottom
     color $negative
@@ -2477,10 +2478,7 @@ maximized-modal()
     transform translateX(-101%)
 .q-option-inner
   display inline-block
-  color $grey-5
   line-height 0
-  &.active
-    color $primary
   & + .q-option-label
     margin-left $label-offset
 .q-option
@@ -3153,11 +3151,12 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
   width 100%
   height $toggle-base-height
   border-radius 30px
-  background-color currentColor
+  background currentColor
   opacity .5
 .q-toggle-handle
-  background-color rgb(245, 245, 245)
+  background rgb(245, 245, 245)
   transition all 450ms cubic-bezier(.23, 1, .32, 1)
+  box-shadow $shadow-1
   border-radius 50%
   position absolute
   top 0
@@ -3172,7 +3171,7 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
   padding round(($toggle-height - $toggle-base-height) / 2) 0
   &.active
     .q-toggle-handle
-      background-color currentColor
+      background currentColor
       left ($toggle-width - $toggle-handle-size)
     .q-toggle-icon
       color white

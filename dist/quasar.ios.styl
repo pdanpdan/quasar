@@ -158,8 +158,8 @@ $negative  ?= #DB2828
 $info      ?= #31CCEC
 $warning   ?= #F2C037
 $white     ?= #fff
-$light     ?= #f4f4f4
-$dark      ?= #333
+$light     ?= #bdbdbd
+$dark      ?= #757575
 $faded     ?= #777
 $link-color          ?= lighten($primary, 25%)
 $link-color-active   ?= $primary
@@ -561,7 +561,7 @@ $shadow-up-23 = 0 -11px 14px -7px $elevation-umbra, 0 -23px 36px 3px $elevation-
 $shadow-up-24 = 0 -11px 15px -7px $elevation-umbra, 0 -24px 38px 3px $elevation-penumbra, 0 -9px 46px 8px $elevation-ambient
 $generic-border-radius      ?= 4px
 $typography-font-family     ?= '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
-$action-sheet-background       ?= $light
+$action-sheet-background       ?= white
 $action-sheet-border-radius    ?= 13px
 $action-sheet-max-width        ?= 95%
 $action-sheet-margin-bottom    ?= .6rem
@@ -625,7 +625,7 @@ $chip-height             ?= 32px
 $chip-icon-size          ?= 24px
 $chip-small-height       ?= 26px
 $chip-color              ?= black
-$chip-background         ?= $light
+$chip-background         ?= $grey-3
 $item-dense-factor                 ?= .2
 $item-sparse-factor                ?= 1.4
 $item-base-color                   ?= $grey-5
@@ -667,8 +667,9 @@ $editor-toolbar-padding         ?= 5px
 $editor-hr-color                ?= #ccc
 $editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
-$field-icon-size   ?= 28px
-$field-label-color ?= rgba(0, 0, 0, .54)
+$field-icon-size        ?= 28px
+$field-label-color      ?= $dark
+$field-dark-label-color ?= $light
 $table-stripe-color          ?= rgba(0, 0, 0, .07)
 $table-highlight-color       ?= rgba(0, 0, 0, .14)
 $table-border                ?= 1px solid rgba(0, 0, 0, .12)
@@ -695,7 +696,7 @@ $modal-max-height        ?= 1000px
 $modal-header-font-size  ?= 1.3rem
 $modal-header-padding    ?= 20px 16px 7px
 $modal-header-text-align ?= center
-$modal-body-text-align   ?= center
+$modal-body-text-align   ?= left
 $modal-body-color        ?= black
 $modal-body-padding      ?= 0 16px 21px
 $modal-slim-body-padding ?= 0 16px 16px 16px
@@ -1826,9 +1827,9 @@ body.desktop .q-datetime-col-wrapper
   padding-left 8px
 .q-field-dark
   .q-field-label, .q-field-icon, .q-field-counter, .q-field-bottom
-    color rgba(255, 255, 255, 60%)
+    color $field-dark-label-color
   .q-field-no-input
-    border-top 1px solid rgba(255, 255, 255, .7)
+    border-top 1px solid $field-label-color
 .q-field-with-error
   .q-field-icon, .q-field-label, .q-field-bottom
     color $negative
@@ -2405,7 +2406,6 @@ maximized-modal()
     transform translateX(-101%)
 .q-option-inner
   display inline-block
-  color $grey-7
   line-height 0
   &.active
     color $primary
@@ -3050,21 +3050,23 @@ body.mobile .q-tabs-scroller
     > img, > i
       font-size 2rem
       margin-right 48px
-$toggle-width           = 42px
-$toggle-height          = 24px
+$toggle-width           = 50px
+$toggle-height          = 32px
 $toggle-span            = 2px
 $toggle-handle-size     = $toggle-height - 2 * $toggle-span
 .q-toggle-base
   transition all .45s cubic-bezier(.23, 1, .32, 1)
   width 100%
   height $toggle-height
-  color white
-  background-color currentColor
+  color $grey-2
+  background currentColor
   border-radius 16px
-  border 2px solid $grey-3
+  border 2px solid $light
+.q-toggle-base-dark
+  color darken($light, 10%)
 .q-toggle-handle
-  background-color white
-  border 1px solid $grey-3
+  background white
+  box-shadow 0 3px 3px rgba(0, 0, 0, .2), 0 0 0 2px $light 
   transition all 450ms cubic-bezier(.23, 1, .32, 1)
   border-radius 50%
   position absolute
@@ -3082,6 +3084,7 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
       color currentColor
       border 0
     .q-toggle-handle
+      box-shadow $shadow-2
       left ($toggle-width - $toggle-handle-size - $toggle-span)
 .q-toolbar
   padding $toolbar-padding
