@@ -9179,64 +9179,6 @@ function getFonts (defaultFont, fonts) {
   return def
 }
 
-var camelizeRE = /-(\w)/g;
-function camelize (str) {
-  return str.replace(
-    camelizeRE,
-    function (_, c) { return c ? c.toUpperCase() : ''; }
-  )
-}
-
-function getStyleObject (el) {
-  var output = {};
-
-  el.style.cssText.split(';').forEach(function (rule) {
-    if (rule) {
-      var parts = rule.split(':');
-      output[ camelize(parts[0].trim()) ] = parts[1].trim();
-    }
-  });
-
-  return output
-}
-
-function getContentObject (el) {
-  if (el.nodeType === Node.TEXT_NODE) {
-    return {
-      nodeType: Node.TEXT_NODE,
-      text: el.textContent
-    }
-  }
-
-  var node = {
-    nodeType: el.nodeType,
-    tagName: el.tagName,
-    attributes: {}
-  };
-
-  for (var i = 0, n = el.attributes.length, att = el.attributes; i < n; i++) {
-    var ref = att[i];
-    var nodeName = ref.nodeName;
-    var nodeValue = ref.nodeValue;
-    if (nodeName === 'style') {
-      node.style = getStyleObject(el);
-    }
-    else {
-      node.attributes[nodeName] = nodeValue;
-    }
-  }
-
-  var children = Array.from(el.childNodes, getContentObject);
-  if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE) {
-    node.text = children[0].text;
-  }
-  else {
-    node.children = children;
-  }
-
-  return node
-}
-
 var buttons = {
   // toggle
   bold: {cmd: 'bold', icon: 'format_bold', tip: 'Bold', key: 66},
@@ -9708,48 +9650,8 @@ var QEditor = {
     focus: function focus () {
       this.$refs.content.focus();
     },
-    getContentObject: function getContentObject$1 () {
-      var obj = getContentObject(this.$refs.content);
-
-      if (!obj.children && obj.text) {
-        return [{
-          nodeType: Node.ELEMENT_NODE,
-          tagName: 'DIV',
-          attributes: {},
-          text: obj.text
-        }]
-      }
-
-      var
-        children = obj.children || [],
-        length = children.length;
-
-      var index = 0;
-      while (
-        index < length && (
-          children[index].nodeType === Node.TEXT_NODE ||
-          !['DIV', 'UL', 'OL', 'BR'].includes(children[index].tagName)
-        )
-      ) {
-        index++;
-      }
-
-      if (index === 0) {
-        return children
-      }
-
-      var ret = [{
-        nodeType: Node.ELEMENT_NODE,
-        tagName: 'DIV',
-        attributes: {},
-        children: children.slice(0, index)
-      }];
-
-      if (index < length) {
-        return ret.concat(children.slice(index, length))
-      }
-
-      return ret
+    getContentEl: function getContentEl () {
+      return this.$refs.content
     }
   },
   created: function created () {
@@ -10282,13 +10184,13 @@ var SideMixin = {
       }
     },
 
-    __toggle: function __toggle (side) {
+    __toggle: function __toggle (side, fn) {
       var state = this[side + 'State'];
       if (state.openedSmall || (this[side + 'OverBreakpoint'] && state.openedBig)) {
-        this.__hide(side);
+        this.__hide(side, fn);
       }
       else {
-        this.__show(side);
+        this.__show(side, fn);
       }
     },
     __popState: function __popState () {
@@ -10319,6 +10221,9 @@ var SideMixin = {
 
       if (!state.openedSmall) {
         state.openedBig = false;
+        if (typeof fn === 'function') {
+          fn();
+        }
         return
       }
 
