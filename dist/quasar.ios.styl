@@ -1,9 +1,8 @@
 /*!
  * Quasar Framework v0.15.0
- * (c) 2017 Razvan Stoenescu
+ * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
- */
-$space-base   ?= 16px
+ */$space-base   ?= 16px
 $space-x-base ?= $space-base
 $space-y-base ?= $space-base
 $spaces = {
@@ -5142,3 +5141,49 @@ for type in desktop mobile cordova electron ios mat touch within-iframe platform
     opacity .15
 body.ios .q-hoverable:active .q-focus-helper
   opacity .3
+ie_style = @block
+  
+  .q-alert-container
+    max-width 100%
+  .row > .col
+    &.q-alert-content
+      flex-basis auto
+  
+  .q-toast
+    a
+      white-space nowrap
+  .col.q-toast-message
+    flex-basis auto
+  
+  .q-slider-handle
+    > .q-chip.inline.row
+      display -ms-inline-grid
+  
+  .q-btn.row
+    &:not(.q-btn-round)
+      &.inline
+        display inline-block
+      &.block
+        display block
+    &:active
+      .q-btn-inner
+        margin -1px 1px 1px -1px
+      &.q-btn-push .q-btn-inner
+        margin 0 1px 0 -1px
+  
+  .q-btn
+    .q-chip
+      display inline-block
+  .q-tab
+    .q-chip
+      left auto
+  
+  .q-fab-actions
+    &.q-fab-left
+    &.q-fab-right
+      display block
+      white-space nowrap
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  {ie_style}
+@supports (-ms-ime-align:auto)
+  {ie_style}
