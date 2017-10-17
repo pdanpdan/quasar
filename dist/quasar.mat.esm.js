@@ -8801,7 +8801,7 @@ var SideMixin = {
       this.leftState.openedSmall = false;
       this.backdrop.percentage = 0;
       if (typeof fn === 'function') {
-        setTimeout(fn, 310);
+        setTimeout(fn, 370);
       }
     },
     __hide: function __hide (side, fn) {
@@ -11083,14 +11083,25 @@ var obj;},staticRenderFns: [],
     __animScrollTo: function __animScrollTo (value) {
       var this$1 = this;
 
-      this.__stopAnimScroll();
-      this.__scrollTowards(value);
+      if (this.$refs.scroller.scrollTo) {
+        this.$refs.scroller.scrollTo({
+          'behavior': 'smooth',
+          'left': value,
+          'top': 0
+        });
 
-      this.scrollTimer = setInterval(function () {
-        if (this$1.__scrollTowards(value)) {
-          this$1.__stopAnimScroll();
-        }
-      }, 5);
+        this.__stopAnimScroll();
+      }
+      else {
+        this.__stopAnimScroll();
+        this.__scrollTowards(value);
+
+        this.scrollTimer = setInterval(function () {
+          if (this$1.__scrollTowards(value)) {
+            this$1.__stopAnimScroll();
+          }
+        }, 5);
+      }
     },
     __stopAnimScroll: function __stopAnimScroll () {
       clearInterval(this.scrollTimer);

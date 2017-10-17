@@ -1977,6 +1977,7 @@ body.with-modal {
   min-width: 280px;
   max-height: 80vh;
   border-radius: 13px;
+  -webkit-backface-visibility: hidden;
 }
 .modal-content .layout {
   width: 100%;
