@@ -950,248 +950,6 @@ body.desktop ul.breadcrumb a:hover:after {
 .q-collapsible.router-link-active > .q-item {
   background: rgba(189,189,189,0.4);
 }
-.q-datatable {
-  background: #fff;
-  border-radius: 4px;
-  -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-          box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-  overflow: hidden;
-  position: relative;
-}
-.q-datatable-top {
-  min-height: 64px;
-  padding: 4px 24px;
-}
-.q-datatable-top:before {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  opacity: 0.2;
-  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-}
-.q-datatable-top-selection:before {
-  background: currentColor;
-}
-.q-datatable-separator {
-  min-width: 8px;
-}
-.q-datatable-nodata .q-icon {
-  font-size: 200%;
-  padding-right: 15px;
-}
-.q-datatable-title {
-  font-size: 20px;
-  letter-spacing: 0.005em;
-  font-weight: 400;
-}
-.q-datatable-progress {
-  height: 0 !important;
-}
-.q-datatable-progress td {
-  position: relative;
-  padding: 0 !important;
-}
-.q-datatable-progress .q-progress {
-  position: absolute;
-  height: 2px;
-  bottom: 0;
-}
-.q-datatable-middle {
-  max-width: 100%;
-}
-.q-datatable-bottom {
-  min-height: 56px;
-  padding: 0 14px 0 24px;
-  font-size: 12px;
-}
-.q-table {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-.q-table .sort-icon {
-  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  will-change: opacity, transform;
-  opacity: 0;
-  position: absolute;
-  font-size: 120%;
-}
-.q-table .sort-icon-left {
-  left: 5px;
-}
-.q-table .sort-icon-center {
-  margin-left: 3px;
-}
-.q-table .sort-icon-right {
-  right: 5px;
-}
-.q-table thead tr {
-  height: 56px;
-}
-.q-table th {
-  font-weight: 500;
-  font-size: 12px;
-  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-.q-table th.sortable {
-  cursor: pointer;
-}
-.q-table th.sortable:hover .sort-icon {
-  opacity: 0.5;
-}
-.q-table th.sorted .sort-icon {
-  opacity: 1 !important;
-}
-.q-table th.sort-desc .sort-icon {
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
-}
-.q-table tbody tr {
-  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-  will-change: background;
-}
-.q-table th,
-.q-table td {
-  white-space: nowrap;
-  padding: 7px 24px;
-  position: relative;
-}
-.q-table thead,
-.q-table td,
-.q-table th {
-  border-style: solid;
-  border-width: 0;
-}
-.q-table tbody td {
-  height: 48px;
-  font-weight: 400;
-  font-size: 13px;
-}
-.q-table-select {
-  width: 20px;
-  text-align: center;
-}
-.q-table-horizontal-separator thead,
-.q-table-horizontal-separator tbody td {
-  border-width: 0 0 1px 0;
-}
-.q-table-vertical-separator thead {
-  border-width: 0 0 1px 0;
-}
-.q-table-vertical-separator td {
-  border-width: 0 0 0 1px;
-}
-.q-table-vertical-separator td:first-child {
-  border-left: 0;
-}
-.q-table-cell-separator td {
-  border-width: 1px;
-}
-.q-table-cell-separator td:first-child {
-  border-left: 0;
-}
-.q-table-cell-separator td:last-child {
-  border-right: 0;
-}
-.q-datatable-compact .q-datatable-top {
-  min-height: 54px;
-}
-.q-datatable-compact .q-datatable-top,
-.q-datatable-compact .q-datatable-bottom {
-  padding-left: 10px;
-  padding-right: 10px;
-}
-.q-datatable-compact .q-datatable-bottom {
-  min-height: 47px;
-}
-.q-table-compact .sort-icon {
-  font-size: 110%;
-}
-.q-table-compact .sort-icon-left {
-  left: -2px;
-}
-.q-table-compact .sort-icon-center {
-  margin-left: 1px;
-}
-.q-table-compact .sort-icon-right {
-  right: -2px;
-}
-.q-table-compact th,
-.q-table-compact td {
-  padding: 5px 10px;
-}
-.q-table-compact thead tr {
-  height: 42px;
-}
-.q-table-compact tbody td {
-  height: 32px;
-}
-.q-datatable {
-  color: rgba(0,0,0,0.87);
-}
-.q-datatable-bottom {
-  color: rgba(0,0,0,0.54);
-  border-top: 1px solid rgba(0,0,0,0.12);
-}
-.q-table thead,
-.q-table tr,
-.q-table th,
-.q-table td {
-  border-color: rgba(0,0,0,0.12);
-}
-.q-table th {
-  color: rgba(0,0,0,0.54);
-}
-.q-table th.sortable:hover,
-.q-table th.sorted {
-  color: rgba(0,0,0,0.87);
-}
-.q-table tbody tr.selected {
-  background: rgba(0,0,0,0.06);
-}
-.q-table tbody tr:hover {
-  background: rgba(0,0,0,0.03);
-}
-.q-datatable-dark {
-  color: rgba(255,255,255,0.87);
-}
-.q-datatable-dark .q-datatable-bottom {
-  color: rgba(255,255,255,0.64);
-  border-top: 1px solid rgba(255,255,255,0.12);
-}
-.q-table-dark thead,
-.q-table-dark tr,
-.q-table-dark th,
-.q-table-dark td {
-  border-color: rgba(255,255,255,0.12);
-}
-.q-table-dark th {
-  color: rgba(255,255,255,0.64);
-}
-.q-table-dark th.sortable:hover,
-.q-table-dark th.sorted {
-  color: rgba(255,255,255,0.87);
-}
-.q-table-dark tbody tr.selected {
-  background: rgba(255,255,255,0.2);
-}
-.q-table-dark tbody tr:hover {
-  background: rgba(255,255,255,0.1);
-}
 .q-datetime-input {
   min-width: 70px;
 }
@@ -3212,6 +2970,234 @@ body.mobile .q-tabs-scroller {
   overflow-x: auto;
   will-change: scroll-position;
   -webkit-overflow-scrolling: touch;
+}
+.q-table {
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+          box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+  overflow: hidden;
+  position: relative;
+}
+.q-table-top {
+  min-height: 64px;
+  padding: 4px 24px;
+}
+.q-table-top:before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.2;
+  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+.q-table-top-selection:before {
+  background: currentColor;
+}
+.q-table-separator {
+  min-width: 8px;
+}
+.q-table-nodata .q-icon {
+  font-size: 200%;
+  padding-right: 15px;
+}
+.q-table-title {
+  font-size: 20px;
+  letter-spacing: 0.005em;
+  font-weight: 400;
+}
+.q-table-progress {
+  height: 0 !important;
+}
+.q-table-progress td {
+  position: relative;
+  padding: 0 !important;
+}
+.q-table-progress .q-progress {
+  position: absolute;
+  height: 2px;
+  bottom: 0;
+}
+.q-table-middle {
+  max-width: 100%;
+}
+.q-table-bottom {
+  min-height: 56px;
+  padding: 0 14px 0 24px;
+  font-size: 12px;
+}
+.q-table-sort-icon {
+  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  will-change: opacity, transform;
+  opacity: 0;
+  font-size: 120%;
+}
+.q-table-sort-icon-left,
+.q-table-sort-icon-center {
+  margin-left: 4px;
+}
+.q-table-sort-icon-right {
+  margin-right: 4px;
+}
+.q-table {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.q-table thead tr {
+  height: 56px;
+}
+.q-table th {
+  font-weight: 500;
+  font-size: 12px;
+  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+.q-table th.sortable {
+  cursor: pointer;
+}
+.q-table th.sortable:hover .q-table-sort-icon {
+  opacity: 0.5;
+}
+.q-table th.sorted .q-table-sort-icon {
+  opacity: 1 !important;
+}
+.q-table th.sort-desc .q-table-sort-icon {
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+}
+.q-table tbody tr {
+  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  will-change: background;
+}
+.q-table th,
+.q-table td {
+  white-space: nowrap;
+  padding: 7px 24px;
+  position: relative;
+}
+.q-table thead,
+.q-table td,
+.q-table th {
+  border-style: solid;
+  border-width: 0;
+}
+.q-table tbody td {
+  height: 48px;
+  font-weight: 400;
+  font-size: 13px;
+}
+.q-table-col-auto-width {
+  width: 1px;
+}
+.q-table-horizontal-separator thead,
+.q-table-horizontal-separator tbody td {
+  border-width: 0 0 1px 0;
+}
+.q-table-vertical-separator thead {
+  border-width: 0 0 1px 0;
+}
+.q-table-vertical-separator td {
+  border-width: 0 0 0 1px;
+}
+.q-table-vertical-separator td:first-child {
+  border-left: 0;
+}
+.q-table-cell-separator td {
+  border-width: 1px;
+}
+.q-table-cell-separator td:first-child {
+  border-left: 0;
+}
+.q-table-cell-separator td:last-child {
+  border-right: 0;
+}
+.q-table-compact .q-table-top {
+  min-height: 54px;
+}
+.q-table-compact .q-table-top,
+.q-table-compact .q-table-bottom {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.q-table-compact .q-table-bottom {
+  min-height: 47px;
+}
+.q-table-compact .q-table-sort-icon {
+  font-size: 110%;
+}
+.q-table-compact th,
+.q-table-compact td {
+  padding: 5px 10px;
+}
+.q-table-compact thead tr {
+  height: 42px;
+}
+.q-table-compact tbody td {
+  height: 32px;
+}
+.q-table {
+  color: rgba(0,0,0,0.87);
+}
+.q-table-bottom {
+  color: rgba(0,0,0,0.54);
+  border-top: 1px solid rgba(0,0,0,0.12);
+}
+.q-table thead,
+.q-table tr,
+.q-table th,
+.q-table td {
+  border-color: rgba(0,0,0,0.12);
+}
+.q-table th {
+  color: rgba(0,0,0,0.54);
+}
+.q-table th.sortable:hover,
+.q-table th.sorted {
+  color: rgba(0,0,0,0.87);
+}
+.q-table tbody tr.selected {
+  background: rgba(0,0,0,0.06);
+}
+.q-table tbody tr:hover {
+  background: rgba(0,0,0,0.03);
+}
+.q-table-dark {
+  color: rgba(255,255,255,0.87);
+}
+.q-table-dark .q-table-bottom {
+  color: rgba(255,255,255,0.64);
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.q-table-dark thead,
+.q-table-dark tr,
+.q-table-dark th,
+.q-table-dark td {
+  border-color: rgba(255,255,255,0.12);
+}
+.q-table-dark th {
+  color: rgba(255,255,255,0.64);
+}
+.q-table-dark th.sortable:hover,
+.q-table-dark th.sorted {
+  color: rgba(255,255,255,0.87);
+}
+.q-table-dark tbody tr.selected {
+  background: rgba(255,255,255,0.2);
+}
+.q-table-dark tbody tr:hover {
+  background: rgba(255,255,255,0.1);
 }
 .q-toast-container {
   pointer-events: none;
