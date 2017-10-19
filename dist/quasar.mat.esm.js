@@ -10648,13 +10648,16 @@ var TabMixin = {
     color: String
   },
   inject: ['data', 'selectTab'],
-  computed: {
-    active: function active () {
-      var sel = this.data.tabName === this.name;
-      if (sel) {
+  watch: {
+    active: function active (val) {
+      if (val) {
         this.$emit('select', this.name);
       }
-      return sel
+    }
+  },
+  computed: {
+    active: function active () {
+      return this.data.tabName === this.name
     },
     classes: function classes () {
       var cls = {
@@ -10748,6 +10751,9 @@ var QRouteTab = {
       this.$nextTick(function () {
         if (this$1.$el.classList.contains('router-link-active') || this$1.$el.classList.contains('router-link-exact-active')) {
           this$1.selectTab(this$1.name);
+        }
+        else if (this$1.active) {
+          this$1.selectTab(null);
         }
       });
     }
@@ -13589,12 +13595,17 @@ function show (ref) {
   var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
   var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
   var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
+  var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
 
   props.spinner = spinner;
   props.message = message;
   props.spinnerSize = spinnerSize;
   props.spinnerColor = spinnerColor;
   props.messageColor = messageColor;
+
+  if (customClass && typeof customClass === 'string') {
+    props.customClass = " " + (customClass.trim());
+  }
 
   if (appIsInProgress) {
     vm && vm.$forceUpdate();
@@ -13629,7 +13640,7 @@ function show (ref) {
           }));
         }
 
-        return h('div', {staticClass: staticClass}, child)
+        return h('div', {staticClass: staticClass + props.customClass}, child)
       }
     });
   }, delay);
