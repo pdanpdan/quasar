@@ -425,22 +425,9 @@ function addBodyClasses () {
 
   Platform.within.iframe && cls.push('within-iframe');
   Platform.is.cordova && cls.push('cordova');
-  Platform.is.electron && cls.push('electron')
+  Platform.is.electron && cls.push('electron');
 
-  (ref = document.body.classList).add.apply(ref, cls);
-  var ref;
-}
-
-function captureErrors () {
-  window.onerror = function (message, source, lineno, colno, error) {
-    Events.$emit('app:error', {
-      message: message,
-      source: source,
-      lineno: lineno,
-      colno: colno,
-      error: error
-    });
-  };
+  document.body.classList.add.apply(document.body.classList, cls);
 }
 
 var install = function (_Vue, opts) {
@@ -453,7 +440,6 @@ var install = function (_Vue, opts) {
 
   setVue(_Vue);
   ready(addBodyClasses);
-  captureErrors();
 
   if (opts.directives) {
     Object.keys(opts.directives).forEach(function (key) {
@@ -480,30 +466,6 @@ var install = function (_Vue, opts) {
     theme: "mat",
     events: events
   };
-};
-
-var start = function (cb) {
-  if ( cb === void 0 ) cb = function () {};
-
-  /*
-    if on Cordova, but not on an iframe,
-    like on Quasar Play app
-   */
-  if (!Platform.is.cordova || Platform.within.iframe) {
-    cb();
-    return
-  }
-
-  var tag = document.createElement('script');
-
-  document.addEventListener('deviceready', function () {
-    Vue$1.prototype.$cordova = cordova;
-    cb();
-  }, false);
-
-  tag.type = 'text/javascript';
-  document.body.appendChild(tag);
-  tag.src = 'cordova.js';
 };
 
 var units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
@@ -863,7 +825,10 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     QTransition: QTransition
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     duration: Number,
     name: String,
     enter: String,
@@ -888,7 +853,7 @@ var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   data: function data () {
     return {
-      active: true
+      active: this.value
     }
   },
   watch: {
@@ -1777,7 +1742,7 @@ var QSpinner = {
   name: 'q-spinner'
 };
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_vm._v(" "),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.value}}),_vm._v(" "),_c('textarea',{ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}})],1)]:_c('input',{ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.value},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}}),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -3573,7 +3538,7 @@ var QCardActions = {
     align: {
       type: String,
       default: 'start',
-      validator: function (v) { return ['start', 'center', 'end', 'around'].includes(v); }
+      validator: function (v) { return ['start', 'center', 'end', 'around', 'between'].includes(v); }
     }
   },
   render: function render (h, ctx) {
@@ -3917,7 +3882,7 @@ var easing = Object.freeze({
 
 var ids = {};
 
-function start$1 (ref) {
+function start (ref) {
   var name = ref.name;
   var duration = ref.duration; if ( duration === void 0 ) duration = 300;
   var to = ref.to;
@@ -3982,7 +3947,7 @@ function stop (id) {
 
 
 var animate = Object.freeze({
-	start: start$1,
+	start: start,
 	stop: stop
 });
 
@@ -4208,7 +4173,7 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
 
       this.animationInProgress = true;
 
-      this.animUid = start$1({
+      this.animUid = start({
         from: this.position,
         to: pos,
         duration: isNumber(this.animation) ? this.animation : 300,
@@ -4642,7 +4607,7 @@ function parseSize (padding) {
 function toggleSlide (el, showing, done) {
   var store = el.__qslidetoggle || {};
   function anim () {
-    store.uid = start$1({
+    store.uid = start({
       to: showing ? 100 : 0,
       from: store.pos !== null ? store.pos : showing ? 0 : 100,
       apply: function apply (pos) {
@@ -14129,7 +14094,6 @@ Vue.use({ install: install }, {
 
 var index_umd = {
   version: version,
-  start: start,
   theme: "mat",
 
   components: components,
