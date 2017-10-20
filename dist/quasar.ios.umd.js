@@ -2274,7 +2274,7 @@ var ModelToggleMixin = {
   }
 };
 
-var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-popover animate-scale",style:(_vm.transformCSS),on:{"click":function($event){$event.stopPropagation();}}},[_vm._t("default")],2)},staticRenderFns: [],
+var QPopover = {
   name: 'q-popover',
   mixins: [ModelToggleMixin],
   props: {
@@ -2322,6 +2322,15 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
       return parsePosition(this.self)
     }
   },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-popover animate-scale',
+      style: this.transformCSS,
+      on: {
+        click: function click (e) { e.stopPropagation(); }
+      }
+    }, this.$slots.default)
+  },
   created: function created () {
     var this$1 = this;
 
@@ -2349,12 +2358,12 @@ var QPopover = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     this.close();
   },
   methods: {
-    toggle: function toggle (event) {
+    toggle: function toggle (evt) {
       if (this.opened) {
         this.close();
       }
       else {
-        this.open(event);
+        this.open(evt);
       }
     },
     open: function open (evt) {
@@ -4810,13 +4819,27 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-var ContextMenuDesktop = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"anchor-click":false},on:{"open":function($event){_vm.$emit('open');},"close":function($event){_vm.$emit('close');}}},[_vm._t("default")],2)},staticRenderFns: [],
+var ContextMenuDesktop = {
   name: 'q-context-menu',
   components: {
     QPopover: QPopover
   },
   props: {
     disable: Boolean
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h(QPopover, {
+      ref: 'popover',
+      props: {
+        anchorClick: false
+      },
+      on: {
+        open: function () { this$1.$emit('open'); },
+        close: function () { this$1.$emit('close'); }
+      }
+    }, this.$slots.default)
   },
   methods: {
     close: function close () {
@@ -4825,7 +4848,7 @@ var ContextMenuDesktop = {render: function(){var _vm=this;var _h=_vm.$createElem
     __open: function __open (evt) {
       var this$1 = this;
 
-      if (this.disable) {
+      if (!evt || this.disable) {
         return
       }
       this.close();
@@ -5105,70 +5128,71 @@ var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-var ContextMenuMobile = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"minimized":""},on:{"open":function($event){_vm.$emit('open');},"close":function($event){_vm.$emit('close');}}},[_vm._t("default")],2)},staticRenderFns: [],
+var ContextMenuMobile = {
   name: 'q-context-menu',
-  components: {
-    QModal: QModal
-  },
   props: {
     disable: Boolean
   },
   methods: {
-    open: function open () {
-      this.handler();
-    },
     close: function close () {
       this.target.classList.remove('non-selectable');
       this.$refs.dialog.close();
     },
-    toggle: function toggle () {
-      if (this.$refs.dialog.active) {
-        this.close();
+    __open: function __open () {
+      if (!this.disable && this.$refs.dialog) {
+        this.$refs.dialog.open();
       }
-      else {
-        this.open();
-      }
+    },
+    __touchStartHandler: function __touchStartHandler (evt) {
+      var this$1 = this;
+
+      this.target.classList.add('non-selectable');
+      this.touchTimer = setTimeout(function () {
+        evt.preventDefault();
+        evt.stopPropagation();
+        setTimeout(function () {
+          this$1.__cleanup();
+          this$1.__open();
+        }, 10);
+      }, 600);
+    },
+    __cleanup: function __cleanup () {
+      this.target.classList.remove('non-selectable');
+      clearTimeout(this.touchTimer);
     }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h(QModal, {
+      ref: 'dialog',
+      props: {
+        minimized: true
+      },
+      on: {
+        open: function () { this$1.$emit('open'); },
+        close: function () { this$1.$emit('close'); }
+      }
+    }, this.$slots.default)
   },
   mounted: function mounted () {
     var this$1 = this;
 
     this.$nextTick(function () {
       this$1.target = this$1.$el.parentNode;
-
-      this$1.handler = function () {
-        if (!this$1.disable) {
-          this$1.$refs.dialog.open();
-        }
-      };
-
-      this$1.touchStartHandler = function (event) {
-        this$1.target.classList.add('non-selectable');
-        this$1.touchTimer = setTimeout(function () {
-          event.preventDefault();
-          event.stopPropagation();
-          this$1.cleanup();
-          setTimeout(function () {
-            this$1.handler();
-          }, 10);
-        }, 600);
-      };
-      this$1.cleanup = function () {
-        this$1.target.classList.remove('non-selectable');
-        clearTimeout(this$1.touchTimer);
-        this$1.touchTimer = null;
-      };
-      this$1.target.addEventListener('touchstart', this$1.touchStartHandler);
-      this$1.target.addEventListener('touchcancel', this$1.cleanup);
-      this$1.target.addEventListener('touchmove', this$1.cleanup);
-      this$1.target.addEventListener('touchend', this$1.cleanup);
+      this$1.target.addEventListener('touchstart', this$1.__touchStartHandler)
+      ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
+        this$1.target.addEventListener(evt, this$1.__cleanup);
+      });
     });
   },
   beforeDestroy: function beforeDestroy () {
-    this.target.removeEventListener('touchstart', this.touchStartHandler);
-    this.target.removeEventListener('touchcancel', this.cleanup);
-    this.target.removeEventListener('touchmove', this.cleanup);
-    this.target.removeEventListener('touchend', this.cleanup);
+    var this$1 = this;
+
+    this.target.removeEventListener('touchstart', this.__touchStartHandler)
+    ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
+      this$1.target.removeEventListener(evt, this$1.__cleanup);
+    });
   }
 };
 
