@@ -1812,21 +1812,21 @@ body.desktop .q-gallery-carousel-quickview img:hover
   color rgba(0, 0, 0, .46)
   opacity 0
 .q-if-addon-left
-  padding-right 8px
+  padding-right 1px
 .q-if-addon-right
-  padding-left 8px
+  padding-left 1px
 .q-if-addon-visible
   opacity 1
 .q-if-control
   cursor pointer
-  margin-left 8px
+  margin-left 4px
   color rgba(0, 0, 0, .54)
   font-size 24px
   &:hover
     opacity .7
 .q-if-control-before
   margin-left 0
-  margin-right 8px
+  margin-right 4px
 .q-if-dark
   &:before, .q-if-label, .q-if-control
     color rgba(255, 255, 255, .7)
@@ -1841,12 +1841,11 @@ body.desktop .q-gallery-carousel-quickview img:hover
   min-height 38px
   border-radius 2px
   padding-top 8px
+  padding-left 8px
+  padding-right 8px
   box-shadow $shadow-1
   &:before, &:after
     display none
-  .q-if-control, .q-if-inner
-    margin-left 8px
-    margin-right 8px
 .q-if-dark
   .q-if-control
     color white
@@ -4711,6 +4710,7 @@ body.with-mixin-fullscreen
   position relative
 .fixed,
 .fullscreen,
+.fixed-center,
 .fixed-bottom,
 .fixed-left,
 .fixed-right,
@@ -4722,6 +4722,7 @@ body.with-mixin-fullscreen
   position fixed
 .absolute,
 .absolute-full,
+.absolute-center,
 .absolute-bottom,
 .absolute-left,
 .absolute-right,
@@ -4764,6 +4765,10 @@ body.with-mixin-fullscreen
   right 0
   bottom 0
   left 0
+.fixed-center, .absolute-center
+  top 50%
+  left 50%
+  transform translate(-50%, -50%)
 .vertical-
   &top
     vertical-align top !important
