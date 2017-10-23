@@ -6453,6 +6453,7 @@ var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     });
   },
   beforeDestroy: function beforeDestroy () {
+    if (!this.anchorEl) { return }
     if (Platform.is.mobile) {
       this.anchorEl.removeEventListener('click', this.open);
     }
