@@ -8824,9 +8824,7 @@ var SideMixin = {
 
       if (!state.openedSmall) {
         state.openedBig = false;
-        if (typeof fn === 'function') {
-          fn();
-        }
+        fn && fn();
         return
       }
 
@@ -8845,13 +8843,12 @@ var SideMixin = {
       var state = this[side + 'State'];
       if (this[side + 'OverBreakpoint']) {
         state.openedBig = true;
-        if (typeof fn === 'function') {
-          fn();
-        }
+        fn && fn();
         return
       }
 
       if (!this.$slots[side]) {
+        fn && fn();
         return
       }
 
@@ -8872,9 +8869,7 @@ var SideMixin = {
       document.body.classList.add('with-layout-side-opened');
       state.openedSmall = true;
       this.backdrop.percentage = 1;
-      if (typeof fn === 'function') {
-        fn();
-      }
+      fn && fn();
     },
     __openLeftByTouch: function __openLeftByTouch (evt) {
       this.__openByTouch(evt, 'left');
@@ -11964,7 +11959,6 @@ var QTable = {
     noHeader: Boolean,
     noBottom: Boolean,
     dark: Boolean,
-    compact: Boolean,
     separator: {
       type: String,
       default: 'horizontal',
@@ -12049,25 +12043,14 @@ var QTable = {
     return h('div',
       {
         'class': {
-          'q-table': true,
-          'q-table-dark': this.dark,
-          'q-table-compact': this.compact
+          'q-table-container': true,
+          'q-table-dark': this.dark
         }
       },
       [
         this.getTop(h),
         h('div', { staticClass: 'q-table-middle scroll', 'class': this.tableClass, style: this.tableStyle }, [
-          h('table',
-            {
-              'class': [
-                ("q-table-" + (this.separator) + "-separator"),
-                {
-                  'q-table': true,
-                  'q-table-dark': this.dark,
-                  'q-table-compact': this.compact
-                }
-              ]
-            },
+          h('table', { staticClass: ("q-table q-table-" + (this.separator) + "-separator" + (this.dark ? ' q-table-dark' : '')) },
             [
               this.getTableHeader(h),
               this.getTableBody(h),

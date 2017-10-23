@@ -676,7 +676,7 @@ $table-header-color             ?= rgba(0, 0, 0, .54)
 $table-hover-background         ?= rgba(0, 0, 0, .03)
 $table-selected-background      ?= rgba(0, 0, 0, .06)
 $table-dark-border-color        ?= rgba(255, 255, 255, .12)
-$table-dark-color               ?= rgba(255, 255, 255, .87)
+$table-dark-color               ?= white
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
@@ -2823,10 +2823,9 @@ body.mobile .q-tabs-scroller
   overflow-x auto
   will-change scroll-position
   -webkit-overflow-scrolling touch
-.q-table
+.q-table-container
   border-radius $table-border-radius
   box-shadow $table-box-shadow
-  overflow hidden
   position relative
 .q-table-top
   min-height 64px
@@ -2880,7 +2879,6 @@ body.mobile .q-tabs-scroller
 .q-table
   width 100%
   max-width 100%
-  overflow hidden
   border-collapse collapse
   border-spacing 0
   thead tr
@@ -2931,7 +2929,7 @@ body.mobile .q-tabs-scroller
     border-left 0
   td:last-child
     border-right 0
-.q-table-compact
+@media (max-width $breakpoint-sm-max)
   .q-table-top
     min-height 54px
   .q-table-top, .q-table-bottom
@@ -2939,21 +2937,18 @@ body.mobile .q-tabs-scroller
     padding-right 10px
   .q-table-bottom
     min-height 47px
-.q-table-compact
   .q-table-sort-icon
     font-size 110%
-  th, td
-    padding 5px 10px
-  thead tr
-    height 42px
-  tbody td
-    height 32px
-.q-table
-  color $table-color
+  .q-table
+    th, td
+      padding 5px 8px
+    thead tr, tbody td
+      height 42px
 .q-table-bottom 
   color $table-header-color
   border-top 1px solid $table-border-color
 .q-table 
+  color $table-color
   thead, tr, th, td
     border-color $table-border-color
   th
@@ -2967,10 +2962,9 @@ body.mobile .q-tabs-scroller
       background $table-hover-background
 .q-table-dark
   color $table-dark-color
-  .q-table-bottom
+  .q-table-bottom, .q-table-top
     color $table-dark-header-color
     border-top 1px solid $table-dark-border-color
-.q-table-dark
   thead, tr, th, td
     border-color $table-dark-border-color
   th
