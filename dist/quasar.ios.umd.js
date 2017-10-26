@@ -1550,10 +1550,6 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     QSpinner: QSpinner,
     QResizeObservable: QResizeObservable
   },
-  model: {
-    prop: 'value',
-    event: 'input'
-  },
   props: {
     value: { required: true },
     type: {
@@ -2509,8 +2505,7 @@ var QItemMain = {
     tag: {
       type: String,
       default: 'div'
-    },
-    disable: Boolean
+    }
   },
   render: function render (h, ctx) {
     var
@@ -2527,7 +2522,7 @@ var QItemMain = {
     }
 
     child.push(ctx.children);
-    data.staticClass = "q-item-main q-item-section" + (prop.inset ? ' q-item-main-inset' : '') + (prop.disable ? ' text-faded' : '') + (classes ? (" " + classes) : '');
+    data.staticClass = "q-item-main q-item-section" + (prop.inset ? ' q-item-main-inset' : '') + (classes ? (" " + classes) : '');
 
     return h(prop.tag, data, child)
   }
@@ -2713,8 +2708,7 @@ var QItemWrapper = {
       sublabel: cfg.sublabel,
       labelLines: cfg.labelLines,
       sublabelLines: cfg.sublabelLines,
-      inset: cfg.inset,
-      disable: cfg.disable
+      inset: cfg.inset
     });
 
     push(child, h, QItemSide, slot.right, replace, {
@@ -4557,10 +4551,6 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   components: {
     QInputFrame: QInputFrame,
     QChip: QChip
-  },
-  model: {
-    prop: 'value',
-    event: 'input'
   },
   props: {
     value: {
@@ -7023,7 +7013,7 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   }
 };
 
-var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon,"indeterminate-icon":opt.indeterminateIcon,"indeterminate":_vm.indeterminate,"dark":opt.dark || _vm.dark,"keep-color":opt.keepColor || _vm.keepColor},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
+var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable || opt.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon,"indeterminate-icon":opt.indeterminateIcon,"indeterminate":_vm.indeterminate,"dark":opt.dark || _vm.dark,"keep-color":opt.keepColor || _vm.keepColor},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
   name: 'q-option-group',
   components: {
     QRadio: QRadio,
@@ -9993,10 +9983,6 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   directives: {
     Ripple: Ripple
   },
-  model: {
-    prop: 'value',
-    event: 'input'
-  },
   props: {
     value: { required: true },
     type: String,
@@ -10116,7 +10102,7 @@ var SelectMixin = {
         return this.displayValue
       }
       if (!this.multiple) {
-        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
+        var opt$1 = this.options.find(function (opt) { return (!opt.disable && opt.value === this$1.value); });
         return opt$1 ? opt$1.label : ''
       }
 
@@ -10128,7 +10114,7 @@ var SelectMixin = {
 
       if (this.multiple) {
         return this.length > 0
-          ? this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
+          ? this.options.filter(function (opt) { return (!opt.disable && this$1.value.includes(opt.value)); })
           : []
       }
     },
@@ -10160,6 +10146,7 @@ var SelectMixin = {
         model.push(value);
       }
 
+      this.$emit('input', model);
       this.$emit('change', model);
     },
     __emit: function __emit (val) {
@@ -10185,7 +10172,7 @@ function defaultFilterFn (terms, obj) {
 var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"link":"","separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),attrs:{"cfg":opt,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -10215,7 +10202,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
 
       if (this.multiple) {
         return this.value.length > 0
-          ? this.options.map(function (opt) { return this$1.value.includes(opt.value); })
+          ? this.options.map(function (opt) { return !opt.disable && this$1.value.includes(opt.value); })
           : this.options.map(function (opt) { return false; })
       }
     },
@@ -10300,7 +10287,8 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
 var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggle(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],2)},staticRenderFns: [],
+var optDisable = ref.disable;
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],2)},staticRenderFns: [],
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
