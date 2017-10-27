@@ -2400,6 +2400,122 @@ body.with-modal {
   -webkit-transform: translateX(-101%);
           transform: translateX(-101%);
 }
+.q-layout {
+  width: 100%;
+  min-height: 100vh;
+}
+.q-layout-header {
+  -webkit-box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12);
+          box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12);
+}
+.q-layout-header-hidden {
+  -webkit-transform: translateY(-110%);
+          transform: translateY(-110%);
+}
+.q-layout-footer {
+  -webkit-box-shadow: 0 -2px 4px -1px rgba(0,0,0,0.2), 0 -4px 5px rgba(0,0,0,0.14), 0 -1px 10px rgba(0,0,0,0.12);
+          box-shadow: 0 -2px 4px -1px rgba(0,0,0,0.2), 0 -4px 5px rgba(0,0,0,0.14), 0 -1px 10px rgba(0,0,0,0.12);
+}
+.q-layout-footer-hidden {
+  -webkit-transform: translateY(110%);
+          transform: translateY(110%);
+}
+.q-layout-drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+}
+.q-layout-drawer.fixed {
+  z-index: 1000;
+}
+.q-layout-drawer.fixed.on-layout {
+  -webkit-box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+          box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+}
+.q-layout-drawer.on-top {
+  z-index: 3000;
+}
+.q-layout-drawer-left {
+  left: 0;
+  width: 300px;
+}
+.q-layout-drawer-right {
+  right: 0;
+  width: 300px;
+}
+main,
+.q-layout,
+.q-layout-header,
+.q-layout-footer {
+  position: relative;
+}
+.q-layout-header,
+.q-layout-footer {
+  z-index: 2000;
+  -webkit-transition: -webkit-transform 0.12s ease-in;
+  transition: -webkit-transform 0.12s ease-in;
+  transition: transform 0.12s ease-in;
+  transition: transform 0.12s ease-in, -webkit-transform 0.12s ease-in;
+}
+.q-layout-backdrop {
+  z-index: 2999;
+  background: rgba(0,0,0,0.4);
+}
+.q-layout-drawer-opener {
+  z-index: 2001;
+  height: 100vh;
+  width: 15px;
+}
+body.q-layout-animate .q-layout-drawer,
+body.q-layout-animate .q-layout-page-container,
+body.q-layout-animate .q-page-sticky {
+  -webkit-transition: all 0.12s ease-in;
+  transition: all 0.12s ease-in;
+}
+body.with-layout-drawer-opened {
+  overflow: hidden;
+}
+body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child,
+body.cordova.platform-ios .q-layout-drawer.top-padding {
+  padding-top: 20px;
+  min-height: 70px;
+}
+@media (max-width: 767px) {
+  .layout-padding {
+    padding: 1.5rem 0.5rem;
+  }
+  .layout-padding.horizontal {
+    padding: 0 0.5rem;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .layout-padding {
+    padding: 1.5rem 2rem;
+    margin: auto;
+  }
+  .layout-padding.horizontal {
+    padding: 0 2rem;
+  }
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+  .layout-padding {
+    padding: 2.5rem 3rem;
+    margin: auto;
+  }
+  .layout-padding.horizontal {
+    padding: 0 3rem;
+  }
+}
+@media (min-width: 1200px) {
+  .layout-padding {
+    padding: 3rem 4rem;
+    margin: auto;
+  }
+  .layout-padding.horizontal {
+    padding: 0 4rem;
+  }
+}
 .q-option-inner {
   display: inline-block;
   line-height: 0;

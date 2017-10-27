@@ -468,6 +468,725 @@ var install = function (_Vue, opts) {
   };
 };
 
+function getScrollTarget (el) {
+  return el.closest('.scroll') || window
+}
+
+function getScrollHeight (el) {
+  return (el === window ? document.body : el).scrollHeight
+}
+
+function getScrollPosition (scrollTarget) {
+  if (scrollTarget === window) {
+    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
+  }
+  return scrollTarget.scrollTop
+}
+
+function animScrollTo (el, to, duration) {
+  if (duration <= 0) {
+    return
+  }
+
+  var pos = getScrollPosition(el);
+
+  window.requestAnimationFrame(function () {
+    setScroll(el, pos + (to - pos) / duration * 16);
+    if (el.scrollTop !== to) {
+      animScrollTo(el, to, duration - 16);
+    }
+  });
+}
+
+function setScroll (scrollTarget, offset$$1) {
+  if (scrollTarget === window) {
+    document.documentElement.scrollTop = offset$$1;
+    document.body.scrollTop = offset$$1;
+    return
+  }
+  scrollTarget.scrollTop = offset$$1;
+}
+
+function setScrollPosition (scrollTarget, offset$$1, duration) {
+  if (duration) {
+    animScrollTo(scrollTarget, offset$$1, duration);
+    return
+  }
+  setScroll(scrollTarget, offset$$1);
+}
+
+var size;
+function getScrollbarWidth () {
+  if (size !== undefined) {
+    return size
+  }
+
+  var
+    inner = document.createElement('p'),
+    outer = document.createElement('div');
+
+  css(inner, {
+    width: '100%',
+    height: '200px'
+  });
+  css(outer, {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    visibility: 'hidden',
+    width: '200px',
+    height: '150px',
+    overflow: 'hidden'
+  });
+
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  var w2 = inner.offsetWidth;
+
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+
+  document.body.removeChild(outer);
+  size = w1 - w2;
+
+  return size
+}
+
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth
+});
+
+function getSize (el) {
+  return {
+    width: el.offsetWidth,
+    height: el.offsetHeight
+  }
+}
+
+var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_vm._v(" "),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
+  name: 'q-resize-observable',
+  methods: {
+    onResize: function onResize () {
+      var size = getSize(this.$el.parentNode);
+
+      if (size.width === this.size.width && size.height === this.size.height) {
+        return
+      }
+
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+
+      this.size = size;
+    },
+    emit: function emit () {
+      this.timer = null;
+      this.reset();
+      this.$emit('resize', this.size);
+    },
+    reset: function reset () {
+      var ref = this.$refs;
+      if (ref.expand) {
+        ref.expand.scrollLeft = 100000;
+        ref.expand.scrollTop = 100000;
+      }
+      if (ref.shrink) {
+        ref.shrink.scrollLeft = 100000;
+        ref.shrink.scrollTop = 100000;
+      }
+    }
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      this$1.size = {};
+      this$1.onResize();
+    });
+  },
+  beforeDestroy: function beforeDestroy () {
+    window.cancelAnimationFrame(this.timer);
+    this.$emit('resize', {width: 0, height: 0});
+  }
+};
+
+var QScrollObservable = {
+  name: 'q-scroll-observable',
+  render: function render () {},
+  data: function data () {
+    return {
+      pos: 0,
+      dir: 'down',
+      dirChanged: false,
+      dirChangePos: 0
+    }
+  },
+  methods: {
+    getPosition: function getPosition () {
+      return {
+        position: this.pos,
+        direction: this.dir,
+        directionChanged: this.dirChanged,
+        inflexionPosition: this.dirChangePos
+      }
+    },
+    trigger: function trigger () {
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+    },
+    emit: function emit () {
+      var
+        pos = Math.max(0, getScrollPosition(this.target)),
+        delta = pos - this.pos,
+        dir = delta < 0 ? 'up' : 'down';
+
+      this.dirChanged = this.dir !== dir;
+      if (this.dirChanged) {
+        this.dir = dir;
+        this.dirChangePos = this.pos;
+      }
+
+      this.timer = null;
+      this.pos = pos;
+      this.$emit('scroll', this.getPosition());
+    }
+  },
+  mounted: function mounted () {
+    this.target = getScrollTarget(this.$el.parentNode);
+    this.target.addEventListener('scroll', this.trigger);
+    this.trigger();
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.target.removeEventListener('scroll', this.trigger);
+  }
+};
+
+var QWindowResizeObservable = {
+  name: 'q-window-resize-observable',
+  render: function render () {},
+  methods: {
+    trigger: function trigger () {
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+    },
+    emit: function emit () {
+      this.timer = null;
+      this.$emit('resize', viewport());
+    }
+  },
+  created: function created () {
+    this.emit();
+  },
+  mounted: function mounted () {
+    window.addEventListener('resize', this.trigger);
+  },
+  beforeDestroy: function beforeDestroy () {
+    window.removeEventListener('resize', this.trigger);
+  }
+};
+
+var QNewLayout = {
+  name: 'q-new-layout',
+  provide: function provide () {
+    return {
+      layout: this
+    }
+  },
+  props: {
+    view: {
+      type: String,
+      default: 'hhh lpr fff',
+      validator: function (v) { return /^(h|l)h(h|r) lpr (f|l)f(f|r)$/.test(v.toLowerCase()); }
+    }
+  },
+  data: function data () {
+    var ref = viewport();
+    var height$$1 = ref.height;
+    var width$$1 = ref.width;
+
+    return {
+      height: height$$1, // window height
+      width: width$$1, // window width
+
+      header: {
+        size: 0,
+        reveal: false,
+        revealed: true,
+        space: true
+      },
+      right: {
+        size: 0,
+        space: true
+      },
+      footer: {
+        size: 0,
+        reveal: false,
+        revealed: true,
+        space: true
+      },
+      left: {
+        size: 0,
+        space: true
+      },
+
+      scrollHeight: 0,
+      scroll: {
+        position: 0,
+        direction: 'down'
+      }
+    }
+  },
+  watch: {
+    'header.revealed': function header_revealed () {
+      this.__animate();
+    },
+    'footer.revealed': function footer_revealed () {
+      this.__animate();
+    },
+    'left.space': function left_space () {
+      this.__animate();
+    },
+    'right.space': function right_space () {
+      this.__animate();
+    }
+  },
+  computed: {
+    fixed: function fixed () {
+      return {
+        header: this.header.reveal || this.view.indexOf('H') > -1,
+        footer: this.footer.reveal || this.view.indexOf('F') > -1,
+        left: this.view.indexOf('L') > -1,
+        right: this.view.indexOf('R') > -1
+      }
+    },
+    rows: function rows () {
+      var rows = this.view.toLowerCase().split(' ');
+      return {
+        top: rows[0].split(''),
+        middle: rows[1].split(''),
+        bottom: rows[2].split('')
+      }
+    },
+    offsetTop: function offsetTop () {
+      if (!this.header.space) {
+        return 0
+      }
+      if (this.fixed.header) {
+        return this.header.revealed ? this.header.size : 0
+      }
+      var offset$$1 = this.header.size - this.scroll.position;
+      return offset$$1 > 0 ? offset$$1 : 0
+    },
+    offsetBottom: function offsetBottom () {
+      if (!this.footer.space) {
+        return 0
+      }
+      if (this.fixed.footer) {
+        return this.footer.revealed ? this.footer.size : 0
+      }
+      var offset$$1 = this.height + this.scroll.position + this.footer.size - this.scrollHeight;
+      return offset$$1 > 0 ? offset$$1 : 0
+    },
+    offsetLeft: function offsetLeft () {
+      if (this.left.space) {
+        return this.left.size
+      }
+    },
+    offsetRight: function offsetRight () {
+      if (this.right.space) {
+        return this.right.size
+      }
+    }
+  },
+  render: function render (h) {
+    console.log('layout render');
+    return h('div', { staticClass: 'q-layout' }, [
+      h(QScrollObservable, {
+        on: { scroll: this.__onPageScroll }
+      }),
+      h(QResizeObservable, {
+        on: { resize: this.__onLayoutResize }
+      }),
+      h(QWindowResizeObservable, {
+        on: { resize: this.__onWindowResize }
+      }),
+      this.$slots.default
+    ])
+  },
+  methods: {
+    __animate: function __animate () {
+      var this$1 = this;
+
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      else {
+        document.body.classList.add('q-layout-animate');
+      }
+      this.timer = setTimeout(function () {
+        document.body.classList.remove('q-layout-animate');
+        this$1.timer = null;
+      }, 150);
+    },
+    __onPageScroll: function __onPageScroll (data) {
+      this.scroll = data;
+      this.$emit('scroll', data);
+    },
+    __onLayoutResize: function __onLayoutResize () {
+      this.scrollHeight = getScrollHeight(this.$el);
+    },
+    __onWindowResize: function __onWindowResize (ref) {
+      var height$$1 = ref.height;
+      var width$$1 = ref.width;
+
+      if (this.height !== height$$1) {
+        this.height = height$$1;
+      }
+      if (this.width !== width$$1) {
+        this.width = width$$1;
+      }
+    }
+  }
+};
+
+function getEvent (e) {
+  return e || window.event
+}
+
+function rightClick (e) {
+  e = getEvent(e);
+
+  if (e.which) {
+    return e.which === 3
+  }
+  if (e.button) {
+    return e.button === 2
+  }
+
+  return false
+}
+
+function getEventKey (e) {
+  e = getEvent(e);
+  return e.which || e.keyCode
+}
+
+function position (e) {
+  var posx, posy;
+  e = getEvent(e);
+
+  if (e.touches && e.touches[0]) {
+    e = e.touches[0];
+  }
+  else if (e.changedTouches && e.changedTouches[0]) {
+    e = e.changedTouches[0];
+  }
+
+  if (e.clientX || e.clientY) {
+    posx = e.clientX;
+    posy = e.clientY;
+  }
+  else if (e.pageX || e.pageY) {
+    posx = e.pageX - document.body.scrollLeft - document.documentElement.scrollLeft;
+    posy = e.pageY - document.body.scrollTop - document.documentElement.scrollTop;
+  }
+
+  return {
+    top: posy,
+    left: posx
+  }
+}
+
+function targetElement (e) {
+  var target;
+  e = getEvent(e);
+
+  if (e.target) {
+    target = e.target;
+  }
+  else if (e.srcElement) {
+    target = e.srcElement;
+  }
+
+  // defeat Safari bug
+  if (target.nodeType === 3) {
+    target = target.parentNode;
+  }
+
+  return target
+}
+
+// Reasonable defaults
+var PIXEL_STEP = 10;
+var LINE_HEIGHT = 40;
+var PAGE_HEIGHT = 800;
+
+function getMouseWheelDistance (e) {
+  var
+    sX = 0, sY = 0, // spinX, spinY
+    pX = 0, pY = 0; // pixelX, pixelY
+
+  // Legacy
+  if ('detail' in e) { sY = e.detail; }
+  if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
+  if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
+  if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
+
+  // side scrolling on FF with DOMMouseScroll
+  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
+    sX = sY;
+    sY = 0;
+  }
+
+  pX = sX * PIXEL_STEP;
+  pY = sY * PIXEL_STEP;
+
+  if ('deltaY' in e) { pY = e.deltaY; }
+  if ('deltaX' in e) { pX = e.deltaX; }
+
+  if ((pX || pY) && e.deltaMode) {
+    if (e.deltaMode === 1) { // delta in LINE units
+      pX *= LINE_HEIGHT;
+      pY *= LINE_HEIGHT;
+    }
+    else { // delta in PAGE units
+      pX *= PAGE_HEIGHT;
+      pY *= PAGE_HEIGHT;
+    }
+  }
+
+  // Fall-back if spin cannot be determined
+  if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
+  if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
+
+  /*
+   * spinX  -- normalized spin speed (use for zoom) - x plane
+   * spinY  -- " - y plane
+   * pixelX -- normalized distance (to pixels) - x plane
+   * pixelY -- " - y plane
+   */
+  return {
+    spinX: sX,
+    spinY: sY,
+    pixelX: pX,
+    pixelY: pY
+  }
+}
+
+
+var event = Object.freeze({
+	rightClick: rightClick,
+	getEventKey: getEventKey,
+	position: position,
+	targetElement: targetElement,
+	getMouseWheelDistance: getMouseWheelDistance
+});
+
+function getDirection (mod) {
+  if (Object.keys(mod).length === 0) {
+    return {
+      horizontal: true,
+      vertical: true
+    }
+  }
+
+  var dir = {};['horizontal', 'vertical'].forEach(function (direction) {
+    if (mod[direction]) {
+      dir[direction] = true;
+    }
+  });
+
+  return dir
+}
+
+function updateClasses (el, dir, scroll) {
+  el.classList.add('q-touch');
+
+  if (!scroll) {
+    if (dir.horizontal && !dir.vertical) {
+      el.classList.add('q-touch-y');
+      el.classList.remove('q-touch-x');
+    }
+    else if (!dir.horizontal && dir.vertical) {
+      el.classList.add('q-touch-x');
+      el.classList.remove('q-touch-y');
+    }
+  }
+}
+
+function processChanges (evt, ctx, isFinal) {
+  var
+    direction,
+    pos = position(evt),
+    distX = pos.left - ctx.event.x,
+    distY = pos.top - ctx.event.y,
+    absDistX = Math.abs(distX),
+    absDistY = Math.abs(distY);
+
+  if (ctx.direction.horizontal && !ctx.direction.vertical) {
+    direction = distX < 0 ? 'left' : 'right';
+  }
+  else if (!ctx.direction.horizontal && ctx.direction.vertical) {
+    direction = distY < 0 ? 'up' : 'down';
+  }
+  else if (absDistX >= absDistY) {
+    direction = distX < 0 ? 'left' : 'right';
+  }
+  else {
+    direction = distY < 0 ? 'up' : 'down';
+  }
+
+  return {
+    evt: evt,
+    position: pos,
+    direction: direction,
+    isFirst: ctx.event.isFirst,
+    isFinal: Boolean(isFinal),
+    duration: new Date().getTime() - ctx.event.time,
+    distance: {
+      x: absDistX,
+      y: absDistY
+    },
+    delta: {
+      x: pos.left - ctx.event.lastX,
+      y: pos.top - ctx.event.lastY
+    }
+  }
+}
+
+function shouldTrigger (ctx, changes) {
+  if (ctx.direction.horizontal && ctx.direction.vertical) {
+    return true
+  }
+  if (ctx.direction.horizontal && !ctx.direction.vertical) {
+    return Math.abs(changes.delta.x) > 0
+  }
+  if (!ctx.direction.horizontal && ctx.direction.vertical) {
+    return Math.abs(changes.delta.y) > 0
+  }
+}
+
+var TouchPan = {
+  name: 'touch-pan',
+  bind: function bind (el, binding) {
+    var mouse = !binding.modifiers.nomouse;
+
+    var ctx = {
+      handler: binding.value,
+      scroll: binding.modifiers.scroll,
+      direction: getDirection(binding.modifiers),
+
+      mouseStart: function mouseStart (evt) {
+        if (mouse) {
+          document.addEventListener('mousemove', ctx.mouseMove);
+          document.addEventListener('mouseup', ctx.mouseEnd);
+        }
+        ctx.start(evt);
+      },
+      start: function start (evt) {
+        var pos = position(evt);
+        ctx.event = {
+          x: pos.left,
+          y: pos.top,
+          time: new Date().getTime(),
+          detected: false,
+          prevent: ctx.direction.horizontal && ctx.direction.vertical,
+          isFirst: true,
+          lastX: pos.left,
+          lastY: pos.top
+        };
+      },
+      mouseMove: function mouseMove (evt) {
+        ctx.event.prevent = true;
+        ctx.move(evt);
+      },
+      move: function move (evt) {
+        if (ctx.event.prevent) {
+          if (!ctx.scroll) {
+            evt.preventDefault();
+          }
+          var changes = processChanges(evt, ctx, false);
+          if (shouldTrigger(ctx, changes)) {
+            ctx.handler(changes);
+            ctx.event.lastX = changes.position.left;
+            ctx.event.lastY = changes.position.top;
+            ctx.event.isFirst = false;
+          }
+          return
+        }
+        if (ctx.event.detected) {
+          return
+        }
+
+        ctx.event.detected = true;
+        var
+          pos = position(evt),
+          distX = pos.left - ctx.event.x,
+          distY = pos.top - ctx.event.y;
+
+        if (ctx.direction.horizontal && !ctx.direction.vertical) {
+          if (Math.abs(distX) > Math.abs(distY)) {
+            evt.preventDefault();
+            ctx.event.prevent = true;
+          }
+        }
+        else if (Math.abs(distX) < Math.abs(distY)) {
+          ctx.event.prevent = true;
+        }
+      },
+      mouseEnd: function mouseEnd (evt) {
+        if (mouse) {
+          document.removeEventListener('mousemove', ctx.mouseMove);
+          document.removeEventListener('mouseup', ctx.mouseEnd);
+        }
+        ctx.end(evt);
+      },
+      end: function end (evt) {
+        if (!ctx.event.prevent || ctx.event.isFirst) {
+          return
+        }
+
+        ctx.handler(processChanges(evt, ctx, true));
+      }
+    };
+
+    el.__qtouchpan = ctx;
+    updateClasses(el, ctx.direction, ctx.scroll);
+    if (mouse) {
+      el.addEventListener('mousedown', ctx.mouseStart);
+    }
+    el.addEventListener('touchstart', ctx.start);
+    el.addEventListener('touchmove', ctx.move);
+    el.addEventListener('touchend', ctx.end);
+  },
+  update: function update (el, binding) {
+    if (binding.oldValue !== binding.value) {
+      el.__qtouchpan.handler = binding.value;
+    }
+  },
+  unbind: function unbind (el, binding) {
+    var ctx = el.__qtouchpan;
+    el.removeEventListener('touchstart', ctx.start);
+    el.removeEventListener('mousedown', ctx.mouseStart);
+    el.removeEventListener('touchmove', ctx.move);
+    el.removeEventListener('touchend', ctx.end);
+    delete el.__qtouchpan;
+  }
+};
+
 var units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
 
 function humanStorageSize (bytes) {
@@ -525,6 +1244,676 @@ var format = Object.freeze({
 	normalizeToInterval: normalizeToInterval,
 	pad: pad
 });
+
+var bodyClass = 'with-layout-drawer-opened';
+
+var QLayoutDrawer = {
+  name: 'q-layout-drawer',
+  inject: ['layout'],
+  directives: {
+    TouchPan: TouchPan
+  },
+  props: {
+    value: Boolean,
+    rightSide: Boolean,
+    breakpoint: {
+      type: Number,
+      default: 992
+    }
+  },
+  data: function data () {
+    return {
+      model: this.breakpoint < this.layout.width
+        ? this.value
+        : false,
+
+      inTransit: false,
+      position: 0,
+      percentage: 0,
+
+      backdropTouchEvent: false
+    }
+  },
+  watch: {
+    value: function value (val) {
+      console.log('value received', val);
+      if (this.model !== val) {
+        this.model = val;
+      }
+    },
+    model: {
+      handler: function handler (val) {
+        console.log('model change', val);
+        if (this.value !== val) {
+          this.$emit('input', val);
+        }
+        if (this.belowBreakpoint) {
+          if (val) {
+            this.show();
+          }
+          else {
+            this.hide();
+          }
+        }
+      }
+    },
+    belowBreakpoint: function belowBreakpoint (val) {
+      console.log('belowBreakpoint', val);
+      this.model = !val;
+      if (!val) {
+        this.percentage = 0;
+      }
+    },
+    onLayout: {
+      handler: function handler (val) {
+        console.log('onLayout changed to', val);
+        this.__update('space', val);
+      },
+      immediate: true
+    }
+  },
+  computed: {
+    side: function side () {
+      return this.rightSide ? 'right' : 'left'
+    },
+    belowBreakpoint: function belowBreakpoint () {
+      return this.breakpoint > this.layout.width
+    },
+    onLayout: function onLayout () {
+      return this.model && !this.belowBreakpoint
+    },
+    belowClass: function belowClass () {
+      return {
+        'fixed': true,
+        'on-top': true,
+        'transition-generic': !this.inTransit,
+        'top-padding': this.layout.fixed[this.side] || (this.rightSide ? this.layout.rows.top[2] === 'r' : this.layout.rows.top[0] === 'l')
+      }
+    },
+    aboveClass: function aboveClass () {
+      return {
+        'on-layout': this.onLayout,
+        'transition-drawer': !this.inTransit,
+        'fixed': this.layout.fixed[this.side] || !this.onLayout,
+        'top-padding': this.layout.fixed[this.side] || (this.rightSide ? this.layout.rows.top[2] === 'r' : this.layout.rows.top[0] === 'l')
+      }
+    },
+    belowStyle: function belowStyle () {
+      return cssTransform(this.inTransit
+        ? ("translateX(" + (this.position) + "px)")
+        : ("translateX(" + (this.model ? 0 : ((this.rightSide ? '' : '-') + "100%")) + ")")
+      )
+    },
+    aboveStyle: function aboveStyle () {
+      var
+        view = this.layout.rows,
+        css$$1 = cssTransform(("translateX(" + (this.onLayout ? 0 : ((this.rightSide ? '' : '-') + "100%")) + ")"));
+
+      if (this.layout.header.space && this.rightSide ? view.top[2] !== 'r' : view.top[0] !== 'l') {
+        if (this.layout.fixed[this.side]) {
+          css$$1.top = (this.layout.offsetTop) + "px";
+        }
+        else if (this.layout.header.space) {
+          css$$1.top = (this.layout.header.size) + "px";
+        }
+      }
+
+      if (this.layout.footer.space && this.rightSide ? view.bottom[2] !== 'r' : view.bottom[0] !== 'l') {
+        if (this.layout.fixed[this.side]) {
+          css$$1.bottom = (this.layout.offsetBottom) + "px";
+        }
+        else if (this.layout.footer.space) {
+          css$$1.bottom = (this.layout.footer.size) + "px";
+        }
+      }
+
+      return css$$1
+    },
+    computedStyle: function computedStyle () {
+      return this.belowBreakpoint ? this.belowStyle : this.aboveStyle
+    },
+    computedClass: function computedClass () {
+      return this.belowBreakpoint ? this.belowClass : this.aboveClass
+    }
+  },
+  render: function render (h) {
+    console.log(("drawer " + (this.side) + " render"));
+    var child = [];
+
+    if (this.belowBreakpoint) {
+      child.push(h('div', {
+        staticClass: ("q-layout-drawer-opener fixed-" + (this.side)),
+        directives: [{
+          name: 'touch-pan',
+          modifier: { horizontal: true },
+          value: this.__openByTouch
+        }]
+      }));
+      child.push(h('div', {
+        staticClass: 'fullscreen q-layout-backdrop',
+        'class': {
+          'transition-generic': !this.inTransit,
+          'no-pointer-events': !this.inTransit && !this.model
+        },
+        style: {
+          opacity: this.percentage
+        },
+        on: { click: this.hide },
+        directives: [{
+          name: 'touch-pan',
+          modifier: { horizontal: true },
+          value: this.__closeByTouch
+        }]
+      }));
+    }
+
+    return h('div', child.concat([
+      h('aside', {
+        staticClass: ("q-layout-drawer q-layout-drawer-" + (this.side) + " scroll"),
+        'class': this.computedClass,
+        style: this.computedStyle,
+        directives: this.belowBreakpoint ? [{
+          name: 'touch-pan',
+          modifier: { horizontal: true },
+          value: this.__closeByTouch
+        }] : null
+      }, [
+        this.$slots.default,
+        h(QResizeObservable, {
+          on: { resize: this.__onResize }
+        })
+      ])
+    ]))
+  },
+  mounted: function mounted () {
+    if (this.value !== this.model) {
+      this.$emit('input', this.model);
+    }
+  },
+  destroyed: function destroyed () {
+    this.layout[this.side].size = 0;
+    this.layout[this.side].space = false;
+  },
+  methods: {
+    __openByTouch: function __openByTouch (evt) {
+      if (!this.belowBreakpoint) {
+        return
+      }
+      var
+        side = this.side,
+        width$$1 = this.layout[side].size,
+        position = between(evt.distance.x, 0, width$$1);
+
+      if (evt.isFinal) {
+        var opened = position >= Math.min(75, width$$1);
+        this.inTransit = false;
+        if (opened) { this.show(); }
+        else { this.percentage = 0; }
+        return
+      }
+
+      this.position = this.rightSide
+        ? Math.max(width$$1 - position, 0)
+        : Math.min(0, position - width$$1);
+
+      this.percentage = between(position / width$$1, 0, 1);
+
+      if (evt.isFirst) {
+        document.body.classList.add(bodyClass);
+        this.inTransit = true;
+      }
+    },
+    show: function show (fn) {
+      if (!this.belowBreakpoint) {
+        this.model = true;
+        fn && fn();
+        return
+      }
+
+      if (this.$q.platform.has.popstate) {
+        if (!window.history.state) {
+          window.history.replaceState({__quasar_layout_overlay: true}, '');
+        }
+        else {
+          window.history.state.__quasar_layout_overlay = true;
+        }
+        var hist = window.history.state || {};
+        hist.__quasar_layout_overlay = true;
+        window.history.replaceState(hist, '');
+        window.history.pushState({}, '');
+        window.addEventListener('popstate', this.__popState);
+      }
+
+      document.body.classList.add(bodyClass);
+      this.model = true;
+      this.percentage = 1;
+      fn && fn();
+    },
+    __closeByTouch: function __closeByTouch (evt) {
+      if (!this.belowBreakpoint) {
+        return
+      }
+      var
+        width$$1 = this.layout[this.side].size,
+        position = evt.direction === this.side
+          ? between(evt.distance.x, 0, width$$1)
+          : 0;
+
+      if (evt.isFinal) {
+        var opened = Math.abs(position) < Math.min(75, width$$1);
+        this.inTransit = false;
+        if (opened) { this.percentage = 1; }
+        else { this.hide(); }
+        return
+      }
+
+      this.position = (this.rightSide ? 1 : -1) * position;
+      this.percentage = between(1 - position / width$$1, 0, 1);
+
+      if (evt.isFirst) {
+        this.inTransit = true;
+      }
+    },
+    hide: function hide (fn) {
+      if (!this.belowBreakpoint) {
+        this.model = false;
+        if (typeof fn === 'function') {
+          fn();
+        }
+        return
+      }
+
+      document.body.classList.remove(bodyClass);
+      if (this.$q.platform.has.popstate) {
+        this.popStateCallback = fn;
+        if (window.history.state && !window.history.state.__quasar_layout_overlay) {
+          window.history.go(-1);
+        }
+      }
+      else {
+        this.__hideSmall(fn);
+      }
+    },
+    __hideSmall: function __hideSmall (fn) {
+      this.model = false;
+      this.percentage = 0;
+      if (typeof fn === 'function') {
+        setTimeout(fn, 370);
+      }
+    },
+    __popState: function __popState () {
+      if (this.$q.platform.has.popstate && window.history.state && window.history.state.__quasar_layout_overlay) {
+        window.removeEventListener('popstate', this.__popState);
+        this.__hideSmall(this.popStateCallback);
+        this.popStateCallback = null;
+      }
+    },
+
+    __onResize: function __onResize (ref) {
+      var width$$1 = ref.width;
+
+      this.__update('size', width$$1);
+    },
+    __update: function __update (prop, val) {
+      if (this.layout[this.side][prop] !== val) {
+        this.layout[this.side][prop] = val;
+      }
+    }
+  }
+};
+
+var QLayoutFooter = {
+  name: 'q-layout-footer',
+  inject: ['layout'],
+  props: {
+    value: Boolean,
+    reveal: Boolean
+  },
+  data: function data () {
+    return {
+      revealed: true
+    }
+  },
+  watch: {
+    'layout.scroll': function layout_scroll (data) {
+      if (!this.reveal) {
+        return
+      }
+
+      this.__update('revealed',
+        data.direction === 'up' ||
+        data.position - data.inflexionPosition < 100 ||
+        this.layout.scrollHeight - this.layout.height - data.position < this.layout.footer.size + 300
+      );
+    },
+    value: {
+      handler: function handler (val) {
+        this.__update('space', val);
+      },
+      immediate: true
+    },
+    reveal: {
+      handler: function handler (val) {
+        this.__update('reveal', val);
+      },
+      immediate: true
+    }
+  },
+  computed: {
+    computedClass: function computedClass () {
+      var cls = this.layout.fixed.footer
+        ? 'fixed-bottom'
+        : 'absolute-bottom';
+
+      if (!this.layout.footer.space || !this.layout.footer.revealed) {
+        cls += ' q-layout-footer-hidden';
+      }
+
+      return cls
+    },
+    computedStyle: function computedStyle () {
+      var
+        view = this.layout.rows.bottom,
+        css = {};
+
+      if (view[0] === 'l' && this.layout.left.space) {
+        css.marginLeft = (this.layout.left.size) + "px";
+      }
+      if (view[2] === 'r' && this.layout.right.space) {
+        css.marginRight = (this.layout.right.size) + "px";
+      }
+
+      return css
+    }
+  },
+  render: function render (h) {
+    console.log('footer render');
+    return h('footer', {
+      staticClass: 'q-layout-footer',
+      'class': this.computedClass,
+      style: this.computedStyle
+    }, [
+      h(QResizeObservable, {
+        on: { resize: this.__onResize }
+      }),
+      this.$slots.default
+    ])
+  },
+  destroyed: function destroyed () {
+    this.layout.footer.size = 0;
+    this.layout.footer.space = false;
+  },
+  methods: {
+    __onResize: function __onResize (ref) {
+      var height = ref.height;
+
+      this.__update('size', height);
+    },
+    __update: function __update (prop, val) {
+      if (this.layout.footer[prop] !== val) {
+        this.layout.footer[prop] = val;
+      }
+    }
+  }
+};
+
+var QLayoutHeader = {
+  name: 'q-layout-header',
+  inject: ['layout'],
+  props: {
+    value: Boolean,
+    reveal: Boolean
+  },
+  watch: {
+    'layout.scroll': function layout_scroll (data) {
+      if (!this.reveal) {
+        return
+      }
+
+      this.__update('revealed',
+        data.position <= this.layout.header.size ||
+        data.direction === 'up' ||
+        data.position - data.inflexionPosition < 100
+      );
+    },
+    value: {
+      handler: function handler (val) {
+        this.__update('space', val);
+      },
+      immediate: true
+    },
+    reveal: {
+      handler: function handler (val) {
+        this.__update('reveal', val);
+      },
+      immediate: true
+    }
+  },
+  computed: {
+    computedClass: function computedClass () {
+      var cls = this.layout.fixed.header
+        ? 'fixed-top'
+        : 'absolute-top';
+
+      if (!this.layout.header.space || !this.layout.header.revealed) {
+        cls += ' q-layout-header-hidden';
+      }
+
+      return cls
+    },
+    computedStyle: function computedStyle () {
+      var
+        view = this.layout.rows.top,
+        css = {};
+
+      if (view[0] === 'l' && this.layout.left.space) {
+        css.marginLeft = (this.layout.left.size) + "px";
+      }
+      if (view[2] === 'r' && this.layout.right.space) {
+        css.marginRight = (this.layout.right.size) + "px";
+      }
+
+      return css
+    }
+  },
+  render: function render (h) {
+    console.log('header render');
+    return h('header', {
+      staticClass: 'q-layout-header',
+      'class': this.computedClass,
+      style: this.computedStyle
+    }, [
+      h(QResizeObservable, {
+        on: { resize: this.__onResize }
+      }),
+      this.$slots.default
+    ])
+  },
+  destroyed: function destroyed () {
+    this.layout.header.size = 0;
+    this.layout.header.space = false;
+  },
+  methods: {
+    __onResize: function __onResize (ref) {
+      var height = ref.height;
+
+      this.__update('size', height);
+    },
+    __update: function __update (prop, val) {
+      if (this.layout.header[prop] !== val) {
+        this.layout.header[prop] = val;
+      }
+    }
+  }
+};
+
+var QPage = {
+  name: 'q-page',
+  inject: ['layout'],
+  props: {
+    padding: Boolean
+  },
+  computed: {
+    computedStyle: function computedStyle () {
+      var offset =
+        (this.layout.header.space ? this.layout.header.size : 0) +
+        (this.layout.footer.space ? this.layout.footer.size : 0);
+
+      return {
+        minHeight: offset ? ("calc(100vh - " + offset + "px)") : '100vh'
+      }
+    },
+    computedClass: function computedClass () {
+      if (this.padding) {
+        return 'layout-padding'
+      }
+    }
+  },
+  render: function render (h) {
+    return h('main', {
+      staticClass: 'q-layout-page',
+      style: this.computedStyle,
+      'class': this.computedClass
+    }, [
+      this.$slots.default
+    ])
+  }
+};
+
+var QPageContainer = {
+  name: 'q-page-container',
+  inject: ['layout'],
+  computed: {
+    computedStyle: function computedStyle () {
+      var css = {};
+
+      if (this.layout.header.space) {
+        css.paddingTop = (this.layout.header.size) + "px";
+      }
+      if (this.layout.right.space) {
+        css.paddingRight = (this.layout.right.size) + "px";
+      }
+      if (this.layout.footer.space) {
+        css.paddingBottom = (this.layout.footer.size) + "px";
+      }
+      if (this.layout.left.space) {
+        css.paddingLeft = (this.layout.left.size) + "px";
+      }
+
+      return css
+    }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-layout-page-container',
+      style: this.computedStyle
+    }, [
+      this.$slots.default
+    ])
+  }
+};
+
+var QPageSticky = {
+  name: 'q-page-sticky',
+  inject: ['layout'],
+  props: {
+    position: {
+      type: String,
+      default: 'bottom-right',
+      validator: function (v) { return [
+        'top-right', 'top-left',
+        'bottom-right', 'bottom-left',
+        'top', 'right', 'bottom', 'left'
+      ].includes(v); }
+    },
+    offset: {
+      type: Array,
+      validator: function (v) { return v.length === 2; }
+    }
+  },
+  computed: {
+    attach: function attach () {
+      var pos = this.position;
+
+      return {
+        top: pos.indexOf('top') > -1,
+        right: pos.indexOf('right') > -1,
+        bottom: pos.indexOf('bottom') > -1,
+        left: pos.indexOf('left') > -1,
+        vertical: pos === 'top' || pos === 'bottom',
+        horizontal: pos === 'left' || pos === 'right'
+      }
+    },
+    top: function top () {
+      return this.layout.offsetTop
+    },
+    right: function right () {
+      return this.layout.offsetRight
+    },
+    bottom: function bottom () {
+      return this.layout.offsetBottom
+    },
+    left: function left () {
+      return this.layout.offsetLeft
+    },
+    computedStyle: function computedStyle () {
+      var
+        attach = this.attach,
+        transforms = [];
+
+      if (attach.top && this.top) {
+        transforms.push(("translateY(" + (this.top) + "px)"));
+      }
+      else if (attach.bottom && this.bottom) {
+        transforms.push(("translateY(" + (-this.bottom) + "px)"));
+      }
+
+      if (attach.left && this.left) {
+        transforms.push(("translateX(" + (this.left) + "px)"));
+      }
+      else if (attach.right && this.right) {
+        transforms.push(("translateX(" + (-this.right) + "px)"));
+      }
+
+      var css$$1 = transforms.length
+        ? cssTransform(transforms.join(' '))
+        : {};
+
+      if (this.offset) {
+        css$$1.margin = (this.offset[1]) + "px " + (this.offset[0]) + "px";
+      }
+
+      if (attach.vertical) {
+        if (this.left) {
+          css$$1.left = (this.left) + "px";
+        }
+        if (this.right) {
+          css$$1.right = (this.right) + "px";
+        }
+      }
+      else if (attach.horizontal) {
+        if (this.top) {
+          css$$1.top = (this.top) + "px";
+        }
+        if (this.bottom) {
+          css$$1.bottom = (this.bottom) + "px";
+        }
+      }
+
+      return css$$1
+    }
+  },
+  render: function render (h) {
+    console.log('sticky render');
+    return h('div', {
+      staticClass: 'q-page-sticky z-fixed',
+      'class': ("fixed-" + (this.position)),
+      style: this.computedStyle
+    }, [
+      this.$slots.default
+    ])
+  }
+};
 
 var xhr = XMLHttpRequest;
 var send = xhr.prototype.send;
@@ -1187,234 +2576,6 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-function getSize (el) {
-  return {
-    width: el.offsetWidth,
-    height: el.offsetHeight
-  }
-}
-
-var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_vm._v(" "),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
-  name: 'q-resize-observable',
-  methods: {
-    onResize: function onResize () {
-      var size = getSize(this.$el.parentNode);
-
-      if (size.width === this.size.width && size.height === this.size.height) {
-        return
-      }
-
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-
-      this.size = size;
-    },
-    emit: function emit () {
-      this.timer = null;
-      this.reset();
-      this.$emit('resize', this.size);
-    },
-    reset: function reset () {
-      var ref = this.$refs;
-      if (ref.expand) {
-        ref.expand.scrollLeft = 100000;
-        ref.expand.scrollTop = 100000;
-      }
-      if (ref.shrink) {
-        ref.shrink.scrollLeft = 100000;
-        ref.shrink.scrollTop = 100000;
-      }
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.size = {};
-      this$1.onResize();
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.cancelAnimationFrame(this.timer);
-    this.$emit('resize', {width: 0, height: 0});
-  }
-};
-
-function getScrollTarget (el) {
-  return el.closest('.scroll') || window
-}
-
-function getScrollHeight (el) {
-  return (el === window ? document.body : el).scrollHeight
-}
-
-function getScrollPosition (scrollTarget) {
-  if (scrollTarget === window) {
-    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
-  }
-  return scrollTarget.scrollTop
-}
-
-function animScrollTo (el, to, duration) {
-  if (duration <= 0) {
-    return
-  }
-
-  var pos = getScrollPosition(el);
-
-  window.requestAnimationFrame(function () {
-    setScroll(el, pos + (to - pos) / duration * 16);
-    if (el.scrollTop !== to) {
-      animScrollTo(el, to, duration - 16);
-    }
-  });
-}
-
-function setScroll (scrollTarget, offset$$1) {
-  if (scrollTarget === window) {
-    document.documentElement.scrollTop = offset$$1;
-    document.body.scrollTop = offset$$1;
-    return
-  }
-  scrollTarget.scrollTop = offset$$1;
-}
-
-function setScrollPosition (scrollTarget, offset$$1, duration) {
-  if (duration) {
-    animScrollTo(scrollTarget, offset$$1, duration);
-    return
-  }
-  setScroll(scrollTarget, offset$$1);
-}
-
-var size;
-function getScrollbarWidth () {
-  if (size !== undefined) {
-    return size
-  }
-
-  var
-    inner = document.createElement('p'),
-    outer = document.createElement('div');
-
-  css(inner, {
-    width: '100%',
-    height: '200px'
-  });
-  css(outer, {
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-    visibility: 'hidden',
-    width: '200px',
-    height: '150px',
-    overflow: 'hidden'
-  });
-
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  var w2 = inner.offsetWidth;
-
-  if (w1 === w2) {
-    w2 = outer.clientWidth;
-  }
-
-  document.body.removeChild(outer);
-  size = w1 - w2;
-
-  return size
-}
-
-
-var scroll = Object.freeze({
-	getScrollTarget: getScrollTarget,
-	getScrollHeight: getScrollHeight,
-	getScrollPosition: getScrollPosition,
-	animScrollTo: animScrollTo,
-	setScrollPosition: setScrollPosition,
-	getScrollbarWidth: getScrollbarWidth
-});
-
-var QScrollObservable = {
-  name: 'q-scroll-observable',
-  render: function render () {},
-  data: function data () {
-    return {
-      pos: 0,
-      dir: 'down',
-      dirChanged: false,
-      dirChangePos: 0
-    }
-  },
-  methods: {
-    getPosition: function getPosition () {
-      return {
-        position: this.pos,
-        direction: this.dir,
-        directionChanged: this.dirChanged,
-        inflexionPosition: this.dirChangePos
-      }
-    },
-    trigger: function trigger () {
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-    },
-    emit: function emit () {
-      var
-        pos = Math.max(0, getScrollPosition(this.target)),
-        delta = pos - this.pos,
-        dir = delta < 0 ? 'up' : 'down';
-
-      this.dirChanged = this.dir !== dir;
-      if (this.dirChanged) {
-        this.dir = dir;
-        this.dirChangePos = this.pos;
-      }
-
-      this.timer = null;
-      this.pos = pos;
-      this.$emit('scroll', this.getPosition());
-    }
-  },
-  mounted: function mounted () {
-    this.target = getScrollTarget(this.$el.parentNode);
-    this.target.addEventListener('scroll', this.trigger);
-    this.trigger();
-  },
-  beforeDestroy: function beforeDestroy () {
-    this.target.removeEventListener('scroll', this.trigger);
-  }
-};
-
-var QWindowResizeObservable = {
-  name: 'q-window-resize-observable',
-  render: function render () {},
-  methods: {
-    trigger: function trigger () {
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-    },
-    emit: function emit () {
-      this.timer = null;
-      this.$emit('resize', viewport());
-    }
-  },
-  mounted: function mounted () {
-    this.emit();
-    window.addEventListener('resize', this.trigger);
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.removeEventListener('resize', this.trigger);
-  }
-};
-
 var mixin = {
   props: {
     color: String,
@@ -1782,139 +2943,6 @@ function extend () {
 
   return target
 }
-
-function getEvent (e) {
-  return e || window.event
-}
-
-function rightClick (e) {
-  e = getEvent(e);
-
-  if (e.which) {
-    return e.which === 3
-  }
-  if (e.button) {
-    return e.button === 2
-  }
-
-  return false
-}
-
-function getEventKey (e) {
-  e = getEvent(e);
-  return e.which || e.keyCode
-}
-
-function position (e) {
-  var posx, posy;
-  e = getEvent(e);
-
-  if (e.touches && e.touches[0]) {
-    e = e.touches[0];
-  }
-  else if (e.changedTouches && e.changedTouches[0]) {
-    e = e.changedTouches[0];
-  }
-
-  if (e.clientX || e.clientY) {
-    posx = e.clientX;
-    posy = e.clientY;
-  }
-  else if (e.pageX || e.pageY) {
-    posx = e.pageX - document.body.scrollLeft - document.documentElement.scrollLeft;
-    posy = e.pageY - document.body.scrollTop - document.documentElement.scrollTop;
-  }
-
-  return {
-    top: posy,
-    left: posx
-  }
-}
-
-function targetElement (e) {
-  var target;
-  e = getEvent(e);
-
-  if (e.target) {
-    target = e.target;
-  }
-  else if (e.srcElement) {
-    target = e.srcElement;
-  }
-
-  // defeat Safari bug
-  if (target.nodeType === 3) {
-    target = target.parentNode;
-  }
-
-  return target
-}
-
-// Reasonable defaults
-var PIXEL_STEP = 10;
-var LINE_HEIGHT = 40;
-var PAGE_HEIGHT = 800;
-
-function getMouseWheelDistance (e) {
-  var
-    sX = 0, sY = 0, // spinX, spinY
-    pX = 0, pY = 0; // pixelX, pixelY
-
-  // Legacy
-  if ('detail' in e) { sY = e.detail; }
-  if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
-  if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
-  if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
-
-  // side scrolling on FF with DOMMouseScroll
-  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
-    sX = sY;
-    sY = 0;
-  }
-
-  pX = sX * PIXEL_STEP;
-  pY = sY * PIXEL_STEP;
-
-  if ('deltaY' in e) { pY = e.deltaY; }
-  if ('deltaX' in e) { pX = e.deltaX; }
-
-  if ((pX || pY) && e.deltaMode) {
-    if (e.deltaMode === 1) { // delta in LINE units
-      pX *= LINE_HEIGHT;
-      pY *= LINE_HEIGHT;
-    }
-    else { // delta in PAGE units
-      pX *= PAGE_HEIGHT;
-      pY *= PAGE_HEIGHT;
-    }
-  }
-
-  // Fall-back if spin cannot be determined
-  if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
-  if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
-
-  /*
-   * spinX  -- normalized spin speed (use for zoom) - x plane
-   * spinY  -- " - y plane
-   * pixelX -- normalized distance (to pixels) - x plane
-   * pixelY -- " - y plane
-   */
-  return {
-    spinX: sX,
-    spinY: sY,
-    pixelX: pX,
-    pixelY: pY
-  }
-}
-
-
-var event = Object.freeze({
-	rightClick: rightClick,
-	getEventKey: getEventKey,
-	position: position,
-	targetElement: targetElement,
-	getMouseWheelDistance: getMouseWheelDistance
-});
 
 function getAnchorPosition (el, offset) {
   var ref = el.getBoundingClientRect();
@@ -3637,198 +4665,6 @@ var QCardSeparator = {
     data.staticClass = "q-card-separator" + (ctx.props.inset ? ' inset' : '') + (cls ? (" " + cls) : '');
 
     return h('div', data, ctx.children)
-  }
-};
-
-function getDirection (mod) {
-  if (Object.keys(mod).length === 0) {
-    return {
-      horizontal: true,
-      vertical: true
-    }
-  }
-
-  var dir = {};['horizontal', 'vertical'].forEach(function (direction) {
-    if (mod[direction]) {
-      dir[direction] = true;
-    }
-  });
-
-  return dir
-}
-
-function updateClasses (el, dir, scroll) {
-  el.classList.add('q-touch');
-
-  if (!scroll) {
-    if (dir.horizontal && !dir.vertical) {
-      el.classList.add('q-touch-y');
-      el.classList.remove('q-touch-x');
-    }
-    else if (!dir.horizontal && dir.vertical) {
-      el.classList.add('q-touch-x');
-      el.classList.remove('q-touch-y');
-    }
-  }
-}
-
-function processChanges (evt, ctx, isFinal) {
-  var
-    direction,
-    pos = position(evt),
-    distX = pos.left - ctx.event.x,
-    distY = pos.top - ctx.event.y,
-    absDistX = Math.abs(distX),
-    absDistY = Math.abs(distY);
-
-  if (ctx.direction.horizontal && !ctx.direction.vertical) {
-    direction = distX < 0 ? 'left' : 'right';
-  }
-  else if (!ctx.direction.horizontal && ctx.direction.vertical) {
-    direction = distY < 0 ? 'up' : 'down';
-  }
-  else if (absDistX >= absDistY) {
-    direction = distX < 0 ? 'left' : 'right';
-  }
-  else {
-    direction = distY < 0 ? 'up' : 'down';
-  }
-
-  return {
-    evt: evt,
-    position: pos,
-    direction: direction,
-    isFirst: ctx.event.isFirst,
-    isFinal: Boolean(isFinal),
-    duration: new Date().getTime() - ctx.event.time,
-    distance: {
-      x: absDistX,
-      y: absDistY
-    },
-    delta: {
-      x: pos.left - ctx.event.lastX,
-      y: pos.top - ctx.event.lastY
-    }
-  }
-}
-
-function shouldTrigger (ctx, changes) {
-  if (ctx.direction.horizontal && ctx.direction.vertical) {
-    return true
-  }
-  if (ctx.direction.horizontal && !ctx.direction.vertical) {
-    return Math.abs(changes.delta.x) > 0
-  }
-  if (!ctx.direction.horizontal && ctx.direction.vertical) {
-    return Math.abs(changes.delta.y) > 0
-  }
-}
-
-var TouchPan = {
-  name: 'touch-pan',
-  bind: function bind (el, binding) {
-    var mouse = !binding.modifiers.nomouse;
-
-    var ctx = {
-      handler: binding.value,
-      scroll: binding.modifiers.scroll,
-      direction: getDirection(binding.modifiers),
-
-      mouseStart: function mouseStart (evt) {
-        if (mouse) {
-          document.addEventListener('mousemove', ctx.mouseMove);
-          document.addEventListener('mouseup', ctx.mouseEnd);
-        }
-        ctx.start(evt);
-      },
-      start: function start (evt) {
-        var pos = position(evt);
-        ctx.event = {
-          x: pos.left,
-          y: pos.top,
-          time: new Date().getTime(),
-          detected: false,
-          prevent: ctx.direction.horizontal && ctx.direction.vertical,
-          isFirst: true,
-          lastX: pos.left,
-          lastY: pos.top
-        };
-      },
-      mouseMove: function mouseMove (evt) {
-        ctx.event.prevent = true;
-        ctx.move(evt);
-      },
-      move: function move (evt) {
-        if (ctx.event.prevent) {
-          if (!ctx.scroll) {
-            evt.preventDefault();
-          }
-          var changes = processChanges(evt, ctx, false);
-          if (shouldTrigger(ctx, changes)) {
-            ctx.handler(changes);
-            ctx.event.lastX = changes.position.left;
-            ctx.event.lastY = changes.position.top;
-            ctx.event.isFirst = false;
-          }
-          return
-        }
-        if (ctx.event.detected) {
-          return
-        }
-
-        ctx.event.detected = true;
-        var
-          pos = position(evt),
-          distX = pos.left - ctx.event.x,
-          distY = pos.top - ctx.event.y;
-
-        if (ctx.direction.horizontal && !ctx.direction.vertical) {
-          if (Math.abs(distX) > Math.abs(distY)) {
-            evt.preventDefault();
-            ctx.event.prevent = true;
-          }
-        }
-        else if (Math.abs(distX) < Math.abs(distY)) {
-          ctx.event.prevent = true;
-        }
-      },
-      mouseEnd: function mouseEnd (evt) {
-        if (mouse) {
-          document.removeEventListener('mousemove', ctx.mouseMove);
-          document.removeEventListener('mouseup', ctx.mouseEnd);
-        }
-        ctx.end(evt);
-      },
-      end: function end (evt) {
-        if (!ctx.event.prevent || ctx.event.isFirst) {
-          return
-        }
-
-        ctx.handler(processChanges(evt, ctx, true));
-      }
-    };
-
-    el.__qtouchpan = ctx;
-    updateClasses(el, ctx.direction, ctx.scroll);
-    if (mouse) {
-      el.addEventListener('mousedown', ctx.mouseStart);
-    }
-    el.addEventListener('touchstart', ctx.start);
-    el.addEventListener('touchmove', ctx.move);
-    el.addEventListener('touchend', ctx.end);
-  },
-  update: function update (el, binding) {
-    if (binding.oldValue !== binding.value) {
-      el.__qtouchpan.handler = binding.value;
-    }
-  },
-  unbind: function unbind (el, binding) {
-    var ctx = el.__qtouchpan;
-    el.removeEventListener('touchstart', ctx.start);
-    el.removeEventListener('mousedown', ctx.mouseStart);
-    el.removeEventListener('touchmove', ctx.move);
-    el.removeEventListener('touchend', ctx.end);
-    delete el.__qtouchpan;
   }
 };
 
@@ -6978,8 +7814,8 @@ var TouchSwipe = {
   },
   unbind: function unbind (el, binding) {
     var ctx = el.__qtouchswipe;
-    el.removeEventListener('touchstart', ctx.start);
     el.removeEventListener('mousedown', ctx.start);
+    el.removeEventListener('touchstart', ctx.start);
     el.removeEventListener('touchmove', ctx.move);
     el.removeEventListener('touchend', ctx.end);
     delete el.__qtouchswipe;
@@ -10116,7 +10952,7 @@ var SelectMixin = {
         return this.displayValue
       }
       if (!this.multiple) {
-        var opt$1 = this.options.find(function (opt) { return (!opt.disable && opt.value === this$1.value); });
+        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
         return opt$1 ? opt$1.label : ''
       }
 
@@ -10128,7 +10964,7 @@ var SelectMixin = {
 
       if (this.multiple) {
         return this.length > 0
-          ? this.options.filter(function (opt) { return (!opt.disable && this$1.value.includes(opt.value)); })
+          ? this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
           : []
       }
     },
@@ -10186,7 +11022,8 @@ function defaultFilterFn (terms, obj) {
 var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+var optDisable = ref.disable;
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -10216,7 +11053,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":
 
       if (this.multiple) {
         return this.value.length > 0
-          ? this.options.map(function (opt) { return !opt.disable && this$1.value.includes(opt.value); })
+          ? this.options.map(function (opt) { return this$1.value.includes(opt.value); })
           : this.options.map(function (opt) { return false; })
       }
     },
@@ -12367,12 +13204,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     noThumbnails: Boolean,
     autoExpand: Boolean,
     expandStyle: [Array, String, Object],
-    expandClass: [Array, String, Object],
-
-    color: {
-      type: String,
-      default: 'primary'
-    }
+    expandClass: [Array, String, Object]
   },
   data: function data () {
     return {
@@ -12596,7 +13428,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       var this$1 = this;
 
       var length = this.queueLength;
-      if (length === 0) {
+      if (this.disable || length === 0) {
         return
       }
 
@@ -12667,6 +13499,13 @@ var QVideo = {
 
 
 var components = Object.freeze({
+	QNewLayout: QNewLayout,
+	QLayoutDrawer: QLayoutDrawer,
+	QLayoutFooter: QLayoutFooter,
+	QLayoutHeader: QLayoutHeader,
+	QPage: QPage,
+	QPageContainer: QPageContainer,
+	QPageSticky: QPageSticky,
 	QAjaxBar: QAjaxBar,
 	QAlert: QAlert,
 	QAutocomplete: QAutocomplete,
