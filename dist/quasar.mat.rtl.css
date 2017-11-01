@@ -2425,11 +2425,9 @@ body.with-modal {
   top: 0;
   bottom: 0;
   background: #fff;
-}
-.q-layout-drawer.fixed {
   z-index: 1000;
 }
-.q-layout-drawer.fixed.on-layout {
+.q-layout-drawer.fixed.on-screen {
   -webkit-box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
           box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
 }
@@ -2440,9 +2438,25 @@ body.with-modal {
   right: 0;
   width: 300px;
 }
+.q-layout-drawer-left.off-screen {
+  -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+}
+.q-layout-drawer-left.on-screen {
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+}
 .q-layout-drawer-right {
   left: 0;
   width: 300px;
+}
+.q-layout-drawer-right.off-screen {
+  -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+.q-layout-drawer-right.on-screen {
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
 }
 main,
 .q-layout,
@@ -2453,10 +2467,6 @@ main,
 .q-layout-header,
 .q-layout-footer {
   z-index: 2000;
-  -webkit-transition: -webkit-transform 0.12s ease-in;
-  transition: -webkit-transform 0.12s ease-in;
-  transition: transform 0.12s ease-in;
-  transition: transform 0.12s ease-in, -webkit-transform 0.12s ease-in;
 }
 .q-layout-backdrop {
   z-index: 2999;
@@ -2467,9 +2477,7 @@ main,
   height: 100vh;
   width: 15px;
 }
-body.q-layout-animate .q-layout-drawer,
-body.q-layout-animate .q-layout-page-container,
-body.q-layout-animate .q-page-sticky {
+body.q-layout-animate .q-layout-transition {
   -webkit-transition: all 0.12s ease-in;
   transition: all 0.12s ease-in;
 }

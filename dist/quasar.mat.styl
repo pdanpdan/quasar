@@ -2317,23 +2317,29 @@ maximized-modal()
   top 0
   bottom 0
   background $layout-aside-background
-  &.fixed
-    z-index $z-side
-    &.on-layout
-      box-shadow $layout-aside-shadow
+  z-index $z-side
+  &.fixed.on-screen
+    box-shadow $layout-aside-shadow
   &.on-top
     z-index $z-fixed-side
 .q-layout-drawer-left
   left 0
   width $layout-aside-left-width
+  &.off-screen
+    transform translateX(-100%)
+  &.on-screen
+    transform translateX(0)
 .q-layout-drawer-right
   right 0
   width $layout-aside-right-width
+  &.off-screen
+    transform translateX(100%)
+  &.on-screen
+    transform translateX(0)
 main, .q-layout, .q-layout-header, .q-layout-footer
   position relative
 .q-layout-header, .q-layout-footer
   z-index $z-marginals
-  transition transform .12s ease-in
 .q-layout-backdrop
   z-index ($z-fixed-side - 1)
   background $dimmed-background
@@ -2342,9 +2348,8 @@ main, .q-layout, .q-layout-header, .q-layout-footer
   height 100vh
   width 15px
 body
-  &.q-layout-animate
-    .q-layout-drawer, .q-layout-page-container, .q-page-sticky
-      transition all .12s ease-in
+  &.q-layout-animate .q-layout-transition
+    transition all .12s ease-in
   &.with-layout-drawer-opened
     overflow hidden
   &.cordova.platform-ios
