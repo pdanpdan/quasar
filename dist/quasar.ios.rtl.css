@@ -1680,70 +1680,94 @@ input.q-input-target {
 .q-knob-label i {
   font-size: 130%;
 }
-.layout {
+.q-layout {
   width: 100%;
   min-height: 100vh;
 }
-.layout-header {
+.q-layout-header {
   border-bottom: 1px solid #bdbdbd;
 }
-.layout-footer {
+.q-layout-header-hidden {
+  -webkit-transform: translateY(-110%);
+          transform: translateY(-110%);
+}
+.q-layout-footer {
   border-top: 1px solid #bdbdbd;
 }
-.layout-aside {
+.q-layout-footer-hidden {
+  -webkit-transform: translateY(110%);
+          transform: translateY(110%);
+}
+.q-layout-drawer {
   position: absolute;
   top: 0;
   bottom: 0;
   background: #fff;
-}
-.layout-aside.fixed {
   z-index: 1000;
 }
-.layout-aside.on-top {
+.q-layout-drawer.on-top {
   z-index: 3000;
 }
-.layout-aside-left {
+.q-layout-drawer-left {
   right: 0;
   width: 280px;
 }
-.layout-aside-left.fixed {
+.q-layout-drawer-left.off-screen {
+  -webkit-transform: translateX(100%);
+          transform: translateX(100%);
+}
+.q-layout-drawer-left.on-screen {
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+}
+.q-layout-drawer-left.fixed {
   border-left: 1px solid #bdbdbd;
 }
-.layout-aside-right {
+.q-layout-drawer-right {
   left: 0;
   width: 280px;
 }
-.layout-aside-right.fixed {
+.q-layout-drawer-right.off-screen {
+  -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
+}
+.q-layout-drawer-right.on-screen {
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+}
+.q-layout-drawer-right.fixed {
   border-right: 1px solid #bdbdbd;
 }
 main,
-.layout,
-.layout-header,
-.layout-footer {
+.q-layout,
+.q-layout-header,
+.q-layout-footer {
   position: relative;
 }
-.layout-header,
-.layout-footer {
+.q-layout-header,
+.q-layout-footer {
   color: #fff;
   background: #027be3;
   z-index: 2000;
 }
-.layout-backdrop {
+.q-layout-backdrop {
   z-index: 2999;
   background: rgba(0,0,0,0.4);
 }
-.layout-side-opener {
+.q-layout-drawer-opener {
   z-index: 2001;
   height: 100vh;
   width: 15px;
 }
-body.with-layout-side-opened {
+body.q-layout-animate .q-layout-transition {
+  -webkit-transition: all 0.12s ease-in;
+  transition: all 0.12s ease-in;
+}
+body.with-layout-drawer-opened {
   overflow: hidden;
 }
-body.cordova.platform-ios .layout-header > .q-toolbar:first-child,
-body.demo-site.within-iframe .layout-header > .q-toolbar:first-child,
-body.cordova.platform-ios .layout-aside.top-padding,
-body.demo-site.within-iframe .layout-aside.top-padding {
+body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child,
+body.cordova.platform-ios .q-layout-drawer.top-padding {
   padding-top: 20px;
   min-height: 70px;
 }
