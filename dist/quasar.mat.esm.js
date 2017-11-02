@@ -173,8 +173,12 @@ var Platform = {
     iframe: window.self !== window.top
   },
 
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     Quasar.platform = Platform;
   }
@@ -435,6 +439,9 @@ var install = function (_Vue, opts) {
     });
   }
   if (opts.plugins) {
+    // required plugin
+    Platform.install({ Quasar: Quasar });
+
     Object.keys(opts.plugins).forEach(function (key) {
       var p = opts.plugins[key];
       if (typeof p.install === 'function') {
@@ -470,6 +477,7 @@ var start = function (cb) {
   tag.src = 'cordova.js';
 };
 
+var History = {};
 var HistoryMixin = {
   data: function data () {
     return {
@@ -477,17 +485,6 @@ var HistoryMixin = {
       to: null,
       next: null,
       callbacks: []
-    }
-  },
-  provide: function provide () {
-    var this$1 = this;
-
-    return {
-      history: {
-        getLevel: function () { return this$1.callbacks.length; },
-        add: this.__addToHistory,
-        remove: this.__removeFromHistory
-      }
     }
   },
   methods: {
@@ -611,6 +608,10 @@ var HistoryMixin = {
         next();
       }
     });
+
+    History.getLevel = function () { return this$1.callbacks.length; };
+    History.add = this.__addToHistory;
+    History.remove = this.__removeFromHistory;
   },
   beforeDestroy: function beforeDestroy () {
     console.log('layout beforeDestroy');
@@ -4168,7 +4169,6 @@ var CarouselMixin = {
 };
 
 var FullscreenMixin = {
-  inject: ['history'],
   data: function data () {
     return {
       inFullscreen: false
@@ -4182,12 +4182,12 @@ var FullscreenMixin = {
       var this$1 = this;
 
       if (this.inFullscreen) {
-        this.history.remove();
+        History.remove();
         return
       }
 
       this.__setFullscreen(true);
-      this.history.add(function () { return new Promise(function (resolve, reject) {
+      History.add(function () { return new Promise(function (resolve, reject) {
         this$1.__setFullscreen(false);
         resolve();
       }); });
@@ -5084,7 +5084,9 @@ var openedModalNumber = 0;
 
 var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-transition',{attrs:{"name":_vm.modalTransition,"enter":_vm.enterClass,"leave":_vm.leaveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}],staticClass:"modal fullscreen row",class:_vm.modalClasses,on:{"mousedown":function($event){_vm.__dismiss();},"touchstart":function($event){_vm.__dismiss();}}},[_c('div',{ref:"content",staticClass:"modal-content scroll",class:_vm.contentClasses,style:(_vm.modalCss),on:{"mousedown":function($event){$event.stopPropagation();},"touchstart":function($event){$event.stopPropagation();}}},[_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-modal',
-  inject: ['history'],
+  inject: {
+    history: { default: History }
+  },
   mixins: [ModelToggleMixin],
   components: {
     QTransition: QTransition
@@ -5185,7 +5187,7 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         }
       });
 
-      this.history.add(function () { return new Promise(function (resolve, reject) {
+      History.add(function () { return new Promise(function (resolve, reject) {
         EscapeKey.pop();
         openedModalNumber--;
         this$1.active = false;
@@ -5234,7 +5236,7 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.toggleInProgress = true;
       this.__onClose = onClose;
 
-      this.history.remove();
+      History.remove();
     },
     toggle: function toggle (done) {
       if (this.active) {
@@ -5357,7 +5359,7 @@ var QContextMenu = {
 var MILLISECONDS_IN_DAY = 86400000;
 var MILLISECONDS_IN_HOUR = 3600000;
 var MILLISECONDS_IN_MINUTE = 60000;
-var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
+var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
 
 var dayNames = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -5657,6 +5659,18 @@ function daysInMonth (date) {
   return (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDate()
 }
 
+function getOrdinal (n) {
+  if (n >= 11 && n <= 13) {
+    return (n + "th")
+  }
+  switch (n % 10) {
+    case 1: return (n + "st")
+    case 2: return (n + "nd")
+    case 3: return (n + "rd")
+  }
+  return (n + "th")
+}
+
 var formatter = {
   // Year: 00, 01, ..., 99
   YY: function YY (date) {
@@ -5695,9 +5709,19 @@ var formatter = {
     return Math.ceil((date.getMonth() + 1) / 3)
   },
 
+  // Quarter: 1st, 2nd, 3rd, 4th
+  Qo: function Qo (date) {
+    return getOrdinal(this.Q(date))
+  },
+
   // Day of month: 1, 2, ..., 31
   D: function D (date) {
     return date.getDate()
+  },
+
+  // Day of month: 1st, 2nd, ..., 31st
+  Do: function Do (date) {
+    return getOrdinal(date.getDate())
   },
 
   // Day of month: 01, 02, ..., 31
@@ -9050,7 +9074,7 @@ var duration$1 = 120 + 30;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
-  inject: ['layout', 'history'],
+  inject: ['layout'],
   directives: {
     TouchPan: TouchPan
   },
@@ -9088,7 +9112,7 @@ var QLayoutDrawer = {
       console.log('watcher value', val);
       if (!val && this.mobileOpened) {
         console.log('watcher value: mobile opened; history remove');
-        this.history.remove();
+        History.remove();
         return
       }
 
@@ -9098,7 +9122,7 @@ var QLayoutDrawer = {
         this.percentage = 1;
         document.body.classList.add(bodyClass);
 
-        this.history.add(function () { return new Promise(function (resolve, reject) {
+        History.add(function () { return new Promise(function (resolve, reject) {
           this$1.mobileOpened = false;
           this$1.percentage = 0;
           document.body.classList.remove(bodyClass);
@@ -13472,10 +13496,14 @@ var appFullscreen = {
     }
   },
 
+  __installed: false,
   install: function install (ref) {
     var this$1 = this;
     var Quasar = ref.Quasar;
     var Vue = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     var request = [
       'requestFullscreen',
@@ -13520,10 +13548,14 @@ var appFullscreen = {
 var appVisibility = {
   isVisible: null,
 
+  __installed: false,
   install: function install (ref) {
     var this$1 = this;
     var Quasar = ref.Quasar;
     var Vue = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     var prop, evt;
 
@@ -13651,8 +13683,12 @@ var cookies = {
   remove: remove,
   all: function () { return get(); },
 
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     Quasar.cookies = this;
   }
@@ -13799,7 +13835,29 @@ var storageIsEmpty = generateFunctions(function (type) {
     return function () { return getLengthFn() === 0; }
   });
 
+var LocalStorage = {
+  has: hasStorageItem.local,
+  get: {
+    length: getStorageLength.local,
+    item: getStorageItem.local,
+    index: getStorageAtIndex.local,
+    all: getAllStorageItems.local
+  },
+  set: setStorageItem.local,
+  remove: removeStorageItem.local,
+  clear: clearStorage.local,
+  isEmpty: storageIsEmpty.local,
 
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    Quasar.localStorage = LocalStorage;
+  }
+};
 
 var SessionStorage = {
   has: hasStorageItem.session,
@@ -13812,15 +13870,16 @@ var SessionStorage = {
   set: setStorageItem.session,
   remove: removeStorageItem.session,
   clear: clearStorage.session,
-  isEmpty: storageIsEmpty.session
-};
+  isEmpty: storageIsEmpty.session,
 
-var webStorage = {
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
 
+    if (this.__installed) { return }
+    this.__installed = true;
+
     Quasar.sessionStorage = SessionStorage;
-    Quasar.localStorage = localStorage;
   }
 };
 
@@ -14287,5 +14346,5 @@ var index_esm = {
   theme: "mat"
 };
 
-export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, Platform, webStorage as WebStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
+export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, Platform, LocalStorage, SessionStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
 export default index_esm;

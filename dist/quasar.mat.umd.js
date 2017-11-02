@@ -181,8 +181,12 @@ var Platform = {
     iframe: window.self !== window.top
   },
 
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     Quasar.platform = Platform;
   }
@@ -443,6 +447,9 @@ var install = function (_Vue, opts) {
     });
   }
   if (opts.plugins) {
+    // required plugin
+    Platform.install({ Quasar: Quasar });
+
     Object.keys(opts.plugins).forEach(function (key) {
       var p = opts.plugins[key];
       if (typeof p.install === 'function') {
@@ -454,6 +461,7 @@ var install = function (_Vue, opts) {
   _Vue.prototype.$q = Quasar;
 };
 
+var History = {};
 var HistoryMixin = {
   data: function data () {
     return {
@@ -461,17 +469,6 @@ var HistoryMixin = {
       to: null,
       next: null,
       callbacks: []
-    }
-  },
-  provide: function provide () {
-    var this$1 = this;
-
-    return {
-      history: {
-        getLevel: function () { return this$1.callbacks.length; },
-        add: this.__addToHistory,
-        remove: this.__removeFromHistory
-      }
     }
   },
   methods: {
@@ -595,6 +592,10 @@ var HistoryMixin = {
         next();
       }
     });
+
+    History.getLevel = function () { return this$1.callbacks.length; };
+    History.add = this.__addToHistory;
+    History.remove = this.__removeFromHistory;
   },
   beforeDestroy: function beforeDestroy () {
     console.log('layout beforeDestroy');
@@ -4152,7 +4153,6 @@ var CarouselMixin = {
 };
 
 var FullscreenMixin = {
-  inject: ['history'],
   data: function data () {
     return {
       inFullscreen: false
@@ -4166,12 +4166,12 @@ var FullscreenMixin = {
       var this$1 = this;
 
       if (this.inFullscreen) {
-        this.history.remove();
+        History.remove();
         return
       }
 
       this.__setFullscreen(true);
-      this.history.add(function () { return new Promise(function (resolve, reject) {
+      History.add(function () { return new Promise(function (resolve, reject) {
         this$1.__setFullscreen(false);
         resolve();
       }); });
@@ -5068,7 +5068,9 @@ var openedModalNumber = 0;
 
 var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-transition',{attrs:{"name":_vm.modalTransition,"enter":_vm.enterClass,"leave":_vm.leaveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}],staticClass:"modal fullscreen row",class:_vm.modalClasses,on:{"mousedown":function($event){_vm.__dismiss();},"touchstart":function($event){_vm.__dismiss();}}},[_c('div',{ref:"content",staticClass:"modal-content scroll",class:_vm.contentClasses,style:(_vm.modalCss),on:{"mousedown":function($event){$event.stopPropagation();},"touchstart":function($event){$event.stopPropagation();}}},[_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-modal',
-  inject: ['history'],
+  inject: {
+    history: { default: History }
+  },
   mixins: [ModelToggleMixin],
   components: {
     QTransition: QTransition
@@ -5169,7 +5171,7 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         }
       });
 
-      this.history.add(function () { return new Promise(function (resolve, reject) {
+      History.add(function () { return new Promise(function (resolve, reject) {
         EscapeKey.pop();
         openedModalNumber--;
         this$1.active = false;
@@ -5218,7 +5220,7 @@ var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.toggleInProgress = true;
       this.__onClose = onClose;
 
-      this.history.remove();
+      History.remove();
     },
     toggle: function toggle (done) {
       if (this.active) {
@@ -5341,7 +5343,7 @@ var QContextMenu = {
 var MILLISECONDS_IN_DAY = 86400000;
 var MILLISECONDS_IN_HOUR = 3600000;
 var MILLISECONDS_IN_MINUTE = 60000;
-var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
+var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
 
 var dayNames = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
@@ -5641,6 +5643,18 @@ function daysInMonth (date) {
   return (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDate()
 }
 
+function getOrdinal (n) {
+  if (n >= 11 && n <= 13) {
+    return (n + "th")
+  }
+  switch (n % 10) {
+    case 1: return (n + "st")
+    case 2: return (n + "nd")
+    case 3: return (n + "rd")
+  }
+  return (n + "th")
+}
+
 var formatter = {
   // Year: 00, 01, ..., 99
   YY: function YY (date) {
@@ -5679,9 +5693,19 @@ var formatter = {
     return Math.ceil((date.getMonth() + 1) / 3)
   },
 
+  // Quarter: 1st, 2nd, 3rd, 4th
+  Qo: function Qo (date) {
+    return getOrdinal(this.Q(date))
+  },
+
   // Day of month: 1, 2, ..., 31
   D: function D (date) {
     return date.getDate()
+  },
+
+  // Day of month: 1st, 2nd, ..., 31st
+  Do: function Do (date) {
+    return getOrdinal(date.getDate())
   },
 
   // Day of month: 01, 02, ..., 31
@@ -9034,7 +9058,7 @@ var duration$1 = 120 + 30;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
-  inject: ['layout', 'history'],
+  inject: ['layout'],
   directives: {
     TouchPan: TouchPan
   },
@@ -9072,7 +9096,7 @@ var QLayoutDrawer = {
       console.log('watcher value', val);
       if (!val && this.mobileOpened) {
         console.log('watcher value: mobile opened; history remove');
-        this.history.remove();
+        History.remove();
         return
       }
 
@@ -9082,7 +9106,7 @@ var QLayoutDrawer = {
         this.percentage = 1;
         document.body.classList.add(bodyClass);
 
-        this.history.add(function () { return new Promise(function (resolve, reject) {
+        History.add(function () { return new Promise(function (resolve, reject) {
           this$1.mobileOpened = false;
           this$1.percentage = 0;
           document.body.classList.remove(bodyClass);
@@ -13590,10 +13614,14 @@ var appFullscreen = {
     }
   },
 
+  __installed: false,
   install: function install (ref) {
     var this$1 = this;
     var Quasar = ref.Quasar;
     var Vue$$1 = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     var request = [
       'requestFullscreen',
@@ -13638,10 +13666,14 @@ var appFullscreen = {
 var appVisibility = {
   isVisible: null,
 
+  __installed: false,
   install: function install (ref) {
     var this$1 = this;
     var Quasar = ref.Quasar;
     var Vue$$1 = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     var prop, evt;
 
@@ -13769,8 +13801,12 @@ var cookies = {
   remove: remove,
   all: function () { return get(); },
 
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
 
     Quasar.cookies = this;
   }
@@ -13917,7 +13953,29 @@ var storageIsEmpty = generateFunctions(function (type) {
     return function () { return getLengthFn() === 0; }
   });
 
+var LocalStorage = {
+  has: hasStorageItem.local,
+  get: {
+    length: getStorageLength.local,
+    item: getStorageItem.local,
+    index: getStorageAtIndex.local,
+    all: getAllStorageItems.local
+  },
+  set: setStorageItem.local,
+  remove: removeStorageItem.local,
+  clear: clearStorage.local,
+  isEmpty: storageIsEmpty.local,
 
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    Quasar.localStorage = LocalStorage;
+  }
+};
 
 var SessionStorage = {
   has: hasStorageItem.session,
@@ -13930,15 +13988,16 @@ var SessionStorage = {
   set: setStorageItem.session,
   remove: removeStorageItem.session,
   clear: clearStorage.session,
-  isEmpty: storageIsEmpty.session
-};
+  isEmpty: storageIsEmpty.session,
 
-var webStorage = {
+  __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
 
+    if (this.__installed) { return }
+    this.__installed = true;
+
     Quasar.sessionStorage = SessionStorage;
-    Quasar.localStorage = localStorage;
   }
 };
 
@@ -13950,7 +14009,8 @@ var plugins = Object.freeze({
 	AppVisibility: appVisibility,
 	Cookies: cookies,
 	Platform: Platform,
-	WebStorage: webStorage
+	LocalStorage: LocalStorage,
+	SessionStorage: SessionStorage
 });
 
 var ActionSheets = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"position":"bottom","content-css":_vm.contentCss},on:{"close":function($event){_vm.__dismiss();}}},[(_vm.$q.theme === 'ios')?_c('div',[_c('div',{staticClass:"q-action-sheet"},[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)]),_vm._v(" "),(_vm.dismiss)?_c('div',{staticClass:"q-action-sheet"},[_c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],attrs:{"link":"","tabindex":"0"},on:{"click":function($event){_vm.close();},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close();}}},[_c('q-item-main',[_c('q-item-tile',{staticClass:"text-center",attrs:{"label":""}},[_vm._v(" "+_vm._s(_vm.dismiss.label)+" ")])],1)],1)],1):_vm._e()]):_c('div',[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)])])},staticRenderFns: [],
