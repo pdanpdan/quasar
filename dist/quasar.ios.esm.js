@@ -917,6 +917,9 @@ var QIcon = {
     else if (icon.startsWith('ion-') || icon.startsWith('icon-')) {
       name = "" + icon;
     }
+    else if (icon.startsWith('mdi-')) {
+      name = "mdi " + icon;
+    }
     else {
       name = 'material-icons';
       text = icon.replace(/ /g, '_');
@@ -1221,7 +1224,8 @@ function debounce (fn, wait, immediate) {
   if ( wait === void 0 ) wait = 250;
 
   var timeout;
-  return function () {
+
+  function debounced () {
     var this$1 = this;
     var args = [], len = arguments.length;
     while ( len-- ) args[ len ] = arguments[ len ];
@@ -1239,6 +1243,12 @@ function debounce (fn, wait, immediate) {
     }
     timeout = setTimeout(later, wait);
   }
+
+  debounced.cancel = function () {
+    clearTimeout(timeout);
+  };
+
+  return debounced
 }
 
 function frameDebounce (fn) {
@@ -2990,8 +3000,12 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     separator: Boolean
   },
   inject: {
-    '__input': { default: null },
-    '__inputDebounce': { default: null }
+    __input: {
+      default: function default$1 () {
+        console.error('QAutocomplete needs to be child of QInput or QSearch');
+      }
+    },
+    __inputDebounce: { default: null }
   },
   data: function data () {
     return {
@@ -3155,10 +3169,6 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
   mounted: function mounted () {
     var this$1 = this;
 
-    if (this.__input === null) {
-      console.error('Autocomplete needs to be inserted into a QInput or QSearch component.');
-      return
-    }
     this.__input.register();
     if (this.__inputDebounce) {
       this.__inputDebounce.setChildDebounce(true);
@@ -3283,7 +3293,7 @@ var BtnMixin = {
   },
   props: {
     disable: Boolean,
-    label: String,
+    label: [Number, String],
     noCaps: Boolean,
     noWrap: Boolean,
     icon: String,
@@ -4149,13 +4159,63 @@ var animate = Object.freeze({
 	stop: stop
 });
 
-var CarouselMixin = {
+var FullscreenMixin = {
+  data: function data () {
+    return {
+      inFullscreen: false
+    }
+  },
+  methods: {
+    toggleFullscreen: function toggleFullscreen () {
+      this.__setFullscreen(!this.inFullscreen);
+    },
+    __setFullscreen: function __setFullscreen (val) {
+      var this$1 = this;
+
+      if (this.inFullscreen === val) {
+        return
+      }
+      if (!val) {
+        History.remove();
+        return
+      }
+
+      setTimeout(function () {
+        this$1.inFullscreen = true;
+        this$1.container = this$1.$el.parentNode;
+        this$1.container.replaceChild(this$1.fullscreenFillerNode, this$1.$el);
+        document.body.appendChild(this$1.$el);
+        document.body.classList.add('with-mixin-fullscreen');
+
+        History.add(function () { return new Promise(function (resolve, reject) {
+          this$1.container.replaceChild(this$1.$el, this$1.fullscreenFillerNode);
+          document.body.classList.remove('with-mixin-fullscreen');
+          this$1.inFullscreen = false;
+          resolve();
+        }); });
+      }, 50);
+    }
+  },
+  created: function created () {
+    this.fullscreenFillerNode = document.createElement('span');
+  }
+};
+
+var QCarousel = {
+  name: 'q-carousel',
+  mixins: [FullscreenMixin],
+  directives: {
+    TouchPan: TouchPan
+  },
   props: {
+    value: Number,
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    height: String,
     arrows: Boolean,
-    dots: Boolean,
-    fullscreen: Boolean,
     infinite: Boolean,
-    actions: Boolean,
     animation: {
       type: [Number, Boolean],
       default: true
@@ -4163,76 +4223,34 @@ var CarouselMixin = {
     easing: Function,
     swipeEasing: Function,
     noSwipe: Boolean,
+    autoplay: [Number, Boolean],
     handleArrowKeys: Boolean,
-    autoplay: [Number, Boolean]
-  }
-};
-
-var FullscreenMixin = {
-  data: function data () {
+    quickNav: Boolean,
+    quickNavIcon: {
+      type: String,
+      default: 'lens'
+    }
+  },
+  provide: function provide () {
     return {
-      inFullscreen: false
+      'carousel': this
     }
   },
-  created: function created () {
-    this.fillerNode = document.createElement('span');
-  },
-  methods: {
-    toggleFullscreen: function toggleFullscreen () {
-      var this$1 = this;
-
-      if (this.inFullscreen) {
-        History.remove();
-        return
-      }
-
-      this.__setFullscreen(true);
-      History.add(function () { return new Promise(function (resolve, reject) {
-        this$1.__setFullscreen(false);
-        resolve();
-      }); });
-    },
-    __setFullscreen: function __setFullscreen (state) {
-      if (this.inFullscreen === state) {
-        return
-      }
-
-      if (state) {
-        this.container = this.$el.parentNode;
-        this.container.replaceChild(this.fillerNode, this.$el);
-        document.body.appendChild(this.$el);
-        document.body.classList.add('with-mixin-fullscreen');
-        this.inFullscreen = true;
-        return
-      }
-
-      this.inFullscreen = false;
-      this.container.replaceChild(this.$el, this.fillerNode);
-      document.body.classList.remove('with-mixin-fullscreen');
-    }
-  }
-};
-
-var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-carousel",class:{fullscreen: _vm.inFullscreen}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-carousel-inner"},[_c('div',{ref:"track",staticClass:"q-carousel-track",class:{'with-arrows': _vm.arrows, 'with-toolbar': _vm.toolbar, 'infinite-left': _vm.infiniteLeft, 'infinite-right': _vm.infiniteRight},style:(_vm.trackPosition)},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteRight),expression:"infiniteRight"}]}),_vm._v(" "),_vm._t("slide"),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.infiniteLeft),expression:"infiniteLeft"}]})],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToPrevious),expression:"arrows && canGoToPrevious"}],staticClass:"q-carousel-left-button row flex-center"},[_c('q-icon',{attrs:{"name":"keyboard_arrow_left"},on:{"click":_vm.previous}})],1),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.arrows && _vm.canGoToNext),expression:"arrows && canGoToNext"}],staticClass:"q-carousel-right-button row flex-center",on:{"click":_vm.next}},[_c('q-icon',{attrs:{"name":"keyboard_arrow_right"}})],1),_vm._v(" "),(_vm.toolbar)?_c('div',{staticClass:"q-carousel-toolbar row items-center justify-end"},[_c('div',{staticClass:"q-carousel-dots col row flex-center"},_vm._l((_vm.slidesNumber),function(n){return (_vm.dots)?_c('q-icon',{key:n,attrs:{"name":(n - 1) !== _vm.slide ? 'panorama_fish_eye' : 'lens'},on:{"click":function($event){_vm.goToSlide(n - 1);}}}):_vm._e()})),_vm._v(" "),_c('div',{staticClass:"row items-center"},[_vm._t("action"),_vm._v(" "),(_vm.fullscreen)?_c('q-icon',{attrs:{"name":_vm.inFullscreen ? 'fullscreen_exit' : 'fullscreen'},on:{"click":_vm.toggleFullscreen}}):_vm._e()],2)]):_vm._e(),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-carousel',
-  components: {
-    QIcon: QIcon
-  },
-  directives: {
-    TouchPan: TouchPan
-  },
-  mixins: [CarouselMixin, FullscreenMixin],
   data: function data () {
     return {
       position: 0,
       slide: 0,
       positionSlide: 0,
       slidesNumber: 0,
-      inFullscreen: false,
       animUid: false
     }
   },
   watch: {
+    value: function value (v) {
+      if (v !== this.slide) {
+        this.goToSlide(v);
+      }
+    },
     autoplay: function autoplay () {
       this.__planAutoPlay();
     },
@@ -4244,33 +4262,139 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     }
   },
   computed: {
-    toolbar: function toolbar () {
-      return this.dots || this.fullscreen || this.actions
-    },
     trackPosition: function trackPosition () {
       return cssTransform(("translateX(" + (this.position) + "%)"))
     },
-    infiniteRight: function infiniteRight () {
-      return this.infinite && this.slidesNumber > 1 && this.positionSlide >= this.slidesNumber
-    },
     infiniteLeft: function infiniteLeft () {
       return this.infinite && this.slidesNumber > 1 && this.positionSlide < 0
+    },
+    infiniteRight: function infiniteRight () {
+      return this.infinite && this.slidesNumber > 1 && this.positionSlide >= this.slidesNumber
     },
     canGoToPrevious: function canGoToPrevious () {
       return this.infinite ? this.slidesNumber > 1 : this.slide > 0
     },
     canGoToNext: function canGoToNext () {
       return this.infinite ? this.slidesNumber > 1 : this.slide < this.slidesNumber - 1
+    },
+    computedStyle: function computedStyle () {
+      if (!this.inFullscreen && this.height) {
+        return ("height: " + (this.height))
+      }
+    },
+    slotScope: function slotScope () {
+      return {
+        slide: this.slide,
+        slidesNumber: this.slidesNumber,
+        percentage: this.slidesNumber < 2
+          ? 100
+          : 100 * this.slide / (this.slidesNumber - 1),
+        goToSlide: this.goToSlide,
+        previous: this.previous,
+        next: this.next,
+        color: this.color,
+        inFullscreen: this.inFullscreen,
+        toggleFullscreen: this.toggleFullscreen,
+        canGoToNext: this.canGoToNext,
+        canGoToPrevious: this.canGoToPrevious
+      }
     }
   },
   methods: {
+    previous: function previous (done) {
+      if (this.canGoToPrevious) {
+        this.goToSlide(this.slide - 1, done);
+      }
+    },
+    next: function next (done) {
+      if (this.canGoToNext) {
+        this.goToSlide(this.slide + 1, done);
+      }
+    },
+    goToSlide: function goToSlide (slide, done, fromSwipe) {
+      var this$1 = this;
+      if ( fromSwipe === void 0 ) fromSwipe = false;
+
+      var
+        direction = '',
+        pos;
+
+      this.__cleanup();
+
+      var finish = function () {
+        this$1.$emit('input', this$1.slide);
+        this$1.$emit('slide-direction', direction);
+        this$1.__planAutoPlay();
+        if (typeof done === 'function') {
+          done();
+        }
+      };
+
+      if (this.slidesNumber < 2) {
+        this.slide = 0;
+        this.positionSlide = 0;
+        pos = 0;
+      }
+      else {
+        if (!this.hasOwnProperty('initialPosition')) {
+          this.position = -this.slide * 100;
+        }
+        direction = slide > this.slide ? 'next' : 'previous';
+        if (this.infinite) {
+          this.slide = normalizeToInterval(slide, 0, this.slidesNumber - 1);
+          pos = normalizeToInterval(slide, -1, this.slidesNumber);
+          if (!fromSwipe) {
+            this.positionSlide = pos;
+          }
+        }
+        else {
+          this.slide = between(slide, 0, this.slidesNumber - 1);
+          this.positionSlide = this.slide;
+          pos = this.slide;
+        }
+      }
+
+      pos = pos * -100;
+
+      if (!this.animation) {
+        this.position = pos;
+        finish();
+        return
+      }
+
+      this.animationInProgress = true;
+
+      this.animUid = start$1({
+        from: this.position,
+        to: pos,
+        duration: isNumber(this.animation) ? this.animation : 300,
+        easing: fromSwipe
+          ? this.swipeEasing || decelerate
+          : this.easing || standard,
+        apply: function (pos) {
+          this$1.position = pos;
+        },
+        done: function () {
+          if (this$1.infinite) {
+            this$1.position = -this$1.slide * 100;
+            this$1.positionSlide = this$1.slide;
+          }
+          this$1.animationInProgress = false;
+          finish();
+        }
+      });
+    },
+    stopAnimation: function stopAnimation () {
+      stop(this.animUid);
+      this.animationInProgress = false;
+    },
     __pan: function __pan (event) {
       var this$1 = this;
 
-      if (this.noSwipe || (this.infinite && this.animationInProgress)) {
+      if (this.infinite && this.animationInProgress) {
         return
       }
-      if (!this.hasOwnProperty('initialPosition')) {
+      if (event.isFirst) {
         this.initialPosition = this.position;
         this.__cleanup();
       }
@@ -4305,91 +4429,6 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         );
       }
     },
-    __getSlidesNumber: function __getSlidesNumber () {
-      return this.$slots.slide ? this.$slots.slide.length : 0
-    },
-    previous: function previous (done) {
-      if (this.canGoToPrevious) {
-        this.goToSlide(this.slide - 1, done);
-      }
-    },
-    next: function next (done) {
-      if (this.canGoToNext) {
-        this.goToSlide(this.slide + 1, done);
-      }
-    },
-    goToSlide: function goToSlide (slide, done, fromSwipe) {
-      var this$1 = this;
-      if ( fromSwipe === void 0 ) fromSwipe = false;
-
-      var direction = '';
-      this.__cleanup();
-
-      var finish = function () {
-        this$1.$emit('slide', this$1.slide, direction);
-        this$1.__planAutoPlay();
-        if (typeof done === 'function') {
-          done();
-        }
-      };
-
-      if (this.slidesNumber < 2) {
-        this.slide = 0;
-        this.positionSlide = 0;
-      }
-      else {
-        if (!this.hasOwnProperty('initialPosition')) {
-          this.position = -this.slide * 100;
-        }
-        direction = slide > this.slide ? 'next' : 'previous';
-        if (this.infinite) {
-          this.slide = normalizeToInterval(slide, 0, this.slidesNumber - 1);
-          this.positionSlide = normalizeToInterval(slide, -1, this.slidesNumber);
-        }
-        else {
-          this.slide = between(slide, 0, this.slidesNumber - 1);
-          this.positionSlide = this.slide;
-        }
-      }
-
-      var pos = -this.positionSlide * 100;
-
-      if (!this.animation) {
-        this.position = pos;
-        finish();
-        return
-      }
-
-      this.animationInProgress = true;
-
-      this.animUid = start$1({
-        from: this.position,
-        to: pos,
-        duration: isNumber(this.animation) ? this.animation : 300,
-        easing: fromSwipe
-          ? this.swipeEasing || decelerate
-          : this.easing || standard,
-        apply: function (pos) {
-          this$1.position = pos;
-        },
-        done: function () {
-          if (this$1.infinite) {
-            this$1.position = -this$1.slide * 100;
-            this$1.positionSlide = this$1.slide;
-          }
-          this$1.animationInProgress = false;
-          finish();
-        }
-      });
-    },
-    stopAnimation: function stopAnimation () {
-      stop(this.animUid);
-      this.animationInProgress = false;
-    },
-    __cleanup: function __cleanup () {
-      this.stopAnimation();
-      clearTimeout(this.timer);
-    },
     __planAutoPlay: function __planAutoPlay () {
       var this$1 = this;
 
@@ -4402,6 +4441,10 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           );
         }
       });
+    },
+    __cleanup: function __cleanup () {
+      this.stopAnimation();
+      clearTimeout(this.timer);
     },
     __handleArrowKey: function __handleArrowKey (e) {
       var key = getEventKey(e);
@@ -4416,31 +4459,218 @@ var QCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     __setArrowKeys: function __setArrowKeys (/* boolean */ state) {
       var op = (state === true ? 'add' : 'remove') + "EventListener";
       document[op]('keydown', this.__handleArrowKey);
+    },
+    __registerSlide: function __registerSlide () {
+      this.slidesNumber++;
+    },
+    __unregisterSlide: function __unregisterSlide () {
+      this.slidesNumber--;
+    },
+    __getScopedSlots: function __getScopedSlots (h) {
+      var this$1 = this;
+
+      if (this.slidesNumber === 0) {
+        return
+      }
+      var slots = this.$scopedSlots;
+      if (slots) {
+        return Object.keys(slots)
+          .filter(function (key) { return key.startsWith('control-'); })
+          .map(function (key) { return slots[key](this$1.slotScope); })
+      }
+    },
+    __getQuickNav: function __getQuickNav (h) {
+      var this$1 = this;
+
+      if (this.slidesNumber === 0 || !this.quickNav) {
+        return
+      }
+
+      var
+        slot = this.$scopedSlots['quick-nav'],
+        items = [];
+
+      if (slot) {
+        var loop = function ( i ) {
+          items.push(slot({
+            slide: i,
+            before: i < this$1.slide,
+            current: i === this$1.slide,
+            after: i > this$1.slide,
+            color: this$1.color,
+            goToSlide: function (slide) { this$1.goToSlide(slide || i); }
+          }));
+        };
+
+        for (var i = 0; i < this.slidesNumber; i++) loop( i );
+      }
+      else {
+        var loop$1 = function ( i ) {
+          items.push(h(QBtn, {
+            key: i,
+            'class': { inactive: i !== this$1.slide },
+            props: {
+              icon: this$1.quickNavIcon,
+              round: true,
+              small: true,
+              flat: true,
+              color: this$1.color
+            },
+            on: {
+              click: function () {
+                this$1.goToSlide(i);
+              }
+            }
+          }));
+        };
+
+        for (var i$1 = 0; i$1 < this.slidesNumber; i$1++) loop$1( i$1 );
+      }
+
+      return h('div', {
+        staticClass: 'q-carousel-quick-nav absolute-bottom scroll text-center',
+        'class': ("text-" + (this.color))
+      }, items)
     }
   },
-  beforeUpdate: function beforeUpdate () {
-    var slides = this.__getSlidesNumber();
-    if (slides !== this.slidesNumber) {
-      this.slidesNumber = slides;
-      this.goToSlide(this.slide);
-    }
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-carousel',
+      style: this.computedStyle,
+      'class': { fullscreen: this.inFullscreen }
+    }, [
+      h('div', {
+        staticClass: 'q-carousel-inner',
+        directives: this.noSwipe
+          ? null
+          : [{
+            name: 'touch-pan',
+            modifiers: { horizontal: true },
+            value: this.__pan
+          }]
+      }, [
+        h('div', {
+          ref: 'track',
+          staticClass: 'q-carousel-track',
+          style: this.trackPosition,
+          'class': {
+            'infinite-left': this.infiniteLeft,
+            'infinite-right': this.infiniteRight
+          }
+        }, [
+          h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%"), directives: [{ name: 'show', value: this.infiniteRight }] }),
+          this.$slots.default,
+          h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%"), directives: [{ name: 'show', value: this.infiniteLeft }] })
+        ])
+      ]),
+      this.arrows ? h(QBtn, {
+        staticClass: 'q-carousel-left-arrow absolute',
+        props: { color: this.color, icon: 'chevron_left', round: true, small: true, flat: true },
+        directives: [{ name: 'show', value: this.canGoToPrevious }],
+        on: { click: this.previous }
+      }) : null,
+      this.arrows ? h(QBtn, {
+        staticClass: 'q-carousel-right-arrow absolute',
+        props: { color: this.color, icon: 'chevron_right', round: true, small: true, flat: true },
+        directives: [{ name: 'show', value: this.canGoToNext }],
+        on: { click: this.next }
+      }) : null,
+      this.__getQuickNav(h),
+      this.__getScopedSlots(h),
+      this.$slots.control
+    ])
   },
   mounted: function mounted () {
     var this$1 = this;
 
-    this.$nextTick(function () {
-      this$1.slidesNumber = this$1.__getSlidesNumber();
-      this$1.__planAutoPlay();
-      if (this$1.handleArrowKeys) {
-        this$1.__setArrowKeys(true);
+    this.__planAutoPlay();
+    if (this.handleArrowKeys) {
+      this.__setArrowKeys(true);
+    }
+    this.__stopSlideNumberNotifier = this.$watch('slidesNumber', function (val) {
+      this$1.$emit('slides-number', val);
+      if (this$1.value >= val) {
+        this$1.$emit('input', val - 1);
       }
-    });
+    }, { immediate: true });
   },
   beforeDestroy: function beforeDestroy () {
     this.__cleanup();
+    this.__stopSlideNumberNotifier();
     if (this.handleArrowKeys) {
       this.__setArrowKeys(false);
     }
+  }
+};
+
+var QCarouselSlide = {
+  name: 'q-carousel-slide',
+  inject: {
+    carousel: {
+      default: function default$1 () {
+        console.error('QCarouselSlide needs to be child of QCarousel');
+      }
+    }
+  },
+  props: {
+    imgSrc: String
+  },
+  computed: {
+    computedStyle: function computedStyle () {
+      var style = {};
+      if (this.imgSrc) {
+        style.backgroundImage = "url(" + (this.imgSrc) + ")";
+        style.backgroundSize = "cover";
+        style.backgroundPosition = "50%";
+      }
+      if (!this.carousel.inFullscreen && this.carousel.height) {
+        style.maxHeight = this.carousel.height;
+      }
+      return style
+    }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-carousel-slide relative-position scroll',
+      style: this.computedStyle
+    }, this.$slots.default)
+  },
+  created: function created () {
+    this.carousel.__registerSlide();
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.carousel.__unregisterSlide();
+  }
+};
+
+var QCarouselControl = {
+  name: 'q-carousel-control',
+  props: {
+    position: {
+      type: String,
+      default: 'bottom-right'
+    },
+    offset: {
+      type: Array,
+      default: function () { return [18, 18]; }
+    }
+  },
+  computed: {
+    computedClass: function computedClass () {
+      return ("absolute-" + (this.position))
+    },
+    computedStyle: function computedStyle () {
+      return {
+        margin: ((this.offset[1]) + "px " + (this.offset[0]) + "px")
+      }
+    }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-carousel-control absolute',
+      style: this.computedStyle,
+      'class': this.computedClass
+    }, this.$slots.default)
   }
 };
 
@@ -5084,9 +5314,6 @@ var openedModalNumber = 0;
 
 var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-transition',{attrs:{"name":_vm.modalTransition,"enter":_vm.enterClass,"leave":_vm.leaveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}],staticClass:"modal fullscreen row",class:_vm.modalClasses,on:{"mousedown":function($event){_vm.__dismiss();},"touchstart":function($event){_vm.__dismiss();}}},[_c('div',{ref:"content",staticClass:"modal-content scroll",class:_vm.contentClasses,style:(_vm.modalCss),on:{"mousedown":function($event){$event.stopPropagation();},"touchstart":function($event){$event.stopPropagation();}}},[_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-modal',
-  inject: {
-    history: { default: History }
-  },
   mixins: [ModelToggleMixin],
   components: {
     QTransition: QTransition
@@ -6686,7 +6913,7 @@ function getBtn (h, vm, btn, clickHandler) {
       props: extend({
         icon: btn.icon,
         label: btn.label,
-        toggled: vm.caret.is(btn.cmd, btn.param),
+        toggled: btn.toggled ? btn.toggled(vm) : btn.cmd && vm.caret.is(btn.cmd, btn.param),
         color: vm.color,
         toggleColor: vm.toggleColor,
         disable: btn.disable ? btn.disable(vm) : false
@@ -7173,6 +7400,9 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
 var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable || opt.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon,"indeterminate-icon":opt.indeterminateIcon,"indeterminate":_vm.indeterminate,"dark":opt.dark || _vm.dark,"keep-color":opt.keepColor || _vm.keepColor},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
   name: 'q-option-group',
+  inject: {
+    __field: { default: null }
+  },
   components: {
     QRadio: QRadio,
     QCheckbox: QCheckbox,
@@ -7201,9 +7431,6 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     leftLabel: Boolean,
     inline: Boolean,
     disable: Boolean
-  },
-  inject: {
-    __field: { default: null }
   },
   computed: {
     component: function component () {
@@ -7770,10 +7997,10 @@ var obj;},staticRenderFns: [],
 };
 
 function width$1 (val) {
-  return {width: (val + "%")}
+  return { width: (val + "%") }
 }
 
-var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-progress",class:_vm.color ? ("text-" + (_vm.color)) : ''},[(_vm.buffer && !_vm.indeterminate)?_c('div',{staticClass:"q-progress-buffer",style:(_vm.bufferStyle)},[_vm._v(" ")]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-progress-track",style:(_vm.trackStyle)},[_vm._v(" ")]),_vm._v(" "),_c('div',{staticClass:"q-progress-model",class:{ animate: _vm.animate, stripe: _vm.stripe, indeterminate: _vm.indeterminate },style:(_vm.modelStyle)},[_vm._v(" ")])])},staticRenderFns: [],
+var QProgress = {
   name: 'q-progress',
   props: {
     percentage: {
@@ -7784,7 +8011,11 @@ var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     stripe: Boolean,
     animate: Boolean,
     indeterminate: Boolean,
-    buffer: Number
+    buffer: Number,
+    height: {
+      type: String,
+      default: '4px'
+    }
   },
   computed: {
     model: function model () {
@@ -7793,15 +8024,55 @@ var QProgress = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     bufferModel: function bufferModel () {
       return between(this.buffer || 0, 0, 100 - this.model)
     },
-    modelStyle: function modelStyle () {
-      return width$1(this.model)
-    },
     bufferStyle: function bufferStyle () {
       return width$1(this.bufferModel)
     },
     trackStyle: function trackStyle () {
       return width$1(this.buffer ? 100 - this.buffer : 100)
+    },
+    computedClass: function computedClass () {
+      if (this.color) {
+        return ("text-" + (this.color))
+      }
+    },
+    computedStyle: function computedStyle () {
+      return { height: this.height }
+    },
+    modelClass: function modelClass () {
+      return {
+        animate: this.animate,
+        stripe: this.stripe,
+        indeterminate: this.indeterminate
+      }
+    },
+    modelStyle: function modelStyle () {
+      return width$1(this.model)
     }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-progress',
+      style: this.computedStyle,
+      'class': this.computedClass
+    }, [
+      this.buffer && !this.indeterminate
+        ? h('div', {
+          staticClass: 'q-progress-buffer',
+          style: this.bufferStyle
+        })
+        : null,
+
+      h('div', {
+        staticClass: 'q-progress-track',
+        style: this.trackStyle
+      }),
+
+      h('div', {
+        staticClass: 'q-progress-model',
+        style: this.modelStyle,
+        'class': this.modelClass
+      })
+    ])
   }
 };
 
@@ -8498,7 +8769,13 @@ var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
   components: {
     QBtn: QBtn
   },
-  inject: ['__qFabClose'],
+  inject: {
+    __qFabClose: {
+      default: function default$1 () {
+        console.error('QFabAction needs to be child of QFab');
+      }
+    }
+  },
   props: {
     icon: {
       type: String,
@@ -8606,66 +8883,6 @@ var QFieldReset = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   provide: function provide () {
     return {
       __field: undefined
-    }
-  }
-};
-
-var QGallery = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-gallery"},_vm._l((_vm.src),function(img,index){return _c('div',{key:index,style:({width: _vm.width})},[_c('img',{attrs:{"src":img}})])}))},staticRenderFns: [],
-  name: 'q-gallery',
-  props: {
-    src: {
-      type: Array,
-      required: true
-    },
-    width: {
-      type: String,
-      default: '150px'
-    }
-  }
-};
-
-var QGalleryCarousel = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-carousel',{ref:"slider",staticClass:"text-white bg-black q-gallery-carousel",attrs:{"dots":_vm.dots,"arrows":_vm.arrows,"fullscreen":_vm.fullscreen,"infinite":_vm.infinite,"actions":"","animation":_vm.animation,"autoplay":_vm.autoplay,"handle-arrow-keys":_vm.handleArrowKeys,"easing":_vm.easing,"swipe-easing":_vm.swipeEasing,"no-swipe":_vm.noSwipe},on:{"slide":_vm.__updateCurrentSlide}},[_vm._l((_vm.src),function(img){return _c('div',{key:img,staticClass:"no-padding row flex-center",attrs:{"slot":"slide"},slot:"slide"},[_c('div',{staticClass:"full-width"},[_c('img',{attrs:{"src":img}})])])}),_vm._v(" "),_c('div',{staticClass:"q-gallery-carousel-overlay",class:{active: _vm.quickView},on:{"click":function($event){_vm.toggleQuickView();}}}),_vm._v(" "),_c('q-icon',{attrs:{"slot":"action","name":"view_carousel"},on:{"click":function($event){_vm.toggleQuickView();}},slot:"action"}),_vm._v(" "),_c('div',{staticClass:"q-gallery-carousel-quickview",class:{active: _vm.quickView, row: _vm.horizontalQuickView, horizontal: _vm.horizontalQuickView},on:{"!touchstart":function($event){$event.stopPropagation();},"!touchmove":function($event){$event.stopPropagation();},"!touchend":function($event){$event.stopPropagation();},"!mousedown":function($event){$event.stopPropagation();},"!mousemove":function($event){$event.stopPropagation();},"!mouseend":function($event){$event.stopPropagation();}}},_vm._l((_vm.src),function(img,index){return _c('div',{key:img},[_c('img',{class:{active: _vm.currentSlide === index},attrs:{"src":img},on:{"click":function($event){_vm.__selectImage(index);}}})])}))],2)},staticRenderFns: [],
-  name: 'q-gallery-carousel',
-  components: {
-    QCarousel: QCarousel,
-    QIcon: QIcon
-  },
-  mixins: [CarouselMixin],
-  props: {
-    src: {
-      type: Array,
-      required: true
-    },
-    arrows: {
-      type: Boolean,
-      default: true
-    },
-    actions: {
-      type: Boolean,
-      default: true
-    },
-    horizontalQuickView: Boolean
-  },
-  data: function data () {
-    return {
-      quickView: false,
-      currentSlide: 0
-    }
-  },
-  methods: {
-    toggleQuickView: function toggleQuickView () {
-      this.quickView = !this.quickView;
-    },
-    goToSlide: function goToSlide (index, noAnimation) {
-      this.$refs.slider.goToSlide(index, noAnimation);
-    },
-    __selectImage: function __selectImage (index) {
-      this.goToSlide(index, true);
-      this.toggleQuickView();
-    },
-    __updateCurrentSlide: function __updateCurrentSlide (value) {
-      this.currentSlide = value;
-      this.$emit('slide', value);
     }
   }
 };
@@ -9060,7 +9277,13 @@ var duration$1 = 120 + 30;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
-  inject: ['layout'],
+  inject: {
+    layout: {
+      default: function default$1 () {
+        console.error('QLayoutDrawer needs to be child of QLayout');
+      }
+    }
+  },
   directives: {
     TouchPan: TouchPan
   },
@@ -9079,7 +9302,11 @@ var QLayoutDrawer = {
     }
   },
   data: function data () {
-    var belowBreakpoint = this.behavior === 'mobile' || (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width);
+    var belowBreakpoint = (
+      this.behavior === 'mobile' ||
+      (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width)
+    );
+
     return {
       belowBreakpoint: belowBreakpoint,
       largeScreenState: this.value,
@@ -9164,14 +9391,23 @@ var QLayoutDrawer = {
         this.__updateModel(this.largeScreenState);
       }
     },
-    behavior: function behavior () {
-      this.__updateLocal('belowBreakpoint', this.behavior === 'mobile' || (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width));
+    behavior: function behavior (val) {
+      this.__updateLocal('belowBreakpoint', (
+        val === 'mobile' ||
+        (val !== 'desktop' && this.breakpoint >= this.layout.width)
+      ));
     },
-    breakpoint: function breakpoint () {
-      this.__updateLocal('belowBreakpoint', this.behavior === 'mobile' || (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width));
+    breakpoint: function breakpoint (val) {
+      this.__updateLocal('belowBreakpoint', (
+        this.behavior === 'mobile' ||
+        (this.behavior !== 'desktop' && val >= this.layout.width)
+      ));
     },
-    'layout.width': function layout_width () {
-      this.__updateLocal('belowBreakpoint', this.behavior === 'mobile' || (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width));
+    'layout.width': function layout_width (val) {
+      this.__updateLocal('belowBreakpoint', (
+        this.behavior === 'mobile' ||
+        (this.behavior !== 'desktop' && this.breakpoint >= val)
+      ));
     },
     offset: function offset$$1 (val) {
       this.__update('offset', val);
@@ -9459,7 +9695,13 @@ var QLayoutDrawer = {
 
 var QLayoutFooter = {
   name: 'q-layout-footer',
-  inject: ['layout'],
+  inject: {
+    layout: {
+      default: function default$1 () {
+        console.error('QLayoutFooter needs to be child of QLayout');
+      }
+    }
+  },
   props: {
     value: Boolean,
     reveal: Boolean
@@ -9586,7 +9828,13 @@ var QLayoutFooter = {
 
 var QLayoutHeader = {
   name: 'q-layout-header',
-  inject: ['layout'],
+  inject: {
+    layout: {
+      default: function default$1 () {
+        console.error('QLayoutHeader needs to be child of QLayout');
+      }
+    }
+  },
   props: {
     value: Boolean,
     reveal: Boolean,
@@ -9702,7 +9950,14 @@ var QLayoutHeader = {
 
 var QPage = {
   name: 'q-page',
-  inject: ['layout'],
+  inject: {
+    pageContainer: {
+      default: function default$1 () {
+        console.error('QPage needs to be child of QPageContainer');
+      }
+    },
+    layout: {}
+  },
   props: {
     padding: Boolean
   },
@@ -9735,7 +9990,16 @@ var QPage = {
 
 var QPageContainer = {
   name: 'q-page-container',
-  inject: ['layout'],
+  inject: {
+    layout: {
+      default: function default$1 () {
+        console.error('QPageContainer needs to be child of QLayout');
+      }
+    }
+  },
+  provide: {
+    pageContainer: true
+  },
   computed: {
     computedStyle: function computedStyle () {
       var css = {};
@@ -9768,7 +10032,13 @@ var QPageContainer = {
 
 var QPageSticky = {
   name: 'q-page-sticky',
-  inject: ['layout'],
+  inject: {
+    layout: {
+      default: function default$1 () {
+        console.error('QPageSticky needs to be child of QLayout');
+      }
+    }
+  },
   props: {
     position: {
       type: String,
@@ -10771,6 +11041,13 @@ var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
 var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-step",style:(_vm.style)},[(_vm.__stepper.vertical)?_c('step-tab',{attrs:{"vm":this}}):_vm._e(),_vm._v(" "),_c('q-slide-transition',[(_vm.active)?_c('div',{staticClass:"q-stepper-step-content"},[_c('div',{staticClass:"q-stepper-step-inner"},[_vm._t("default")],2)]):_vm._e()])],1)},staticRenderFns: [],
   name: 'q-step',
+  inject: {
+    __stepper: {
+      default: function default$1 () {
+        console.error('QStep needs to be child of QStepper');
+      }
+    }
+  },
   components: {
     QSlideTransition: QSlideTransition,
     StepTab: StepTab
@@ -10778,7 +11055,7 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   props: {
     name: {
       type: [Number, String],
-      default: function default$1 () {
+      default: function default$2 () {
         return uid()
       }
     },
@@ -10796,7 +11073,6 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     doneIcon: String,
     disable: Boolean
   },
-  inject: ['__stepper'],
   watch: {
     order: function order () {
       this.__stepper.__sortSteps();
@@ -11059,7 +11335,14 @@ var TabMixin = {
     count: [Number, String],
     color: String
   },
-  inject: ['data', 'selectTab'],
+  inject: {
+    data: {
+      default: function default$2 () {
+        console.error('QTab/QRouteTab components need to be child of QTabs');
+      }
+    },
+    selectTab: {}
+  },
   watch: {
     active: function active (val) {
       if (val) {
@@ -11235,6 +11518,13 @@ var QTab = {
 
 var QTabPane = {
   name: 'q-tab-pane',
+  inject: {
+    data: {
+      default: function default$1 () {
+        console.error('QTabPane needs to be child of QTabs');
+      }
+    }
+  },
   props: {
     name: {
       type: String,
@@ -11242,7 +11532,6 @@ var QTabPane = {
     },
     keepAlive: Boolean
   },
-  inject: ['data'],
   data: function data () {
     return {
       shown: false
@@ -11277,6 +11566,12 @@ var debounceDelay = 50; // in ms
 var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{staticClass:"column full-width no-wrap",style:(_vm.tabStyle)},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = { glossy: _vm.glossy }, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes column scroll"},[_vm._t("default")],2)])])
 var obj;},staticRenderFns: [],
   name: 'q-tabs',
+  provide: function provide () {
+    return {
+      data: this.data,
+      selectTab: this.selectTab
+    }
+  },
   components: {
     QIcon: QIcon
   },
@@ -11323,12 +11618,6 @@ var obj;},staticRenderFns: [],
     },
     inverted: function inverted (v) {
       this.data.inverted = v;
-    }
-  },
-  provide: function provide () {
-    return {
-      data: this.data,
-      selectTab: this.selectTab
     }
   },
   methods: {
@@ -11501,25 +11790,14 @@ var obj;},staticRenderFns: [],
     __animScrollTo: function __animScrollTo (value) {
       var this$1 = this;
 
-      if (this.$refs.scroller.scrollTo) {
-        this.$refs.scroller.scrollTo({
-          'behavior': 'smooth',
-          'left': value,
-          'top': 0
-        });
+      this.__stopAnimScroll();
+      this.__scrollTowards(value);
 
-        this.__stopAnimScroll();
-      }
-      else {
-        this.__stopAnimScroll();
-        this.__scrollTowards(value);
-
-        this.scrollTimer = setInterval(function () {
-          if (this$1.__scrollTowards(value)) {
-            this$1.__stopAnimScroll();
-          }
-        }, 5);
-      }
+      this.scrollTimer = setInterval(function () {
+        if (this$1.__scrollTowards(value)) {
+          this$1.__stopAnimScroll();
+        }
+      }, 5);
     },
     __stopAnimScroll: function __stopAnimScroll () {
       clearInterval(this.scrollTimer);
@@ -11567,11 +11845,8 @@ var obj;},staticRenderFns: [],
         this$1.selectTab(this$1.value);
       }
 
-      // let browser drawing stabilize then
-      setTimeout(function () {
-        this$1.__redraw();
-        this$1.__findTabAndScroll(this$1.data.tabName, true);
-      }, debounceDelay);
+      this$1.__redraw();
+      this$1.__findTabAndScroll(this$1.data.tabName, true);
     });
   },
   beforeDestroy: function beforeDestroy () {
@@ -11579,6 +11854,8 @@ var obj;},staticRenderFns: [],
     this.__stopAnimScroll();
     this.$refs.scroller.removeEventListener('scroll', this.__updateScrollIndicator);
     window.removeEventListener('resize', this.__redraw);
+    this.__redraw.cancel();
+    this.__updateScrollIndicator.cancel();
   }
 };
 
@@ -11598,7 +11875,9 @@ var Top = {
         cls = 'q-table-top relative-position row no-wrap items-center',
         child = [],
         props = {
-          hasSelection: hasSelection
+          hasSelection: hasSelection,
+          inFullscreen: this.inFullscreen,
+          toggleFullscreen: this.toggleFullscreen
         };
 
       if (top) {
@@ -12327,6 +12606,7 @@ var Expand = {
 var QTable = {
   name: 'q-table',
   mixins: [
+    FullscreenMixin,
     Top,
     TableHeader,
     TableBody,
@@ -12444,7 +12724,9 @@ var QTable = {
       {
         'class': {
           'q-table-container': true,
-          'q-table-dark': this.dark
+          'q-table-dark': this.dark,
+          fullscreen: this.inFullscreen,
+          scroll: this.inFullscreen
         }
       },
       [
@@ -14332,5 +14614,5 @@ var index_esm = {
   theme: "ios"
 };
 
-export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QGallery, QGalleryCarousel, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, DefaultSpinner as QSpinnerIos, QSpinner_mat as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, Platform, LocalStorage, SessionStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
+export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, DefaultSpinner as QSpinnerIos, QSpinner_mat as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, Platform, LocalStorage, SessionStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
 export default index_esm;

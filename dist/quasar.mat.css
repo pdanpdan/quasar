@@ -585,13 +585,19 @@ body.desktop ul.breadcrumb a:hover:after {
 }
 .q-carousel {
   overflow: hidden;
-}
-.q-carousel.fullscreen {
-  z-index: 20000;
+  position: relative;
 }
 .q-carousel-inner {
   position: relative;
   height: 100%;
+}
+.q-carousel-slide {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 100%;
+          flex: 0 0 100%;
+  min-height: 200px;
+  margin: 0;
+  padding: 18px;
 }
 .q-carousel-track {
   padding: 0;
@@ -604,37 +610,6 @@ body.desktop ul.breadcrumb a:hover:after {
       flex-wrap: nowrap;
   height: 100%;
 }
-.q-carousel-track > div {
-  -webkit-box-flex: 0;
-      -ms-flex: 0 0 100%;
-          flex: 0 0 100%;
-  min-height: 200px;
-  margin: 0;
-  padding: 2.3rem;
-}
-.q-carousel-track > div.centered {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-}
-.q-carousel-track.with-arrows > div:not(.no-padding) {
-  padding-left: 10%;
-  padding-right: 10%;
-  -ms-flex-preferred-size: 80%;
-}
-.q-carousel-track.with-toolbar > div {
-  padding-bottom: 3.3rem;
-}
 .q-carousel-track.infinite-left > div:nth-last-child(2) {
   -webkit-box-ordinal-group: -999;
       -ms-flex-order: -1000;
@@ -646,55 +621,34 @@ body.desktop ul.breadcrumb a:hover:after {
       -ms-flex-order: 1000;
           order: 1000;
 }
-.q-carousel-left-button,
-.q-carousel-right-button {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  font-size: 2rem;
-  width: 10%;
-  max-width: 70px;
-  pointer-events: none;
+.q-carousel-left-arrow,
+.q-carousel-right-arrow {
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
 }
-.q-carousel-left-button i,
-.q-carousel-right-button i {
-  cursor: pointer;
-  pointer-events: all;
-  padding: 3px;
-  border-radius: 50%;
+.q-carousel-left-arrow .q-icon,
+.q-carousel-right-arrow .q-icon {
+  font-size: 42px !important;
+}
+.q-carousel-left-arrow {
+  left: 5px;
+}
+.q-carousel-right-arrow {
+  right: 5px;
+}
+.q-carousel-quick-nav {
+  padding: 2px 0;
   background: rgba(0,0,0,0.3);
-  opacity: 0.6;
-  -webkit-transition: opacity 0.3s;
-  transition: opacity 0.3s;
 }
-.q-carousel-left-button i:hover,
-.q-carousel-right-button i:hover {
-  opacity: 1;
+.q-carousel-quick-nav .q-icon {
+  font-size: 18px !important;
 }
-.q-carousel-left-button {
-  left: 0;
+.q-carousel-quick-nav .q-btn.inactive {
+  opacity: 0.5;
 }
-.q-carousel-right-button {
-  right: 0;
-}
-.q-carousel-toolbar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  opacity: 0.6;
-  padding: 0.5rem 0.8rem;
-  -webkit-transition: opacity 0.3s;
-  transition: opacity 0.3s;
-}
-.q-carousel-toolbar i {
-  cursor: pointer;
-  padding: 5px;
-  font-size: 1.5rem;
-}
-.q-carousel-toolbar .q-carousel-dots i {
-  font-size: 0.9rem;
+.q-carousel-quick-nav .q-btn.inactive .q-icon {
+  font-size: 14px !important;
 }
 .q-message-name,
 .q-message-stamp,
@@ -809,7 +763,6 @@ body.desktop ul.breadcrumb a:hover:after {
   line-height: 1;
 }
 .q-chip .q-chip-main {
-  padding: 8px 0 8px;
   line-height: initial;
 }
 .q-chip .q-chip-side {
@@ -1569,98 +1522,6 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
     padding-top: 0;
   }
 }
-.q-gallery {
-  width: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-      -ms-flex-flow: row wrap;
-          flex-flow: row wrap;
-}
-.q-gallery div {
-  -webkit-box-flex: 1;
-      -ms-flex: auto;
-          flex: auto;
-  width: 150px;
-  margin: 0 12px 12px 0;
-}
-.q-gallery div.q-gallery-main {
-  -ms-flex-preferred-size: 200%;
-      flex-basis: 200%;
-}
-.q-gallery img {
-  height: auto;
-  width: 100%;
-}
-.q-gallery-carousel img {
-  height: auto;
-  width: 100%;
-}
-.q-gallery-carousel-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-}
-.q-gallery-carousel-overlay.active {
-  display: block;
-}
-.q-gallery-carousel-quickview {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  will-change: transform;
-  -webkit-transition: all 0.3s;
-  transition: all 0.3s;
-  -webkit-transform: translateY(101%);
-          transform: translateY(101%);
-  width: 100%;
-  height: auto;
-  max-height: 60%;
-  overflow: auto;
-  background: #000;
-  padding-top: 0.5rem;
-  padding-bottom: 2.2rem;
-  -webkit-box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -5px 6px rgba(0,0,0,0.23);
-          box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -5px 6px rgba(0,0,0,0.23);
-  text-align: center;
-}
-.q-gallery-carousel-quickview.active {
-  -webkit-transform: translateY(0);
-          transform: translateY(0);
-}
-.q-gallery-carousel-quickview.horizontal {
-  overflow-y: auto;
-  max-height: 95px;
-}
-.q-gallery-carousel-quickview img {
-  opacity: 0.5;
-  will-change: opacity;
-  -webkit-transition: opacity 0.3s;
-  transition: opacity 0.3s;
-  cursor: pointer;
-}
-.q-gallery-carousel-quickview div {
-  margin: 1px 2px;
-  width: 100px;
-  min-width: 100px;
-  display: inline-block;
-}
-.q-gallery-carousel-quickview div.active img,
-.q-gallery-carousel-quickview div img.active {
-  opacity: 1;
-  border: 1px solid #fff;
-}
-body.desktop .q-gallery-carousel-quickview img:hover {
-  opacity: 1;
-}
 .q-icon {
   line-height: 1;
   letter-spacing: normal;
@@ -2022,7 +1883,7 @@ main,
   z-index: 2000;
 }
 .q-layout-backdrop {
-  z-index: 2999;
+  z-index: 2999 !important;
   background: rgba(0,0,0,0.4);
 }
 .q-layout-drawer-opener {
@@ -3275,6 +3136,7 @@ body.mobile .q-tabs-scroller {
   -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
           box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
   position: relative;
+  background: #fff;
 }
 .q-table-top {
   min-height: 64px;
@@ -5779,6 +5641,9 @@ img.avatar {
 .z-alert {
   z-index: 8100;
 }
+.z-fullscreen {
+  z-index: 5500;
+}
 .row,
 .column,
 .flex {
@@ -7527,6 +7392,12 @@ body.with-mixin-fullscreen {
 .absolute-bottom-right {
   bottom: 0;
   right: 0;
+}
+.fullscreen {
+  z-index: 5500;
+  border-radius: 0 !important;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 .absolute-full,
 .fullscreen {
