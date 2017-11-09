@@ -12404,8 +12404,9 @@ var Filter = {
         if ( cols === void 0 ) cols = this.computedCols;
         if ( cellValue === void 0 ) cellValue = this.getCellValue;
 
+        var lowerTerms = terms ? terms.toLowerCase() : '';
         return rows.filter(
-          function (row) { return cols.some(function (col) { return (cellValue(col, row) + '').toLowerCase().indexOf(terms) !== -1; }); }
+          function (row) { return cols.some(function (col) { return (cellValue(col, row) + '').toLowerCase().indexOf(lowerTerms) !== -1; }); }
         )
       }
     }

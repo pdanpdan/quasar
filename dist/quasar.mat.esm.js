@@ -453,30 +453,6 @@ var install = function (_Vue, opts) {
   _Vue.prototype.$q = Quasar;
 };
 
-var start = function (cb) {
-  if ( cb === void 0 ) cb = function () {};
-
-  /*
-    if on Cordova, but not on an iframe,
-    like on Quasar Play app
-   */
-  if (!Platform.is.cordova || Platform.within.iframe) {
-    cb();
-    return
-  }
-
-  var tag = document.createElement('script');
-
-  document.addEventListener('deviceready', function () {
-    Vue.prototype.$cordova = cordova;
-    cb();
-  }, false);
-
-  tag.type = 'text/javascript';
-  document.body.appendChild(tag);
-  tag.src = 'cordova.js';
-};
-
 var History = {};
 var HistoryMixin = {
   data: function data () {
@@ -4090,7 +4066,7 @@ var easing = Object.freeze({
 
 var ids = {};
 
-function start$1 (ref) {
+function start (ref) {
   var name = ref.name;
   var duration = ref.duration; if ( duration === void 0 ) duration = 300;
   var to = ref.to;
@@ -4155,7 +4131,7 @@ function stop (id) {
 
 
 var animate = Object.freeze({
-	start: start$1,
+	start: start,
 	stop: stop
 });
 
@@ -4364,7 +4340,7 @@ var QCarousel = {
 
       this.animationInProgress = true;
 
-      this.animUid = start$1({
+      this.animUid = start({
         from: this.position,
         to: pos,
         duration: isNumber(this.animation) ? this.animation : 300,
@@ -5037,7 +5013,7 @@ function parseSize (padding) {
 function toggleSlide (el, showing, done) {
   var store = el.__qslidetoggle || {};
   function anim () {
-    store.uid = start$1({
+    store.uid = start({
       to: showing ? 100 : 0,
       from: store.pos !== null ? store.pos : showing ? 0 : 100,
       apply: function apply (pos) {
@@ -12420,8 +12396,9 @@ var Filter = {
         if ( cols === void 0 ) cols = this.computedCols;
         if ( cellValue === void 0 ) cellValue = this.getCellValue;
 
+        var lowerTerms = terms ? terms.toLowerCase() : '';
         return rows.filter(
-          function (row) { return cols.some(function (col) { return (cellValue(col, row) + '').toLowerCase().indexOf(terms) !== -1; }); }
+          function (row) { return cols.some(function (col) { return (cellValue(col, row) + '').toLowerCase().indexOf(lowerTerms) !== -1; }); }
         )
       }
     }
@@ -14624,7 +14601,6 @@ function noop () {}
 var index_esm = {
   version: version,
   install: install,
-  start: start,
   theme: "mat"
 };
 
