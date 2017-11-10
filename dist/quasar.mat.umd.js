@@ -9286,7 +9286,10 @@ var QLayoutDrawer = {
     TouchPan: TouchPan
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     overlay: Boolean,
     rightSide: Boolean,
     breakpoint: {
@@ -9701,7 +9704,10 @@ var QLayoutFooter = {
     }
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     reveal: Boolean
   },
   data: function data () {
@@ -9834,7 +9840,10 @@ var QLayoutHeader = {
     }
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     reveal: Boolean,
     revealOffset: {
       type: Number,
@@ -14095,6 +14104,20 @@ var cookies = {
   }
 };
 
+var cordova = {
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    document.addEventListener('deviceready', function () {
+      Quasar.cordova = window.cordova;
+    }, false);
+  }
+};
+
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
     return '__q_date|' + value.toUTCString()
@@ -14291,6 +14314,7 @@ var plugins = Object.freeze({
 	AppFullscreen: appFullscreen,
 	AppVisibility: appVisibility,
 	Cookies: cookies,
+	Cordova: cordova,
 	Platform: Platform,
 	LocalStorage: LocalStorage,
 	SessionStorage: SessionStorage

@@ -9278,7 +9278,10 @@ var QLayoutDrawer = {
     TouchPan: TouchPan
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     overlay: Boolean,
     rightSide: Boolean,
     breakpoint: {
@@ -9693,7 +9696,10 @@ var QLayoutFooter = {
     }
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     reveal: Boolean
   },
   data: function data () {
@@ -9826,7 +9832,10 @@ var QLayoutHeader = {
     }
   },
   props: {
-    value: Boolean,
+    value: {
+      type: Boolean,
+      default: true
+    },
     reveal: Boolean,
     revealOffset: {
       type: Number,
@@ -13953,6 +13962,20 @@ var cookies = {
   }
 };
 
+var cordova = {
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    document.addEventListener('deviceready', function () {
+      Quasar.cordova = window.cordova;
+    }, false);
+  }
+};
+
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
     return '__q_date|' + value.toUTCString()
@@ -14604,5 +14627,5 @@ var index_esm = {
   theme: "mat"
 };
 
-export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, Platform, LocalStorage, SessionStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
+export { QApp, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QEditor, QFab, QFabAction, QField, QFieldReset, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, cordova as Cordova, Platform, LocalStorage, SessionStorage, index as ActionSheet, Alert, Dialog, index$1 as Loading, index$2 as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
 export default index_esm;
