@@ -1503,6 +1503,14 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 .q-field-with-error .q-field-no-input {
   border-top: 1px solid #db2828;
 }
+.q-field-with-warning .q-field-icon,
+.q-field-with-warning .q-field-label,
+.q-field-with-warning .q-field-bottom {
+  color: #f2c037;
+}
+.q-field-with-warning .q-field-no-input {
+  border-top: 1px solid #f2c037;
+}
 @media (max-width: 575px) {
   .q-field-label + .q-field-content {
     padding-top: 8px;
@@ -1703,6 +1711,15 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-error:hover:before {
   color: #e46060;
+}
+.q-if-warning:before,
+.q-if-warning:after,
+.q-if-warning:not(.q-if-inverted) .q-if-label,
+.q-if-warning .q-if-addon {
+  color: #f2c037;
+}
+.q-if-warning:hover:before {
+  color: #f5d06b;
 }
 .q-if-disabled {
   cursor: not-allowed !important;

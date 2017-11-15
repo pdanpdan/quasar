@@ -1711,6 +1711,11 @@ for $pos in 0..23
     color $negative
   .q-field-no-input
     border-top 1px solid $negative
+.q-field-with-warning
+  .q-field-icon, .q-field-label, .q-field-bottom
+    color $warning
+  .q-field-no-input
+    border-top 1px solid $warning
 @media (max-width $breakpoint-xs-max)
   .q-field-label + .q-field-content
     padding-top 8px
@@ -1842,6 +1847,11 @@ for $pos in 0..23
     color $negative
   &:hover:before
     color lighten($negative, 26%)
+.q-if-warning
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label, .q-if-addon
+    color $warning
+  &:hover:before
+    color lighten($warning, 26%)
 .q-if-disabled
   cursor not-allowed !important
   .q-if-label, .q-if-control
