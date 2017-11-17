@@ -9277,6 +9277,7 @@ var QLayout = {
 
 var bodyClass = 'with-layout-drawer-opened';
 var duration$1 = 120 + 30;
+var isCordova = Platform.is.cordova;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
@@ -9455,7 +9456,8 @@ var QLayoutDrawer = {
     },
     backdropClass: function backdropClass () {
       return {
-        'transition-generic': !this.inTransit,
+        'transition-none': isCordova && !this.inTransit,
+        'transition-generic': !isCordova && !this.inTransit,
         'no-pointer-events': !this.inTransit && !this.value
       }
     },
@@ -9484,7 +9486,7 @@ var QLayoutDrawer = {
     belowClass: function belowClass () {
       return {
         'fixed': true,
-        'on-top': this.inTransit || this.value,
+        'on-top': true,
         'on-screen': this.value,
         'off-screen': !this.value,
         'transition-generic': !this.inTransit,

@@ -6950,6 +6950,10 @@ body.with-mixin-fullscreen {
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
 }
+.transition-none {
+  -webkit-transition: none;
+  transition: none;
+}
 .animate-spin,
 .animate-spin-reverse {
   -webkit-animation: q-spin 2s infinite linear;
