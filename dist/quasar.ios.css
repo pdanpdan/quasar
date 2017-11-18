@@ -1630,7 +1630,11 @@ main,
 }
 .q-layout-backdrop {
   z-index: 2999 !important;
-  background: rgba(0,0,0,0.4);
+  will-change: background-color;
+}
+.q-layout-backdrop-transition {
+  -webkit-transition: background 0.12s;
+  transition: background 0.12s;
 }
 .q-layout-drawer-opener {
   z-index: 2001;
@@ -6949,10 +6953,6 @@ body.with-mixin-fullscreen {
 .transition-generic {
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
-}
-.transition-none {
-  -webkit-transition: none;
-  transition: none;
 }
 .animate-spin,
 .animate-spin-reverse {

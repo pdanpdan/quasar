@@ -1881,7 +1881,9 @@ main, .q-layout, .q-layout-header, .q-layout-footer
   z-index $z-marginals
 .q-layout-backdrop
   z-index ($z-fixed-drawer - 1) !important
-  background $dimmed-background
+  will-change background-color
+.q-layout-backdrop-transition
+  transition background .12s
 .q-layout-drawer-opener
   z-index ($z-marginals + 1)
   height 100vh
@@ -4524,8 +4526,6 @@ body.with-mixin-fullscreen
     transform rotate(360deg)
 .transition-generic
   transition all .3s
-.transition-none
-  transition none
 .animate-spin, .animate-spin-reverse
   animation q-spin 2s infinite linear
 .animate-spin-reverse

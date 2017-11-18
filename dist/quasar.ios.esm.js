@@ -9269,7 +9269,6 @@ var QLayout = {
 
 var bodyClass = 'with-layout-drawer-opened';
 var duration$1 = 120 + 30;
-var isCordova = Platform.is.cordova;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
@@ -9448,8 +9447,7 @@ var QLayoutDrawer = {
     },
     backdropClass: function backdropClass () {
       return {
-        'transition-none': isCordova && !this.inTransit,
-        'transition-generic': !isCordova && !this.inTransit,
+        'q-layout-backdrop-transition': !this.inTransit,
         'no-pointer-events': !this.inTransit && !this.value
       }
     },
@@ -9473,7 +9471,7 @@ var QLayoutDrawer = {
         )
     },
     backdropStyle: function backdropStyle () {
-      return { opacity: this.percentage }
+      return { backgroundColor: ("rgba(0,0,0," + (this.percentage * 0.4) + ")") }
     },
     belowClass: function belowClass () {
       return {

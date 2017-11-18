@@ -1858,10 +1858,6 @@ input.q-input-target {
   background: #fff;
   z-index: 1000;
 }
-.q-layout-drawer.fixed.off-screen {
-  -webkit-box-shadow: none;
-          box-shadow: none;
-}
 .q-layout-drawer.fixed.on-screen {
   -webkit-box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
           box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
@@ -1905,7 +1901,11 @@ main,
 }
 .q-layout-backdrop {
   z-index: 2999 !important;
-  background: rgba(0,0,0,0.4);
+  will-change: background-color;
+}
+.q-layout-backdrop-transition {
+  -webkit-transition: background 0.12s;
+  transition: background 0.12s;
 }
 .q-layout-drawer-opener {
   z-index: 2001;
@@ -7220,10 +7220,6 @@ body.with-mixin-fullscreen {
 .transition-generic {
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
-}
-.transition-none {
-  -webkit-transition: none;
-  transition: none;
 }
 .animate-spin,
 .animate-spin-reverse {
