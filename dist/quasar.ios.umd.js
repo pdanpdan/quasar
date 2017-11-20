@@ -2243,7 +2243,7 @@ var InputMixin = {
 var inputTypes = [
   'text', 'textarea', 'email',
   'tel', 'file', 'number',
-  'password', 'url'
+  'password', 'url', 'time', 'date'
 ];
 
 function debounce (fn, wait, immediate) {
@@ -7205,10 +7205,10 @@ var QDialog = {
     prompt: Object,
     options: Object,
     ok: {
-      type: Boolean,
+      type: [String, Boolean],
       default: true
     },
-    cancel: Boolean,
+    cancel: [String, Boolean],
     stackButtons: Boolean,
     preventClose: Boolean,
     position: String,
@@ -7300,6 +7300,16 @@ var QDialog = {
   computed: {
     hasForm: function hasForm () {
       return this.prompt || this.options
+    },
+    okLabel: function okLabel () {
+      return this.ok === true
+        ? 'OK'
+        : this.ok
+    },
+    cancelLabel: function cancelLabel () {
+      return this.cancel === true
+        ? 'Cancel'
+        : this.cancel
     }
   },
   methods: {
@@ -7388,13 +7398,13 @@ var QDialog = {
 
       if (this.cancel) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: 'Cancel' },
+          props: { color: this.color, flat: true, label: this.cancelLabel },
           on: { click: this.__onCancel }
         }));
       }
       if (this.ok) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: 'OK' },
+          props: { color: this.color, flat: true, label: this.okLabel },
           on: { click: this.__onOk }
         }));
       }
@@ -10940,7 +10950,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
@@ -11009,7 +11019,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         return this.$refs.popover.show()
       }
     },
-    close: function close () {
+    hide: function hide () {
       if (!this.disable) {
         return this.$refs.popover.hide()
       }
