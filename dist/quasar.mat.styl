@@ -978,6 +978,8 @@ button-round-factor($size)
   outline 0
   border 0
   vertical-align middle
+  vertical-align -webkit-baseline-middle
+  vertical-align -moz-middle-with-baseline
   cursor pointer
   -webkit-appearance button
   padding $button-padding
@@ -1055,7 +1057,7 @@ for $name, $size in $button-round-sizes
 .q-btn-group
   border-radius $button-border-radius
   box-shadow $button-shadow
-  vertical-align middle
+  vertical-align text-bottom
   > .q-btn-group
     box-shadow none
   .q-btn

@@ -1003,6 +1003,8 @@ button-round-factor($size)
   outline 0
   border 0
   vertical-align middle
+  vertical-align -webkit-baseline-middle
+  vertical-align -moz-middle-with-baseline
   cursor pointer
   -webkit-appearance button
   padding $button-padding
@@ -1066,7 +1068,7 @@ for $name, $size in $button-round-sizes
   border-left 1px solid rgba(255, 255, 255, .3)
 .q-btn-group
   border-radius $button-border-radius
-  vertical-align middle
+  vertical-align text-bottom
   .q-btn:not(:last-child)
     border-top-right-radius 0
     border-bottom-right-radius 0

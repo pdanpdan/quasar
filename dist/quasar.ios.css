@@ -331,6 +331,8 @@ body.desktop ul.breadcrumb a:hover:after {
   outline: 0;
   border: 0;
   vertical-align: middle;
+  vertical-align: -webkit-baseline-middle;
+  vertical-align: -moz-middle-with-baseline;
   cursor: pointer;
   -webkit-appearance: button;
   padding: 0 16px;
@@ -458,7 +460,7 @@ body.desktop ul.breadcrumb a:hover:after {
 }
 .q-btn-group {
   border-radius: 4px;
-  vertical-align: middle;
+  vertical-align: text-bottom;
 }
 .q-btn-group .q-btn:not(:last-child) {
   border-top-right-radius: 0;

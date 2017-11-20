@@ -11,6 +11,100 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
+var version = "0.15.0";
+
+var Vue$1;
+
+function setVue (_Vue) {
+  Vue$1 = _Vue;
+}
+
+function offset (el) {
+  if (el === window) {
+    return {top: 0, left: 0}
+  }
+  var ref = el.getBoundingClientRect();
+  var top = ref.top;
+  var left = ref.left;
+
+  return {top: top, left: left}
+}
+
+function style (el, property) {
+  return window.getComputedStyle(el).getPropertyValue(property)
+}
+
+function height (el) {
+  if (el === window) {
+    return viewport().height
+  }
+  return parseFloat(style(el, 'height'))
+}
+
+function width (el) {
+  if (el === window) {
+    return viewport().width
+  }
+  return parseFloat(style(el, 'width'))
+}
+
+function css (element, css) {
+  var style = element.style;
+
+  Object.keys(css).forEach(function (prop) {
+    style[prop] = css[prop];
+  });
+}
+
+function viewport () {
+  var
+    e = window,
+    a = 'inner';
+
+  if (!('innerWidth' in window)) {
+    a = 'client';
+    e = document.documentElement || document.body;
+  }
+
+  return {
+    width: e[a + 'Width'],
+    height: e[a + 'Height']
+  }
+}
+
+function ready (fn) {
+  if (typeof fn !== 'function') {
+    return
+  }
+
+  if (document.readyState === 'complete') {
+    return fn()
+  }
+
+  document.addEventListener('DOMContentLoaded', fn, false);
+}
+
+var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
+function cssTransform (val) {
+  var o = {transform: val};
+  prefix.forEach(function (p) {
+    o[p + 'transform'] = val;
+  });
+  return o
+}
+
+
+var dom = Object.freeze({
+	offset: offset,
+	style: style,
+	height: height,
+	width: width,
+	css: css,
+	viewport: viewport,
+	ready: ready,
+	cssTransform: cssTransform
+});
+
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-mixed-operators */
 
@@ -177,14 +271,6 @@ function getPlatform () {
 }
 
 var Platform = {
-  is: getPlatform(),
-  has: {
-    touch: (function () { return !!('ontouchstart' in document.documentElement) || window.navigator.msMaxTouchPoints > 0; })()
-  },
-  within: {
-    iframe: window.self !== window.top
-  },
-
   __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
@@ -192,105 +278,55 @@ var Platform = {
     if (this.__installed) { return }
     this.__installed = true;
 
+    Platform.is = getPlatform();
+    Platform.has = {
+      touch: (function () { return !!('ontouchstart' in document.documentElement) || window.navigator.msMaxTouchPoints > 0; })()
+    };
+    Platform.within = {
+      iframe: window.self !== window.top
+    };
+
     Quasar.platform = Platform;
   }
 };
 
-Platform.has.popstate = !Platform.within.iframe && !Platform.is.electron;
+var History = {
+  __history: [],
+  add: function () {},
+  remove: function () {},
 
-var version = "0.15.0";
+  __installed: false,
+  install: function install () {
+    var this$1 = this;
 
-var Vue$1;
+    if (this.__installed || !Platform.is.cordova) {
+      return
+    }
 
-function setVue (_Vue) {
-  Vue$1 = _Vue;
-}
+    this.__installed = true;
+    this.add = function (definition) {
+      this$1.__history.push(definition);
+    };
+    this.remove = function (definition) {
+      var index = this$1.__history.indexOf(definition);
+      if (index >= 0) {
+        this$1.__hist.splice(index, 1);
+      }
+    };
 
-function offset (el) {
-  if (el === window) {
-    return {top: 0, left: 0}
+    document.addEventListener('deviceready', function () {
+      document.addEventListener('backbutton', function () {
+        if (this$1.history.length) {
+          var fn = this$1.history.pop().handler;
+          fn();
+        }
+        else {
+          window.history.back();
+        }
+      }, false);
+    });
   }
-  var ref = el.getBoundingClientRect();
-  var top = ref.top;
-  var left = ref.left;
-
-  return {top: top, left: left}
-}
-
-function style (el, property) {
-  return window.getComputedStyle(el).getPropertyValue(property)
-}
-
-function height (el) {
-  if (el === window) {
-    return viewport().height
-  }
-  return parseFloat(style(el, 'height'))
-}
-
-function width (el) {
-  if (el === window) {
-    return viewport().width
-  }
-  return parseFloat(style(el, 'width'))
-}
-
-function css (element, css) {
-  var style = element.style;
-
-  Object.keys(css).forEach(function (prop) {
-    style[prop] = css[prop];
-  });
-}
-
-function viewport () {
-  var
-    e = window,
-    a = 'inner';
-
-  if (!('innerWidth' in window)) {
-    a = 'client';
-    e = document.documentElement || document.body;
-  }
-
-  return {
-    width: e[a + 'Width'],
-    height: e[a + 'Height']
-  }
-}
-
-function ready (fn) {
-  if (typeof fn !== 'function') {
-    return
-  }
-
-  if (document.readyState === 'complete') {
-    return fn()
-  }
-
-  document.addEventListener('DOMContentLoaded', fn, false);
-}
-
-var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
-function cssTransform (val) {
-  var o = {transform: val};
-  prefix.forEach(function (p) {
-    o[p + 'transform'] = val;
-  });
-  return o
-}
-
-
-var dom = Object.freeze({
-	offset: offset,
-	style: style,
-	height: height,
-	width: width,
-	css: css,
-	viewport: viewport,
-	ready: ready,
-	cssTransform: cssTransform
-});
+};
 
 /* eslint-disable no-extend-native, one-var, no-self-compare */
 
@@ -421,18 +457,24 @@ function addBodyClasses () {
 var install = function (_Vue, opts) {
   if ( opts === void 0 ) opts = {};
 
-  if (this.installed) {
+  if (this.__installed) {
     return
   }
-  this.installed = true;
+  this.__installed = true;
 
   setVue(_Vue);
-  ready(addBodyClasses);
 
   var Quasar = {
     version: version,
     theme: "ios"
   };
+
+  // required plugins
+  Platform.install({ Quasar: Quasar });
+  History.install();
+
+  // inject body classes
+  ready(addBodyClasses);
 
   if (opts.directives) {
     Object.keys(opts.directives).forEach(function (key) {
@@ -451,9 +493,6 @@ var install = function (_Vue, opts) {
     });
   }
   if (opts.plugins) {
-    // required plugin
-    Platform.install({ Quasar: Quasar });
-
     Object.keys(opts.plugins).forEach(function (key) {
       var p = opts.plugins[key];
       if (typeof p.install === 'function') {
@@ -465,156 +504,1253 @@ var install = function (_Vue, opts) {
   _Vue.prototype.$q = Quasar;
 };
 
-var History = {};
-var HistoryMixin = {
-  data: function data () {
-    return {
-      manualURL: false,
-      to: null,
-      next: null,
-      callbacks: []
-    }
-  },
-  methods: {
-    __addToHistory: function __addToHistory (cb) {
-      console.log('__addToHistory');
-      this.callbacks.push(cb);
-      var len = this.callbacks.length;
+var QApp = {
+  name: 'q-app',
+  functional: true,
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      classes = data.staticClass;
 
-      var state = window.history.state || {};
-      state.qHistoryLevel = len;
-      window.history.replaceState(state, '');
-      window.history.pushState({qHistoryHasBack: true}, '');
-      if (len === 1) {
-        console.log('add popstate');
-        window.addEventListener('popstate', this.__popstate);
-      }
-    },
-    __removeFromHistory: function __removeFromHistory () {
-      console.log('__removeFromHistory');
-      if (this.callbacks.length > 0) {
-        console.log('remove: history back');
-        window.history.go(-1);
-      }
-    },
-    __popstate: function __popstate () {
-      var this$1 = this;
-
-      console.log('popstate', window.history.state);
-      var len = this.callbacks.length;
-
-      if (this.manualURL) {
-        console.log('popstate[manualURL] modals', this.modals);
-        if (len > 0) {
-          console.log('popstate: manualURL; going back one more');
-          var cb = this.callbacks.pop();
-          cb().then(function () {
-            window.history.state.qHistoryLevel = null;
-            window.history.go(-1);
-          });
-        }
-        else {
-          console.log('popstate: resetting manualURL');
-          window.history.state.qHistoryLevel = null;
-          console.log('popstate: remove popstate');
-          this.manualURL = false;
-          window.removeEventListener('popstate', this.__popstate);
-          this.$router.push(this.to);
-        }
-        return
-      }
-
-      if (window.history.state && window.history.state.qHistoryLevel) {
-        var cb$1 = this.callbacks.pop();
-        cb$1().then(function () {
-          window.history.state.qHistoryLevel = null;
-
-          if (this$1.next && len > 1) {
-            console.log('popstate: going back one more');
-            window.history.go(-1);
-            return
-          }
-
-          if (len === 1) {
-            console.log('remove popstate');
-            window.removeEventListener('popstate', this$1.__popstate);
-          }
-
-          if (this$1.next) {
-            var fn = this$1.next;
-            this$1.next = null;
-            console.log('calling next');
-            fn();
-          }
-        });
-        return
-      }
-
-      // manually changed route
-      console.log('manually changed route');
-      this.manualURL = true;
-      this.next(false);
-    },
-    __clearBogusHistory: function __clearBogusHistory () {
-      console.log('__clearBogusHistory');
-      window.removeEventListener('popstate', this.__clearBogusHistory);
-
-      if (window.history.state && window.history.state.qHistoryHasBack) {
-        console.log('__clearBogusHistory: qHistoryHasBack; going back in history');
-        var state = window.history.state;
-        state.qHistoryHasBack = null;
-        state.forceBack = true;
-        window.history.replaceState(state, '');
-        window.addEventListener('popstate', this.__clearBogusHistory);
-        window.history.go(-1);
-        return
-      }
-
-      window.addEventListener('popstate', this.__genericPopstate);
-    },
-    __genericPopstate: function __genericPopstate () {
-      console.log('generic popstate');
-      if (window.history.state && window.history.state.forceBack) {
-        console.log('generic popstate: detected forceBack');
-        window.history.go(-1);
-      }
-    }
-  },
-  created: function created () {
-    var this$1 = this;
-
-    this.__clearBogusHistory();
-    this.removeRouteListener = this.$router.beforeEach(function (to, from, next) {
-      console.log('route change', from, to);
-      if (this$1.callbacks.length > 0) {
-        this$1.next = next;
-        this$1.to = to;
-        window.history.go(-1);
-      }
-      else {
-        console.log('next');
-        next();
-      }
-    });
-
-    History.getLevel = function () { return this$1.callbacks.length; };
-    History.add = this.__addToHistory;
-    History.remove = this.__removeFromHistory;
-  },
-  beforeDestroy: function beforeDestroy () {
-    console.log('layout beforeDestroy');
-    this.removeRouteListener();
-    window.removeEventListener('popstate', this.__genericPopstate);
+    data.staticClass = "q-app" + (classes ? (" " + classes) : '');
+    return h('div', data, ctx.children)
   }
 };
 
-var QApp = {
-  name: 'q-app',
-  mixins: [HistoryMixin],
+var handlers = [];
+
+var EscapeKey = {
+  __installed: false,
+  __install: function __install () {
+    this.__installed = true;
+    window.addEventListener('keyup', function (evt) {
+      if (handlers.length === 0) {
+        return
+      }
+
+      if (evt.which === 27 || evt.keyCode === 27) {
+        handlers[handlers.length - 1]();
+      }
+    });
+  },
+
+  register: function register (handler) {
+    if (Platform.is.desktop) {
+      if (!this.__installed) {
+        this.__install();
+      }
+
+      handlers.push(handler);
+    }
+  },
+
+  pop: function pop () {
+    if (Platform.is.desktop) {
+      handlers.pop();
+    }
+  }
+};
+
+var toString = Object.prototype.toString;
+var hasOwn = Object.prototype.hasOwnProperty;
+var class2type = {};
+
+'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
+  class2type['[object ' + name + ']'] = name.toLowerCase();
+});
+
+function type (obj) {
+  return obj === null ? String(obj) : class2type[toString.call(obj)] || 'object'
+}
+
+function isPlainObject (obj) {
+  if (!obj || type(obj) !== 'object') {
+    return false
+  }
+
+  if (obj.constructor &&
+    !hasOwn.call(obj, 'constructor') &&
+    !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
+    return false
+  }
+
+  var key;
+  for (key in obj) {}
+
+  return key === undefined || hasOwn.call(obj, key)
+}
+
+function extend () {
+  var arguments$1 = arguments;
+
+  var
+    options, name, src, copy, copyIsArray, clone,
+    target = arguments[0] || {},
+    i = 1,
+    length = arguments.length,
+    deep = false;
+
+  if (typeof target === 'boolean') {
+    deep = target;
+    target = arguments[1] || {};
+    i = 2;
+  }
+
+  if (Object(target) !== target && type(target) !== 'function') {
+    target = {};
+  }
+
+  if (length === i) {
+    target = this;
+    i--;
+  }
+
+  for (; i < length; i++) {
+    if ((options = arguments$1[i]) !== null) {
+      for (name in options) {
+        src = target[name];
+        copy = options[name];
+
+        if (target === copy) {
+          continue
+        }
+
+        if (deep && copy && (isPlainObject(copy) || (copyIsArray = type(copy) === 'array'))) {
+          if (copyIsArray) {
+            copyIsArray = false;
+            clone = src && type(src) === 'array' ? src : [];
+          }
+          else {
+            clone = src && isPlainObject(src) ? src : {};
+          }
+
+          target[name] = extend(deep, clone, copy);
+        }
+        else if (copy !== undefined) {
+          target[name] = copy;
+        }
+      }
+    }
+  }
+
+  return target
+}
+
+var ModelToggleMixin = {
+  props: {
+    value: Boolean
+  },
+  data: function data () {
+    return {
+      showing: false
+    }
+  },
+  watch: {
+    value: function value (val) {
+      if (val) { this.show(); }
+      else { this.hide(); }
+    }
+  },
+  methods: {
+    toggle: function toggle (evt) {
+      return this[this.showing ? 'hide' : 'show'](evt)
+    },
+    __updateModel: function __updateModel (val, noHistory) {
+      if (this.showing !== val) {
+        this.showing = val;
+
+        if (noHistory !== void 0) {
+          // do nothing
+        }
+        else if (val) {
+          this.__historyEntry = {
+            handler: this.close
+          };
+          History.add(this.__historyEntry);
+        }
+        else if (this.__historyEntry) {
+          History.remove(this.__historyEntry);
+          this.__historyEntry = null;
+        }
+      }
+      if (this.value !== val) {
+        this.$emit('input', val);
+      }
+    }
+  },
+  mounted: function mounted () {
+    if (this.value) {
+      this.show();
+    }
+  }
+};
+
+/*
+ * Also import the necessary CSS into the app.
+ *
+ * Example:
+ * import 'quasar-extras/animate/bounceInLeft.css'
+ */
+
+var QTransition = {
+  name: 'q-transition',
+  functional: true,
+  props: {
+    name: String,
+    enter: String,
+    leave: String,
+    group: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      prop = ctx.props,
+      data = ctx.data;
+
+    if (prop.name) {
+      data.props = {
+        name: prop.name
+      };
+    }
+    else if (prop.enter && prop.leave) {
+      data.props = {
+        enterActiveClass: ("animated " + (prop.enter)),
+        leaveActiveClass: ("animated " + (prop.leave))
+      };
+    }
+    else {
+      return ctx.children
+    }
+
+    return h(("transition" + (ctx.props.group ? '-group' : '')), data, ctx.children)
+  }
+};
+
+function getScrollTarget (el) {
+  return el.closest('.scroll') || window
+}
+
+function getScrollHeight (el) {
+  return (el === window ? document.body : el).scrollHeight
+}
+
+function getScrollPosition (scrollTarget) {
+  if (scrollTarget === window) {
+    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
+  }
+  return scrollTarget.scrollTop
+}
+
+function animScrollTo (el, to, duration) {
+  if (duration <= 0) {
+    return
+  }
+
+  var pos = getScrollPosition(el);
+
+  window.requestAnimationFrame(function () {
+    setScroll(el, pos + (to - pos) / duration * 16);
+    if (el.scrollTop !== to) {
+      animScrollTo(el, to, duration - 16);
+    }
+  });
+}
+
+function setScroll (scrollTarget, offset$$1) {
+  if (scrollTarget === window) {
+    document.documentElement.scrollTop = offset$$1;
+    document.body.scrollTop = offset$$1;
+    return
+  }
+  scrollTarget.scrollTop = offset$$1;
+}
+
+function setScrollPosition (scrollTarget, offset$$1, duration) {
+  if (duration) {
+    animScrollTo(scrollTarget, offset$$1, duration);
+    return
+  }
+  setScroll(scrollTarget, offset$$1);
+}
+
+var size;
+function getScrollbarWidth () {
+  if (size !== undefined) {
+    return size
+  }
+
+  var
+    inner = document.createElement('p'),
+    outer = document.createElement('div');
+
+  css(inner, {
+    width: '100%',
+    height: '200px'
+  });
+  css(outer, {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    visibility: 'hidden',
+    width: '200px',
+    height: '150px',
+    overflow: 'hidden'
+  });
+
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  var w2 = inner.offsetWidth;
+
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+
+  document.body.removeChild(outer);
+  size = w1 - w2;
+
+  return size
+}
+
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth
+});
+
+var positions = {
+  top: 'items-start justify-center with-backdrop',
+  bottom: 'items-end justify-center with-backdrop',
+  right: 'items-center justify-end with-backdrop',
+  left: 'items-center justify-start with-backdrop'
+};
+var positionCSS = {
+  mat: {
+    maxHeight: '80vh',
+    height: 'auto'
+  },
+  ios: {
+    maxHeight: '80vh',
+    height: 'auto',
+    boxShadow: 'none'
+  }
+};
+
+function additionalCSS (theme, position) {
+  var css = {};
+
+  if (['left', 'right'].includes(position)) {
+    css.maxWidth = '90vw';
+  }
+  if (theme === 'ios') {
+    if (['left', 'top'].includes(position)) {
+      css.borderTopLeftRadius = 0;
+    }
+    if (['right', 'top'].includes(position)) {
+      css.borderTopRightRadius = 0;
+    }
+    if (['left', 'bottom'].includes(position)) {
+      css.borderBottomLeftRadius = 0;
+    }
+    if (['right', 'bottom'].includes(position)) {
+      css.borderBottomRightRadius = 0;
+    }
+  }
+
+  return css
+}
+
+var duration = 200;
+var openedModalNumber = 0;
+
+var QModal = {
+  name: 'q-modal',
+  mixins: [ModelToggleMixin],
+  props: {
+    position: {
+      type: String,
+      default: '',
+      validator: function validator (val) {
+        return val === '' || ['top', 'bottom', 'left', 'right'].includes(val)
+      }
+    },
+    transition: String,
+    enterClass: String,
+    leaveClass: String,
+    positionClasses: {
+      type: String,
+      default: 'flex-center'
+    },
+    contentClasses: [Object, Array, String],
+    contentCss: [Object, Array, String],
+    noBackdropDismiss: {
+      type: Boolean,
+      default: false
+    },
+    noEscDismiss: {
+      type: Boolean,
+      default: false
+    },
+    minimized: Boolean,
+    maximized: Boolean
+  },
+  watch: {
+    $route: function $route () {
+      this.hide();
+    }
+  },
+  computed: {
+    modalClasses: function modalClasses () {
+      var cls = this.position
+        ? positions[this.position]
+        : this.positionClasses;
+      if (this.maximized) {
+        return ['maximized', cls]
+      }
+      else if (this.minimized) {
+        return ['minimized', cls]
+      }
+      return cls
+    },
+    modalTransition: function modalTransition () {
+      if (this.position) {
+        return ("q-modal-" + (this.position))
+      }
+      if (this.enterClass === void 0 && this.leaveClass === void 0) {
+        return this.transition || 'q-modal'
+      }
+    },
+    modalCss: function modalCss () {
+      if (this.position) {
+        var css = Array.isArray(this.contentCss)
+          ? this.contentCss
+          : [this.contentCss];
+
+        css.unshift(extend(
+          {},
+          positionCSS[this.$q.theme],
+          additionalCSS(this.$q.theme, this.position)
+        ));
+
+        return css
+      }
+
+      return this.contentCss
+    }
+  },
+  methods: {
+    show: function show () {
+      var this$1 = this;
+
+      if (this.showing) {
+        return Promise.resolve()
+      }
+
+      var body = document.body;
+
+      body.appendChild(this.$el);
+      body.classList.add('with-modal');
+      this.bodyPadding = window.getComputedStyle(body).paddingRight;
+      body.style.paddingRight = (getScrollbarWidth()) + "px";
+      EscapeKey.register(function () {
+        if (!this$1.noEscDismiss) {
+          this$1.hide().then(function () {
+            this$1.$emit('escape-key');
+          });
+        }
+      });
+
+      setTimeout(function () {
+        var content = this$1.$refs.content;
+        content.scrollTop = 0
+        ;['modal-scroll', 'layout-view'].forEach(function (c) {
+          [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
+            el.scrollTop = 0;
+          });
+        });
+      }, 10);
+
+      this.__updateModel(true);
+      openedModalNumber++;
+
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          this$1.$emit('show');
+          resolve();
+        }, duration);
+      })
+    },
+    hide: function hide () {
+      var this$1 = this;
+
+      if (!this.showing) {
+        return Promise.resolve()
+      }
+
+      EscapeKey.pop();
+      openedModalNumber--;
+
+      if (openedModalNumber === 0) {
+        var body = document.body;
+        body.classList.remove('with-modal');
+        body.style.paddingRight = this.bodyPadding;
+      }
+
+      this.__updateModel(false);
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          this$1.$emit('hide');
+          resolve();
+        }, duration);
+      })
+    },
+    __dismiss: function __dismiss () {
+      var this$1 = this;
+
+      if (this.noBackdropDismiss) {
+        return
+      }
+      this.hide().then(function () {
+        this$1.$emit('dismiss');
+      });
+    }
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (this.$el.parentNode) {
+      this.$el.parentNode.removeChild(this.$el);
+    }
+  },
   render: function render (h) {
-    return h('div', { staticClass: 'q-app' }, [
-      this.$slots.default
+    return h(QTransition, {
+      props: {
+        name: this.modalTransition,
+        enter: this.enterClass,
+        leave: this.leaveClass
+      }
+    }, [
+      h('div', {
+        staticClass: 'modal fullscreen row',
+        'class': this.modalClasses,
+        on: {
+          click: this.__dismiss,
+          touchstart: this.__dismiss
+        },
+        directives: [{
+          name: 'show',
+          value: this.showing
+        }]
+      }, [
+        h('div', {
+          ref: 'content',
+          staticClass: 'modal-content scroll',
+          style: this.modalCss,
+          'class': this.contentClasses,
+          on: {
+            click: function click (e) {
+              e.stopPropagation();
+            },
+            touchstart: function touchstart (e) {
+              e.stopPropagation();
+            }
+          }
+        }, [ this.$slots.default ])
+      ])
     ])
+  }
+};
+
+var QModalLayout = {
+  name: 'q-modal-layout',
+  props: {
+    headerStyle: [String, Object, Array],
+    headerClass: [String, Object, Array],
+
+    contentStyle: [String, Object, Array],
+    contentClass: [String, Object, Array],
+
+    footerStyle: [String, Object, Array],
+    footerClass: [String, Object, Array]
+  },
+  render: function render (h) {
+    var child = [];
+
+    if (this.$slots.header || (this.$q.theme !== 'ios' && this.$slots.navigation)) {
+      child.push(h('div', {
+        staticClass: 'q-layout-header',
+        style: this.headerStyle,
+        'class': this.headerClass
+      }, [
+        this.$slots.header,
+        this.$q.theme !== 'ios' ? this.$slots.navigation : null
+      ]));
+    }
+
+    child.push(h('div', {
+      staticClass: 'q-modal-layout-content col scroll',
+      style: this.contentStyle,
+      'class': this.contentClass
+    }, [
+      this.$slots.default
+    ]));
+
+    if (this.$slots.footer || (this.$q.theme === 'ios' && this.$slots.navigation)) {
+      child.push(h('div', {
+        staticClass: 'q-layout-footer',
+        style: this.footerStyle,
+        'class': this.footerClass
+      }, [
+        this.$slots.footer,
+        this.$q.theme === 'ios' ? this.$slots.navigation : null
+      ]));
+    }
+
+    return h('div', {
+      staticClass: 'q-modal-layout column absolute-full'
+    }, child)
+  }
+};
+
+var QIcon = {
+  name: 'q-icon',
+  functional: true,
+  props: {
+    name: String,
+    mat: String,
+    ios: String,
+    color: String,
+    size: String
+  },
+  render: function render (h, ctx) {
+    var name, text;
+    var
+      prop = ctx.props,
+      data = ctx.data,
+      theme = ctx.parent.$q.theme,
+      cls = ctx.data.staticClass,
+      icon = prop.mat && theme === 'mat'
+        ? prop.mat
+        : (prop.ios && theme === 'ios' ? prop.ios : ctx.props.name);
+
+    if (!icon) {
+      name = '';
+    }
+    else if (icon.startsWith('fa-')) {
+      name = "fa " + icon;
+    }
+    else if (icon.startsWith('bt-')) {
+      name = "bt " + icon;
+    }
+    else if (icon.startsWith('ion-') || icon.startsWith('icon-')) {
+      name = "" + icon;
+    }
+    else if (icon.startsWith('mdi-')) {
+      name = "mdi " + icon;
+    }
+    else {
+      name = 'material-icons';
+      text = icon.replace(/ /g, '_');
+    }
+
+    data.staticClass = (cls ? cls + ' ' : '') + "q-icon" + (name.length ? (" " + name) : '') + (prop.color ? (" text-" + (prop.color)) : '');
+
+    if (!data.hasOwnProperty('attrs')) {
+      data.attrs = {};
+    }
+    data.attrs['aria-hidden'] = 'true';
+
+    if (prop.size) {
+      var style = "font-size: " + (prop.size) + ";";
+      data.style = data.style
+        ? [data.style, style]
+        : style;
+    }
+
+    return h('i', data, text ? [text, ctx.children] : [' ', ctx.children])
+  }
+};
+
+function textStyle (n) {
+  return n === void 0 || n < 2
+    ? {}
+    : {overflow: 'hidden', display: '-webkit-box', '-webkit-box-orient': 'vertical', '-webkit-line-clamp': n}
+}
+
+var list = ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'];
+
+function getType (prop) {
+  var len = list.length;
+  for (var i = 0; i < len; i++) {
+    if (prop[list[i]]) {
+      return list[i]
+    }
+  }
+  return ''
+}
+
+function itemClasses (prop) {
+  return {
+    'q-item': true,
+    'q-item-division': true,
+    'relative-position': true,
+    'q-item-dark': prop.dark,
+    'q-item-dense': prop.dense,
+    'q-item-sparse': prop.sparse,
+    'q-item-separator': prop.separator,
+    'q-item-inset-separator': prop.insetSeparator,
+    'q-item-multiline': prop.multiline,
+    'q-item-highlight': prop.highlight,
+    'q-item-link': prop.to || prop.link
+  }
+}
+
+var ItemMixin = {
+  props: {
+    dark: Boolean,
+    dense: Boolean,
+    sparse: Boolean,
+    separator: Boolean,
+    insetSeparator: Boolean,
+    multiline: Boolean,
+    highlight: Boolean,
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  }
+};
+
+var routerLinkEventName = 'qrouterlinkclick';
+
+var evt;
+
+try {
+  evt = new Event(routerLinkEventName);
+}
+catch (e) {
+  // IE doesn't support `new Event()`, so...`
+  evt = document.createEvent('Event');
+  evt.initEvent(routerLinkEventName, true, false);
+}
+
+var RouterLinkMixin = {
+  props: {
+    to: [String, Object],
+    exact: Boolean,
+    append: Boolean,
+    replace: Boolean
+  },
+  data: function data () {
+    return {
+      routerLinkEventName: routerLinkEventName
+    }
+  }
+};
+
+var QItem = {
+  name: 'q-item',
+  functional: true,
+  mixins: [ItemMixin, {props: RouterLinkMixin.props}],
+  props: {
+    active: Boolean,
+    link: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props,
+      cls = itemClasses(prop);
+
+    if (prop.to !== void 0) {
+      data.props = prop;
+    }
+    else {
+      cls.active = prop.active;
+    }
+
+    data.class = data.class ? [data.class, cls] : cls;
+
+    return h(prop.to ? 'router-link' : prop.tag, data, ctx.children)
+  }
+};
+
+var QItemSeparator = {
+  name: 'q-item-separator',
+  functional: true,
+  props: {
+    inset: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass;
+
+    data.staticClass = "q-item-separator-component" + (ctx.props.inset ? ' q-item-separator-inset-component' : '') + (cls ? (" " + cls) : '');
+
+    return h('div', data, ctx.children)
+  }
+};
+
+function text (h, name, val, n) {
+  n = parseInt(n, 10);
+  return h('div', {
+    staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
+    style: textStyle(n),
+    domProps: { innerHTML: val }
+  })
+}
+
+var QItemMain = {
+  name: 'q-item-main',
+  functional: true,
+  props: {
+    label: String,
+    labelLines: [String, Number],
+    sublabel: String,
+    sublabelLines: [String, Number],
+    inset: Boolean,
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      classes = data.staticClass,
+      prop = ctx.props,
+      child = [];
+
+    if (prop.label) {
+      child.push(text(h, 'label', prop.label, prop.labelLines));
+    }
+    if (prop.sublabel) {
+      child.push(text(h, 'sublabel', prop.sublabel, prop.sublabelLines));
+    }
+
+    child.push(ctx.children);
+    data.staticClass = "q-item-main q-item-section" + (prop.inset ? ' q-item-main-inset' : '') + (classes ? (" " + classes) : '');
+
+    return h(prop.tag, data, child)
+  }
+};
+
+var QItemSide = {
+  name: 'q-item-side',
+  functional: true,
+  props: {
+    right: Boolean,
+
+    icon: String,
+    inverted: Boolean,
+
+    avatar: String,
+    letter: {
+      type: String,
+      validator: function (v) { return v.length === 1; }
+    },
+    image: String,
+    stamp: String,
+
+    color: String,
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props,
+      cls = data.staticClass;
+
+    data.staticClass = "q-item-side q-item-side-" + (prop.right ? 'right' : 'left') + " q-item-section" + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
+
+    if (prop.image) {
+      if (!data.hasOwnProperty('attrs')) {
+        data.attrs = {};
+      }
+      data.attrs.src = prop.image;
+      data.staticClass += ' q-item-image';
+      return h('img', data)
+    }
+
+    var child = [];
+
+    if (prop.stamp) {
+      child.push(h('div', {
+        staticClass: 'q-item-stamp',
+        domProps: {
+          innerHTML: prop.stamp
+        }
+      }));
+    }
+    if (prop.icon) {
+      child.push(h(QIcon, {
+        props: { name: prop.icon },
+        staticClass: 'q-item-icon',
+        class: { 'q-item-icon-inverted': prop.inverted }
+      }));
+    }
+    if (prop.avatar) {
+      child.push(h('img', {
+        attrs: { src: prop.avatar },
+        staticClass: 'q-item-avatar'
+      }));
+    }
+    if (prop.letter) {
+      child.push(h(
+        'div',
+        { staticClass: 'q-item-letter' },
+        prop.letter
+      ));
+    }
+
+    child.push(ctx.children);
+    return h(prop.tag, data, child)
+  }
+};
+
+var QItemTile = {
+  name: 'q-item-tile',
+  functional: true,
+  props: {
+    icon: String,
+    inverted: Boolean,
+
+    image: Boolean,
+    avatar: Boolean,
+    letter: Boolean,
+    stamp: Boolean,
+
+    label: Boolean,
+    sublabel: Boolean,
+    lines: [Number, String],
+
+    color: String,
+    tag: {
+      type: String,
+      default: 'div'
+    }
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props,
+      cls = data.staticClass,
+      type = getType(prop),
+      icon = prop.icon || prop.invertedIcon;
+
+    data.staticClass = "q-item-" + type + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
+
+    if (icon) {
+      data.props = { name: icon };
+      if (prop.inverted) {
+        data.staticClass += ' q-item-icon-inverted';
+      }
+      return h(QIcon, data, ctx.children)
+    }
+    if ((prop.label || prop.sublabel) && prop.lines) {
+      if (prop.lines === '1' || prop.lines === 1) {
+        data.staticClass += ' ellipsis';
+      }
+      data.style = [data.style, textStyle(prop.lines)];
+    }
+
+    return h(prop.tag, data, ctx.children)
+  }
+};
+
+function push (child, h, name, slot, replace, conf) {
+  var defaultProps = { props: { right: conf.right } };
+
+  if (slot && replace) {
+    child.push(h(name, defaultProps, slot));
+    return
+  }
+  var props, v = false;
+  if (!slot) {
+    for (var p in conf) {
+      if (conf.hasOwnProperty(p)) {
+        v = conf[p];
+        if (v !== void 0 && v !== true) {
+          props = true;
+          break
+        }
+      }
+    }
+  }
+  if (props || slot) {
+    child.push(h(name, props ? {props: conf} : defaultProps, slot));
+  }
+}
+
+var QItemWrapper = {
+  name: 'q-item-wrapper',
+  functional: true,
+  props: {
+    cfg: {
+      type: Object,
+      default: function () { return ({}); }
+    },
+    slotReplace: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      cfg = ctx.props.cfg,
+      replace = ctx.props.slotReplace,
+      slot = ctx.slots(),
+      child = [];
+
+    push(child, h, QItemSide, slot.left, replace, {
+      icon: cfg.icon,
+      color: cfg.leftColor,
+      avatar: cfg.avatar,
+      letter: cfg.letter,
+      image: cfg.image
+    });
+
+    push(child, h, QItemMain, slot.main, replace, {
+      label: cfg.label,
+      sublabel: cfg.sublabel,
+      labelLines: cfg.labelLines,
+      sublabelLines: cfg.sublabelLines,
+      inset: cfg.inset
+    });
+
+    push(child, h, QItemSide, slot.right, replace, {
+      right: true,
+      icon: cfg.rightIcon,
+      color: cfg.rightColor,
+      avatar: cfg.rightAvatar,
+      letter: cfg.rightLetter,
+      image: cfg.rightImage,
+      stamp: cfg.stamp
+    });
+
+    if (slot.default) {
+      child.push(slot.default);
+    }
+
+    ctx.data.props = cfg;
+    return h(QItem, ctx.data, child)
+  }
+};
+
+var QList = {
+  name: 'q-list',
+  functional: true,
+  props: {
+    noBorder: Boolean,
+    dark: Boolean,
+    dense: Boolean,
+    sparse: Boolean,
+    striped: Boolean,
+    stripedOdd: Boolean,
+    separator: Boolean,
+    insetSeparator: Boolean,
+    multiline: Boolean,
+    highlight: Boolean,
+    link: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props;
+
+    data.class = {
+      'q-list': true,
+      'no-border': prop.noBorder,
+      'q-list-dark': prop.dark,
+      'q-list-dense': prop.dense,
+      'q-list-sparse': prop.sparse,
+      'q-list-striped': prop.striped,
+      'q-list-striped-odd': prop.stripedOdd,
+      'q-list-separator': prop.separator,
+      'q-list-inset-separator': prop.insetSeparator,
+      'q-list-multiline': prop.multiline,
+      'q-list-highlight': prop.highlight,
+      'q-list-link': prop.link
+    };
+
+    return h(
+      'div',
+      data,
+      ctx.children
+    )
+  }
+};
+
+var QListHeader = {
+  name: 'q-list-header',
+  functional: true,
+  props: {
+    inset: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      cls = data.staticClass,
+      prop = ctx.props;
+
+    data.staticClass = "q-list-header " + (prop.inset ? ' q-list-header-inset' : '') + (cls ? (" " + cls) : '');
+
+    return h('div', data, ctx.children)
+  }
+};
+
+var QActionSheet = {
+  name: 'q-action-sheet',
+  mixins: [ModelToggleMixin],
+  props: {
+    title: String,
+    grid: Boolean,
+    actions: Array
+  },
+  computed: {
+    contentCss: function contentCss () {
+      if (this.$q.theme === 'ios') {
+        return {backgroundColor: 'transparent'}
+      }
+    }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    var
+      child = [],
+      title = this.$slots.title || this.title;
+
+    if (title) {
+      child.push(
+        h('div', {
+          staticClass: 'modal-header'
+        }, [ title ])
+      );
+    }
+
+    child.push(
+      h(
+        'div',
+        { staticClass: 'modal-body modal-scroll' },
+        this.actions
+          ? [
+            this.grid
+              ? h('div', { staticClass: 'q-action-sheet-gallery row wrap flex-center' }, this.__getActions(h))
+              : h(QList, { staticClass: 'no-border', props: { link: true } }, this.__getActions(h))
+          ]
+          : [ this.$slots.default ]
+      )
+    );
+
+    {
+      child = [
+        h('div', { staticClass: 'q-action-sheet' }, child),
+        h('div', { staticClass: 'q-action-sheet' }, [
+          h(QItem, {
+            props: {
+              link: true
+            },
+            domProps: {
+              tabindex: '0'
+            },
+            on: {
+              click: this.__onCancel,
+              keydown: this.__onCancel
+            }
+          }, [
+            h(QItemMain, { staticClass: 'text-center' }, [
+              'Cancel'
+            ])
+          ])
+        ])
+      ];
+    }
+
+    return h(QModal, {
+      ref: 'modal',
+      props: {
+        position: 'bottom',
+        contentCss: this.contentCss
+      },
+      on: {
+        dismiss: this.__onCancel,
+        'escape-key': function () {
+          this$1.hide().then(function () {
+            this$1.$emit('escape-key');
+            this$1.$emit('cancel');
+          });
+        }
+      }
+    }, child)
+  },
+  methods: {
+    show: function show () {
+      var this$1 = this;
+
+      if (this.showing) {
+        return Promise.resolve()
+      }
+
+      return this.$refs.modal.show().then(function () {
+        this$1.$emit('show');
+        this$1.__updateModel(true);
+      })
+    },
+    hide: function hide () {
+      var this$1 = this;
+
+      return this.showing
+        ? this.$refs.modal.hide().then(function () {
+          this$1.$emit('hide');
+          this$1.__updateModel(false);
+        })
+        : Promise.resolve()
+    },
+    __getActions: function __getActions (h) {
+      var this$1 = this;
+
+      return this.actions.map(function (action) { return h(this$1.grid ? 'div' : QItem, {
+        staticClass: this$1.grid
+          ? 'cursor-pointer relative-position column inline flex-center'
+          : null,
+        'class': action.classes,
+        domProps: { tabindex: '0' },
+        on: {
+          click: function () { return this$1.__onOk(action); },
+          keydown: function (e) { return this$1.__onOk(action); }
+        }
+      }, this$1.grid
+        ? [
+          action.icon ? h(QIcon, { props: { name: action.icon } }) : null,
+          action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
+          h('span', [ action.label ])
+        ]
+        : [
+          h(QItemSide, { props: { icon: action.icon, avatar: action.avatar } }),
+          h(QItemMain, { props: { inset: true, label: action.label } })
+        ]
+      ); })
+    },
+    __onOk: function __onOk (action) {
+      var this$1 = this;
+
+      this.hide().then(function () {
+        this$1.$emit('ok', action);
+      });
+    },
+    __onCancel: function __onCancel () {
+      var this$1 = this;
+
+      this.hide().then(function () {
+        this$1.$emit('cancel');
+      });
+    }
   }
 };
 
@@ -870,105 +2006,6 @@ var typeIcon = {
   negative: 'warning',
   info: 'info',
   warning: 'priority_high'
-};
-
-var QIcon = {
-  name: 'q-icon',
-  functional: true,
-  props: {
-    name: String,
-    mat: String,
-    ios: String,
-    color: String,
-    size: String
-  },
-  render: function render (h, ctx) {
-    var name, text;
-    var
-      prop = ctx.props,
-      data = ctx.data,
-      theme = ctx.parent.$q.theme,
-      cls = ctx.data.staticClass,
-      icon = prop.mat && theme === 'mat'
-        ? prop.mat
-        : (prop.ios && theme === 'ios' ? prop.ios : ctx.props.name);
-
-    if (!icon) {
-      name = '';
-    }
-    else if (icon.startsWith('fa-')) {
-      name = "fa " + icon;
-    }
-    else if (icon.startsWith('bt-')) {
-      name = "bt " + icon;
-    }
-    else if (icon.startsWith('ion-') || icon.startsWith('icon-')) {
-      name = "" + icon;
-    }
-    else if (icon.startsWith('mdi-')) {
-      name = "mdi " + icon;
-    }
-    else {
-      name = 'material-icons';
-      text = icon.replace(/ /g, '_');
-    }
-
-    data.staticClass = (cls ? cls + ' ' : '') + "q-icon" + (name.length ? (" " + name) : '') + (prop.color ? (" text-" + (prop.color)) : '');
-
-    if (!data.hasOwnProperty('attrs')) {
-      data.attrs = {};
-    }
-    data.attrs['aria-hidden'] = 'true';
-
-    if (prop.size) {
-      var style = "font-size: " + (prop.size) + ";";
-      data.style = data.style
-        ? [data.style, style]
-        : style;
-    }
-
-    return h('i', data, text ? [text, ctx.children] : [' ', ctx.children])
-  }
-};
-
-/*
- * Also import the necessary CSS into the app.
- *
- * Example:
- * import 'quasar-extras/animate/bounceInLeft.css'
- */
-
-var QTransition = {
-  name: 'q-transition',
-  functional: true,
-  props: {
-    name: String,
-    enter: String,
-    leave: String,
-    group: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      prop = ctx.props,
-      data = ctx.data;
-
-    if (prop.name) {
-      data.props = {
-        name: prop.name
-      };
-    }
-    else if (prop.enter && prop.leave) {
-      data.props = {
-        enterActiveClass: ("animated " + (prop.enter)),
-        leaveActiveClass: ("animated " + (prop.leave))
-      };
-    }
-    else {
-      return ctx.children
-    }
-
-    return h(("transition" + (ctx.props.group ? '-group' : '')), data, ctx.children)
-  }
 };
 
 var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn.label,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
@@ -1408,105 +2445,6 @@ var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createEleme
   }
 };
 
-function getScrollTarget (el) {
-  return el.closest('.scroll') || window
-}
-
-function getScrollHeight (el) {
-  return (el === window ? document.body : el).scrollHeight
-}
-
-function getScrollPosition (scrollTarget) {
-  if (scrollTarget === window) {
-    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
-  }
-  return scrollTarget.scrollTop
-}
-
-function animScrollTo (el, to, duration) {
-  if (duration <= 0) {
-    return
-  }
-
-  var pos = getScrollPosition(el);
-
-  window.requestAnimationFrame(function () {
-    setScroll(el, pos + (to - pos) / duration * 16);
-    if (el.scrollTop !== to) {
-      animScrollTo(el, to, duration - 16);
-    }
-  });
-}
-
-function setScroll (scrollTarget, offset$$1) {
-  if (scrollTarget === window) {
-    document.documentElement.scrollTop = offset$$1;
-    document.body.scrollTop = offset$$1;
-    return
-  }
-  scrollTarget.scrollTop = offset$$1;
-}
-
-function setScrollPosition (scrollTarget, offset$$1, duration) {
-  if (duration) {
-    animScrollTo(scrollTarget, offset$$1, duration);
-    return
-  }
-  setScroll(scrollTarget, offset$$1);
-}
-
-var size;
-function getScrollbarWidth () {
-  if (size !== undefined) {
-    return size
-  }
-
-  var
-    inner = document.createElement('p'),
-    outer = document.createElement('div');
-
-  css(inner, {
-    width: '100%',
-    height: '200px'
-  });
-  css(outer, {
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-    visibility: 'hidden',
-    width: '200px',
-    height: '150px',
-    overflow: 'hidden'
-  });
-
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  var w2 = inner.offsetWidth;
-
-  if (w1 === w2) {
-    w2 = outer.clientWidth;
-  }
-
-  document.body.removeChild(outer);
-  size = w1 - w2;
-
-  return size
-}
-
-
-var scroll = Object.freeze({
-	getScrollTarget: getScrollTarget,
-	getScrollHeight: getScrollHeight,
-	getScrollPosition: getScrollPosition,
-	animScrollTo: animScrollTo,
-	setScrollPosition: setScrollPosition,
-	getScrollbarWidth: getScrollbarWidth
-});
-
 var QScrollObservable = {
   name: 'q-scroll-observable',
   render: function render () {},
@@ -1867,91 +2805,6 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 };
 
-var toString = Object.prototype.toString;
-var hasOwn = Object.prototype.hasOwnProperty;
-var class2type = {};
-
-'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
-  class2type['[object ' + name + ']'] = name.toLowerCase();
-});
-
-function type (obj) {
-  return obj === null ? String(obj) : class2type[toString.call(obj)] || 'object'
-}
-
-function isPlainObject (obj) {
-  if (!obj || type(obj) !== 'object') {
-    return false
-  }
-
-  if (obj.constructor &&
-    !hasOwn.call(obj, 'constructor') &&
-    !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
-    return false
-  }
-
-  var key;
-  for (key in obj) {}
-
-  return key === undefined || hasOwn.call(obj, key)
-}
-
-function extend () {
-  var arguments$1 = arguments;
-
-  var
-    options, name, src, copy, copyIsArray, clone,
-    target = arguments[0] || {},
-    i = 1,
-    length = arguments.length,
-    deep = false;
-
-  if (typeof target === 'boolean') {
-    deep = target;
-    target = arguments[1] || {};
-    i = 2;
-  }
-
-  if (Object(target) !== target && type(target) !== 'function') {
-    target = {};
-  }
-
-  if (length === i) {
-    target = this;
-    i--;
-  }
-
-  for (; i < length; i++) {
-    if ((options = arguments$1[i]) !== null) {
-      for (name in options) {
-        src = target[name];
-        copy = options[name];
-
-        if (target === copy) {
-          continue
-        }
-
-        if (deep && copy && (isPlainObject(copy) || (copyIsArray = type(copy) === 'array'))) {
-          if (copyIsArray) {
-            copyIsArray = false;
-            clone = src && type(src) === 'array' ? src : [];
-          }
-          else {
-            clone = src && isPlainObject(src) ? src : {};
-          }
-
-          target[name] = extend(deep, clone, copy);
-        }
-        else if (copy !== undefined) {
-          target[name] = copy;
-        }
-      }
-    }
-  }
-
-  return target
-}
-
 function getEvent (e) {
   return e || window.event
 }
@@ -2288,67 +3141,6 @@ function parsePosition (pos) {
   return {vertical: parts[0], horizontal: parts[1]}
 }
 
-var handlers = [];
-
-if (Platform.is.desktop) {
-  window.addEventListener('keyup', function (evt) {
-    if (handlers.length === 0) {
-      return
-    }
-
-    if (evt.which === 27 || evt.keyCode === 27) {
-      handlers[handlers.length - 1]();
-    }
-  });
-}
-
-var EscapeKey = {
-  register: function register (handler) {
-    if (Platform.is.desktop) {
-      handlers.push(handler);
-    }
-  },
-  pop: function pop () {
-    if (Platform.is.desktop) {
-      handlers.pop();
-    }
-  }
-};
-
-var ModelToggleMixin = {
-  props: {
-    value: Boolean
-  },
-  watch: {
-    value: function value (v) {
-      if (v) {
-        this.open();
-      }
-      else {
-        this.close();
-      }
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      setTimeout(function () {
-        if (this$1.value) {
-          this$1.open();
-        }
-      }, 100);
-    });
-  },
-  methods: {
-    __updateModel: function __updateModel (val) {
-      if (this.value !== val) {
-        this.$emit('input', val);
-      }
-    }
-  }
-};
-
 var QPopover = {
   name: 'q-popover',
   mixins: [ModelToggleMixin],
@@ -2382,7 +3174,6 @@ var QPopover = {
   },
   data: function data () {
     return {
-      opened: false,
       progress: false
     }
   },
@@ -2430,24 +3221,16 @@ var QPopover = {
     if (this.anchorClick && this.anchorEl) {
       this.anchorEl.removeEventListener('click', this.toggle);
     }
-    this.close();
+    this.hide();
   },
   methods: {
-    toggle: function toggle (evt) {
-      if (this.opened) {
-        this.close();
-      }
-      else {
-        this.open(evt);
-      }
-    },
-    open: function open (evt) {
+    show: function show (evt) {
       var this$1 = this;
 
       if (this.disable) {
-        return
+        return Promise.resolve()
       }
-      if (this.opened) {
+      if (this.showing) {
         this.__updatePosition();
         return
       }
@@ -2456,32 +3239,35 @@ var QPopover = {
         evt.preventDefault();
       }
 
-      this.opened = true;
       document.body.click(); // close other Popovers
       document.body.appendChild(this.$el);
-      EscapeKey.register(function () { this$1.close(); });
+      EscapeKey.register(function () { this$1.hide(); });
       this.scrollTarget = getScrollTarget(this.anchorEl);
       this.scrollTarget.addEventListener('scroll', this.__updatePosition);
       window.addEventListener('resize', this.__updatePosition);
       this.reposition(evt);
-      this.timer = setTimeout(function () {
-        this$1.timer = null;
-        document.body.addEventListener('click', this$1.close, true);
-        document.body.addEventListener('touchstart', this$1.close, true);
-        this$1.__updateModel(true);
-        this$1.$emit('open');
-      }, 1);
+
+      return new Promise(function (resolve, reject) {
+        this$1.timer = setTimeout(function () {
+          this$1.timer = null;
+          document.body.addEventListener('click', this$1.hide, true);
+          document.body.addEventListener('touchstart', this$1.hide, true);
+          this$1.__updateModel(true);
+          this$1.$emit('show');
+          resolve();
+        }, 1);
+      })
     },
-    close: function close (fn) {
+    hide: function hide (evt) {
       var this$1 = this;
 
-      if (!this.opened || this.progress || (fn && fn.target && this.$el.contains(fn.target))) {
-        return
+      if (!this.showing || this.progress || (evt && evt.target && this.$el.contains(evt.target))) {
+        return Promise.resolve()
       }
 
       clearTimeout(this.timer);
-      document.body.removeEventListener('click', this.close, true);
-      document.body.removeEventListener('touchstart', this.close, true);
+      document.body.removeEventListener('click', this.hide, true);
+      document.body.removeEventListener('touchstart', this.hide, true);
       this.scrollTarget.removeEventListener('scroll', this.__updatePosition);
       window.removeEventListener('resize', this.__updatePosition);
       EscapeKey.pop();
@@ -2491,16 +3277,15 @@ var QPopover = {
         Using setTimeout to allow
         v-models to take effect
       */
-      setTimeout(function () {
-        this$1.opened = false;
-        this$1.progress = false;
-        document.body.removeChild(this$1.$el);
-        this$1.__updateModel(false);
-        this$1.$emit('close');
-        if (typeof fn === 'function') {
-          fn();
-        }
-      }, 1);
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          this$1.progress = false;
+          document.body.removeChild(this$1.$el);
+          this$1.__updateModel(false);
+          this$1.$emit('hide');
+          resolve();
+        }, 1);
+      })
     },
     reposition: function reposition (event) {
       var this$1 = this;
@@ -2514,7 +3299,7 @@ var QPopover = {
         var ref$1 = viewport();
         var height$$1 = ref$1.height;
         if (top < 0 || top > height$$1) {
-          return this$1.close()
+          return this$1.hide()
         }
         setPosition({
           event: event,
@@ -2532,441 +3317,12 @@ var QPopover = {
   }
 };
 
-function textStyle (n) {
-  return n === void 0 || n < 2
-    ? {}
-    : {overflow: 'hidden', display: '-webkit-box', '-webkit-box-orient': 'vertical', '-webkit-line-clamp': n}
-}
-
-var list = ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'];
-
-function getType (prop) {
-  var len = list.length;
-  for (var i = 0; i < len; i++) {
-    if (prop[list[i]]) {
-      return list[i]
-    }
-  }
-  return ''
-}
-
-function itemClasses (prop) {
-  return {
-    'q-item': true,
-    'q-item-division': true,
-    'relative-position': true,
-    'q-item-dark': prop.dark,
-    'q-item-dense': prop.dense,
-    'q-item-sparse': prop.sparse,
-    'q-item-separator': prop.separator,
-    'q-item-inset-separator': prop.insetSeparator,
-    'q-item-multiline': prop.multiline,
-    'q-item-highlight': prop.highlight,
-    'q-item-link': prop.to || prop.link
-  }
-}
-
-var ItemMixin = {
-  props: {
-    dark: Boolean,
-    dense: Boolean,
-    sparse: Boolean,
-    separator: Boolean,
-    insetSeparator: Boolean,
-    multiline: Boolean,
-    highlight: Boolean,
-    tag: {
-      type: String,
-      default: 'div'
-    }
-  }
-};
-
-var routerLinkEventName = 'qrouterlinkclick';
-
-var evt;
-
-try {
-  evt = new Event(routerLinkEventName);
-}
-catch (e) {
-  // IE doesn't support `new Event()`, so...`
-  evt = document.createEvent('Event');
-  evt.initEvent(routerLinkEventName, true, false);
-}
-
-var RouterLinkMixin = {
-  props: {
-    to: [String, Object],
-    exact: Boolean,
-    append: Boolean,
-    replace: Boolean
-  },
-  data: function data () {
-    return {
-      routerLinkEventName: routerLinkEventName
-    }
-  }
-};
-
-var QItem = {
-  name: 'q-item',
-  functional: true,
-  mixins: [ItemMixin, {props: RouterLinkMixin.props}],
-  props: {
-    active: Boolean,
-    link: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      prop = ctx.props,
-      cls = itemClasses(prop);
-
-    if (prop.to !== void 0) {
-      data.props = prop;
-    }
-    else {
-      cls.active = prop.active;
-    }
-
-    data.class = data.class ? [data.class, cls] : cls;
-
-    return h(prop.to ? 'router-link' : prop.tag, data, ctx.children)
-  }
-};
-
-var QItemSeparator = {
-  name: 'q-item-separator',
-  functional: true,
-  props: {
-    inset: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      cls = data.staticClass;
-
-    data.staticClass = "q-item-separator-component" + (ctx.props.inset ? ' q-item-separator-inset-component' : '') + (cls ? (" " + cls) : '');
-
-    return h('div', data, ctx.children)
-  }
-};
-
-function text (h, name, val, n) {
-  n = parseInt(n, 10);
-  return h('div', {
-    staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
-    style: textStyle(n),
-    domProps: { innerHTML: val }
-  })
-}
-
-var QItemMain = {
-  name: 'q-item-main',
-  functional: true,
-  props: {
-    label: String,
-    labelLines: [String, Number],
-    sublabel: String,
-    sublabelLines: [String, Number],
-    inset: Boolean,
-    tag: {
-      type: String,
-      default: 'div'
-    }
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      classes = data.staticClass,
-      prop = ctx.props,
-      child = [];
-
-    if (prop.label) {
-      child.push(text(h, 'label', prop.label, prop.labelLines));
-    }
-    if (prop.sublabel) {
-      child.push(text(h, 'sublabel', prop.sublabel, prop.sublabelLines));
-    }
-
-    child.push(ctx.children);
-    data.staticClass = "q-item-main q-item-section" + (prop.inset ? ' q-item-main-inset' : '') + (classes ? (" " + classes) : '');
-
-    return h(prop.tag, data, child)
-  }
-};
-
-var QItemSide = {
-  name: 'q-item-side',
-  functional: true,
-  props: {
-    right: Boolean,
-
-    icon: String,
-    inverted: Boolean,
-
-    avatar: String,
-    letter: {
-      type: String,
-      validator: function (v) { return v.length === 1; }
-    },
-    image: String,
-    stamp: String,
-
-    color: String,
-    tag: {
-      type: String,
-      default: 'div'
-    }
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      prop = ctx.props,
-      cls = data.staticClass;
-
-    data.staticClass = "q-item-side q-item-side-" + (prop.right ? 'right' : 'left') + " q-item-section" + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
-
-    if (prop.image) {
-      if (!data.hasOwnProperty('attrs')) {
-        data.attrs = {};
-      }
-      data.attrs.src = prop.image;
-      data.staticClass += ' q-item-image';
-      return h('img', data)
-    }
-
-    var child = [];
-
-    if (prop.stamp) {
-      child.push(h('div', {
-        staticClass: 'q-item-stamp',
-        domProps: {
-          innerHTML: prop.stamp
-        }
-      }));
-    }
-    if (prop.icon) {
-      child.push(h(QIcon, {
-        props: { name: prop.icon },
-        staticClass: 'q-item-icon',
-        class: { 'q-item-icon-inverted': prop.inverted }
-      }));
-    }
-    if (prop.avatar) {
-      child.push(h('img', {
-        attrs: { src: prop.avatar },
-        staticClass: 'q-item-avatar'
-      }));
-    }
-    if (prop.letter) {
-      child.push(h(
-        'div',
-        { staticClass: 'q-item-letter' },
-        prop.letter
-      ));
-    }
-
-    child.push(ctx.children);
-    return h(prop.tag, data, child)
-  }
-};
-
-var QItemTile = {
-  name: 'q-item-tile',
-  functional: true,
-  props: {
-    icon: String,
-    inverted: Boolean,
-
-    image: Boolean,
-    avatar: Boolean,
-    letter: Boolean,
-    stamp: Boolean,
-
-    label: Boolean,
-    sublabel: Boolean,
-    lines: [Number, String],
-
-    color: String,
-    tag: {
-      type: String,
-      default: 'div'
-    }
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      prop = ctx.props,
-      cls = data.staticClass,
-      type = getType(prop),
-      icon = prop.icon || prop.invertedIcon;
-
-    data.staticClass = "q-item-" + type + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
-
-    if (icon) {
-      data.props = { name: icon };
-      if (prop.inverted) {
-        data.staticClass += ' q-item-icon-inverted';
-      }
-      return h(QIcon, data, ctx.children)
-    }
-    if ((prop.label || prop.sublabel) && prop.lines) {
-      if (prop.lines === '1' || prop.lines === 1) {
-        data.staticClass += ' ellipsis';
-      }
-      data.style = [data.style, textStyle(prop.lines)];
-    }
-
-    return h(prop.tag, data, ctx.children)
-  }
-};
-
-function push (child, h, name, slot, replace, conf) {
-  var defaultProps = { props: { right: conf.right } };
-
-  if (slot && replace) {
-    child.push(h(name, defaultProps, slot));
-    return
-  }
-  var props, v = false;
-  if (!slot) {
-    for (var p in conf) {
-      if (conf.hasOwnProperty(p)) {
-        v = conf[p];
-        if (v !== void 0 && v !== true) {
-          props = true;
-          break
-        }
-      }
-    }
-  }
-  if (props || slot) {
-    child.push(h(name, props ? {props: conf} : defaultProps, slot));
-  }
-}
-
-var QItemWrapper = {
-  name: 'q-item-wrapper',
-  functional: true,
-  props: {
-    cfg: {
-      type: Object,
-      default: function () { return ({}); }
-    },
-    slotReplace: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      cfg = ctx.props.cfg,
-      replace = ctx.props.slotReplace,
-      slot = ctx.slots(),
-      child = [];
-
-    push(child, h, QItemSide, slot.left, replace, {
-      icon: cfg.icon,
-      color: cfg.leftColor,
-      avatar: cfg.avatar,
-      letter: cfg.letter,
-      image: cfg.image
-    });
-
-    push(child, h, QItemMain, slot.main, replace, {
-      label: cfg.label,
-      sublabel: cfg.sublabel,
-      labelLines: cfg.labelLines,
-      sublabelLines: cfg.sublabelLines,
-      inset: cfg.inset
-    });
-
-    push(child, h, QItemSide, slot.right, replace, {
-      right: true,
-      icon: cfg.rightIcon,
-      color: cfg.rightColor,
-      avatar: cfg.rightAvatar,
-      letter: cfg.rightLetter,
-      image: cfg.rightImage,
-      stamp: cfg.stamp
-    });
-
-    if (slot.default) {
-      child.push(slot.default);
-    }
-
-    ctx.data.props = cfg;
-    return h(QItem, ctx.data, child)
-  }
-};
-
-var QList = {
-  name: 'q-list',
-  functional: true,
-  props: {
-    noBorder: Boolean,
-    dark: Boolean,
-    dense: Boolean,
-    sparse: Boolean,
-    striped: Boolean,
-    stripedOdd: Boolean,
-    separator: Boolean,
-    insetSeparator: Boolean,
-    multiline: Boolean,
-    highlight: Boolean,
-    link: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      prop = ctx.props;
-
-    data.class = {
-      'q-list': true,
-      'no-border': prop.noBorder,
-      'q-list-dark': prop.dark,
-      'q-list-dense': prop.dense,
-      'q-list-sparse': prop.sparse,
-      'q-list-striped': prop.striped,
-      'q-list-striped-odd': prop.stripedOdd,
-      'q-list-separator': prop.separator,
-      'q-list-inset-separator': prop.insetSeparator,
-      'q-list-multiline': prop.multiline,
-      'q-list-highlight': prop.highlight,
-      'q-list-link': prop.link
-    };
-
-    return h(
-      'div',
-      data,
-      ctx.children
-    )
-  }
-};
-
-var QListHeader = {
-  name: 'q-list-header',
-  functional: true,
-  props: {
-    inset: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      cls = data.staticClass,
-      prop = ctx.props;
-
-    data.staticClass = "q-list-header " + (prop.inset ? ' q-list-header-inset' : '') + (cls ? (" " + cls) : '');
-
-    return h('div', data, ctx.children)
-  }
-};
-
 function prevent (e) {
   e.preventDefault();
   e.stopPropagation();
 }
 
-var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"close":function($event){_vm.$emit('close');},"open":function($event){_vm.$emit('open');}}},[_c('q-list',{style:(_vm.computedWidth),attrs:{"no-border":"","link":"","separator":_vm.separator}},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result.id || JSON.stringify(result),class:{active: _vm.selectedIndex === index},attrs:{"cfg":result},on:{"click":function($event){_vm.setValue(result);}}})}))],1)},staticRenderFns: [],
+var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"show":function($event){_vm.$emit('show');},"hide":function($event){_vm.$emit('hide');}}},[_c('q-list',{style:(_vm.computedWidth),attrs:{"no-border":"","link":"","separator":_vm.separator}},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result.id || JSON.stringify(result),class:{active: _vm.selectedIndex === index},attrs:{"cfg":result},on:{"click":function($event){_vm.setValue(result);}}})}))],1)},staticRenderFns: [],
   name: 'q-autocomplete',
   components: {
     QInput: QInput,
@@ -3050,7 +3406,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
       if (terms.length < this.minCharacters) {
         this.searchId = '';
         this.__clearSearch();
-        this.close();
+        this.hide();
         return
       }
 
@@ -3060,11 +3416,11 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
         if (this.$q.platform.is.desktop) {
           this.selectedIndex = 0;
         }
-        this.$refs.popover.open();
+        this.$refs.popover.show();
         return
       }
 
-      this.close();
+      this.hide();
       this.__input.loading = true;
       this.$emit('search', terms, function (results) {
         if (this$1.searchId !== searchId) {
@@ -3083,18 +3439,18 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
             if (this$1.$q.platform.is.desktop) {
               this$1.selectedIndex = 0;
             }
-            this$1.$refs.popover.open();
+            this$1.$refs.popover.show();
           }
           return
         }
 
-        this$1.close();
+        this$1.hide();
       });
     },
-    close: function close () {
-      this.$refs.popover.close();
+    hide: function hide () {
       this.results = [];
       this.selectedIndex = -1;
+      return this.$refs.popover.hide()
     },
     __clearSearch: function __clearSearch () {
       clearTimeout(this.timer);
@@ -3107,7 +3463,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
 
       this.$emit('selected', result);
       this.__clearSearch();
-      this.close();
+      this.hide();
     },
     move: function move (offset$$1) {
       this.selectedIndex = normalizeToInterval(
@@ -3153,7 +3509,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     __moveCursor: function __moveCursor (offset$$1, e) {
       prevent(e);
 
-      if (!this.$refs.popover.opened) {
+      if (!this.$refs.popover.showing) {
         this.trigger();
       }
       else {
@@ -3181,7 +3537,7 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
     }
     if (this.inputEl) {
       this.inputEl.removeEventListener('keydown', this.__handleKeypress);
-      this.close();
+      this.hide();
     }
   }
 };
@@ -3465,15 +3821,10 @@ var QBtnGroup = {
 
 var QBtnDropdown = {
   name: 'q-btn-dropdown',
-  mixins: [BtnMixin],
+  mixins: [BtnMixin, ModelToggleMixin],
   props: {
     label: String,
     split: Boolean
-  },
-  data: function data () {
-    return {
-      opened: false
-    }
   },
   render: function render (h) {
     var this$1 = this;
@@ -3490,13 +3841,13 @@ var QBtnDropdown = {
             self: 'top right'
           },
           on: {
-            open: function (e) {
-              this$1.opened = true;
-              this$1.$emit('open', e);
+            show: function (e) {
+              this$1.__updateModel(true);
+              this$1.$emit('show', e);
             },
-            close: function (e) {
-              this$1.opened = false;
-              this$1.$emit('close', e);
+            hide: function (e) {
+              this$1.__updateModel(false);
+              this$1.$emit('hide', e);
             }
           }
         },
@@ -3510,7 +3861,7 @@ var QBtnDropdown = {
           },
           staticClass: 'transition-generic',
           'class': {
-            'rotate-180': this.opened,
+            'rotate-180': this.showing,
             'on-right': !this.split,
             'q-btn-dropdown-arrow': !this.split
           }
@@ -3588,23 +3939,27 @@ var QBtnDropdown = {
             on: {
               click: function () {
                 if (!this$1.disable) {
-                  this$1.$refs.popover.open();
+                  this$1.$refs.popover.show();
                 }
               }
             }
           },
-          [Icon]
+          [ Icon ]
         ),
         child
       ]
     )
   },
   methods: {
-    open: function open () {
-      this.$refs.popover.open();
+    show: function show () {
+      return this.$refs.popover
+        ? this.$refs.popover.show()
+        : Promise.resolve()
     },
-    close: function close () {
-      this.$refs.popover.close();
+    hide: function hide () {
+      return this.$refs.popover
+        ? this.$refs.popover.hide()
+        : Promise.resolve()
     }
   }
 };
@@ -4160,39 +4515,55 @@ var FullscreenMixin = {
       inFullscreen: false
     }
   },
+  watch: {
+    $route: function $route () {
+      this.__exitFullscreen();
+    }
+  },
   methods: {
     toggleFullscreen: function toggleFullscreen () {
-      this.__setFullscreen(!this.inFullscreen);
+      if (this.inFullscreen) {
+        this.exitFullscreen();
+      }
+      else {
+        this.setFullscreen();
+      }
     },
-    __setFullscreen: function __setFullscreen (val) {
-      var this$1 = this;
-
-      if (this.inFullscreen === val) {
-        return
-      }
-      if (!val) {
-        History.remove();
+    setFullscreen: function setFullscreen () {
+      if (this.inFullscreen) {
         return
       }
 
-      setTimeout(function () {
-        this$1.inFullscreen = true;
-        this$1.container = this$1.$el.parentNode;
-        this$1.container.replaceChild(this$1.fullscreenFillerNode, this$1.$el);
-        document.body.appendChild(this$1.$el);
-        document.body.classList.add('with-mixin-fullscreen');
+      this.inFullscreen = true;
+      this.container = this.$el.parentNode;
+      this.container.replaceChild(this.fullscreenFillerNode, this.$el);
+      document.body.appendChild(this.$el);
+      document.body.classList.add('with-mixin-fullscreen');
 
-        History.add(function () { return new Promise(function (resolve, reject) {
-          this$1.container.replaceChild(this$1.$el, this$1.fullscreenFillerNode);
-          document.body.classList.remove('with-mixin-fullscreen');
-          this$1.inFullscreen = false;
-          resolve();
-        }); });
-      }, 50);
+      this.__historyFullscreen = {
+        handler: this.exitFullscreen
+      };
+      History.add(this.__historyFullscreen);
+    },
+    exitFullscreen: function exitFullscreen () {
+      if (!this.inFullscreen) {
+        return
+      }
+
+      if (this.__historyFullscreen) {
+        History.remove(this.__historyFullscreen);
+        this.__historyFullscreen = null;
+      }
+      this.container.replaceChild(this.$el, this.fullscreenFillerNode);
+      document.body.classList.remove('with-mixin-fullscreen');
+      this.inFullscreen = false;
     }
   },
   created: function created () {
     this.fullscreenFillerNode = document.createElement('span');
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.exitFullscreen();
   }
 };
 
@@ -4296,88 +4667,88 @@ var QCarousel = {
     }
   },
   methods: {
-    previous: function previous (done) {
-      if (this.canGoToPrevious) {
-        this.goToSlide(this.slide - 1, done);
-      }
+    previous: function previous () {
+      return this.canGoToPrevious
+        ? this.goToSlide(this.slide - 1)
+        : Promise.resolve()
     },
-    next: function next (done) {
-      if (this.canGoToNext) {
-        this.goToSlide(this.slide + 1, done);
-      }
+    next: function next () {
+      return this.canGoToNext
+        ? this.goToSlide(this.slide + 1)
+        : Promise.resolve()
     },
-    goToSlide: function goToSlide (slide, done, fromSwipe) {
+    goToSlide: function goToSlide (slide, fromSwipe) {
       var this$1 = this;
       if ( fromSwipe === void 0 ) fromSwipe = false;
 
-      var
-        direction = '',
-        pos;
+      return new Promise(function (resolve, reject) {
+        var
+          direction = '',
+          pos;
 
-      this.__cleanup();
+        this$1.__cleanup();
 
-      var finish = function () {
-        this$1.$emit('input', this$1.slide);
-        this$1.$emit('slide-direction', direction);
-        this$1.__planAutoPlay();
-        if (typeof done === 'function') {
-          done();
-        }
-      };
+        var finish = function () {
+          this$1.$emit('input', this$1.slide);
+          this$1.$emit('slide-direction', direction);
+          this$1.__planAutoPlay();
+          resolve();
+        };
 
-      if (this.slidesNumber < 2) {
-        this.slide = 0;
-        this.positionSlide = 0;
-        pos = 0;
-      }
-      else {
-        if (!this.hasOwnProperty('initialPosition')) {
-          this.position = -this.slide * 100;
-        }
-        direction = slide > this.slide ? 'next' : 'previous';
-        if (this.infinite) {
-          this.slide = normalizeToInterval(slide, 0, this.slidesNumber - 1);
-          pos = normalizeToInterval(slide, -1, this.slidesNumber);
-          if (!fromSwipe) {
-            this.positionSlide = pos;
-          }
+        if (this$1.slidesNumber < 2) {
+          this$1.slide = 0;
+          this$1.positionSlide = 0;
+          pos = 0;
         }
         else {
-          this.slide = between(slide, 0, this.slidesNumber - 1);
-          this.positionSlide = this.slide;
-          pos = this.slide;
-        }
-      }
-
-      pos = pos * -100;
-
-      if (!this.animation) {
-        this.position = pos;
-        finish();
-        return
-      }
-
-      this.animationInProgress = true;
-
-      this.animUid = start({
-        from: this.position,
-        to: pos,
-        duration: isNumber(this.animation) ? this.animation : 300,
-        easing: fromSwipe
-          ? this.swipeEasing || decelerate
-          : this.easing || standard,
-        apply: function (pos) {
-          this$1.position = pos;
-        },
-        done: function () {
-          if (this$1.infinite) {
+          if (!this$1.hasOwnProperty('initialPosition')) {
             this$1.position = -this$1.slide * 100;
-            this$1.positionSlide = this$1.slide;
           }
-          this$1.animationInProgress = false;
-          finish();
+          direction = slide > this$1.slide ? 'next' : 'previous';
+          if (this$1.infinite) {
+            this$1.slide = normalizeToInterval(slide, 0, this$1.slidesNumber - 1);
+            pos = normalizeToInterval(slide, -1, this$1.slidesNumber);
+            if (!fromSwipe) {
+              this$1.positionSlide = pos;
+            }
+          }
+          else {
+            this$1.slide = between(slide, 0, this$1.slidesNumber - 1);
+            this$1.positionSlide = this$1.slide;
+            pos = this$1.slide;
+          }
         }
-      });
+
+        pos = pos * -100;
+
+        if (!this$1.animation) {
+          this$1.position = pos;
+          finish();
+          return
+        }
+
+        this$1.animationInProgress = true;
+
+        this$1.animUid = start({
+          from: this$1.position,
+          to: pos,
+          duration: isNumber(this$1.animation) ? this$1.animation : 300,
+          easing: fromSwipe
+            ? this$1.swipeEasing || decelerate
+            : this$1.easing || standard,
+          apply: function (pos) {
+            this$1.position = pos;
+          },
+          done: function () {
+            if (this$1.infinite) {
+              this$1.position = -this$1.slide * 100;
+              this$1.positionSlide = this$1.slide;
+            }
+            this$1.animationInProgress = false;
+            finish();
+          }
+        });
+      })
     },
     stopAnimation: function stopAnimation () {
       stop(this.animUid);
@@ -4417,11 +4788,10 @@ var QCarousel = {
           event.distance.x < 100
             ? this.slide
             : this.positionSlide,
-          function () {
-            delete this$1.initialPosition;
-          },
           true
-        );
+        ).then(function () {
+          delete this$1.initialPosition;
+        });
       }
     },
     __planAutoPlay: function __planAutoPlay () {
@@ -4880,7 +5250,7 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:_vm.classes,on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),_vm._v(" "),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),_vm._v(" "),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('close');}}}):_vm._e()],1):_vm._e()],1)},staticRenderFns: [],
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:_vm.classes,on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),_vm._v(" "),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),_vm._v(" "),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('hide');}}}):_vm._e()],1):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chip',
   components: {
     QIcon: QIcon
@@ -4925,7 +5295,7 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   }
 };
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"close":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"hide":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -5107,8 +5477,9 @@ var QSlideTransition = {
 
 var eventName = 'q:collapsible:close';
 
-var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:[ ("q-collapsible-" + (_vm.active ? 'opened' : 'closed')), { 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator } ]},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",attrs:{"slot":"right"},on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.active, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
+var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:[ ("q-collapsible-" + (_vm.showing ? 'opened' : 'closed')), { 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator } ]},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",attrs:{"slot":"right"},on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.showing, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.showing),expression:"showing"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
   name: 'q-collapsible',
+  mixins: [ModelToggleMixin],
   components: {
     QItemWrapper: QItemWrapper,
     QItemTile: QItemTile,
@@ -5118,7 +5489,6 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     Ripple: Ripple
   },
   props: {
-    opened: Boolean,
     disable: Boolean,
     indent: Boolean,
     group: String,
@@ -5139,21 +5509,11 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     labelLines: [String, Number],
     sublabelLines: [String, Number]
   },
-  data: function data () {
-    return {
-      active: this.opened
-    }
-  },
   watch: {
-    opened: function opened (value) {
-      this.active = value;
-    },
-    active: function active (val) {
+    showing: function showing (val) {
       if (val && this.group) {
         this.$root.$emit(eventName, this);
       }
-
-      this.$emit(val ? 'open' : 'close');
     }
   },
   computed: {
@@ -5179,16 +5539,17 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     }
   },
   methods: {
-    toggle: function toggle () {
+    show: function show () {
       if (!this.disable) {
-        this.active = !this.active;
+        this.__updateModel(true, false);
       }
+      return Promise.resolve()
     },
-    open: function open () {
-      this.active = true;
-    },
-    close: function close () {
-      this.active = false;
+    hide: function hide () {
+      if (!this.disable) {
+        this.__updateModel(false, false);
+      }
+      return Promise.resolve()
     },
     __toggleItem: function __toggleItem () {
       if (!this.iconToggle) {
@@ -5197,7 +5558,7 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     },
     __eventHandler: function __eventHandler (comp) {
       if (this.group && this !== comp && comp.group === this.group) {
-        this.close();
+        this.hide();
       }
     }
   },
@@ -5226,22 +5587,22 @@ var ContextMenuDesktop = {
         anchorClick: false
       },
       on: {
-        open: function () { this$1.$emit('open'); },
-        close: function () { this$1.$emit('close'); }
+        show: function () { this$1.$emit('show'); },
+        hide: function () { this$1.$emit('hide'); }
       }
     }, this.$slots.default)
   },
   methods: {
-    close: function close () {
-      this.$refs.popover.close();
+    hide: function hide () {
+      return this.$refs.popover.hide()
     },
-    __open: function __open (evt) {
+    __show: function __show (evt) {
       var this$1 = this;
 
       if (!evt || this.disable) {
         return
       }
-      this.close();
+      this.hide();
       evt.preventDefault();
       evt.stopPropagation();
       /*
@@ -5249,250 +5610,16 @@ var ContextMenuDesktop = {
         Firefox workaround
        */
       setTimeout(function () {
-        this$1.$refs.popover.open(evt);
+        this$1.$refs.popover.show(evt);
       }, 100);
     }
   },
   mounted: function mounted () {
     this.target = this.$refs.popover.$el.parentNode;
-    this.target.addEventListener('contextmenu', this.__open);
+    this.target.addEventListener('contextmenu', this.__show);
   },
   beforeDestroy: function beforeDestroy () {
-    this.target.removeEventListener('contexmenu', this.__open);
-  }
-};
-
-var positions = {
-  top: 'items-start justify-center with-backdrop',
-  bottom: 'items-end justify-center with-backdrop',
-  right: 'items-center justify-end with-backdrop',
-  left: 'items-center justify-start with-backdrop'
-};
-var positionCSS = {
-  mat: {
-    maxHeight: '80vh',
-    height: 'auto'
-  },
-  ios: {
-    maxHeight: '80vh',
-    height: 'auto',
-    boxShadow: 'none'
-  }
-};
-
-function additionalCSS (theme, position) {
-  var css = {};
-
-  if (['left', 'right'].includes(position)) {
-    css.maxWidth = '90vw';
-  }
-  if (theme === 'ios') {
-    if (['left', 'top'].includes(position)) {
-      css.borderTopLeftRadius = 0;
-    }
-    if (['right', 'top'].includes(position)) {
-      css.borderTopRightRadius = 0;
-    }
-    if (['left', 'bottom'].includes(position)) {
-      css.borderBottomLeftRadius = 0;
-    }
-    if (['right', 'bottom'].includes(position)) {
-      css.borderBottomRightRadius = 0;
-    }
-  }
-
-  return css
-}
-
-var duration = 200;
-var openedModalNumber = 0;
-
-var QModal = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-transition',{attrs:{"name":_vm.modalTransition,"enter":_vm.enterClass,"leave":_vm.leaveClass}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.active),expression:"active"}],staticClass:"modal fullscreen row",class:_vm.modalClasses,on:{"mousedown":function($event){_vm.__dismiss();},"touchstart":function($event){_vm.__dismiss();}}},[_c('div',{ref:"content",staticClass:"modal-content scroll",class:_vm.contentClasses,style:(_vm.modalCss),on:{"mousedown":function($event){$event.stopPropagation();},"touchstart":function($event){$event.stopPropagation();}}},[_vm._t("default")],2)])])},staticRenderFns: [],
-  name: 'q-modal',
-  mixins: [ModelToggleMixin],
-  components: {
-    QTransition: QTransition
-  },
-  props: {
-    position: {
-      type: String,
-      default: '',
-      validator: function validator (val) {
-        return val === '' || ['top', 'bottom', 'left', 'right'].includes(val)
-      }
-    },
-    transition: String,
-    enterClass: String,
-    leaveClass: String,
-    positionClasses: {
-      type: String,
-      default: 'flex-center'
-    },
-    contentClasses: [Object, Array, String],
-    contentCss: [Object, Array, String],
-    noBackdropDismiss: {
-      type: Boolean,
-      default: false
-    },
-    noEscDismiss: {
-      type: Boolean,
-      default: false
-    },
-    minimized: Boolean,
-    maximized: Boolean
-  },
-  data: function data () {
-    return {
-      active: false,
-      toggleInProgress: false
-    }
-  },
-  computed: {
-    modalClasses: function modalClasses () {
-      var cls = this.position
-        ? positions[this.position]
-        : this.positionClasses;
-      if (this.maximized) {
-        return ['maximized', cls]
-      }
-      else if (this.minimized) {
-        return ['minimized', cls]
-      }
-      return cls
-    },
-    modalTransition: function modalTransition () {
-      if (this.position) {
-        return ("q-modal-" + (this.position))
-      }
-      if (this.enterClass === void 0 && this.leaveClass === void 0) {
-        return this.transition || 'q-modal'
-      }
-    },
-    modalCss: function modalCss () {
-      if (this.position) {
-        var css = Array.isArray(this.contentCss)
-          ? this.contentCss
-          : [this.contentCss];
-
-        css.unshift(extend(
-          {},
-          positionCSS[this.$q.theme],
-          additionalCSS(this.$q.theme, this.position)
-        ));
-
-        return css
-      }
-
-      return this.contentCss
-    }
-  },
-  methods: {
-    open: function open (onShow) {
-      var this$1 = this;
-
-      if (this.active || this.toggleInProgress) {
-        return
-      }
-
-      this.toggleInProgress = true;
-      var body = document.body;
-
-      body.appendChild(this.$el);
-      body.classList.add('with-modal');
-      this.bodyPadding = window.getComputedStyle(body).paddingRight;
-      body.style.paddingRight = (getScrollbarWidth()) + "px";
-      EscapeKey.register(function () {
-        if (!this$1.noEscDismiss) {
-          this$1.close(function () {
-            this$1.$emit('escape-key');
-          });
-        }
-      });
-
-      History.add(function () { return new Promise(function (resolve, reject) {
-        EscapeKey.pop();
-        openedModalNumber--;
-        this$1.active = false;
-        setTimeout(function () {
-          if (openedModalNumber === 0) {
-            body.classList.remove('with-modal');
-            body.style.paddingRight = this$1.bodyPadding;
-          }
-          resolve();
-
-          if (typeof this$1.__onClose === 'function') {
-            this$1.__onClose();
-          }
-          this$1.toggleInProgress = false;
-          this$1.__updateModel(false);
-          this$1.$emit('close');
-        }, duration);
-      }); });
-
-      setTimeout(function () {
-        var content = this$1.$refs.content;
-        content.scrollTop = 0
-        ;['modal-scroll', 'layout-view'].forEach(function (c) {
-          [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
-            el.scrollTop = 0;
-          });
-        });
-      }, 10);
-
-      this.active = true;
-      openedModalNumber++;
-      setTimeout(function () {
-        if (typeof onShow === 'function') {
-          onShow();
-        }
-        this$1.toggleInProgress = false;
-        this$1.__updateModel(true);
-        this$1.$emit('open');
-      }, duration);
-    },
-    close: function close (onClose) {
-      if (!this.active || this.toggleInProgress) {
-        return
-      }
-
-      this.toggleInProgress = true;
-      this.__onClose = onClose;
-
-      History.remove();
-    },
-    toggle: function toggle (done) {
-      if (this.active) {
-        this.close(done);
-      }
-      else {
-        this.open(done);
-      }
-    },
-    __dismiss: function __dismiss (onClick) {
-      if (this.noBackdropDismiss) {
-        return
-      }
-      this.close(onClick);
-    }
-  },
-  beforeDestroy: function beforeDestroy () {
-    if (this.$el.parentNode) {
-      this.$el.parentNode.removeChild(this.$el);
-    }
-  }
-};
-
-var QModalLayout = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-modal-layout column absolute-full"},[(_vm.$slots.header || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-header",class:_vm.headerClass,style:(_vm.headerStyle)},[_vm._t("header"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-modal-layout-content col scroll",class:_vm.contentClass,style:(_vm.contentStyle)},[_vm._t("default")],2),_vm._v(" "),(_vm.$slots.footer || (_vm.$q.theme === 'ios' && _vm.$slots.navigation))?_c('div',{staticClass:"layout-footer",class:_vm.footerClass,style:(_vm.footerStyle)},[_vm._t("footer"),_vm._v(" "),(_vm.$q.theme === 'ios')?_vm._t("navigation"):_vm._e()],2):_vm._e()])},staticRenderFns: [],
-  name: 'q-modal-layout',
-  props: {
-    headerStyle: [String, Object, Array],
-    headerClass: [String, Object, Array],
-
-    contentStyle: [String, Object, Array],
-    contentClass: [String, Object, Array],
-
-    footerStyle: [String, Object, Array],
-    footerClass: [String, Object, Array]
+    this.target.removeEventListener('contexmenu', this.__show);
   }
 };
 
@@ -5502,13 +5629,13 @@ var ContextMenuMobile = {
     disable: Boolean
   },
   methods: {
-    close: function close () {
+    hide: function hide () {
       this.target.classList.remove('non-selectable');
-      this.$refs.dialog.close();
+      return this.$refs.dialog.hide()
     },
-    __open: function __open () {
+    __show: function __show () {
       if (!this.disable && this.$refs.dialog) {
-        this.$refs.dialog.open();
+        this.$refs.dialog.show();
       }
     },
     __touchStartHandler: function __touchStartHandler (evt) {
@@ -5520,7 +5647,7 @@ var ContextMenuMobile = {
         evt.stopPropagation();
         setTimeout(function () {
           this$1.__cleanup();
-          this$1.__open();
+          this$1.__show();
         }, 10);
       }, 600);
     },
@@ -5538,8 +5665,8 @@ var ContextMenuMobile = {
         minimized: true
       },
       on: {
-        open: function () { this$1.$emit('open'); },
-        close: function () { this$1.$emit('close'); }
+        show: function () { this$1.$emit('show'); },
+        hide: function () { this$1.$emit('hide'); }
       }
     }, this.$slots.default)
   },
@@ -5569,7 +5696,7 @@ var QContextMenu = {
   functional: true,
   render: function render (h, ctx) {
     return h(
-      this.$q.platform.is.mobile ? ContextMenuMobile : ContextMenuDesktop,
+      Platform.is.mobile ? ContextMenuMobile : ContextMenuDesktop,
       ctx.data,
       ctx.children
     )
@@ -6574,7 +6701,7 @@ var contentCSS = {
     backgroundColor: '#e4e4e4'
   };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.open($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
   name: 'q-datetime',
   mixins: [FrameMixin],
   components: {
@@ -6637,18 +6764,19 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     }
   },
   methods: {
-    open: function open () {
+    show: function show () {
       if (!this.disable) {
         this.__setModel();
-        this.$refs.popup.open();
+        return this.$refs.popup.show()
       }
+      return Promise.resolve()
     },
-    close: function close (fn) {
+    hide: function hide () {
       this.focused = false;
-      this.$refs.popup.close(fn);
+      return this.$refs.popup.hide()
     },
     clear: function clear () {
-      this.$refs.popup.close();
+      this.$refs.popup.hide();
       if (this.value !== '') {
         this.$emit('input', '');
         this.$emit('change', '');
@@ -6662,15 +6790,15 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     __onBlur: function __onBlur (e) {
       var this$1 = this;
 
-      this.__onClose();
+      this.__onHide();
       setTimeout(function () {
         var el = document.activeElement;
         if (el !== document.body && !this$1.$refs.popup.$el.contains(el)) {
-          this$1.close();
+          this$1.hide();
         }
       }, 1);
     },
-    __onClose: function __onClose () {
+    __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
     },
@@ -6721,418 +6849,6 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
       this.$nextTick(function () {
         this$1.$emit('change', this$1.value);
       });
-    }
-  }
-};
-
-var QTooltip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',{staticClass:"q-tooltip animate-scale",style:(_vm.transformCSS)},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-tooltip',
-  mixins: [ModelToggleMixin],
-  props: {
-    anchor: {
-      type: String,
-      default: 'top middle',
-      validator: positionValidator
-    },
-    self: {
-      type: String,
-      default: 'bottom middle',
-      validator: positionValidator
-    },
-    offset: {
-      type: Array,
-      validator: offsetValidator
-    },
-    delay: {
-      type: Number,
-      default: 0
-    },
-    maxHeight: String,
-    disable: Boolean
-  },
-  data: function data () {
-    return {
-      opened: false
-    }
-  },
-  computed: {
-    anchorOrigin: function anchorOrigin () {
-      return parsePosition(this.anchor)
-    },
-    selfOrigin: function selfOrigin () {
-      return parsePosition(this.self)
-    },
-    transformCSS: function transformCSS () {
-      return getTransformProperties({
-        selfOrigin: this.selfOrigin
-      })
-    }
-  },
-  methods: {
-    toggle: function toggle () {
-      if (this.opened) {
-        this.close();
-      }
-      else {
-        this.open();
-      }
-    },
-    open: function open () {
-      if (this.disable || this.opened) {
-        return
-      }
-      clearTimeout(this.timer);
-      this.opened = true;
-      document.body.appendChild(this.$el);
-      this.scrollTarget = getScrollTarget(this.anchorEl);
-      this.scrollTarget.addEventListener('scroll', this.close);
-      window.addEventListener('resize', this.__debouncedUpdatePosition);
-      if (this.$q.platform.is.mobile) {
-        document.body.addEventListener('click', this.close, true);
-      }
-      this.__updateModel(true);
-      this.$emit('open');
-      this.__updatePosition();
-    },
-    close: function close () {
-      clearTimeout(this.timer);
-      if (this.opened) {
-        this.opened = false;
-        this.scrollTarget.removeEventListener('scroll', this.close);
-        window.removeEventListener('resize', this.__debouncedUpdatePosition);
-        document.body.removeChild(this.$el);
-        if (this.$q.platform.is.mobile) {
-          document.body.removeEventListener('click', this.close, true);
-        }
-        this.__updateModel(false);
-        this.$emit('close');
-      }
-    },
-    __updatePosition: function __updatePosition () {
-      setPosition({
-        el: this.$el,
-        offset: this.offset,
-        anchorEl: this.anchorEl,
-        anchorOrigin: this.anchorOrigin,
-        selfOrigin: this.selfOrigin,
-        maxHeight: this.maxHeight
-      });
-    },
-    __delayOpen: function __delayOpen () {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.open, this.delay);
-    }
-  },
-  created: function created () {
-    var this$1 = this;
-
-    this.__debouncedUpdatePosition = debounce(function () {
-      this$1.__updatePosition();
-    }, 70);
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      /*
-        The following is intentional.
-        Fixes a bug in Chrome regarding offsetHeight by requiring browser
-        to calculate this before removing from DOM and using it for first time.
-      */
-      this$1.$el.offsetHeight; // eslint-disable-line
-
-      this$1.anchorEl = this$1.$el.parentNode;
-      this$1.anchorEl.removeChild(this$1.$el);
-      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
-        this$1.anchorEl = this$1.anchorEl.parentNode;
-      }
-      if (this$1.$q.platform.is.mobile) {
-        this$1.anchorEl.addEventListener('click', this$1.open);
-      }
-      else {
-        this$1.anchorEl.addEventListener('mouseenter', this$1.__delayOpen);
-        this$1.anchorEl.addEventListener('focus', this$1.__delayOpen);
-        this$1.anchorEl.addEventListener('mouseleave', this$1.close);
-        this$1.anchorEl.addEventListener('blur', this$1.close);
-      }
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    if (!this.anchorEl) {
-      return
-    }
-    if (this.$q.platform.is.mobile) {
-      this.anchorEl.removeEventListener('click', this.open);
-    }
-    else {
-      this.anchorEl.removeEventListener('mouseenter', this.__delayOpen);
-      this.anchorEl.removeEventListener('focus', this.__delayOpen);
-      this.anchorEl.removeEventListener('mouseleave', this.close);
-      this.anchorEl.removeEventListener('blur', this.close);
-    }
-    this.close();
-  }
-};
-
-function run (e, btn, vm) {
-  if (btn.handler) {
-    btn.handler(e, vm, vm.caret);
-  }
-  else {
-    vm.runCmd(btn.cmd, btn.param);
-  }
-}
-
-function getBtn (h, vm, btn, clickHandler) {
-  var
-    child = [],
-    events = {
-      click: function click (e) {
-        clickHandler && clickHandler();
-        run(e, btn, vm);
-      }
-    };
-
-  if (btn.tip && vm.$q.platform.is.desktop) {
-    var Key = btn.key
-      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
-      : null;
-    child.push(h(QTooltip, { props: {delay: 1000} }, [
-      h('div', { domProps: { innerHTML: btn.tip } }),
-      Key
-    ]));
-  }
-
-  if (btn.type === void 0) {
-    return h(QBtnToggle, {
-      props: extend({
-        icon: btn.icon,
-        label: btn.label,
-        toggled: btn.toggled ? btn.toggled(vm) : btn.cmd && vm.caret.is(btn.cmd, btn.param),
-        color: vm.color,
-        toggleColor: vm.toggleColor,
-        disable: btn.disable ? btn.disable(vm) : false
-      }, vm.buttonProps),
-      on: events
-    }, child)
-  }
-  if (btn.type === 'no-state') {
-    return h(QBtn, {
-      props: extend({
-        icon: btn.icon,
-        color: vm.color,
-        label: btn.label,
-        disable: btn.disable ? btn.disable(vm) : false
-      }, vm.buttonProps),
-      on: events
-    }, child)
-  }
-}
-
-function getDropdown (h, vm, btn) {
-  var
-    label = btn.label,
-    icon = btn.icon,
-    noIcons = btn.list === 'no-icons',
-    onlyIcons = btn.list === 'only-icons',
-    Items;
-
-  function closeDropdown () {
-    Dropdown.componentInstance.close();
-  }
-
-  if (onlyIcons) {
-    Items = btn.options.map(function (btn) {
-      var active = btn.type === void 0
-        ? vm.caret.is(btn.cmd, btn.param)
-        : false;
-
-      if (active) {
-        label = btn.tip;
-        icon = btn.icon;
-      }
-      return getBtn(h, vm, btn, closeDropdown)
-    });
-    Items = [
-      h(
-        QBtnGroup,
-        { props: vm.buttonProps, staticClass: 'relative-position q-editor-toolbar-padding' },
-        Items
-      )
-    ];
-  }
-  else {
-    Items = btn.options.map(function (btn) {
-      var disable = btn.disable ? btn.disable(vm) : false;
-      var active = btn.type === void 0
-        ? vm.caret.is(btn.cmd, btn.param)
-        : false;
-
-      if (active) {
-        label = btn.tip;
-        icon = btn.icon;
-      }
-
-      return h(
-        QItem,
-        {
-          props: { active: active, link: !disable },
-          staticClass: disable ? 'disabled' : '',
-          on: {
-            click: function click (e) {
-              if (disable) { return }
-              closeDropdown();
-              vm.$refs.content.focus();
-              vm.caret.restore();
-              run(e, btn, vm);
-            }
-          }
-        },
-        [
-          noIcons ? '' : h(QItemSide, {props: {icon: btn.icon}}),
-          h(QItemMain, {
-            props: {
-              label: btn.htmlTip || btn.tip
-            }
-          })
-        ]
-      )
-    });
-    Items = [ h(QList, { props: { separator: true } }, [ Items ]) ];
-  }
-
-  var Dropdown = h(
-    QBtnDropdown,
-    {
-      props: extend({
-        noCaps: true,
-        noWrap: true,
-        color: btn.highlight && label !== btn.label ? vm.toggleColor : vm.color,
-        label: btn.fixedLabel ? btn.label : label,
-        icon: btn.fixedIcon ? btn.icon : icon
-      }, vm.buttonProps)
-    },
-    Items
-  );
-  return Dropdown
-}
-
-function getToolbar (h, vm) {
-  if (vm.caret) {
-    return vm.buttons.map(function (group) { return h(
-      QBtnGroup,
-      { props: vm.buttonProps, staticClass: 'relative-position' },
-      group.map(function (btn) {
-        if (btn.type === 'slot') {
-          return vm.$slots[btn.slot]
-        }
-
-        if (btn.type === 'dropdown') {
-          return getDropdown(h, vm, btn)
-        }
-
-        return getBtn(h, vm, btn)
-      })
-    ); })
-  }
-}
-
-function getFonts (defaultFont, fonts) {
-  if ( fonts === void 0 ) fonts = {};
-
-  var aliases = Object.keys(fonts);
-  if (aliases.length === 0) {
-    return {}
-  }
-
-  var def = {
-    default_font: {
-      cmd: 'fontName',
-      param: defaultFont,
-      icon: 'font_download',
-      tip: 'Default Font'
-    }
-  };
-
-  aliases.forEach(function (alias) {
-    var name = fonts[alias];
-    def[alias] = {
-      cmd: 'fontName',
-      param: name,
-      icon: 'font_download',
-      tip: name,
-      htmlTip: ("<font face=\"" + name + "\">" + name + "</font>")
-    };
-  });
-
-  return def
-}
-
-var buttons = {
-  // toggle
-  bold: {cmd: 'bold', icon: 'format_bold', tip: 'Bold', key: 66},
-  italic: {cmd: 'italic', icon: 'format_italic', tip: 'Italic', key: 73},
-  strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: 'Strikethrough', key: 83},
-  underline: {cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
-  unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Unordered List'},
-  ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Ordered List'},
-  subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript', htmlTip: 'x<subscript>2</subscript>'},
-  superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript', htmlTip: 'x<superscript>2</superscript>'},
-  link: {cmd: 'link', icon: 'link', tip: 'Hyperlink', key: 76},
-  fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: 'Toggle Fullscreen', key: 70},
-
-  quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
-  left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Left align'},
-  center: {cmd: 'justifyCenter', icon: 'format_align_center', tip: 'Center align'},
-  right: {cmd: 'justifyRight', icon: 'format_align_right', tip: 'Right align'},
-  justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify align'},
-
-  print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print', key: 80},
-  outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
-  indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
-  removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
-  hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Insert Horizontal Rule'},
-  undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
-  redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
-
-  h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Header 1', htmlTip: '<h1>Header 1</h1>'},
-  h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Header 2', htmlTip: '<h2>Header 2</h2>'},
-  h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Header 3', htmlTip: '<h3>Header 3</h3>'},
-  h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Header 4', htmlTip: '<h4>Header 4</h4>'},
-  h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Header 5', htmlTip: '<h5>Header 5</h5>'},
-  h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Header 6', htmlTip: '<h6>Header 6</h6>'},
-  p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
-  code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: '<code>Code</code>'},
-
-  'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small', htmlTip: '<font size="1">Very small</font>'},
-  'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small', htmlTip: '<font size="2">A bit small</font>'},
-  'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal', htmlTip: '<font size="3">Normal</font>'},
-  'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large', htmlTip: '<font size="4">Medium-large</font>'},
-  'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big', htmlTip: '<font size="5">Big</font>'},
-  'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big', htmlTip: '<font size="6">Very big</font>'},
-  'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum', htmlTip: '<font size="7">Maximum</font>'}
-};
-
-var Modal = function (component) {
-  return {
-    create: function create (props) {
-      var node = document.createElement('div');
-      document.body.appendChild(node);
-
-      var vm = new Vue$1({
-        el: node,
-        data: function data () {
-          return {props: props}
-        },
-        render: function (h) { return h(component, {props: props}); }
-      });
-
-      return {
-        vm: vm,
-        close: function close (fn) {
-          vm.quasarClose(fn);
-        }
-      }
     }
   }
 };
@@ -7409,9 +7125,7 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     },
     type: {
       default: 'radio',
-      validator: function validator (val) {
-        return ['radio', 'checkbox', 'toggle'].includes(val)
-      }
+      validator: function (v) { return ['radio', 'checkbox', 'toggle'].includes(v); }
     },
     color: String,
     keepColor: Boolean,
@@ -7446,12 +7160,8 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     }
   },
   methods: {
-    __onChange: function __onChange () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.$emit('change', this$1.model);
-      });
+    __onChange: function __onChange (val) {
+      this.$emit('change', val);
     },
     __onFocus: function __onFocus () {
       this.$emit('focus');
@@ -7482,709 +7192,621 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   }
 };
 
-function getPercentage (event, dragging) {
-  return between((position(event).left - dragging.left) / dragging.width, 0, 1)
-}
-
-function notDivides (res, decimals) {
-  var number = decimals
-    ? parseFloat(res.toFixed(decimals))
-    : res;
-
-  return number !== parseInt(number, 10)
-}
-
-function getModel (percentage, min, max, step, decimals) {
-  var
-    model = min + percentage * (max - min),
-    modulo = (model - min) % step;
-
-  model += (Math.abs(modulo) >= step / 2 ? (modulo < 0 ? -1 : 1) * step : 0) - modulo;
-
-  if (decimals) {
-    model = parseFloat(model.toFixed(decimals));
-  }
-
-  return between(model, min, max)
-}
-
-var mixin$1 = {
-  components: {
-    QChip: QChip
-  },
-  props: {
-    min: {
-      type: Number,
-      default: 1
-    },
-    max: {
-      type: Number,
-      default: 5
-    },
-    step: {
-      type: Number,
-      default: 1
-    },
-    decimals: {
-      type: Number,
-      default: 0
-    },
-    snap: Boolean,
-    markers: Boolean,
-    label: Boolean,
-    labelAlways: Boolean,
-    square: Boolean,
-    color: String,
-    fillHandleAlways: Boolean,
-    error: Boolean,
-    disable: Boolean
-  },
-  computed: {
-    classes: function classes () {
-      var cls = {
-        disabled: this.disable,
-        'label-always': this.labelAlways,
-        'has-error': this.error
-      };
-
-      if (!this.error && this.color) {
-        cls[("text-" + (this.color))] = true;
-      }
-
-      return cls
-    },
-    labelColor: function labelColor () {
-      return this.error
-        ? 'negative'
-        : this.color || 'primary'
-    }
-  },
-  methods: {
-    __pan: function __pan (event) {
-      if (this.disable) {
-        return
-      }
-      if (event.isFinal) {
-        this.__end(event.evt);
-      }
-      else if (event.isFirst) {
-        this.__setActive(event.evt);
-      }
-      else if (this.dragging) {
-        this.__update(event.evt);
-      }
-    },
-    __click: function __click (event) {
-      if (this.disable) {
-        return
-      }
-      this.__setActive(event);
-      this.__end(event);
-    }
-  },
-  created: function created () {
-    this.__validateProps();
-  }
+var clone = function (data) {
+  return JSON.parse(JSON.stringify(data))
 };
 
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_vm._v(" "),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(" "+_vm._s(_vm.displayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
-  name: 'q-slider',
-  directives: {
-    TouchPan: TouchPan
-  },
-  mixins: [mixin$1],
-  props: {
-    value: {
-      type: Number,
-      required: true
-    },
-    labelValue: String
-  },
-  data: function data () {
-    return {
-      dragging: false,
-      currentPercentage: (this.value - this.min) / (this.max - this.min)
-    }
-  },
-  computed: {
-    percentage: function percentage () {
-      if (this.snap) {
-        return (this.value - this.min) / (this.max - this.min) * 100 + '%'
-      }
-      return 100 * this.currentPercentage + '%'
-    },
-    displayValue: function displayValue () {
-      return this.labelValue !== void 0
-        ? this.labelValue
-        : this.value
-    }
-  },
-  watch: {
-    value: function value (value$1) {
-      if (this.dragging) {
-        return
-      }
-      this.currentPercentage = (value$1 - this.min) / (this.max - this.min);
-    },
-    min: function min (value) {
-      if (this.value < value) {
-        this.value = value;
-        return
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    max: function max (value) {
-      if (this.value > value) {
-        this.value = value;
-        return
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    step: function step () {
-      this.$nextTick(this.__validateProps);
-    }
-  },
-  methods: {
-    __setActive: function __setActive (event) {
-      var container = this.$refs.handle;
-
-      this.dragging = {
-        left: container.getBoundingClientRect().left,
-        width: container.offsetWidth
-      };
-      this.__update(event);
-    },
-    __update: function __update (event) {
-      var
-        percentage = getPercentage(event, this.dragging),
-        model = getModel(percentage, this.min, this.max, this.step, this.decimals);
-
-      this.currentPercentage = percentage;
-      if (model !== this.value) {
-        this.$emit('input', model);
-        this.$emit('change', model);
-      }
-    },
-    __end: function __end () {
-      this.dragging = false;
-      this.currentPercentage = (this.value - this.min) / (this.max - this.min);
-    },
-    __validateProps: function __validateProps () {
-      if (this.min >= this.max) {
-        console.error('Range error: min >= max', this.$el, this.min, this.max);
-      }
-      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step, this.decimals);
-      }
-    }
-  }
-};
-
-var dragType = {
-  MIN: 0,
-  RANGE: 1,
-  MAX: 2
-};
-
-var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_vm._v(" "),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.leftTooltipColor}},[_vm._v(" "+_vm._s(_vm.leftDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_vm._v(" "),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.rightTooltipColor}},[_vm._v(" "+_vm._s(_vm.rightDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
-  name: 'q-range',
-  directives: {
-    TouchPan: TouchPan
-  },
-  mixins: [mixin$1],
-  props: {
-    value: {
-      type: Object,
-      required: true,
-      validator: function validator (value) {
-        return typeof value.min !== 'undefined' && typeof value.max !== 'undefined'
-      }
-    },
-    dragRange: Boolean,
-    dragOnlyRange: Boolean,
-    leftLabelColor: String,
-    leftLabelValue: String,
-    rightLabelColor: String,
-    rightLabelValue: String
-  },
-  data: function data () {
-    return {
-      dragging: false,
-      currentMinPercentage: (this.value.min - this.min) / (this.max - this.min),
-      currentMaxPercentage: (this.value.max - this.min) / (this.max - this.min)
-    }
-  },
-  computed: {
-    percentageMin: function percentageMin () {
-      return this.snap ? (this.value.min - this.min) / (this.max - this.min) : this.currentMinPercentage
-    },
-    percentageMax: function percentageMax () {
-      return this.snap ? (this.value.max - this.min) / (this.max - this.min) : this.currentMaxPercentage
-    },
-    activeTrackWidth: function activeTrackWidth () {
-      return 100 * (this.percentageMax - this.percentageMin) + '%'
-    },
-    leftDisplayValue: function leftDisplayValue () {
-      return this.leftLabelValue !== void 0
-        ? this.leftLabelValue
-        : this.value.min
-    },
-    rightDisplayValue: function rightDisplayValue () {
-      return this.rightLabelValue !== void 0
-        ? this.rightLabelValue
-        : this.value.max
-    },
-    leftTooltipColor: function leftTooltipColor () {
-      return this.leftLabelColor || this.labelColor
-    },
-    rightTooltipColor: function rightTooltipColor () {
-      return this.rightLabelColor || this.labelColor
-    }
-  },
-  watch: {
-    'value.min': function value_min (value) {
-      if (this.dragging) {
-        return
-      }
-      if (value > this.value.max) {
-        value = this.value.max;
-      }
-      this.currentMinPercentage = (value - this.min) / (this.max - this.min);
-    },
-    'value.max': function value_max (value) {
-      if (this.dragging) {
-        return
-      }
-      if (value < this.value.min) {
-        value = this.value.min;
-      }
-      this.currentMaxPercentage = (value - this.min) / (this.max - this.min);
-    },
-    min: function min (value) {
-      if (this.value.min < value) {
-        this.__update({min: value});
-      }
-      if (this.value.max < value) {
-        this.__update({max: value});
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    max: function max (value) {
-      if (this.value.min > value) {
-        this.__update({min: value});
-      }
-      if (this.value.max > value) {
-        this.__update({max: value});
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    step: function step () {
-      this.$nextTick(this.__validateProps);
-    }
-  },
-  methods: {
-    __setActive: function __setActive (event) {
-      var
-        container = this.$refs.handle,
-        width = container.offsetWidth,
-        sensitivity = (this.dragOnlyRange ? -1 : 1) * this.$refs.handleMin.offsetWidth / (2 * width);
-
-      this.dragging = {
-        left: container.getBoundingClientRect().left,
-        width: width,
-        valueMin: this.value.min,
-        valueMax: this.value.max,
-        percentageMin: this.currentMinPercentage,
-        percentageMax: this.currentMaxPercentage
-      };
-
-      var
-        percentage = getPercentage(event, this.dragging),
-        type;
-
-      if (percentage < this.currentMinPercentage + sensitivity) {
-        type = dragType.MIN;
-      }
-      else if (percentage < this.currentMaxPercentage - sensitivity) {
-        if (this.dragRange || this.dragOnlyRange) {
-          type = dragType.RANGE;
-          extend(this.dragging, {
-            offsetPercentage: percentage,
-            offsetModel: getModel(percentage, this.min, this.max, this.step, this.decimals),
-            rangeValue: this.dragging.valueMax - this.dragging.valueMin,
-            rangePercentage: this.currentMaxPercentage - this.currentMinPercentage
-          });
-        }
-        else {
-          type = this.currentMaxPercentage - percentage < percentage - this.currentMinPercentage
-            ? dragType.MAX
-            : dragType.MIN;
-        }
-      }
-      else {
-        type = dragType.MAX;
-      }
-
-      if (this.dragOnlyRange && type !== dragType.RANGE) {
-        this.dragging = false;
-        return
-      }
-
-      this.dragging.type = type;
-      this.__update(event);
-    },
-    __update: function __update (event) {
-      var
-        percentage = getPercentage(event, this.dragging),
-        model = getModel(percentage, this.min, this.max, this.step, this.decimals),
-        pos;
-
-      switch (this.dragging.type) {
-        case dragType.MIN:
-          if (percentage <= this.dragging.percentageMax) {
-            pos = {
-              minP: percentage,
-              maxP: this.dragging.percentageMax,
-              min: model,
-              max: this.dragging.valueMax
-            };
-          }
-          else {
-            pos = {
-              minP: this.dragging.percentageMax,
-              maxP: percentage,
-              min: this.dragging.valueMax,
-              max: model
-            };
-          }
-          break
-
-        case dragType.MAX:
-          if (percentage >= this.dragging.percentageMin) {
-            pos = {
-              minP: this.dragging.percentageMin,
-              maxP: percentage,
-              min: this.dragging.valueMin,
-              max: model
-            };
-          }
-          else {
-            pos = {
-              minP: percentage,
-              maxP: this.dragging.percentageMin,
-              min: model,
-              max: this.dragging.valueMin
-            };
-          }
-          break
-
-        case dragType.RANGE:
-          var
-            percentageDelta = percentage - this.dragging.offsetPercentage,
-            minP = between(this.dragging.percentageMin + percentageDelta, 0, 1 - this.dragging.rangePercentage),
-            modelDelta = model - this.dragging.offsetModel,
-            min = between(this.dragging.valueMin + modelDelta, this.min, this.max - this.dragging.rangeValue);
-
-          pos = {
-            minP: minP,
-            maxP: minP + this.dragging.rangePercentage,
-            min: min,
-            max: min + this.dragging.rangeValue
-          };
-          break
-      }
-
-      this.currentMinPercentage = pos.minP;
-      this.currentMaxPercentage = pos.maxP;
-      this.__updateInput(pos);
-    },
-    __end: function __end () {
-      this.dragging = false;
-      this.currentMinPercentage = (this.value.min - this.min) / (this.max - this.min);
-      this.currentMaxPercentage = (this.value.max - this.min) / (this.max - this.min);
-    },
-    __updateInput: function __updateInput (ref) {
-      var min = ref.min; if ( min === void 0 ) min = this.value.min;
-      var max = ref.max; if ( max === void 0 ) max = this.value.max;
-
-      var val = {min: min, max: max};
-      if (this.value.min !== min || this.value.max !== max) {
-        this.$emit('input', val);
-        this.$emit('change', val);
-      }
-    },
-    __validateProps: function __validateProps () {
-      if (this.min >= this.max) {
-        console.error('Range error: min >= max', this.$el, this.min, this.max);
-      }
-      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step);
-      }
-      else if (notDivides((this.value.min - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of initial value.min - min', this.value.min, this.min, this.step);
-      }
-      else if (notDivides((this.value.max - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of initial value.max - min', this.value.max, this.max, this.step);
-      }
-    }
-  }
-};
-
-var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating row inline items-center no-wrap",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj ),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))
-var obj;},staticRenderFns: [],
-  name: 'q-rating',
-  components: {
-    QIcon: QIcon
-  },
-  props: {
-    value: {
-      type: Number,
-      default: 0,
-      required: true
-    },
-    max: {
-      type: Number,
-      default: 5
-    },
-    icon: {
-      type: String,
-      default: 'grade'
-    },
-    color: String,
-    size: String,
-    readonly: Boolean,
-    disable: Boolean
-  },
-  data: function data () {
-    return {
-      mouseModel: 0
-    }
-  },
-  computed: {
-    model: {
-      get: function get () {
-        return this.value
-      },
-      set: function set (val) {
-        if (this.value !== val) {
-          this.$emit('input', val);
-          this.$emit('change', val);
-        }
-      }
-    },
-    editable: function editable () {
-      return !this.readonly && !this.disable
-    }
-  },
-  methods: {
-    set: function set (value) {
-      if (this.editable) {
-        this.model = between(parseInt(value, 10), 1, this.max);
-        this.mouseModel = 0;
-      }
-    },
-    __setHoverValue: function __setHoverValue (value) {
-      if (this.editable) {
-        this.mouseModel = value;
-      }
-    }
-  }
-};
-
-function width$1 (val) {
-  return { width: (val + "%") }
-}
-
-var QProgress = {
-  name: 'q-progress',
-  props: {
-    percentage: {
-      type: Number,
-      default: 0
-    },
-    color: String,
-    stripe: Boolean,
-    animate: Boolean,
-    indeterminate: Boolean,
-    buffer: Number,
-    height: {
-      type: String,
-      default: '4px'
-    }
-  },
-  computed: {
-    model: function model () {
-      return between(this.percentage, 0, 100)
-    },
-    bufferModel: function bufferModel () {
-      return between(this.buffer || 0, 0, 100 - this.model)
-    },
-    bufferStyle: function bufferStyle () {
-      return width$1(this.bufferModel)
-    },
-    trackStyle: function trackStyle () {
-      return width$1(this.buffer ? 100 - this.buffer : 100)
-    },
-    computedClass: function computedClass () {
-      if (this.color) {
-        return ("text-" + (this.color))
-      }
-    },
-    computedStyle: function computedStyle () {
-      return { height: this.height }
-    },
-    modelClass: function modelClass () {
-      return {
-        animate: this.animate,
-        stripe: this.stripe,
-        indeterminate: this.indeterminate
-      }
-    },
-    modelStyle: function modelStyle () {
-      return width$1(this.model)
-    }
-  },
-  render: function render (h) {
-    return h('div', {
-      staticClass: 'q-progress',
-      style: this.computedStyle,
-      'class': this.computedClass
-    }, [
-      this.buffer && !this.indeterminate
-        ? h('div', {
-          staticClass: 'q-progress-buffer',
-          style: this.bufferStyle
-        })
-        : null,
-
-      h('div', {
-        staticClass: 'q-progress-track',
-        style: this.trackStyle
-      }),
-
-      h('div', {
-        staticClass: 'q-progress-model',
-        style: this.modelStyle,
-        'class': this.modelClass
-      })
-    ])
-  }
-};
-
-var Dialog$1 = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"minimized":"","no-backdrop-dismiss":_vm.noBackdropDismiss,"no-esc-dismiss":_vm.noEscDismiss,"position":_vm.position},on:{"close":function($event){_vm.__dismiss();}}},[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),(_vm.message)?_c('div',{staticClass:"modal-body modal-scroll",domProps:{"innerHTML":_vm._s(_vm.message)}}):_vm._e(),_vm._v(" "),(_vm.form)?_c('div',{staticClass:"modal-body modal-scroll"},[_vm._l((_vm.form),function(el){return [(el.type === 'heading')?_c('h6',{domProps:{"innerHTML":_vm._s(el.label)}}):_vm._e(),_vm._v(" "),(_vm.__isInputType(el.type))?_c('q-input',{staticStyle:{"margin-bottom":"10px"},attrs:{"type":el.type,"color":el.color,"placeholder":el.placeholder,"float-label":el.label,"no-pass-toggle":el.noPassToggle},model:{value:(el.model),callback:function ($$v) {_vm.$set(el, "model", $$v);},expression:"el.model"}}):(el.type === 'chips')?_c('q-chips-input',{attrs:{"color":el.color,"float-label":el.label},model:{value:(el.model),callback:function ($$v) {_vm.$set(el, "model", $$v);},expression:"el.model"}}):(['radio', 'checkbox', 'toggle'].includes(el.type))?_c('q-option-group',{attrs:{"type":el.type,"color":el.color,"options":el.items,"inline":el.inline,"dark":el.dark,"keep-color":el.keepColor},model:{value:(el.model),callback:function ($$v) {_vm.$set(el, "model", $$v);},expression:"el.model"}}):_vm._e(),_vm._v(" "),(el.type === 'slider' || el.type === 'range')?_c('div',{staticStyle:{"margin-top":"15px","margin-bottom":"10px"}},[_c('label',{domProps:{"innerHTML":_vm._s(el.label + ' (' + (el.type === 'range' ? el.model.min + ' to ' + el.model.max : el.model) + ')')}}),_vm._v(" "),_c('q-' + el.type,{tag:"component",staticClass:"with-padding",attrs:{"min":el.min,"max":el.max,"step":el.step,"decimals":el.decimals,"label":el.withLabel,"label-always":el.labelAlways,"markers":el.markers,"snap":el.snap,"square":el.square,"color":el.color},model:{value:(el.model),callback:function ($$v) {_vm.$set(el, "model", $$v);},expression:"el.model"}})],1):_vm._e(),_vm._v(" "),(el.type === 'rating')?_c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('label',{staticClass:"block",domProps:{"innerHTML":_vm._s(el.label)}}),_vm._v(" "),_c('q-rating',{style:({fontSize: el.size || '2rem'}),attrs:{"max":el.max,"icon":el.icon,"color":el.color},model:{value:(el.model),callback:function ($$v) {_vm.$set(el, "model", $$v);},expression:"el.model"}})],1):_vm._e()]})],2):_vm._e(),_vm._v(" "),(_vm.progress)?_c('div',{staticClass:"modal-body"},[_c('q-progress',{attrs:{"percentage":_vm.progress.model,"color":"progress.color || primary","animate":"","stripe":"","indeterminate":_vm.progress.indeterminate}}),_vm._v(" "),(!_vm.progress.indeterminate)?_c('span',[_vm._v(" "+_vm._s(_vm.progress.model)+" % ")]):_vm._e()],1):_vm._e(),_vm._v(" "),(_vm.buttons)?_c('div',{staticClass:"modal-buttons",class:{row: !_vm.stackButtons, column: _vm.stackButtons}},_vm._l((_vm.buttons),function(button,index){return _c('q-btn',{key:index,class:button.classes,style:(button.style),attrs:{"color":button.color,"flat":button.flat || !button.raised && !button.push && !button.outline && !button.rounded,"push":button.push,"rounded":button.rounded,"outline":button.outline},on:{"click":function($event){_vm.trigger(button.handler, button.preventClose);}}},[_c('span',{domProps:{"innerHTML":_vm._s(typeof button === 'string' ? button : button.label)}})])})):_vm._e(),_vm._v(" "),(!_vm.buttons && !_vm.noButtons)?_c('div',{staticClass:"modal-buttons row"},[_c('q-btn',{attrs:{"flat":""},on:{"click":function($event){_vm.close();}}},[_vm._v("OK")])],1):_vm._e()])},staticRenderFns: [],
+var QDialog = {
   name: 'q-dialog',
-  components: {
-    QModal: QModal,
-    QInput: QInput,
-    QChipsInput: QChipsInput,
-    QOptionGroup: QOptionGroup,
-    QSlider: QSlider,
-    QRange: QRange,
-    QRating: QRating,
-    QProgress: QProgress,
-    QBtn: QBtn
-  },
+  mixins: [ModelToggleMixin],
   props: {
     title: String,
     message: String,
-    form: Object,
+    prompt: Object,
+    options: Object,
+    ok: {
+      type: Boolean,
+      default: true
+    },
+    cancel: Boolean,
     stackButtons: Boolean,
-    buttons: Array,
-    noButtons: Boolean,
-    progress: Object,
-    onDismiss: Function,
-    noBackdropDismiss: Boolean,
-    noEscDismiss: Boolean,
-    position: String
+    preventClose: Boolean,
+    position: String,
+    color: {
+      type: String,
+      default: 'primary'
+    }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    var
+      child = [],
+      title = this.$slots.title || this.title,
+      msg = this.$slots.message || this.message;
+
+    if (title) {
+      child.push(
+        h('div', {
+          staticClass: 'modal-header'
+        }, [ title ])
+      );
+    }
+    if (msg) {
+      child.push(
+        h('div', {
+          staticClass: 'modal-body modal-scroll'
+        }, [ msg ])
+      );
+    }
+
+    child.push(
+      h(
+        'div',
+        { staticClass: 'modal-body modal-scroll' },
+        this.hasForm
+          ? (this.prompt ? this.__getPrompt(h) : this.__getOptions(h))
+          : [ this.$slots.default ]
+      )
+    );
+
+    if (this.$scopedSlots.buttons) {
+      child.push(
+        h('div', {
+          staticClass: 'modal-buttons',
+          'class': {
+            row: !this.stackButtons,
+            column: this.stackButtons
+          }
+        }, [
+          this.$scopedSlots.buttons({
+            ok: this.__onOk,
+            cancel: this.__onCancel
+          })
+        ])
+      );
+    }
+    else if (this.ok || this.cancel) {
+      child.push(
+        h(
+          'div',
+          { staticClass: 'modal-buttons row' },
+          this.__getButtons(h)
+        )
+      );
+    }
+
+    return h(QModal, {
+      ref: 'modal',
+      props: {
+        minimized: true,
+        noBackdropDismiss: this.preventClose,
+        noEscDismiss: this.preventClose,
+        position: this.position
+      },
+      on: {
+        dismiss: function () {
+          this$1.hide().then(function () { return this$1.$emit('cancel'); });
+        },
+        'escape-key': function () {
+          this$1.hide().then(function () {
+            this$1.$emit('escape-key');
+            this$1.$emit('cancel');
+          });
+        }
+      }
+    }, child)
   },
   computed: {
-    opened: function opened () {
-      if (this.$refs.dialog) {
-        return this.$refs.dialog.active
-      }
+    hasForm: function hasForm () {
+      return this.prompt || this.options
     }
   },
   methods: {
-    trigger: function trigger (handler, preventClose) {
-      if (typeof handler !== 'function') {
-        this.close();
-        return
-      }
-
-      var data = this.getFormData();
-
-      if (preventClose) {
-        handler(data, this.close);
-      }
-      else {
-        this.close(function () { handler(data); });
-      }
-    },
-    getFormData: function getFormData () {
+    show: function show () {
       var this$1 = this;
 
-      if (!this.form) {
-        return
+      if (this.showing) {
+        return Promise.resolve()
       }
 
-      var data = {};
+      return this.$refs.modal.show().then(function () {
+        this$1.$emit('show');
+        this$1.__updateModel(true);
 
-      Object.keys(this.form).forEach(function (name) {
-        var el = this$1.form[name];
-        if (el.type !== 'heading') {
-          data[name] = el.model;
+        if (!this$1.$q.platform.is.desktop) {
+          return
         }
-      });
 
-      return data
+        var node = this$1.$refs.modal.$el.getElementsByTagName('INPUT');
+        if (node.length) {
+          node[0].focus();
+          return
+        }
+
+        node = this$1.$refs.modal.$el.getElementsByTagName('INPUT');
+        if (node.length) {
+          node[node.length - 1].focus();
+        }
+      })
     },
-    close: function close (fn) {
+    hide: function hide () {
       var this$1 = this;
 
-      if (!this.opened) {
-        return
+      var data;
+
+      if (this.hasForm) {
+        data = clone(this.__getData());
       }
-      this.$refs.dialog.close(function () {
-        if (typeof fn === 'function') {
-          fn(this$1.getFormData());
-        }
-      });
+
+      return this.showing
+        ? this.$refs.modal.hide().then(function () {
+          this$1.$emit('hide', data);
+          this$1.__updateModel(false);
+          return data
+        })
+        : Promise.resolve(data)
     },
-    __isInputType: function __isInputType (type) {
-      return inputTypes.includes(type)
+    __getPrompt: function __getPrompt (h) {
+      var this$1 = this;
+
+      return [
+        h(QInput, {
+          style: 'margin-bottom: 10px',
+          props: {
+            value: this.prompt.model,
+            type: this.prompt.type || 'text',
+            color: this.color,
+            noPassToggle: true
+          },
+          on: {
+            change: function (v) { this$1.prompt.model = v; }
+          }
+        })
+      ]
     },
-    __dismiss: function __dismiss () {
-      this.$root.$destroy();
-      if (typeof this.onDismiss === 'function') {
-        this.onDismiss(this.getFormData());
+    __getOptions: function __getOptions (h) {
+      var this$1 = this;
+
+      return [
+        h(QOptionGroup, {
+          props: {
+            value: this.options.model,
+            type: this.options.type,
+            color: this.color,
+            inline: this.options.inline,
+            options: this.options.items
+          },
+          on: {
+            change: function (v) { this$1.options.model = v; }
+          }
+        })
+      ]
+    },
+    __getButtons: function __getButtons (h) {
+      var child = [];
+
+      if (this.cancel) {
+        child.push(h(QBtn, {
+          props: { color: this.color, flat: true, label: 'Cancel' },
+          on: { click: this.__onCancel }
+        }));
+      }
+      if (this.ok) {
+        child.push(h(QBtn, {
+          props: { color: this.color, flat: true, label: 'OK' },
+          on: { click: this.__onOk }
+        }));
+      }
+
+      return child
+    },
+    __onOk: function __onOk () {
+      var this$1 = this;
+
+      return this.hide().then(function (data) {
+        this$1.$emit('ok', data);
+      })
+    },
+    __onCancel: function __onCancel () {
+      var this$1 = this;
+
+      return this.hide().then(function () {
+        this$1.$emit('cancel');
+      })
+    },
+    __getData: function __getData () {
+      if (this.prompt) {
+        return this.prompt.model
+      }
+      if (this.options) {
+        return this.options.model
       }
     }
+  }
+};
+
+var QTooltip = {
+  name: 'q-tooltip',
+  mixins: [ModelToggleMixin],
+  props: {
+    anchor: {
+      type: String,
+      default: 'top middle',
+      validator: positionValidator
+    },
+    self: {
+      type: String,
+      default: 'bottom middle',
+      validator: positionValidator
+    },
+    offset: {
+      type: Array,
+      validator: offsetValidator
+    },
+    delay: {
+      type: Number,
+      default: 0
+    },
+    maxHeight: String,
+    disable: Boolean
+  },
+  computed: {
+    anchorOrigin: function anchorOrigin () {
+      return parsePosition(this.anchor)
+    },
+    selfOrigin: function selfOrigin () {
+      return parsePosition(this.self)
+    },
+    transformCSS: function transformCSS () {
+      return getTransformProperties({
+        selfOrigin: this.selfOrigin
+      })
+    }
+  },
+  methods: {
+    show: function show () {
+      if (this.disable || this.showing) {
+        return Promise.resolve()
+      }
+      clearTimeout(this.timer);
+      document.body.appendChild(this.$el);
+      this.scrollTarget = getScrollTarget(this.anchorEl);
+      this.scrollTarget.addEventListener('scroll', this.hide);
+      window.addEventListener('resize', this.__debouncedUpdatePosition);
+      if (this.$q.platform.is.mobile) {
+        document.body.addEventListener('click', this.hide, true);
+      }
+      this.__updateModel(true, false);
+      this.$emit('show');
+      this.__updatePosition();
+      return Promise.resolve()
+    },
+    hide: function hide () {
+      clearTimeout(this.timer);
+      if (!this.showing) {
+        return Promise.resolve()
+      }
+
+      this.scrollTarget.removeEventListener('scroll', this.hide);
+      window.removeEventListener('resize', this.__debouncedUpdatePosition);
+      document.body.removeChild(this.$el);
+      if (this.$q.platform.is.mobile) {
+        document.body.removeEventListener('click', this.hide, true);
+      }
+      this.__updateModel(false, false);
+      this.$emit('hide');
+      return Promise.resolve()
+    },
+    __updatePosition: function __updatePosition () {
+      setPosition({
+        el: this.$el,
+        offset: this.offset,
+        anchorEl: this.anchorEl,
+        anchorOrigin: this.anchorOrigin,
+        selfOrigin: this.selfOrigin,
+        maxHeight: this.maxHeight
+      });
+    },
+    __delayShow: function __delayShow () {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.show, this.delay);
+    }
+  },
+  render: function render (h) {
+    return h('span', {
+      staticClass: 'q-tooltip animate-scale',
+      style: this.transformCSS
+    }, [ this.$slots.default ])
+  },
+  created: function created () {
+    var this$1 = this;
+
+    this.__debouncedUpdatePosition = debounce(function () {
+      this$1.__updatePosition();
+    }, 70);
   },
   mounted: function mounted () {
     var this$1 = this;
 
-    this.$refs.dialog.open(function () {
-      if (!this$1.$q.platform.is.desktop) {
-        return
-      }
+    this.$nextTick(function () {
+      /*
+        The following is intentional.
+        Fixes a bug in Chrome regarding offsetHeight by requiring browser
+        to calculate this before removing from DOM and using it for first time.
+      */
+      this$1.$el.offsetHeight; // eslint-disable-line
 
-      var node = this$1.$refs.dialog.$el.getElementsByTagName(this$1.form ? 'INPUT' : 'BUTTON');
-      if (!node.length) {
-        return
+      this$1.anchorEl = this$1.$el.parentNode;
+      this$1.anchorEl.removeChild(this$1.$el);
+      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+        this$1.anchorEl = this$1.anchorEl.parentNode;
       }
-
-      if (this$1.form) {
-        node[0].focus();
+      if (this$1.$q.platform.is.mobile) {
+        this$1.anchorEl.addEventListener('click', this$1.show);
       }
       else {
-        node[node.length - 1].focus();
+        this$1.anchorEl.addEventListener('mouseenter', this$1.__delayShow);
+        this$1.anchorEl.addEventListener('focus', this$1.__delayShow);
+        this$1.anchorEl.addEventListener('mouseleave', this$1.hide);
+        this$1.anchorEl.addEventListener('blur', this$1.hide);
       }
     });
-    this.$root.quasarClose = this.close;
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (!this.anchorEl) {
+      return
+    }
+    if (this.$q.platform.is.mobile) {
+      this.anchorEl.removeEventListener('click', this.show);
+    }
+    else {
+      this.anchorEl.removeEventListener('mouseenter', this.__delayShow);
+      this.anchorEl.removeEventListener('focus', this.__delayShow);
+      this.anchorEl.removeEventListener('mouseleave', this.hide);
+      this.anchorEl.removeEventListener('blur', this.hide);
+    }
+    this.hide();
   }
 };
 
-var Dialog = Modal(Dialog$1);
+function run (e, btn, vm) {
+  if (btn.handler) {
+    btn.handler(e, vm, vm.caret);
+  }
+  else {
+    vm.runCmd(btn.cmd, btn.param);
+  }
+}
+
+function getBtn (h, vm, btn, clickHandler) {
+  var
+    child = [],
+    events = {
+      click: function click (e) {
+        clickHandler && clickHandler();
+        run(e, btn, vm);
+      }
+    };
+
+  if (btn.tip && vm.$q.platform.is.desktop) {
+    var Key = btn.key
+      ? h('div', [h('small', ("(CTRL + " + (String.fromCharCode(btn.key)) + ")"))])
+      : null;
+    child.push(h(QTooltip, { props: {delay: 1000} }, [
+      h('div', { domProps: { innerHTML: btn.tip } }),
+      Key
+    ]));
+  }
+
+  if (btn.type === void 0) {
+    return h(QBtnToggle, {
+      props: extend({
+        icon: btn.icon,
+        label: btn.label,
+        toggled: btn.toggled ? btn.toggled(vm) : btn.cmd && vm.caret.is(btn.cmd, btn.param),
+        color: vm.color,
+        toggleColor: vm.toggleColor,
+        disable: btn.disable ? btn.disable(vm) : false
+      }, vm.buttonProps),
+      on: events
+    }, child)
+  }
+  if (btn.type === 'no-state') {
+    return h(QBtn, {
+      props: extend({
+        icon: btn.icon,
+        color: vm.color,
+        label: btn.label,
+        disable: btn.disable ? btn.disable(vm) : false
+      }, vm.buttonProps),
+      on: events
+    }, child)
+  }
+}
+
+function getDropdown (h, vm, btn) {
+  var
+    label = btn.label,
+    icon = btn.icon,
+    noIcons = btn.list === 'no-icons',
+    onlyIcons = btn.list === 'only-icons',
+    Items;
+
+  function closeDropdown () {
+    Dropdown.componentInstance.hide();
+  }
+
+  if (onlyIcons) {
+    Items = btn.options.map(function (btn) {
+      var active = btn.type === void 0
+        ? vm.caret.is(btn.cmd, btn.param)
+        : false;
+
+      if (active) {
+        label = btn.tip;
+        icon = btn.icon;
+      }
+      return getBtn(h, vm, btn, closeDropdown)
+    });
+    Items = [
+      h(
+        QBtnGroup,
+        { props: vm.buttonProps, staticClass: 'relative-position q-editor-toolbar-padding' },
+        Items
+      )
+    ];
+  }
+  else {
+    Items = btn.options.map(function (btn) {
+      var disable = btn.disable ? btn.disable(vm) : false;
+      var active = btn.type === void 0
+        ? vm.caret.is(btn.cmd, btn.param)
+        : false;
+
+      if (active) {
+        label = btn.tip;
+        icon = btn.icon;
+      }
+
+      return h(
+        QItem,
+        {
+          props: { active: active, link: !disable },
+          staticClass: disable ? 'disabled' : '',
+          on: {
+            click: function click (e) {
+              if (disable) { return }
+              closeDropdown();
+              vm.$refs.content.focus();
+              vm.caret.restore();
+              run(e, btn, vm);
+            }
+          }
+        },
+        [
+          noIcons ? '' : h(QItemSide, {props: {icon: btn.icon}}),
+          h(QItemMain, {
+            props: {
+              label: btn.htmlTip || btn.tip
+            }
+          })
+        ]
+      )
+    });
+    Items = [ h(QList, { props: { separator: true } }, [ Items ]) ];
+  }
+
+  var Dropdown = h(
+    QBtnDropdown,
+    {
+      props: extend({
+        noCaps: true,
+        noWrap: true,
+        color: btn.highlight && label !== btn.label ? vm.toggleColor : vm.color,
+        label: btn.fixedLabel ? btn.label : label,
+        icon: btn.fixedIcon ? btn.icon : icon
+      }, vm.buttonProps)
+    },
+    Items
+  );
+  return Dropdown
+}
+
+function getToolbar (h, vm) {
+  if (vm.caret) {
+    return vm.buttons.map(function (group) { return h(
+      QBtnGroup,
+      { props: vm.buttonProps, staticClass: 'relative-position' },
+      group.map(function (btn) {
+        if (btn.type === 'slot') {
+          return vm.$slots[btn.slot]
+        }
+
+        if (btn.type === 'dropdown') {
+          return getDropdown(h, vm, btn)
+        }
+
+        return getBtn(h, vm, btn)
+      })
+    ); })
+  }
+}
+
+function getFonts (defaultFont, fonts) {
+  if ( fonts === void 0 ) fonts = {};
+
+  var aliases = Object.keys(fonts);
+  if (aliases.length === 0) {
+    return {}
+  }
+
+  var def = {
+    default_font: {
+      cmd: 'fontName',
+      param: defaultFont,
+      icon: 'font_download',
+      tip: 'Default Font'
+    }
+  };
+
+  aliases.forEach(function (alias) {
+    var name = fonts[alias];
+    def[alias] = {
+      cmd: 'fontName',
+      param: name,
+      icon: 'font_download',
+      tip: name,
+      htmlTip: ("<font face=\"" + name + "\">" + name + "</font>")
+    };
+  });
+
+  return def
+}
+
+var buttons = {
+  bold: {cmd: 'bold', icon: 'format_bold', tip: 'Bold', key: 66},
+  italic: {cmd: 'italic', icon: 'format_italic', tip: 'Italic', key: 73},
+  strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: 'Strikethrough', key: 83},
+  underline: {cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
+  unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Unordered List'},
+  ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Ordered List'},
+  subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript', htmlTip: 'x<subscript>2</subscript>'},
+  superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript', htmlTip: 'x<superscript>2</superscript>'},
+  link: {cmd: 'link', icon: 'link', tip: 'Hyperlink', key: 76},
+  fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: 'Toggle Fullscreen', key: 70},
+
+  quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
+  left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Left align'},
+  center: {cmd: 'justifyCenter', icon: 'format_align_center', tip: 'Center align'},
+  right: {cmd: 'justifyRight', icon: 'format_align_right', tip: 'Right align'},
+  justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify align'},
+
+  print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print', key: 80},
+  outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
+  indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
+  removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
+  hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Insert Horizontal Rule'},
+  undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
+  redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
+
+  h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Header 1', htmlTip: '<h1>Header 1</h1>'},
+  h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Header 2', htmlTip: '<h2>Header 2</h2>'},
+  h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Header 3', htmlTip: '<h3>Header 3</h3>'},
+  h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Header 4', htmlTip: '<h4>Header 4</h4>'},
+  h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Header 5', htmlTip: '<h5>Header 5</h5>'},
+  h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Header 6', htmlTip: '<h6>Header 6</h6>'},
+  p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
+  code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: '<code>Code</code>'},
+
+  'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small', htmlTip: '<font size="1">Very small</font>'},
+  'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small', htmlTip: '<font size="2">A bit small</font>'},
+  'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal', htmlTip: '<font size="3">Normal</font>'},
+  'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large', htmlTip: '<font size="4">Medium-large</font>'},
+  'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big', htmlTip: '<font size="5">Big</font>'},
+  'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big', htmlTip: '<font size="6">Very big</font>'},
+  'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum', htmlTip: '<font size="7">Maximum</font>'}
+};
 
 function getBlockElement (el, parent) {
   if (parent && el === parent) {
@@ -8386,15 +8008,14 @@ Caret.prototype.apply = function apply (cmd, param, done) {
       this.range.selectNodeContents(this.parent);
     }
     this.save();
-    Dialog.create({
+    // TODO
+    this.$q.dialog({
       title: 'Link',
       message: this.selection ? this.selection.toString() : null,
-      form: {
-        url: {
-          type: 'text',
-          label: 'URL',
-          model: link || 'http://'
-        }
+      prompt: {
+        type: 'text',
+        label: 'URL',
+        model: link || 'http://'
       },
       buttons: [
         {
@@ -8701,7 +8322,7 @@ var FabMixin = {
   }
 };
 
-var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab z-fab row inline justify-center",class:{'q-fab-opened': _vm.opened}},[_c('q-btn',{class:{glossy: _vm.glossy},attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_vm._t("tooltip"),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.icon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-active-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.activeIcon}})],2),_vm._v(" "),_c('div',{staticClass:"q-fab-actions flex no-wrap inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
+var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab z-fab row inline justify-center",class:{'q-fab-opened': _vm.showing}},[_c('q-btn',{class:{glossy: _vm.glossy},attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_vm._t("tooltip"),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.icon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-active-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.activeIcon}})],2),_vm._v(" "),_c('div',{staticClass:"q-fab-actions flex no-wrap inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
   name: 'q-fab',
   mixins: [FabMixin, ModelToggleMixin],
   components: {
@@ -8724,36 +8345,23 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
   },
   provide: function provide () {
     return {
-      __qFabClose: this.close
-    }
-  },
-  data: function data () {
-    return {
-      opened: false
+      __qFabClose: this.hide
     }
   },
   methods: {
-    open: function open () {
-      this.opened = true;
-      this.__updateModel(true);
-      this.$emit('open');
+    show: function show () {
+      if (!this.showing) {
+        this.__updateModel(true);
+        this.$emit('show');
+      }
+      return Promise.resolve()
     },
-    close: function close (fn) {
-      this.opened = false;
-      this.__updateModel(false);
-      this.$emit('close');
-
-      if (typeof fn === 'function') {
-        fn();
+    hide: function hide () {
+      if (this.showing) {
+        this.__updateModel(false);
+        this.$emit('hide');
       }
-    },
-    toggle: function toggle () {
-      if (this.opened) {
-        this.close();
-      }
-      else {
-        this.open();
-      }
+      return Promise.resolve()
     }
   }
 };
@@ -8781,7 +8389,7 @@ var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
     click: function click (e) {
       var this$1 = this;
 
-      this.__qFabClose(function () {
+      this.__qFabClose().then(function () {
         this$1.$emit('click', e);
       });
     }
@@ -8978,11 +8586,8 @@ var QInfiniteScroll = {render: function(){var _vm=this;var _h=_vm.$createElement
   }
 };
 
-var QInnerLoading = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.visible)?_c('div',{staticClass:"q-inner-loading animate-fade absolute-full column flex-center",class:{dark: _vm.dark}},[_vm._t("default",[_c('q-spinner',{attrs:{"size":_vm.size,"color":_vm.color}})])],2):_vm._e()},staticRenderFns: [],
+var QInnerLoading = {
   name: 'q-inner-loading',
-  components: {
-    QSpinner: QSpinner
-  },
   props: {
     dark: Boolean,
     visible: Boolean,
@@ -8991,6 +8596,24 @@ var QInnerLoading = {render: function(){var _vm=this;var _h=_vm.$createElement;v
       default: 42
     },
     color: String
+  },
+  render: function render (h) {
+    if (!this.visible) {
+      return
+    }
+
+    return h('div', {
+      staticClass: 'q-inner-loading animate-fade absolute-full column flex-center',
+      'class': { dark: this.dark }
+    }, [
+      this.$slots.default ||
+      h(QSpinner, {
+        props: {
+          size: this.size,
+          color: this.color
+        }
+      })
+    ])
   }
 };
 
@@ -9276,7 +8899,7 @@ var QLayout = {
 };
 
 var bodyClass = 'with-layout-drawer-opened';
-var duration$1 = 120 + 30;
+var duration$1 = 150;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
@@ -9287,14 +8910,11 @@ var QLayoutDrawer = {
       }
     }
   },
+  mixins: [ModelToggleMixin],
   directives: {
     TouchPan: TouchPan
   },
   props: {
-    value: {
-      type: Boolean,
-      default: true
-    },
     overlay: Boolean,
     rightSide: Boolean,
     breakpoint: {
@@ -9314,6 +8934,7 @@ var QLayoutDrawer = {
     );
 
     return {
+      showing: true,
       belowBreakpoint: belowBreakpoint,
       largeScreenState: this.value,
       mobileOpened: false,
@@ -9325,57 +8946,6 @@ var QLayoutDrawer = {
     }
   },
   watch: {
-    value: function value (val) {
-      var this$1 = this;
-
-      console.log('watcher value', val);
-      if (!val && this.mobileOpened) {
-        console.log('watcher value: mobile opened; history remove');
-        History.remove();
-        return
-      }
-
-      if (val && this.belowBreakpoint) {
-        console.log('watcher value: opening mobile');
-        this.mobileOpened = true;
-        this.percentage = 1;
-        document.body.classList.add(bodyClass);
-
-        History.add(function () { return new Promise(function (resolve, reject) {
-          this$1.mobileOpened = false;
-          this$1.percentage = 0;
-          document.body.classList.remove(bodyClass);
-          this$1.__updateModel(this$1.belowBreakpoint || this$1.overlay ? false : this$1.largeScreenState);
-          if (typeof this$1.__onClose === 'function') {
-            setTimeout(function () {
-              resolve();
-              this$1.__onClose();
-              this$1.__onClose = null;
-            }, duration$1);
-          }
-          else {
-            resolve();
-          }
-        }); });
-      }
-
-      if (val) {
-        console.log('watcher value: calling onshow');
-        if (typeof this.__onShow === 'function') {
-          this.__onShow();
-          this.__onShow = null;
-        }
-        return
-      }
-
-      console.log('watcher value: calling onclose');
-      if (typeof this.__onClose === 'function') {
-        setTimeout(function () {
-          this$1.__onClose();
-          this$1.__onClose = null;
-        }, duration$1);
-      }
-    },
     belowBreakpoint: function belowBreakpoint (val, old) {
       console.log('belowBreakpoint: change detected', val);
       if (this.mobileOpened) {
@@ -9386,8 +8956,8 @@ var QLayoutDrawer = {
       if (val) { // from lg to xs
         console.log('belowBreakpoint: from lg to xs; model force to false');
         if (!this.overlay) {
-          console.log('belowBreakpoint: largeScreenState set to', this.value);
-          this.largeScreenState = this.value;
+          console.log('belowBreakpoint: largeScreenState set to', this.showing);
+          this.largeScreenState = this.showing;
         }
         // ensure we close it for small screen
         this.__updateModel(false);
@@ -9429,8 +8999,13 @@ var QLayoutDrawer = {
       this.layout.__animate();
     },
     $route: function $route () {
+      if (this.mobileOpened) {
+        console.log('$route watch closing');
+        this.hide();
+        return
+      }
       if (this.onScreenOverlay) {
-        console.log('on screen overlay; closing');
+        console.log('$route watch updating model');
         this.__updateModel(false);
       }
     }
@@ -9440,7 +9015,7 @@ var QLayoutDrawer = {
       return this.rightSide ? 'right' : 'left'
     },
     offset: function offset$$1 () {
-      return this.value && !this.mobileOpened
+      return this.showing && !this.mobileOpened
         ? this.size
         : 0
     },
@@ -9448,15 +9023,15 @@ var QLayoutDrawer = {
       return this.overlay || this.layout.view.indexOf(this.rightSide ? 'R' : 'L') > -1
     },
     onLayout: function onLayout () {
-      return this.value && !this.mobileView && !this.overlay
+      return this.showing && !this.mobileView && !this.overlay
     },
     onScreenOverlay: function onScreenOverlay () {
-      return this.value && !this.mobileView && this.overlay
+      return this.showing && !this.mobileView && this.overlay
     },
     backdropClass: function backdropClass () {
       return {
         'q-layout-backdrop-transition': !this.inTransit,
-        'no-pointer-events': !this.inTransit && !this.value
+        'no-pointer-events': !this.inTransit && !this.showing
       }
     },
     mobileView: function mobileView () {
@@ -9485,8 +9060,8 @@ var QLayoutDrawer = {
       return {
         'fixed': true,
         'on-top': true,
-        'on-screen': this.value,
-        'off-screen': !this.value,
+        'on-screen': this.showing,
+        'off-screen': !this.showing,
         'transition-generic': !this.inTransit,
         'top-padding': this.fixed || this.headerSlot
       }
@@ -9594,7 +9169,7 @@ var QLayoutDrawer = {
       this$1.animateOverlay = true;
     });
   },
-  destroyed: function destroyed () {
+  beforeDestroy: function beforeDestroy () {
     this.__update('size', 0);
     this.__update('space', false);
   },
@@ -9651,27 +9226,48 @@ var QLayoutDrawer = {
         this.inTransit = true;
       }
     },
-    show: function show (fn) {
-      if (this.value === true) {
-        if (typeof fn === 'function') {
-          fn();
-        }
-        return
+    show: function show () {
+      var this$1 = this;
+
+      console.log('show', this.showing);
+      if (this.showing) {
+        return Promise.resolve()
       }
 
-      this.__onShow = fn;
+      if (this.belowBreakpoint) {
+        console.log('watcher value: opening mobile');
+        this.mobileOpened = true;
+        this.percentage = 1;
+        document.body.classList.add(bodyClass);
+      }
+
       this.__updateModel(true);
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          this$1.$emit('show');
+          resolve();
+        }, duration$1);
+      })
     },
-    hide: function hide (fn) {
-      if (this.value === false) {
-        if (typeof fn === 'function') {
-          fn();
-        }
-        return
+    hide: function hide () {
+      var this$1 = this;
+
+      console.log('hide', this.showing);
+      if (!this.showing) {
+        return Promise.resolve()
       }
 
-      this.__onClose = fn;
+      this.mobileOpened = false;
+      this.percentage = 0;
+      document.body.classList.remove(bodyClass);
       this.__updateModel(false);
+
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          this$1.$emit('hide');
+          resolve();
+        }, duration$1);
+      })
     },
 
     __onResize: function __onResize (ref) {
@@ -9679,12 +9275,6 @@ var QLayoutDrawer = {
 
       this.__update('size', width$$1);
       this.__updateLocal('size', width$$1);
-    },
-    __updateModel: function __updateModel (val) {
-      if (this.value !== val) {
-        console.log('new model', val);
-        this.$emit('input', val);
-      }
     },
     __update: function __update (prop, val) {
       if (this.layout[this.side][prop] !== val) {
@@ -10227,7 +9817,7 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-var QParallax = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-parallax",style:({height: _vm.height + 'px'})},[_c('div',{staticClass:"q-parallax-image absolute-full"},[_c('img',{ref:"img",class:{ready: _vm.imageHasBeenLoaded},attrs:{"src":_vm.src},on:{"load":function($event){_vm.__processImage();}}})]),_vm._v(" "),_c('div',{staticClass:"q-parallax-text absolute-full column flex-center"},[(!_vm.imageHasBeenLoaded)?_vm._t("loading"):_vm._t("default")],2)])},staticRenderFns: [],
+var QParallax = {
   name: 'q-parallax',
   props: {
     src: {
@@ -10305,6 +9895,35 @@ var QParallax = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       css(this.$refs.img, cssTransform(("translate3D(-50%," + offset$$1 + "px, 0)")));
     }
   },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-parallax',
+      style: { height: ((this.height) + "px") }
+    }, [
+      h('div', {
+        staticClass: 'q-parallax-image absolute-full'
+      }, [
+        h('img', {
+          ref: 'img',
+          domProps: {
+            src: this.src
+          },
+          'class': { ready: this.imageHasBeenLoaded },
+          on: {
+            load: this.__processImage
+          }
+        })
+      ]),
+
+      h('div', {
+        staticClass: 'q-parallax-text absolute-full column flex-center'
+      }, [
+        this.imageHasBeenLoaded
+          ? this.$slots.default
+          : this.$slots.loading
+      ])
+    ])
+  },
   created: function created () {
     this.__setPos = frameDebounce(this.__setPos);
   },
@@ -10326,6 +9945,86 @@ var QParallax = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   beforeDestroy: function beforeDestroy () {
     window.removeEventListener('resize', this.resizeHandler);
     this.scrollTarget.removeEventListener('scroll', this.__updatePos);
+  }
+};
+
+function width$1 (val) {
+  return { width: (val + "%") }
+}
+
+var QProgress = {
+  name: 'q-progress',
+  props: {
+    percentage: {
+      type: Number,
+      default: 0
+    },
+    color: String,
+    stripe: Boolean,
+    animate: Boolean,
+    indeterminate: Boolean,
+    buffer: Number,
+    height: {
+      type: String,
+      default: '4px'
+    }
+  },
+  computed: {
+    model: function model () {
+      return between(this.percentage, 0, 100)
+    },
+    bufferModel: function bufferModel () {
+      return between(this.buffer || 0, 0, 100 - this.model)
+    },
+    bufferStyle: function bufferStyle () {
+      return width$1(this.bufferModel)
+    },
+    trackStyle: function trackStyle () {
+      return width$1(this.buffer ? 100 - this.buffer : 100)
+    },
+    computedClass: function computedClass () {
+      if (this.color) {
+        return ("text-" + (this.color))
+      }
+    },
+    computedStyle: function computedStyle () {
+      return { height: this.height }
+    },
+    modelClass: function modelClass () {
+      return {
+        animate: this.animate,
+        stripe: this.stripe,
+        indeterminate: this.indeterminate
+      }
+    },
+    modelStyle: function modelStyle () {
+      return width$1(this.model)
+    }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-progress',
+      style: this.computedStyle,
+      'class': this.computedClass
+    }, [
+      this.buffer && !this.indeterminate
+        ? h('div', {
+          staticClass: 'q-progress-buffer',
+          style: this.bufferStyle
+        })
+        : null,
+
+      h('div', {
+        staticClass: 'q-progress-track',
+        style: this.trackStyle
+      }),
+
+      h('div', {
+        staticClass: 'q-progress-model',
+        style: this.modelStyle,
+        'class': this.modelClass
+      })
+    ])
   }
 };
 
@@ -10473,6 +10172,422 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
     this.$nextTick(function () {
       this$1.scrollContainer = this$1.inline ? this$1.$el.parentNode : getScrollTarget(this$1.$el);
     });
+  }
+};
+
+function getPercentage (event, dragging) {
+  return between((position(event).left - dragging.left) / dragging.width, 0, 1)
+}
+
+function notDivides (res, decimals) {
+  var number = decimals
+    ? parseFloat(res.toFixed(decimals))
+    : res;
+
+  return number !== parseInt(number, 10)
+}
+
+function getModel (percentage, min, max, step, decimals) {
+  var
+    model = min + percentage * (max - min),
+    modulo = (model - min) % step;
+
+  model += (Math.abs(modulo) >= step / 2 ? (modulo < 0 ? -1 : 1) * step : 0) - modulo;
+
+  if (decimals) {
+    model = parseFloat(model.toFixed(decimals));
+  }
+
+  return between(model, min, max)
+}
+
+var mixin$1 = {
+  components: {
+    QChip: QChip
+  },
+  props: {
+    min: {
+      type: Number,
+      default: 1
+    },
+    max: {
+      type: Number,
+      default: 5
+    },
+    step: {
+      type: Number,
+      default: 1
+    },
+    decimals: {
+      type: Number,
+      default: 0
+    },
+    snap: Boolean,
+    markers: Boolean,
+    label: Boolean,
+    labelAlways: Boolean,
+    square: Boolean,
+    color: String,
+    fillHandleAlways: Boolean,
+    error: Boolean,
+    disable: Boolean
+  },
+  computed: {
+    classes: function classes () {
+      var cls = {
+        disabled: this.disable,
+        'label-always': this.labelAlways,
+        'has-error': this.error
+      };
+
+      if (!this.error && this.color) {
+        cls[("text-" + (this.color))] = true;
+      }
+
+      return cls
+    },
+    labelColor: function labelColor () {
+      return this.error
+        ? 'negative'
+        : this.color || 'primary'
+    }
+  },
+  methods: {
+    __pan: function __pan (event) {
+      if (this.disable) {
+        return
+      }
+      if (event.isFinal) {
+        this.__end(event.evt);
+      }
+      else if (event.isFirst) {
+        this.__setActive(event.evt);
+      }
+      else if (this.dragging) {
+        this.__update(event.evt);
+      }
+    },
+    __click: function __click (event) {
+      if (this.disable) {
+        return
+      }
+      this.__setActive(event);
+      this.__end(event);
+    }
+  },
+  created: function created () {
+    this.__validateProps();
+  }
+};
+
+var dragType = {
+  MIN: 0,
+  RANGE: 1,
+  MAX: 2
+};
+
+var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_vm._v(" "),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.leftTooltipColor}},[_vm._v(" "+_vm._s(_vm.leftDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_vm._v(" "),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.rightTooltipColor}},[_vm._v(" "+_vm._s(_vm.rightDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
+  name: 'q-range',
+  directives: {
+    TouchPan: TouchPan
+  },
+  mixins: [mixin$1],
+  props: {
+    value: {
+      type: Object,
+      required: true,
+      validator: function validator (value) {
+        return typeof value.min !== 'undefined' && typeof value.max !== 'undefined'
+      }
+    },
+    dragRange: Boolean,
+    dragOnlyRange: Boolean,
+    leftLabelColor: String,
+    leftLabelValue: String,
+    rightLabelColor: String,
+    rightLabelValue: String
+  },
+  data: function data () {
+    return {
+      dragging: false,
+      currentMinPercentage: (this.value.min - this.min) / (this.max - this.min),
+      currentMaxPercentage: (this.value.max - this.min) / (this.max - this.min)
+    }
+  },
+  computed: {
+    percentageMin: function percentageMin () {
+      return this.snap ? (this.value.min - this.min) / (this.max - this.min) : this.currentMinPercentage
+    },
+    percentageMax: function percentageMax () {
+      return this.snap ? (this.value.max - this.min) / (this.max - this.min) : this.currentMaxPercentage
+    },
+    activeTrackWidth: function activeTrackWidth () {
+      return 100 * (this.percentageMax - this.percentageMin) + '%'
+    },
+    leftDisplayValue: function leftDisplayValue () {
+      return this.leftLabelValue !== void 0
+        ? this.leftLabelValue
+        : this.value.min
+    },
+    rightDisplayValue: function rightDisplayValue () {
+      return this.rightLabelValue !== void 0
+        ? this.rightLabelValue
+        : this.value.max
+    },
+    leftTooltipColor: function leftTooltipColor () {
+      return this.leftLabelColor || this.labelColor
+    },
+    rightTooltipColor: function rightTooltipColor () {
+      return this.rightLabelColor || this.labelColor
+    }
+  },
+  watch: {
+    'value.min': function value_min (value) {
+      if (this.dragging) {
+        return
+      }
+      if (value > this.value.max) {
+        value = this.value.max;
+      }
+      this.currentMinPercentage = (value - this.min) / (this.max - this.min);
+    },
+    'value.max': function value_max (value) {
+      if (this.dragging) {
+        return
+      }
+      if (value < this.value.min) {
+        value = this.value.min;
+      }
+      this.currentMaxPercentage = (value - this.min) / (this.max - this.min);
+    },
+    min: function min (value) {
+      if (this.value.min < value) {
+        this.__update({min: value});
+      }
+      if (this.value.max < value) {
+        this.__update({max: value});
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    max: function max (value) {
+      if (this.value.min > value) {
+        this.__update({min: value});
+      }
+      if (this.value.max > value) {
+        this.__update({max: value});
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    step: function step () {
+      this.$nextTick(this.__validateProps);
+    }
+  },
+  methods: {
+    __setActive: function __setActive (event) {
+      var
+        container = this.$refs.handle,
+        width = container.offsetWidth,
+        sensitivity = (this.dragOnlyRange ? -1 : 1) * this.$refs.handleMin.offsetWidth / (2 * width);
+
+      this.dragging = {
+        left: container.getBoundingClientRect().left,
+        width: width,
+        valueMin: this.value.min,
+        valueMax: this.value.max,
+        percentageMin: this.currentMinPercentage,
+        percentageMax: this.currentMaxPercentage
+      };
+
+      var
+        percentage = getPercentage(event, this.dragging),
+        type;
+
+      if (percentage < this.currentMinPercentage + sensitivity) {
+        type = dragType.MIN;
+      }
+      else if (percentage < this.currentMaxPercentage - sensitivity) {
+        if (this.dragRange || this.dragOnlyRange) {
+          type = dragType.RANGE;
+          extend(this.dragging, {
+            offsetPercentage: percentage,
+            offsetModel: getModel(percentage, this.min, this.max, this.step, this.decimals),
+            rangeValue: this.dragging.valueMax - this.dragging.valueMin,
+            rangePercentage: this.currentMaxPercentage - this.currentMinPercentage
+          });
+        }
+        else {
+          type = this.currentMaxPercentage - percentage < percentage - this.currentMinPercentage
+            ? dragType.MAX
+            : dragType.MIN;
+        }
+      }
+      else {
+        type = dragType.MAX;
+      }
+
+      if (this.dragOnlyRange && type !== dragType.RANGE) {
+        this.dragging = false;
+        return
+      }
+
+      this.dragging.type = type;
+      this.__update(event);
+    },
+    __update: function __update (event) {
+      var
+        percentage = getPercentage(event, this.dragging),
+        model = getModel(percentage, this.min, this.max, this.step, this.decimals),
+        pos;
+
+      switch (this.dragging.type) {
+        case dragType.MIN:
+          if (percentage <= this.dragging.percentageMax) {
+            pos = {
+              minP: percentage,
+              maxP: this.dragging.percentageMax,
+              min: model,
+              max: this.dragging.valueMax
+            };
+          }
+          else {
+            pos = {
+              minP: this.dragging.percentageMax,
+              maxP: percentage,
+              min: this.dragging.valueMax,
+              max: model
+            };
+          }
+          break
+
+        case dragType.MAX:
+          if (percentage >= this.dragging.percentageMin) {
+            pos = {
+              minP: this.dragging.percentageMin,
+              maxP: percentage,
+              min: this.dragging.valueMin,
+              max: model
+            };
+          }
+          else {
+            pos = {
+              minP: percentage,
+              maxP: this.dragging.percentageMin,
+              min: model,
+              max: this.dragging.valueMin
+            };
+          }
+          break
+
+        case dragType.RANGE:
+          var
+            percentageDelta = percentage - this.dragging.offsetPercentage,
+            minP = between(this.dragging.percentageMin + percentageDelta, 0, 1 - this.dragging.rangePercentage),
+            modelDelta = model - this.dragging.offsetModel,
+            min = between(this.dragging.valueMin + modelDelta, this.min, this.max - this.dragging.rangeValue);
+
+          pos = {
+            minP: minP,
+            maxP: minP + this.dragging.rangePercentage,
+            min: min,
+            max: min + this.dragging.rangeValue
+          };
+          break
+      }
+
+      this.currentMinPercentage = pos.minP;
+      this.currentMaxPercentage = pos.maxP;
+      this.__updateInput(pos);
+    },
+    __end: function __end () {
+      this.dragging = false;
+      this.currentMinPercentage = (this.value.min - this.min) / (this.max - this.min);
+      this.currentMaxPercentage = (this.value.max - this.min) / (this.max - this.min);
+    },
+    __updateInput: function __updateInput (ref) {
+      var min = ref.min; if ( min === void 0 ) min = this.value.min;
+      var max = ref.max; if ( max === void 0 ) max = this.value.max;
+
+      var val = {min: min, max: max};
+      if (this.value.min !== min || this.value.max !== max) {
+        this.$emit('input', val);
+        this.$emit('change', val);
+      }
+    },
+    __validateProps: function __validateProps () {
+      if (this.min >= this.max) {
+        console.error('Range error: min >= max', this.$el, this.min, this.max);
+      }
+      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step);
+      }
+      else if (notDivides((this.value.min - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of initial value.min - min', this.value.min, this.min, this.step);
+      }
+      else if (notDivides((this.value.max - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of initial value.max - min', this.value.max, this.max, this.step);
+      }
+    }
+  }
+};
+
+var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating row inline items-center no-wrap",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj ),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))
+var obj;},staticRenderFns: [],
+  name: 'q-rating',
+  components: {
+    QIcon: QIcon
+  },
+  props: {
+    value: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    max: {
+      type: Number,
+      default: 5
+    },
+    icon: {
+      type: String,
+      default: 'grade'
+    },
+    color: String,
+    size: String,
+    readonly: Boolean,
+    disable: Boolean
+  },
+  data: function data () {
+    return {
+      mouseModel: 0
+    }
+  },
+  computed: {
+    model: {
+      get: function get () {
+        return this.value
+      },
+      set: function set (val) {
+        if (this.value !== val) {
+          this.$emit('input', val);
+          this.$emit('change', val);
+        }
+      }
+    },
+    editable: function editable () {
+      return !this.readonly && !this.disable
+    }
+  },
+  methods: {
+    set: function set (value) {
+      if (this.editable) {
+        this.model = between(parseInt(value, 10), 1, this.max);
+        this.mouseModel = 0;
+      }
+    },
+    __setHoverValue: function __setHoverValue (value) {
+      if (this.editable) {
+        this.mouseModel = value;
+      }
+    }
   }
 };
 
@@ -10821,10 +10936,6 @@ var SelectMixin = {
   }
 };
 
-var clone = function (data) {
-  return JSON.parse(JSON.stringify(data))
-};
-
 function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
@@ -10833,7 +10944,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"open":_vm.__onFocus,"close":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -10893,17 +11004,19 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
     }
   },
   methods: {
-    open: function open (event) {
+    show: function show () {
       if (!this.disable) {
-        this.$refs.popover.open();
+        return this.$refs.popover.show()
       }
     },
     close: function close () {
-      this.$refs.popover.close();
+      if (!this.disable) {
+        return this.$refs.popover.hide()
+      }
     },
     reposition: function reposition () {
       var popover = this.$refs.popover;
-      if (popover.opened) {
+      if (popover.showing) {
         popover.reposition();
       }
     },
@@ -10926,7 +11039,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       setTimeout(function () {
         var el = document.activeElement;
         if (el !== document.body && !this$1.$refs.popover.$el.contains(el)) {
-          this$1.close();
+          this$1.hide();
         }
       }, 1);
     },
@@ -10940,7 +11053,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         return
       }
       this.__emit(val);
-      this.close();
+      this.hide();
     }
   }
 };
@@ -10949,7 +11062,7 @@ var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;v
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"close":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],2)},staticRenderFns: [],
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
@@ -10987,7 +11100,8 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         return
       }
 
-      this.dialog = Dialog.create({
+      // TODO
+      this.dialog = this.$q.dialog({
         title: this.title,
         message: this.message,
         onDismiss: function () {
@@ -11018,10 +11132,11 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         ]
       });
     },
-    close: function close () {
+    hide: function hide () {
       if (this.dialog) {
-        this.dialog.close();
+        return this.dialog.hide()
       }
+      return Promise.resolve()
     },
 
     __onFocus: function __onFocus () {
@@ -11031,6 +11146,99 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
     __onBlur: function __onBlur (e) {
       this.focused = false;
       this.$emit('blur');
+    }
+  }
+};
+
+var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_vm._v(" "),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(" "+_vm._s(_vm.displayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
+  name: 'q-slider',
+  directives: {
+    TouchPan: TouchPan
+  },
+  mixins: [mixin$1],
+  props: {
+    value: {
+      type: Number,
+      required: true
+    },
+    labelValue: String
+  },
+  data: function data () {
+    return {
+      dragging: false,
+      currentPercentage: (this.value - this.min) / (this.max - this.min)
+    }
+  },
+  computed: {
+    percentage: function percentage () {
+      if (this.snap) {
+        return (this.value - this.min) / (this.max - this.min) * 100 + '%'
+      }
+      return 100 * this.currentPercentage + '%'
+    },
+    displayValue: function displayValue () {
+      return this.labelValue !== void 0
+        ? this.labelValue
+        : this.value
+    }
+  },
+  watch: {
+    value: function value (value$1) {
+      if (this.dragging) {
+        return
+      }
+      this.currentPercentage = (value$1 - this.min) / (this.max - this.min);
+    },
+    min: function min (value) {
+      if (this.value < value) {
+        this.value = value;
+        return
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    max: function max (value) {
+      if (this.value > value) {
+        this.value = value;
+        return
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    step: function step () {
+      this.$nextTick(this.__validateProps);
+    }
+  },
+  methods: {
+    __setActive: function __setActive (event) {
+      var container = this.$refs.handle;
+
+      this.dragging = {
+        left: container.getBoundingClientRect().left,
+        width: container.offsetWidth
+      };
+      this.__update(event);
+    },
+    __update: function __update (event) {
+      var
+        percentage = getPercentage(event, this.dragging),
+        model = getModel(percentage, this.min, this.max, this.step, this.decimals);
+
+      this.currentPercentage = percentage;
+      if (model !== this.value) {
+        this.$emit('input', model);
+        this.$emit('change', model);
+      }
+    },
+    __end: function __end () {
+      this.dragging = false;
+      this.currentPercentage = (this.value - this.min) / (this.max - this.min);
+    },
+    __validateProps: function __validateProps () {
+      if (this.min >= this.max) {
+        console.error('Range error: min >= max', this.$el, this.min, this.max);
+      }
+      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step, this.decimals);
+      }
     }
   }
 };
@@ -13332,6 +13540,7 @@ var QVideo = {
 
 var components = Object.freeze({
 	QApp: QApp,
+	QActionSheet: QActionSheet,
 	QAjaxBar: QAjaxBar,
 	QAlert: QAlert,
 	QAutocomplete: QAutocomplete,
@@ -13358,6 +13567,7 @@ var components = Object.freeze({
 	QDatetime: QDatetime,
 	QDatetimeRange: QDatetimeRange,
 	QInlineDatetime: QInlineDatetime,
+	QDialog: QDialog,
 	QEditor: QEditor,
 	QFab: QFab,
 	QFabAction: QFabAction,
@@ -13798,6 +14008,52 @@ var directives = Object.freeze({
 	TouchSwipe: TouchSwipe
 });
 
+var modalFn = function (Component, Vue$$1) {
+  return function (props) {
+    var node = document.createElement('div');
+    document.body.appendChild(node);
+
+    return new Promise(function (resolve, reject) {
+      var vm = new Vue$$1({
+        el: node,
+        data: function data () {
+          return { props: props }
+        },
+        render: function (h) { return h(Component, {
+          props: props,
+          ref: 'modal',
+          on: {
+            ok: function (data) {
+              resolve(data);
+              vm.$destroy();
+            },
+            cancel: function () {
+              reject(new Error());
+              vm.$destroy();
+            }
+          }
+        }); },
+        mounted: function mounted () {
+          this.$refs.modal.show();
+        }
+      });
+    })
+  }
+};
+
+var actionSheet = {
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+    var Vue$$1 = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    Quasar.actionSheet = modalFn(QActionSheet, Vue$$1);
+  }
+};
+
 /*
  * Credits go to sindresorhus
  */
@@ -14118,19 +14374,125 @@ var cookies = {
   }
 };
 
-var cordova = {
+var dialog = {
   __installed: false,
   install: function install (ref) {
     var Quasar = ref.Quasar;
+    var Vue$$1 = ref.Vue;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    document.addEventListener('deviceready', function () {
-      Quasar.cordova = window.cordova;
-    }, false);
+    Quasar.dialog = modalFn(QDialog, Vue$$1);
   }
 };
+
+var vm;
+var appIsInProgress = false;
+var timeout;
+var props = {};
+
+var staticClass = 'q-loading animate-fade fullscreen column flex-center z-max';
+
+function show (ref) {
+  if ( ref === void 0 ) ref = {};
+  var delay = ref.delay; if ( delay === void 0 ) delay = 500;
+  var message = ref.message; if ( message === void 0 ) message = false;
+  var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
+  var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
+  var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
+  var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
+  var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
+
+  props.spinner = spinner;
+  props.message = message;
+  props.spinnerSize = spinnerSize;
+  props.spinnerColor = spinnerColor;
+  props.messageColor = messageColor;
+
+  if (customClass && typeof customClass === 'string') {
+    props.customClass = " " + (customClass.trim());
+  }
+
+  if (appIsInProgress) {
+    vm && vm.$forceUpdate();
+    return
+  }
+
+  timeout = setTimeout(function () {
+    timeout = null;
+
+    var node = document.createElement('div');
+    document.body.appendChild(node);
+    document.body.classList.add('with-loading');
+
+    vm = new Vue$1({
+      name: 'q-loading',
+      el: node,
+      functional: true,
+      render: function render (h) {
+        var child = [
+          h(props.spinner, {
+            props: {
+              color: props.spinnerColor,
+              size: props.spinnerSize
+            }
+          })
+        ];
+
+        if (message) {
+          child.push(h('div', {
+            staticClass: ("text-" + (props.messageColor)),
+            domProps: {
+              innerHTML: props.message
+            }
+          }));
+        }
+
+        return h('div', {staticClass: staticClass + props.customClass}, child)
+      }
+    });
+  }, delay);
+
+  appIsInProgress = true;
+}
+
+function hide () {
+  if (!appIsInProgress) {
+    return
+  }
+
+  if (timeout) {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+  else {
+    vm.$destroy();
+    document.body.classList.remove('with-loading');
+    document.body.removeChild(vm.$el);
+    vm = null;
+  }
+
+  appIsInProgress = false;
+}
+
+var Loading = {
+  show: show,
+  hide: hide,
+
+  __installed: false,
+  install: function install (ref) {
+    var Quasar = ref.Quasar;
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    Quasar.loading = Loading;
+  }
+};
+
+Object.defineProperty(Loading, 'isActive', {
+  get: function () { return appIsInProgress; }
+});
 
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
@@ -14324,81 +14686,17 @@ var SessionStorage = {
 
 
 var plugins = Object.freeze({
+	ActionSheet: actionSheet,
 	AddressbarColor: addressbarColor,
 	AppFullscreen: appFullscreen,
 	AppVisibility: appVisibility,
 	Cookies: cookies,
-	Cordova: cordova,
+	Dialog: dialog,
+	Loading: Loading,
 	Platform: Platform,
 	LocalStorage: LocalStorage,
 	SessionStorage: SessionStorage
 });
-
-var ActionSheets = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-modal',{ref:"dialog",attrs:{"position":"bottom","content-css":_vm.contentCss},on:{"close":function($event){_vm.__dismiss();}}},[(_vm.$q.theme === 'ios')?_c('div',[_c('div',{staticClass:"q-action-sheet"},[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)]),_vm._v(" "),(_vm.dismiss)?_c('div',{staticClass:"q-action-sheet"},[_c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],attrs:{"link":"","tabindex":"0"},on:{"click":function($event){_vm.close();},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close();}}},[_c('q-item-main',[_c('q-item-tile',{staticClass:"text-center",attrs:{"label":""}},[_vm._v(" "+_vm._s(_vm.dismiss.label)+" ")])],1)],1)],1):_vm._e()]):_c('div',[(_vm.title)?_c('div',{staticClass:"modal-header",domProps:{"innerHTML":_vm._s(_vm.title)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"modal-scroll"},[(_vm.gallery)?_c('div',{staticClass:"q-action-sheet-gallery row wrap flex-center"},_vm._l((_vm.actions),function(button,index){return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,staticClass:"cursor-pointer relative-position column inline flex-center",class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[(button.icon)?_c('q-icon',{attrs:{"name":button.icon}}):_vm._e(),_vm._v(" "),(button.avatar)?_c('img',{staticClass:"avatar",attrs:{"src":button.avatar}}):_vm._e(),_vm._v(" "),_c('span',[_vm._v(_vm._s(button.label))])],1)})):_c('q-list',{staticClass:"no-border",attrs:{"link":""}},_vm._l((_vm.actions),function(button,index){return _c('q-item',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],key:index,class:button.classes,attrs:{"tabindex":"0"},on:{"click":function($event){_vm.close(button.handler);},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.close(button.handler);}}},[_c('q-item-side',{attrs:{"icon":button.icon,"avatar":button.avatar}}),_vm._v(" "),_c('q-item-main',{attrs:{"inset":"","label":button.label}})],1)}))],1)])])},staticRenderFns: [],
-  name: 'q-action-sheet',
-  components: {
-    QModal: QModal,
-    QIcon: QIcon,
-    QList: QList,
-    QItem: QItem,
-    QItemSide: QItemSide,
-    QItemMain: QItemMain,
-    QItemTile: QItemTile
-  },
-  directives: {
-    Ripple: Ripple
-  },
-  props: {
-    title: String,
-    gallery: Boolean,
-    actions: {
-      type: Array,
-      required: true
-    },
-    dismiss: Object
-  },
-  computed: {
-    contentCss: function contentCss () {
-      if (this.$q.theme === 'ios') {
-        return {backgroundColor: 'transparent'}
-      }
-    }
-  },
-  methods: {
-    close: function close (fn) {
-      if (!this.$refs.dialog.active) {
-        return
-      }
-      var hasFn = typeof fn === 'function';
-
-      if (hasFn) {
-        this.__runCancelHandler = false;
-      }
-      this.$refs.dialog.close(function () {
-        if (hasFn) {
-          fn();
-        }
-      });
-    },
-    __dismiss: function __dismiss () {
-      this.$root.$destroy();
-      if (this.__runCancelHandler && this.dismiss && typeof this.dismiss.handler === 'function') {
-        this.dismiss.handler();
-      }
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.__runCancelHandler = true;
-    this.$nextTick(function () {
-      this$1.$refs.dialog.open();
-      this$1.$root.quasarClose = this$1.close;
-    });
-  }
-};
-
-var index = Modal(ActionSheets);
 
 function create (opts) {
   var node = document.createElement('div');
@@ -14457,103 +14755,6 @@ function create (opts) {
 
 var Alert = {
   create: create
-};
-
-var vm;
-var appIsInProgress = false;
-var timeout;
-var props = {};
-
-var staticClass = 'q-loading animate-fade fullscreen column flex-center z-max';
-
-function isActive () {
-  return appIsInProgress
-}
-
-function show (ref) {
-  if ( ref === void 0 ) ref = {};
-  var delay = ref.delay; if ( delay === void 0 ) delay = 500;
-  var message = ref.message; if ( message === void 0 ) message = false;
-  var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
-  var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
-  var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
-  var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
-  var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
-
-  props.spinner = spinner;
-  props.message = message;
-  props.spinnerSize = spinnerSize;
-  props.spinnerColor = spinnerColor;
-  props.messageColor = messageColor;
-
-  if (customClass && typeof customClass === 'string') {
-    props.customClass = " " + (customClass.trim());
-  }
-
-  if (appIsInProgress) {
-    vm && vm.$forceUpdate();
-    return
-  }
-
-  timeout = setTimeout(function () {
-    timeout = null;
-
-    var node = document.createElement('div');
-    document.body.appendChild(node);
-    document.body.classList.add('with-loading');
-
-    vm = new Vue$1({
-      name: 'q-loading',
-      el: node,
-      functional: true,
-      render: function render (h) {
-        var child = [
-          h(props.spinner, {props: {
-            color: props.spinnerColor,
-            size: props.spinnerSize
-          }})
-        ];
-
-        if (message) {
-          child.push(h('div', {
-            staticClass: ("text-" + (props.messageColor)),
-            domProps: {
-              innerHTML: props.message
-            }
-          }));
-        }
-
-        return h('div', {staticClass: staticClass + props.customClass}, child)
-      }
-    });
-  }, delay);
-
-  appIsInProgress = true;
-}
-
-function hide () {
-  if (!appIsInProgress) {
-    return
-  }
-
-  if (timeout) {
-    clearTimeout(timeout);
-    timeout = null;
-  }
-  else {
-    vm.$destroy();
-    document.body.classList.remove('with-loading');
-    document.body.removeChild(vm.$el);
-    vm = null;
-  }
-
-  appIsInProgress = false;
-}
-
-var index$1 = {
-  isActive: isActive,
-  show: show,
-  hide: hide
 };
 
 var transitionDuration = 300;
@@ -14737,7 +14938,7 @@ function install$1 () {
   });
 }
 
-var index$2 = {
+var index = {
   create: create$1,
   setDefaults: function setDefaults (opts) {
     if (toast) {
@@ -14752,11 +14953,8 @@ var index$2 = {
 
 
 var globals = Object.freeze({
-	ActionSheet: index,
 	Alert: Alert,
-	Dialog: Dialog,
-	Loading: index$1,
-	Toast: index$2
+	Toast: index
 });
 
 var openUrl = function (url, reject) {
