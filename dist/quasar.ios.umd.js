@@ -10569,12 +10569,12 @@ var QPullToRefresh = {
     message: function message () {
       switch (this.state) {
         case 'pulled':
-          return this.releaseMessage || this.$q.i18n.label.pullToRefresh.release
+          return this.releaseMessage || this.$q.i18n.pullToRefresh.release
         case 'refreshing':
-          return this.refreshMessage || this.$q.i18n.label.pullToRefresh.refresh
+          return this.refreshMessage || this.$q.i18n.pullToRefresh.refresh
         case 'pull':
         default:
-          return this.pullMessage || this.$q.i18n.label.pullToRefresh.pull
+          return this.pullMessage || this.$q.i18n.pullToRefresh.pull
       }
     },
     style: function style$$1 () {
@@ -15289,6 +15289,9 @@ var notify = {
           var index = this.notifs[notif.position].indexOf(notif);
           if (index !== -1) {
             this.notifs[notif.position].splice(index, 1);
+            if (typeof notif.onDismiss === 'function') {
+              notif.onDismiss();
+            }
           }
         }
       },
