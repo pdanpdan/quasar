@@ -23,8 +23,6 @@
 
 (function (global, factory) {
 
-    "use strict";
-
     if (typeof module === "object" && typeof module.exports === "object") {
         // For the environment like NodeJS, CommonJS etc where module or
         // module.exports objects are available
@@ -36,8 +34,6 @@
 
     /* window is for browser environment and global is for NodeJS environment */
 })(typeof window !== "undefined" ? window : global, function (global) {
-
-    "use strict";
 
     var defineProperty = Object.defineProperty;
 
@@ -617,7 +613,6 @@ if (!Number.isInteger) {
 if (!Array.prototype.findIndex) {
   Object.defineProperty(Array.prototype, 'findIndex', {
     value: function value (predicate) {
-      'use strict';
       if (this == null) {
         throw new TypeError('Array.prototype.findIndex called on null or undefined')
       }

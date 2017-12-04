@@ -5,12 +5,6 @@
  */
 var version = "0.15.0";
 
-var Vue;
-
-function setVue (_Vue) {
-  Vue = _Vue;
-}
-
 function offset (el) {
   if (el === window) {
     return {top: 0, left: 0}
@@ -265,7 +259,7 @@ function getPlatform () {
 var Platform = {
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
 
     if (this.__installed) { return }
     this.__installed = true;
@@ -278,7 +272,7 @@ var Platform = {
       iframe: window.self !== window.top
     };
 
-    Quasar.platform = Platform;
+    $q.platform = Platform;
   }
 };
 
@@ -302,15 +296,14 @@ var History = {
     this.remove = function (definition) {
       var index = this$1.__history.indexOf(definition);
       if (index >= 0) {
-        this$1.__hist.splice(index, 1);
+        this$1.__history.splice(index, 1);
       }
     };
 
     document.addEventListener('deviceready', function () {
       document.addEventListener('backbutton', function () {
-        if (this$1.history.length) {
-          var fn = this$1.history.pop().handler;
-          fn();
+        if (this$1.__history.length) {
+          this$1.__history.pop().handler();
         }
         else {
           window.history.back();
@@ -324,8 +317,6 @@ var History = {
 
 if (!Array.prototype.includes) {
   Array.prototype.includes = function (searchEl, startFrom) {
-    'use strict';
-
     var O = Object(this);
     var len = parseInt(O.length, 10) || 0;
     if (len === 0) {
@@ -406,7 +397,6 @@ if (typeof Element.prototype.closest !== 'function') {
 if (!Array.prototype.find) {
   Object.defineProperty(Array.prototype, 'find', {
     value: function value (predicate) {
-      'use strict';
       if (this == null) {
         throw new TypeError('Array.prototype.find called on null or undefined')
       }
@@ -431,6 +421,117 @@ if (!Array.prototype.find) {
   });
 }
 
+var langEn = {
+  lang: 'en-us',
+  label: {
+    clear: 'Clear',
+    ok: 'OK',
+    cancel: 'Cancel',
+    close: 'Close',
+    set: 'Set',
+    select: 'Select',
+    reset: 'Reset',
+    remove: 'Remove',
+    update: 'Update',
+    create: 'Create',
+    search: 'Search',
+    filter: 'Filter',
+    refresh: 'Refresh'
+  },
+  date: {
+    days: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+    daysShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+    months: 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+    monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+    firstDayOfWeek: 0, // 0-6, 0 - Sunday, 1 Monday, ...
+    format24h: false
+  },
+  pullToRefresh: {
+    pull: 'Pull down to refresh',
+    release: 'Release to refresh',
+    refresh: 'Refreshing...'
+  },
+  table: {
+    noData: 'No data available',
+    noResults: 'No matching records found',
+    loader: 'Loading...',
+    selectedRows: function (rows) { return rows > 1 ? (rows + " selected row(s).") : ((rows === 0 ? 'No' : '1') + " selected rows."); },
+    rowsPerPage: 'Rows per page:',
+    allRows: 'All',
+    pagination: function (start, end, total) { return (start + "-" + end + " of " + total); },
+    columns: 'Columns'
+  },
+  editor: {
+    url: 'URL',
+    bold: 'Bold',
+    italic: 'Italic',
+    strikethrough: 'Strikethrough',
+    underline: 'Underline',
+    unorderedList: 'Unordered List',
+    orderedList: 'Ordered List',
+    subscript: 'Subscript',
+    superscript: 'Superscript',
+    hyperlink: 'Hyperlink',
+    toggleFullscreen: 'Toggle Fullscreen',
+    quote: 'Quote',
+    left: 'Left align',
+    center: 'Center align',
+    right: 'Right align',
+    justify: 'Justify align',
+    print: 'Print',
+    outdent: 'Decrease indentation',
+    indent: 'Increase indentation',
+    removeFormat: 'Remove formatting',
+    formatting: 'Formatting',
+    fontSize: 'Font Size',
+    align: 'Align',
+    hr: 'Insert Horizontal Rule',
+    undo: 'Undo',
+    redo: 'Redo',
+    header1: 'Header 1',
+    header2: 'Header 2',
+    header3: 'Header 3',
+    header4: 'Header 4',
+    header5: 'Header 5',
+    header6: 'Header 6',
+    paragraph: 'Paragraph',
+    code: 'Code',
+    size1: 'Very small',
+    size2: 'A bit small',
+    size3: 'Normal',
+    size4: 'Medium-large',
+    size5: 'Big',
+    size6: 'Very big',
+    size7: 'Maximum',
+    defaultFont: 'Default Font'
+  }
+};
+
+var i18n = {
+  __installed: false,
+  install: function install (ref) {
+    var this$1 = this;
+    var $q = ref.$q;
+    var Vue = ref.Vue;
+    var lang = ref.lang;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    this.set = function (lang) {
+      if ( lang === void 0 ) lang = langEn;
+
+      lang.set = this$1.set;
+
+      Vue.set($q, 'i18n', lang);
+      this$1.name = lang.lang;
+      this$1.lang = lang;
+    };
+
+    this.set(lang);
+  }
+};
+
 function addBodyClasses () {
   var cls = [
     "mat",
@@ -454,16 +555,15 @@ var install = function (_Vue, opts) {
   }
   this.__installed = true;
 
-  setVue(_Vue);
-
-  var Quasar = {
+  var $q = {
     version: version,
     theme: "mat"
   };
 
   // required plugins
-  Platform.install({ Quasar: Quasar });
+  Platform.install({ $q: $q });
   History.install();
+  i18n.install({ $q: $q, Vue: _Vue, lang: opts.i18n });
 
   // inject body classes
   ready(addBodyClasses);
@@ -476,6 +576,7 @@ var install = function (_Vue, opts) {
       }
     });
   }
+
   if (opts.components) {
     Object.keys(opts.components).forEach(function (key) {
       var c = opts.components[key];
@@ -484,16 +585,17 @@ var install = function (_Vue, opts) {
       }
     });
   }
+
   if (opts.plugins) {
     Object.keys(opts.plugins).forEach(function (key) {
       var p = opts.plugins[key];
       if (typeof p.install === 'function') {
-        p.install({ Quasar: Quasar, Vue: _Vue });
+        p.install({ $q: $q, Vue: _Vue });
       }
     });
   }
 
-  _Vue.prototype.$q = Quasar;
+  _Vue.prototype.$q = $q;
 };
 
 var QApp = {
@@ -628,6 +730,11 @@ function extend () {
   return target
 }
 
+// Needs:
+// __show()
+// __hide()
+// Calling this.showPromiseResolve, this.hidePromiseResolve
+// avoid backbutton with setting noShowingHistory
 var ModelToggleMixin = {
   props: {
     value: Boolean
@@ -639,40 +746,125 @@ var ModelToggleMixin = {
   },
   watch: {
     value: function value (val) {
-      if (val) { this.show(); }
-      else { this.hide(); }
+      var this$1 = this;
+
+      if (this.disable && val) {
+        this.$emit('input', false);
+        return
+      }
+
+      this.$nextTick(function () {
+        if (this$1.value !== this$1.showing) {
+          this$1[val ? 'show' : 'hide']();
+        }
+      });
     }
   },
   methods: {
     toggle: function toggle (evt) {
-      return this[this.showing ? 'hide' : 'show'](evt)
+      if (!this.disable) {
+        return this[this.showing ? 'hide' : 'show'](evt)
+      }
     },
-    __updateModel: function __updateModel (val, noHistory) {
-      if (this.showing !== val) {
-        this.showing = val;
+    show: function show (evt) {
+      var this$1 = this;
 
-        if (noHistory !== void 0) {
-          // do nothing
-        }
-        else if (val) {
-          this.__historyEntry = {
-            handler: this.close
-          };
-          History.add(this.__historyEntry);
-        }
-        else if (this.__historyEntry) {
-          History.remove(this.__historyEntry);
-          this.__historyEntry = null;
-        }
+      if (this.disable) {
+        return Promise.reject(new Error())
       }
-      if (this.value !== val) {
-        this.$emit('input', val);
+
+      if (this.showing) {
+        return this.showPromise || Promise.resolve(evt)
       }
+
+      if (this.hidePromise) {
+        this.hidePromiseReject();
+      }
+
+      this.showing = true;
+      if (this.value === false) {
+        this.$emit('input', true);
+      }
+
+      if (this.$options.modelToggle === void 0 || this.$options.modelToggle.history) {
+        this.__historyEntry = {
+          handler: this.hide
+        };
+        History.add(this.__historyEntry);
+      }
+
+      if (!this.__show) {
+        this.$emit('show');
+        return Promise.resolve(evt)
+      }
+
+      this.showPromise = new Promise(function (resolve, reject) {
+        this$1.showPromiseResolve = function () {
+          this$1.showPromise = null;
+          this$1.$emit('show');
+          resolve(evt);
+        };
+        this$1.showPromiseReject = function () {
+          this$1.showPromise = null;
+          reject(new Error());
+        };
+      });
+
+      this.__show(evt);
+      return this.showPromise || Promise.resolve(evt)
+    },
+    hide: function hide (evt) {
+      var this$1 = this;
+
+      if (this.disable) {
+        return Promise.reject(new Error())
+      }
+
+      if (!this.showing) {
+        return this.hidePromise || Promise.resolve(evt)
+      }
+
+      if (this.showPromise) {
+        this.showPromiseReject();
+      }
+
+      this.showing = false;
+      if (this.value === true) {
+        this.$emit('input', false);
+      }
+
+      if (this.__historyEntry) {
+        History.remove(this.__historyEntry);
+        this.__historyEntry = null;
+      }
+
+      if (!this.__hide) {
+        this.$emit('hide');
+        return Promise.resolve()
+      }
+
+      this.hidePromise = new Promise(function (resolve, reject) {
+        this$1.hidePromiseResolve = function () {
+          this$1.hidePromise = null;
+          this$1.$emit('hide');
+          resolve();
+        };
+        this$1.hidePromiseReject = function () {
+          this$1.hidePromise = null;
+          reject(new Error());
+        };
+      });
+
+      this.__hide(evt);
+      return this.hidePromise || Promise.resolve(evt)
     }
   },
-  mounted: function mounted () {
-    if (this.value) {
-      this.show();
+  beforeDestroy: function beforeDestroy () {
+    if (this.showing) {
+      this.showPromise && this.showPromiseReject();
+      this.hidePromise && this.hidePromiseReject();
+      this.$emit('input', false);
+      this.__hide && this.__hide();
     }
   }
 };
@@ -717,105 +909,6 @@ var QTransition = {
   }
 };
 
-function getScrollTarget (el) {
-  return el.closest('.scroll') || window
-}
-
-function getScrollHeight (el) {
-  return (el === window ? document.body : el).scrollHeight
-}
-
-function getScrollPosition (scrollTarget) {
-  if (scrollTarget === window) {
-    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
-  }
-  return scrollTarget.scrollTop
-}
-
-function animScrollTo (el, to, duration) {
-  if (duration <= 0) {
-    return
-  }
-
-  var pos = getScrollPosition(el);
-
-  window.requestAnimationFrame(function () {
-    setScroll(el, pos + (to - pos) / duration * 16);
-    if (el.scrollTop !== to) {
-      animScrollTo(el, to, duration - 16);
-    }
-  });
-}
-
-function setScroll (scrollTarget, offset$$1) {
-  if (scrollTarget === window) {
-    document.documentElement.scrollTop = offset$$1;
-    document.body.scrollTop = offset$$1;
-    return
-  }
-  scrollTarget.scrollTop = offset$$1;
-}
-
-function setScrollPosition (scrollTarget, offset$$1, duration) {
-  if (duration) {
-    animScrollTo(scrollTarget, offset$$1, duration);
-    return
-  }
-  setScroll(scrollTarget, offset$$1);
-}
-
-var size;
-function getScrollbarWidth () {
-  if (size !== undefined) {
-    return size
-  }
-
-  var
-    inner = document.createElement('p'),
-    outer = document.createElement('div');
-
-  css(inner, {
-    width: '100%',
-    height: '200px'
-  });
-  css(outer, {
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-    visibility: 'hidden',
-    width: '200px',
-    height: '150px',
-    overflow: 'hidden'
-  });
-
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  var w2 = inner.offsetWidth;
-
-  if (w1 === w2) {
-    w2 = outer.clientWidth;
-  }
-
-  document.body.removeChild(outer);
-  size = w1 - w2;
-
-  return size
-}
-
-
-var scroll = Object.freeze({
-	getScrollTarget: getScrollTarget,
-	getScrollHeight: getScrollHeight,
-	getScrollPosition: getScrollPosition,
-	animScrollTo: animScrollTo,
-	setScrollPosition: setScrollPosition,
-	getScrollbarWidth: getScrollbarWidth
-});
-
 var positions = {
   top: 'items-start justify-center with-backdrop',
   bottom: 'items-end justify-center with-backdrop',
@@ -823,42 +916,19 @@ var positions = {
   left: 'items-center justify-start with-backdrop'
 };
 var positionCSS = {
-  mat: {
     maxHeight: '80vh',
     height: 'auto'
-  },
-  ios: {
-    maxHeight: '80vh',
-    height: 'auto',
-    boxShadow: 'none'
-  }
-};
+  };
 
-function additionalCSS (theme, position) {
+function additionalCSS (position) {
   var css = {};
 
   if (['left', 'right'].includes(position)) {
     css.maxWidth = '90vw';
   }
-  if (theme === 'ios') {
-    if (['left', 'top'].includes(position)) {
-      css.borderTopLeftRadius = 0;
-    }
-    if (['right', 'top'].includes(position)) {
-      css.borderTopRightRadius = 0;
-    }
-    if (['left', 'bottom'].includes(position)) {
-      css.borderBottomLeftRadius = 0;
-    }
-    if (['right', 'bottom'].includes(position)) {
-      css.borderBottomRightRadius = 0;
-    }
-  }
-
   return css
 }
 
-var duration = 200;
 var openedModalNumber = 0;
 
 var QModal = {
@@ -926,8 +996,8 @@ var QModal = {
 
         css.unshift(extend(
           {},
-          positionCSS[this.$q.theme],
-          additionalCSS(this.$q.theme, this.position)
+          positionCSS,
+          additionalCSS(this.position)
         ));
 
         return css
@@ -937,71 +1007,6 @@ var QModal = {
     }
   },
   methods: {
-    show: function show () {
-      var this$1 = this;
-
-      if (this.showing) {
-        return Promise.resolve()
-      }
-
-      var body = document.body;
-
-      body.appendChild(this.$el);
-      body.classList.add('with-modal');
-      this.bodyPadding = window.getComputedStyle(body).paddingRight;
-      body.style.paddingRight = (getScrollbarWidth()) + "px";
-      EscapeKey.register(function () {
-        if (!this$1.noEscDismiss) {
-          this$1.hide().then(function () {
-            this$1.$emit('escape-key');
-          });
-        }
-      });
-
-      setTimeout(function () {
-        var content = this$1.$refs.content;
-        content.scrollTop = 0
-        ;['modal-scroll', 'layout-view'].forEach(function (c) {
-          [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
-            el.scrollTop = 0;
-          });
-        });
-      }, 10);
-
-      this.__updateModel(true);
-      openedModalNumber++;
-
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          this$1.$emit('show');
-          resolve();
-        }, duration);
-      })
-    },
-    hide: function hide () {
-      var this$1 = this;
-
-      if (!this.showing) {
-        return Promise.resolve()
-      }
-
-      EscapeKey.pop();
-      openedModalNumber--;
-
-      if (openedModalNumber === 0) {
-        var body = document.body;
-        body.classList.remove('with-modal');
-        body.style.paddingRight = this.bodyPadding;
-      }
-
-      this.__updateModel(false);
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          this$1.$emit('hide');
-          resolve();
-        }, duration);
-      })
-    },
     __dismiss: function __dismiss () {
       var this$1 = this;
 
@@ -1011,6 +1016,48 @@ var QModal = {
       this.hide().then(function () {
         this$1.$emit('dismiss');
       });
+    },
+    __show: function __show () {
+      var this$1 = this;
+
+      var body = document.body;
+
+      body.appendChild(this.$el);
+      body.classList.add('with-modal');
+
+      EscapeKey.register(function () {
+        if (!this$1.noEscDismiss) {
+          this$1.hide().then(function () {
+            this$1.$emit('escape-key');
+          });
+        }
+      });
+
+      openedModalNumber++;
+
+      var content = this.$refs.content;
+      content.scrollTop = 0
+      ;['modal-scroll', 'layout-view'].forEach(function (c) {
+        [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
+          el.scrollTop = 0;
+        });
+      });
+    },
+    __hide: function __hide () {
+      EscapeKey.pop();
+      openedModalNumber--;
+
+      if (openedModalNumber === 0) {
+        var body = document.body;
+
+        body.classList.remove('with-modal');
+        body.style.paddingRight = this.bodyPadding;
+      }
+    }
+  },
+  mounted: function mounted () {
+    if (this.value) {
+      this.show();
     }
   },
   beforeDestroy: function beforeDestroy () {
@@ -1019,19 +1066,34 @@ var QModal = {
     }
   },
   render: function render (h) {
+    var this$1 = this;
+
     return h(QTransition, {
       props: {
         name: this.modalTransition,
         enter: this.enterClass,
         leave: this.leaveClass
+      },
+      on: {
+        afterEnter: function () {
+          this$1.showPromise && this$1.showPromiseResolve();
+        },
+        enterCancelled: function () {
+          this$1.showPromise && this$1.showPromiseReject();
+        },
+        afterLeave: function () {
+          this$1.hidePromise && this$1.hidePromiseResolve();
+        },
+        leaveCancelled: function () {
+          this$1.hidePromise && this$1.hidePromiseReject();
+        }
       }
     }, [
       h('div', {
         staticClass: 'modal fullscreen row',
         'class': this.modalClasses,
         on: {
-          click: this.__dismiss,
-          touchstart: this.__dismiss
+          click: this.__dismiss
         },
         directives: [{
           name: 'show',
@@ -1059,6 +1121,7 @@ var QModal = {
 
 var QModalLayout = {
   name: 'q-modal-layout',
+  functional: true,
   props: {
     headerStyle: [String, Object, Array],
     headerClass: [String, Object, Array],
@@ -1069,36 +1132,39 @@ var QModalLayout = {
     footerStyle: [String, Object, Array],
     footerClass: [String, Object, Array]
   },
-  render: function render (h) {
-    var child = [];
+  render: function render (h, ctx) {
+    var
+      child = [],
+      props = ctx.props,
+      slots = ctx.slots();
 
-    if (this.$slots.header || (this.$q.theme !== 'ios' && this.$slots.navigation)) {
+    if (slots.header || ("mat" !== 'ios' && slots.navigation)) {
       child.push(h('div', {
         staticClass: 'q-layout-header',
-        style: this.headerStyle,
-        'class': this.headerClass
+        style: props.headerStyle,
+        'class': props.headerClass
       }, [
-        this.$slots.header,
-        this.$q.theme !== 'ios' ? this.$slots.navigation : null
+        slots.header,
+        slots.navigation
       ]));
     }
 
     child.push(h('div', {
       staticClass: 'q-modal-layout-content col scroll',
-      style: this.contentStyle,
-      'class': this.contentClass
+      style: props.contentStyle,
+      'class': props.contentClass
     }, [
-      this.$slots.default
+      slots.default
     ]));
 
-    if (this.$slots.footer || (this.$q.theme === 'ios' && this.$slots.navigation)) {
+    if (slots.footer || ("mat" === 'ios' && slots.navigation)) {
       child.push(h('div', {
         staticClass: 'q-layout-footer',
-        style: this.footerStyle,
-        'class': this.footerClass
+        style: props.footerStyle,
+        'class': props.footerClass
       }, [
-        this.$slots.footer,
-        this.$q.theme === 'ios' ? this.$slots.navigation : null
+        slots.footer,
+        null
       ]));
     }
 
@@ -1123,11 +1189,10 @@ var QIcon = {
     var
       prop = ctx.props,
       data = ctx.data,
-      theme = ctx.parent.$q.theme,
       cls = ctx.data.staticClass,
-      icon = prop.mat && theme === 'mat'
+      icon = prop.mat && "mat" === 'mat'
         ? prop.mat
-        : (prop.ios && theme === 'ios' ? prop.ios : ctx.props.name);
+        : (prop.ios && "mat" === 'ios' ? prop.ios : ctx.props.name);
 
     if (!icon) {
       name = '';
@@ -1465,21 +1530,19 @@ function push (child, h, name, slot, replace, conf) {
     child.push(h(name, defaultProps, slot));
     return
   }
-  var props, v = false;
-  if (!slot) {
-    for (var p in conf) {
-      if (conf.hasOwnProperty(p)) {
-        v = conf[p];
-        if (v !== void 0 && v !== true) {
-          props = true;
-          break
-        }
+
+  var v = false;
+  for (var p in conf) {
+    if (conf.hasOwnProperty(p)) {
+      v = conf[p];
+      if (v !== void 0 && v !== true) {
+        child.push(h(name, { props: conf }));
+        break
       }
     }
   }
-  if (props || slot) {
-    child.push(h(name, props ? {props: conf} : defaultProps, slot));
-  }
+
+  slot && child.push(h(name, defaultProps, slot));
 }
 
 var QItemWrapper = {
@@ -1598,17 +1661,16 @@ var QListHeader = {
 
 var QActionSheet = {
   name: 'q-action-sheet',
-  mixins: [ModelToggleMixin],
   props: {
+    value: Boolean,
     title: String,
     grid: Boolean,
-    actions: Array
+    actions: Array,
+    dismissLabel: String
   },
   computed: {
     contentCss: function contentCss () {
-      if (this.$q.theme === 'ios') {
-        return {backgroundColor: 'transparent'}
-      }
+      
     }
   },
   render: function render (h) {
@@ -1621,7 +1683,7 @@ var QActionSheet = {
     if (title) {
       child.push(
         h('div', {
-          staticClass: 'modal-header'
+          staticClass: 'q-actionsheet-title column justify-center'
         }, [ title ])
       );
     }
@@ -1629,11 +1691,11 @@ var QActionSheet = {
     child.push(
       h(
         'div',
-        { staticClass: 'modal-body modal-scroll' },
+        { staticClass: 'q-actionsheet-body scroll' },
         this.actions
           ? [
             this.grid
-              ? h('div', { staticClass: 'q-action-sheet-gallery row wrap flex-center' }, this.__getActions(h))
+              ? h('div', { staticClass: 'q-actionsheet-grid row wrap items-center justify-between' }, this.__getActions(h))
               : h(QList, { staticClass: 'no-border', props: { link: true } }, this.__getActions(h))
           ]
           : [ this.$slots.default ]
@@ -1643,15 +1705,27 @@ var QActionSheet = {
     return h(QModal, {
       ref: 'modal',
       props: {
+        value: this.value,
         position: 'bottom',
         contentCss: this.contentCss
       },
       on: {
-        dismiss: this.__onCancel,
+        input: function (val) {
+          this$1.$emit('input', val);
+        },
+        show: function () {
+          this$1.$emit('show');
+        },
+        hide: function () {
+          this$1.$emit('hide');
+        },
+        dismiss: function () {
+          this$1.__onCancel();
+        },
         'escape-key': function () {
           this$1.hide().then(function () {
             this$1.$emit('escape-key');
-            this$1.$emit('cancel');
+            this$1.__onCancel();
           });
         }
       }
@@ -1659,51 +1733,38 @@ var QActionSheet = {
   },
   methods: {
     show: function show () {
-      var this$1 = this;
-
-      if (this.showing) {
-        return Promise.resolve()
-      }
-
-      return this.$refs.modal.show().then(function () {
-        this$1.$emit('show');
-        this$1.__updateModel(true);
-      })
+      return this.$refs.modal.show()
     },
     hide: function hide () {
-      var this$1 = this;
-
-      return this.showing
-        ? this.$refs.modal.hide().then(function () {
-          this$1.$emit('hide');
-          this$1.__updateModel(false);
-        })
-        : Promise.resolve()
+      return this.$refs.modal.hide()
     },
     __getActions: function __getActions (h) {
       var this$1 = this;
 
-      return this.actions.map(function (action) { return h(this$1.grid ? 'div' : QItem, {
-        staticClass: this$1.grid
-          ? 'cursor-pointer relative-position column inline flex-center'
-          : null,
-        'class': action.classes,
-        domProps: { tabindex: '0' },
-        on: {
-          click: function () { return this$1.__onOk(action); },
-          keydown: function (e) { return this$1.__onOk(action); }
-        }
-      }, this$1.grid
-        ? [
-          action.icon ? h(QIcon, { props: { name: action.icon } }) : null,
-          action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
-          h('span', [ action.label ])
-        ]
-        : [
-          h(QItemSide, { props: { icon: action.icon, avatar: action.avatar } }),
-          h(QItemMain, { props: { inset: true, label: action.label } })
-        ]
-      ); })
+      return this.actions.map(function (action) { return action.label
+        ? h(this$1.grid ? 'div' : QItem, {
+          staticClass: this$1.grid
+            ? 'q-actionsheet-grid-item cursor-pointer relative-position column inline flex-center'
+            : null,
+          'class': action.classes,
+          domProps: { tabindex: '0' },
+          on: {
+            click: function () { return this$1.__onOk(action); },
+            keydown: function (e) { return this$1.__onOk(action); }
+          }
+        }, this$1.grid
+          ? [
+            action.icon ? h(QIcon, { props: { name: action.icon, color: action.color } }) : null,
+            action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
+            h('span', [ action.label ])
+          ]
+          : [
+            h(QItemSide, { props: { icon: action.icon, color: action.color, avatar: action.avatar } }),
+            h(QItemMain, { props: { inset: true, label: action.label } })
+          ]
+        )
+        : h(QItemSeparator, { staticClass: 'col-12' }); }
+      )
     },
     __onOk: function __onOk (action) {
       var this$1 = this;
@@ -1976,803 +2037,6 @@ var typeIcon = {
   warning: 'priority_high'
 };
 
-var QAlert = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-alert-container",class:_vm.containerClass},[_c('q-transition',{attrs:{"name":_vm.name,"enter":_vm.enter,"leave":_vm.leave,"duration":_vm.duration,"appear":_vm.appear},on:{"after-leave":function($event){_vm.$emit('dismiss-end');}}},[(_vm.active)?_c('div',{staticClass:"q-alert row no-wrap",class:_vm.classes},[_c('div',{staticClass:"q-alert-icon row col-auto flex-center"},[_c('q-icon',{attrs:{"name":_vm.alertIcon}})],1),_vm._v(" "),_c('div',{staticClass:"q-alert-content col self-center"},[_vm._t("default"),_vm._v(" "),(_vm.actions && _vm.actions.length)?_c('div',{staticClass:"q-alert-actions row items-center"},_vm._l((_vm.actions),function(btn){return _c('span',{key:btn.label,staticClass:"uppercase",domProps:{"innerHTML":_vm._s(btn.label)},on:{"click":function($event){_vm.dismiss(btn.handler);}}})})):_vm._e()],2),_vm._v(" "),(_vm.dismissible)?_c('div',{staticClass:"q-alert-close self-top col-auto"},[_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"close"},on:{"click":_vm.dismiss}})],1):_vm._e()]):_vm._e()])],1)},staticRenderFns: [],
-  name: 'q-alert',
-  components: {
-    QIcon: QIcon,
-    QTransition: QTransition
-  },
-  props: {
-    value: {
-      type: Boolean,
-      default: true
-    },
-    duration: Number,
-    name: String,
-    enter: String,
-    leave: String,
-    appear: Boolean,
-    color: {
-      type: String,
-      default: 'negative'
-    },
-    inline: Boolean,
-    icon: String,
-    dismissible: Boolean,
-    actions: Array,
-    position: {
-      type: String,
-      validator: function (v) { return [
-        'top', 'top-right', 'right', 'bottom-right',
-        'bottom', 'bottom-left', 'left', 'top-left',
-        'top-center', 'bottom-center'
-      ].includes(v); }
-    }
-  },
-  data: function data () {
-    return {
-      active: this.value
-    }
-  },
-  watch: {
-    value: function value (v) {
-      if (v !== this.active) {
-        this.active = v;
-        if (!v) {
-          this.$emit('dismiss');
-        }
-      }
-    }
-  },
-  computed: {
-    alertIcon: function alertIcon () {
-      return this.icon || typeIcon[this.color] || typeIcon.warning
-    },
-    containerClass: function containerClass () {
-      var cls = [];
-      var pos = this.position;
-
-      if (pos) {
-        if (pos.indexOf('center') > -1) {
-          cls.push('row justify-center');
-          pos = pos.split('-')[0];
-        }
-        cls.push(("fixed-" + pos + (pos === 'left' || pos === 'right' ? ' row items-center' : '') + " z-alert"));
-      }
-      if (this.inline) {
-        cls.push('inline-block');
-      }
-      return cls
-    },
-    classes: function classes () {
-      return ("shadow-2 bg-" + (this.color))
-    }
-  },
-  methods: {
-    dismiss: function dismiss (fn) {
-      this.active = false;
-      this.$emit('input', false);
-      this.$emit('dismiss');
-      if (typeof fn === 'function') {
-        fn();
-      }
-    }
-  }
-};
-
-var filter = function (terms, ref) {
-  var field = ref.field;
-  var list = ref.list;
-
-  var token = terms.toLowerCase();
-  return list.filter(function (item) { return ('' + item[field]).toLowerCase().startsWith(token); })
-};
-
-function s4 () {
-  return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1)
-}
-
-var uid = function () {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4()
-};
-
-var marginal = {
-  type: Array,
-  validator: function (v) { return v.every(function (i) { return 'icon' in i; }); }
-};
-
-var align = {
-  left: 'start',
-  center: 'center',
-  right: 'end'
-};
-
-var FrameMixin = {
-  components: {
-    QIcon: QIcon
-  },
-  props: {
-    prefix: String,
-    suffix: String,
-    stackLabel: String,
-    floatLabel: String,
-    error: Boolean,
-    warning: Boolean,
-    disable: Boolean,
-    color: {
-      type: String,
-      default: 'primary'
-    },
-    dark: Boolean,
-    light: Boolean,
-    before: marginal,
-    after: marginal,
-    inverted: Boolean,
-    align: {
-      type: String,
-      default: 'left',
-      validator: function (v) { return ['left', 'center', 'right'].includes(v); }
-    }
-  },
-  computed: {
-    labelIsAbove: function labelIsAbove () {
-      return this.focused || this.length || this.additionalLength || this.stackLabel
-    },
-    alignClass: function alignClass () {
-      return ("justify-" + (align[this.align]))
-    }
-  }
-};
-
-var InputMixin = {
-  props: {
-    autofocus: Boolean,
-    name: String,
-    maxLength: [Number, String],
-    maxHeight: Number,
-    placeholder: String,
-    loading: Boolean
-  },
-  data: function data () {
-    return {
-      focused: false,
-      timer: null
-    }
-  },
-  computed: {
-    inputPlaceholder: function inputPlaceholder () {
-      if ((!this.floatLabel && !this.stackLabel) || this.labelIsAbove) {
-        return this.placeholder
-      }
-    }
-  },
-  methods: {
-    focus: function focus () {
-      if (!this.disable) {
-        this.$refs.input.focus();
-      }
-    },
-    blur: function blur () {
-      this.$refs.input.blur();
-    },
-    select: function select () {
-      this.$refs.input.select();
-    },
-
-    __onFocus: function __onFocus (e) {
-      this.focused = true;
-      this.$emit('focus', e);
-    },
-    __onInputBlur: function __onInputBlur (e) {
-      var this$1 = this;
-
-      clearTimeout(this.timer);
-      this.timer = setTimeout(function () {
-        this$1.__onBlur(e);
-      }, 200);
-    },
-    __onBlur: function __onBlur (e) {
-      this.focused = false;
-      this.$emit('blur', e);
-      if (JSON.stringify(this.model) !== JSON.stringify(this.value)) {
-        this.$emit('input', this.model);
-        this.$emit('change', this.model);
-      }
-    },
-    __onKeydown: function __onKeydown (e) {
-      this.$emit('keydown', e);
-    },
-    __onKeyup: function __onKeyup (e) {
-      this.$emit('keyup', e);
-    },
-    __onClick: function __onClick (e) {
-      this.focus();
-      this.$emit('click', e);
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      var input = this$1.$refs.input;
-      if (this$1.autofocus && input) {
-        input.focus();
-      }
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    clearTimeout(this.timer);
-  }
-};
-
-var inputTypes = [
-  'text', 'textarea', 'email',
-  'tel', 'file', 'number',
-  'password', 'url', 'time', 'date'
-];
-
-function debounce (fn, wait, immediate) {
-  if ( wait === void 0 ) wait = 250;
-
-  var timeout;
-
-  function debounced () {
-    var this$1 = this;
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    var later = function () {
-      timeout = null;
-      if (!immediate) {
-        fn.apply(this$1, args);
-      }
-    };
-
-    clearTimeout(timeout);
-    if (immediate && !timeout) {
-      fn.apply(this, args);
-    }
-    timeout = setTimeout(later, wait);
-  }
-
-  debounced.cancel = function () {
-    clearTimeout(timeout);
-  };
-
-  return debounced
-}
-
-function frameDebounce (fn) {
-  var wait = false;
-
-  return function () {
-    var this$1 = this;
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    if (wait) { return }
-
-    wait = true;
-    window.requestAnimationFrame(function () {
-      fn.apply(this$1, args);
-      wait = false;
-    });
-  }
-}
-
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
-  name: 'q-input-frame',
-  mixins: [FrameMixin],
-  props: {
-    topAddons: Boolean,
-    focused: Boolean,
-    length: Number,
-    focusable: Boolean,
-    additionalLength: Boolean
-  },
-  data: function data () {
-    return {
-      field: {}
-    }
-  },
-  inject: {
-    __field: { default: null }
-  },
-  computed: {
-    label: function label () {
-      return this.stackLabel || this.floatLabel
-    },
-    addonClass: function addonClass () {
-      return {
-        'q-if-addon-visible': this.labelIsAbove,
-        'self-start': this.topAddons
-      }
-    },
-    classes: function classes () {
-      var cls = [{
-        'q-if-has-label': this.label,
-        'q-if-focused': this.focused,
-        'q-if-error': this.hasError,
-        'q-if-warning': this.hasWarning,
-        'q-if-disabled': this.disable,
-        'q-if-focusable': this.focusable && !this.disable,
-        'q-if-inverted': this.inverted,
-        'q-if-dark': this.dark || (this.inverted && !this.light)
-      }];
-
-      var color = this.hasError ? 'negative' : this.hasWarning ? 'warning' : this.color;
-      if (this.inverted) {
-        cls.push(("bg-" + color));
-        if (!this.light) {
-          cls.push("text-white");
-        }
-      }
-      else {
-        cls.push(("text-" + color));
-      }
-      return cls
-    },
-    hasError: function hasError () {
-      return !!(this.field.error || this.error)
-    },
-    hasWarning: function hasWarning () {
-      // error is the higher priority
-      return !!(!this.hasError && (this.field.warning || this.warning))
-    }
-  },
-  methods: {
-    __onClick: function __onClick (e) {
-      this.$emit('click', e);
-    },
-    __additionalHidden: function __additionalHidden (item, hasError, hasWarning, length) {
-      if (item.condition !== void 0) {
-        return item.condition === false
-      }
-      return (
-        (item.content !== void 0 && !item.content === (length > 0)) ||
-        (item.error !== void 0 && !item.error === hasError) ||
-        (item.warning !== void 0 && !item.warning === hasWarning)
-      )
-    },
-    __baHandler: function __baHandler (evt, item) {
-      if (!item.allowPropagation) {
-        evt.stopPropagation();
-      }
-      if (item.handler) {
-        item.handler(evt);
-      }
-    }
-  },
-  created: function created () {
-    if (this.__field) {
-      this.field = this.__field;
-      this.field.__registerInput(this);
-    }
-  },
-  beforeDestroy: function beforeDestroy () {
-    if (this.__field) {
-      this.field.__unregisterInput();
-    }
-  }
-};
-
-function getSize (el) {
-  return {
-    width: el.offsetWidth,
-    height: el.offsetHeight
-  }
-}
-
-var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_vm._v(" "),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
-  name: 'q-resize-observable',
-  methods: {
-    onResize: function onResize () {
-      var size = getSize(this.$el.parentNode);
-
-      if (size.width === this.size.width && size.height === this.size.height) {
-        return
-      }
-
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-
-      this.size = size;
-    },
-    emit: function emit () {
-      this.timer = null;
-      this.reset();
-      this.$emit('resize', this.size);
-    },
-    reset: function reset () {
-      var ref = this.$refs;
-      if (ref.expand) {
-        ref.expand.scrollLeft = 100000;
-        ref.expand.scrollTop = 100000;
-      }
-      if (ref.shrink) {
-        ref.shrink.scrollLeft = 100000;
-        ref.shrink.scrollTop = 100000;
-      }
-    }
-  },
-  mounted: function mounted () {
-    var this$1 = this;
-
-    this.$nextTick(function () {
-      this$1.size = {};
-      this$1.onResize();
-    });
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.cancelAnimationFrame(this.timer);
-    this.$emit('resize', {width: 0, height: 0});
-  }
-};
-
-var QScrollObservable = {
-  name: 'q-scroll-observable',
-  render: function render () {},
-  data: function data () {
-    return {
-      pos: 0,
-      dir: 'down',
-      dirChanged: false,
-      dirChangePos: 0
-    }
-  },
-  methods: {
-    getPosition: function getPosition () {
-      return {
-        position: this.pos,
-        direction: this.dir,
-        directionChanged: this.dirChanged,
-        inflexionPosition: this.dirChangePos
-      }
-    },
-    trigger: function trigger () {
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-    },
-    emit: function emit () {
-      var
-        pos = Math.max(0, getScrollPosition(this.target)),
-        delta = pos - this.pos,
-        dir = delta < 0 ? 'up' : 'down';
-
-      this.dirChanged = this.dir !== dir;
-      if (this.dirChanged) {
-        this.dir = dir;
-        this.dirChangePos = this.pos;
-      }
-
-      this.timer = null;
-      this.pos = pos;
-      this.$emit('scroll', this.getPosition());
-    }
-  },
-  mounted: function mounted () {
-    this.target = getScrollTarget(this.$el.parentNode);
-    this.target.addEventListener('scroll', this.trigger);
-    this.trigger();
-  },
-  beforeDestroy: function beforeDestroy () {
-    this.target.removeEventListener('scroll', this.trigger);
-  }
-};
-
-var QWindowResizeObservable = {
-  name: 'q-window-resize-observable',
-  render: function render () {},
-  methods: {
-    trigger: function trigger () {
-      if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
-      }
-    },
-    emit: function emit () {
-      this.timer = null;
-      this.$emit('resize', viewport());
-    }
-  },
-  created: function created () {
-    this.emit();
-  },
-  mounted: function mounted () {
-    window.addEventListener('resize', this.trigger);
-  },
-  beforeDestroy: function beforeDestroy () {
-    window.removeEventListener('resize', this.trigger);
-  }
-};
-
-var mixin = {
-  props: {
-    color: String,
-    size: {
-      type: [Number, String],
-      default: '1rem'
-    }
-  },
-  computed: {
-    classes: function classes () {
-      if (this.color) {
-        return ("text-" + (this.color))
-      }
-    }
-  }
-};
-
-var DefaultSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner q-spinner-mat",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"25 25 50 50"}},[_c('circle',{staticClass:"path",attrs:{"cx":"50","cy":"50","r":"20","fill":"none","stroke":"currentColor","stroke-width":"3","stroke-miterlimit":"10"}})])},staticRenderFns: [],
-  name: 'q-spinner-mat',
-  mixins: [mixin]
-};
-
-var audio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 55 80","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"matrix(1 0 0 -1 0 80)"}},[_c('rect',{attrs:{"width":"10","height":"20","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"4.3s","values":"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"15","width":"10","height":"80","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"80;55;33;5;75;23;73;33;12;14;60;80","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","width":"10","height":"50","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1.4s","values":"50;34;78;23;56;23;34;76;80;54;21;50","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"45","width":"10","height":"30","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"30;45;13;80;56;72;45;76;34;23;67;30","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-audio',
-  mixins: [mixin]
-};
-
-var ball = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 57 57","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"cx":"5","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;5;50;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","values":"5;27;49;5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"27","cy":"5","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","from":"5","to":"5","values":"5;50;50;5","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","from":"27","to":"27","values":"27;49;5;27","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"49","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;50;5;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","from":"49","to":"49","begin":"0s","dur":"2.2s","values":"49;5;27;49","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-ball',
-  mixins: [mixin]
-};
-
-var bars = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 140","xmlns":"http://www.w3.org/2000/svg"}},[_c('rect',{attrs:{"y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"60","width":"15","height":"140","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"90","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"120","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-bars',
-  mixins: [mixin]
-};
-
-var circles = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 135","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"-360 67 67","dur":"2.5s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"360 67 67","dur":"8s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-circles',
-  mixins: [mixin]
-};
-
-var comment = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('path',{attrs:{"d":"M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z","fill":"currentColor"}}),_c('circle',{attrs:{"cx":"30","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;1;1","keyTimes":"0;0.2;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"50","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.2;0.4;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"70","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.4;0.6;1","dur":"1s","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-comment',
-  mixins: [mixin]
-};
-
-var cube = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('g',{attrs:{"transform":"translate(25 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.1s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(25 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.7"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.3s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.2s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-cube',
-  mixins: [mixin]
-};
-
-var dots = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 120 30","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"15","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"60","cy":"15","r":"9","fill-opacity":".3"}},[_c('animate',{attrs:{"attributeName":"r","from":"9","to":"9","begin":"0s","dur":"0.8s","values":"9;15;9","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":".5","to":".5","begin":"0s","dur":"0.8s","values":".5;1;.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"105","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-dots',
-  mixins: [mixin]
-};
-
-var facebook = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","xmlns":"http://www.w3.org/2000/svg","preserveAspectRatio":"xMidYMid"}},[_c('g',{attrs:{"transform":"translate(20 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(50 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.1s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(80 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.2s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-facebook',
-  mixins: [mixin]
-};
-
-var gears = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(-20,-20)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"90 50 50","to":"0 50 50","dur":"1s","repeatCount":"indefinite"}})],1)]),_c('g',{attrs:{"transform":"translate(20,20) rotate(15 50 50)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"90 50 50","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-gears',
-  mixins: [mixin]
-};
-
-var grid = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 105 105","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"12.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"52.5","r":"12.5","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"100ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"300ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"600ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"800ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"400ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"700ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"500ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"200ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-grid',
-  mixins: [mixin]
-};
-
-var hearts = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 140 64","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0.7s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"}})])},staticRenderFns: [],
-  name: 'q-spinner-hearts',
-  mixins: [mixin]
-};
-
-var hourglass = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',[_c('path',{staticClass:"glass",attrs:{"fill":"none","stroke":"currentColor","stroke-width":"5","stroke-miterlimit":"10","d":"M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z"}}),_c('clipPath',{attrs:{"id":"uil-hourglass-clip1"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"20","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"25","to":"0","dur":"1s","repeatCount":"indefinite","vlaues":"25;0;0","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"20","to":"45","dur":"1s","repeatCount":"indefinite","vlaues":"20;45;45","keyTimes":"0;0.5;1"}})])]),_c('clipPath',{attrs:{"id":"uil-hourglass-clip2"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"55","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"0","to":"25","dur":"1s","repeatCount":"indefinite","vlaues":"0;25;25","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"80","to":"55","dur":"1s","repeatCount":"indefinite","vlaues":"80;55;55","keyTimes":"0;0.5;1"}})])]),_c('path',{staticClass:"sand",attrs:{"d":"M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z","clip-path":"url(#uil-hourglass-clip1)","fill":"currentColor"}}),_c('path',{staticClass:"sand",attrs:{"d":"M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z","clip-path":"url(#uil-hourglass-clip2)","fill":"currentColor"}}),_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"180 50 50","repeatCount":"indefinite","dur":"1s","values":"0 50 50;0 50 50;180 50 50","keyTimes":"0;0.7;1"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-hourglass',
-  mixins: [mixin]
-};
-
-var infinity = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('path',{attrs:{"d":"M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z","fill":"none","stroke":"currentColor","stroke-width":"8","stroke-dasharray":"10.691205342610678 10.691205342610678","stroke-dashoffset":"0"}},[_c('animate',{attrs:{"attributeName":"stroke-dashoffset","from":"0","to":"21.382410685221355","begin":"0","dur":"2s","repeatCount":"indefinite","fill":"freeze"}})])])},staticRenderFns: [],
-  name: 'q-spinner-infinity',
-  mixins: [mixin]
-};
-
-var QSpinner_ios = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"stroke":"currentColor","fill":"currentColor","viewBox":"0 0 64 64"}},[_c('g',{attrs:{"stroke-width":"4","stroke-linecap":"round"}},[_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(180)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(210)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(240)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(270)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(300)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(330)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(0)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(30)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(60)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(90)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(120)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(150)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-ios',
-  mixins: [mixin]
-};
-
-var oval = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"stroke-opacity":".5","cx":"18","cy":"18","r":"18"}}),_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-oval',
-  mixins: [mixin]
-};
-
-var pie = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M0 50A50 50 0 0 1 50 0L50 50L0 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"0.8s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 0A50 50 0 0 1 100 50L50 50L50 0","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"1.6s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M100 50A50 50 0 0 1 50 100L50 50L100 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"2.4s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 100A50 50 0 0 1 0 50L50 50L50 100","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"3.2s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-pie',
-  mixins: [mixin]
-};
-
-var puff = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 44 44","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"0s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"-0.9s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"-0.9s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-puff',
-  mixins: [mixin]
-};
-
-var radio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"scale(0.55)"}},[_c('circle',{attrs:{"cx":"30","cy":"150","r":"30","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.1","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.2","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-radio',
-  mixins: [mixin]
-};
-
-var rings = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 45 45","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","transform":"translate(1 1)","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"1.5s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"1.5s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"1.5s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"3s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"3s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"3s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"8"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.5s","values":"6;1;2;3;4;5;6","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-rings',
-  mixins: [mixin]
-};
-
-var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('defs',[_c('linearGradient',{attrs:{"x1":"8.042%","y1":"0%","x2":"65.682%","y2":"23.865%","id":"a"}},[_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":"0","offset":"0%"}}),_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":".631","offset":"63.146%"}}),_c('stop',{attrs:{"stop-color":"currentColor","offset":"100%"}})],1)],1),_c('g',{attrs:{"transform":"translate(1 1)","fill":"none","fill-rule":"evenodd"}},[_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18","stroke":"url(#a)","stroke-width":"2"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1),_c('circle',{attrs:{"fill":"currentColor","cx":"36","cy":"18","r":"1"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-tail',
-  mixins: [mixin]
-};
-
-var QSpinner = {
-  mixins: [DefaultSpinner],
-  name: 'q-spinner'
-};
-
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.model}}),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.attributes,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.attributes,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-input',
-  mixins: [FrameMixin, InputMixin],
-  components: {
-    QInputFrame: QInputFrame,
-    QSpinner: QSpinner,
-    QResizeObservable: QResizeObservable
-  },
-  props: {
-    value: { required: true },
-    type: {
-      type: String,
-      default: 'text',
-      validator: function (t) { return inputTypes.includes(t); }
-    },
-    minRows: Number,
-    clearable: Boolean,
-    noPassToggle: Boolean,
-    readonly: Boolean,
-    attributes: Object,
-
-    min: Number,
-    max: Number,
-    step: {
-      type: Number,
-      default: 1
-    },
-    maxDecimals: Number
-  },
-  data: function data () {
-    var this$1 = this;
-
-    return {
-      showPass: false,
-      model: this.value,
-      shadow: {
-        val: this.model,
-        set: this.__set,
-        loading: false,
-        hasFocus: function () {
-          return document.activeElement === this$1.$refs.input
-        },
-        register: function () {
-          this$1.watcher = this$1.$watch('model', function (val) {
-            this$1.shadow.val = val;
-          });
-        },
-        unregister: function () {
-          this$1.watcher();
-        },
-        getEl: function () {
-          return this$1.$refs.input
-        }
-      }
-    }
-  },
-  watch: {
-    value: function value (v) {
-      this.model = v;
-    }
-  },
-  provide: function provide () {
-    return {
-      __input: this.shadow
-    }
-  },
-  computed: {
-    isNumber: function isNumber () {
-      return this.type === 'number'
-    },
-    isPassword: function isPassword () {
-      return this.type === 'password'
-    },
-    isTextarea: function isTextarea () {
-      return this.type === 'textarea'
-    },
-    isLoading: function isLoading () {
-      return this.loading || this.shadow.loading
-    },
-    pattern: function pattern () {
-      if (this.isNumber) {
-        return '[0-9]*'
-      }
-    },
-    inputStep: function inputStep () {
-      if (this.isNumber) {
-        return this.step
-      }
-    },
-    inputType: function inputType () {
-      return this.isPassword
-        ? (this.showPass ? 'text' : 'password')
-        : this.type
-    },
-    length: function length () {
-      return this.model !== null && this.model !== undefined
-        ? ('' + this.model).length
-        : 0
-    },
-    editable: function editable () {
-      return !this.disable && !this.readonly
-    }
-  },
-  methods: {
-    togglePass: function togglePass () {
-      this.showPass = !this.showPass;
-    },
-    clear: function clear () {
-      clearTimeout(this.timer);
-      this.focus();
-      if (this.editable) {
-        this.model = '';
-        this.$emit('input', '');
-      }
-    },
-
-    __set: function __set (e) {
-      var val = e.target ? e.target.value : e;
-      if (val !== this.value) {
-        if (this.isNumber) {
-          if (val === '') {
-            val = null;
-          }
-          else {
-            val = Number.isInteger(this.maxDecimals)
-              ? parseFloat(val).toFixed(this.maxDecimals)
-              : parseFloat(val);
-          }
-        }
-        this.model = val;
-        this.$emit('input', val);
-      }
-    },
-    __updateArea: function __updateArea () {
-      var shadow = this.$refs.shadow;
-      if (shadow) {
-        var h = shadow.scrollHeight;
-        var max = this.maxHeight || h;
-        this.$refs.input.style.minHeight = (between(h, 19, max)) + "px";
-      }
-    }
-  },
-  mounted: function mounted () {
-    this.__updateArea = frameDebounce(this.__updateArea);
-    if (this.isTextarea) {
-      this.__updateArea();
-      this.watcher = this.$watch('model', this.__updateArea);
-    }
-  },
-  beforeDestroy: function beforeDestroy () {
-    if (this.watcher !== void 0) {
-      this.watcher();
-    }
-  }
-};
-
 function getEvent (e) {
   return e || window.event
 }
@@ -2905,6 +2169,532 @@ var event = Object.freeze({
 	targetElement: targetElement,
 	getMouseWheelDistance: getMouseWheelDistance
 });
+
+function showRipple (evt, el, stopPropagation) {
+  if (stopPropagation) {
+    evt.stopPropagation();
+  }
+
+  var
+    container = document.createElement('span'),
+    animNode = document.createElement('span');
+
+  container.appendChild(animNode);
+  container.className = 'q-ripple-container';
+
+  var size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight;
+  size = (size * 2) + "px";
+  animNode.className = 'q-ripple-animation';
+  css(animNode, { width: size, height: size });
+
+  el.appendChild(container);
+
+  var
+    offset$$1 = el.getBoundingClientRect(),
+    pos = position(evt),
+    x = pos.left - offset$$1.left,
+    y = pos.top - offset$$1.top;
+
+  animNode.classList.add('q-ripple-animation-enter', 'q-ripple-animation-visible');
+  css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px) scale(.001)")));
+
+  setTimeout(function () {
+    animNode.classList.remove('q-ripple-animation-enter');
+    css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px)")));
+    setTimeout(function () {
+      animNode.classList.remove('q-ripple-animation-visible');
+      setTimeout(function () {
+        animNode.parentNode.remove();
+      }, 300);
+    }, 400);
+  }, 25);
+}
+
+function shouldAbort (ref) {
+  var mat = ref.mat;
+  var ios = ref.ios;
+
+  return (
+    (mat && "mat" !== 'mat') ||
+    (ios && "mat" !== 'ios')
+  )
+}
+
+var Ripple = {
+  name: 'ripple',
+  inserted: function inserted (el, ref) {
+    var value = ref.value;
+    var modifiers = ref.modifiers;
+
+    if (shouldAbort(modifiers)) {
+      return
+    }
+
+    var ctx = {
+      enabled: value !== false,
+      click: function click (evt) {
+        if (ctx.enabled) {
+          showRipple(evt, el, modifiers.stop);
+        }
+      }
+    };
+
+    el.__qripple = ctx;
+    el.addEventListener('click', ctx.click, false);
+  },
+  update: function update (el, ref) {
+    var value = ref.value;
+    var oldValue = ref.oldValue;
+
+    if (el.__qripple && value !== oldValue) {
+      el.__qripple.enabled = value !== false;
+    }
+  },
+  unbind: function unbind (el, ref) {
+    var modifiers = ref.modifiers;
+
+    if (shouldAbort(modifiers)) {
+      return
+    }
+
+    var ctx = el.__qripple;
+    el.removeEventListener('click', ctx.click, false);
+    delete el.__qripple;
+  }
+};
+
+var BtnMixin = {
+  components: {
+    QIcon: QIcon
+  },
+  directives: {
+    Ripple: Ripple
+  },
+  props: {
+    disable: Boolean,
+    label: [Number, String],
+    noCaps: Boolean,
+    noWrap: Boolean,
+    icon: String,
+    iconRight: String,
+    round: Boolean,
+    outline: Boolean,
+    flat: Boolean,
+    rounded: Boolean,
+    push: Boolean,
+    small: Boolean,
+    big: Boolean,
+    color: String,
+    glossy: Boolean,
+    compact: Boolean,
+    noRipple: Boolean
+  },
+  computed: {
+    size: function size () {
+      return ("q-btn-" + (this.small ? 'small' : (this.big ? 'big' : 'standard')))
+    },
+    shape: function shape () {
+      return ("q-btn-" + (this.round ? 'round' : 'rectangle'))
+    },
+    isDisabled: function isDisabled () {
+      return this.disable || this.loading
+    },
+    hasRipple: function hasRipple () {
+      return "mat" === 'mat' && !this.noRipple && !this.isDisabled
+    },
+    classes: function classes () {
+      var
+        cls = [this.shape, this.size],
+        color = this.toggled ? this.toggleColor : this.color;
+
+      if (this.toggled) {
+        cls.push('q-btn-toggle-active');
+      }
+      if (this.compact) {
+        cls.push('q-btn-compact');
+      }
+
+      if (this.flat) {
+        cls.push('q-btn-flat');
+      }
+      else if (this.outline) {
+        cls.push('q-btn-outline');
+      }
+      else if (this.push) {
+        cls.push('q-btn-push');
+      }
+
+      this.isDisabled && cls.push('disabled');
+      this.noCaps && cls.push('q-btn-no-uppercase');
+      this.rounded && cls.push('q-btn-rounded');
+      this.glossy && cls.push('glossy');
+
+      if (color) {
+        if (this.flat || this.outline) {
+          cls.push(("text-" + color));
+        }
+        else {
+          cls.push(("bg-" + color));
+          cls.push("text-white");
+        }
+      }
+
+      return cls
+    }
+  }
+};
+
+var mixin = {
+  props: {
+    color: String,
+    size: {
+      type: [Number, String],
+      default: '1rem'
+    }
+  },
+  computed: {
+    classes: function classes () {
+      if (this.color) {
+        return ("text-" + (this.color))
+      }
+    }
+  }
+};
+
+var DefaultSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner q-spinner-mat",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"25 25 50 50"}},[_c('circle',{staticClass:"path",attrs:{"cx":"50","cy":"50","r":"20","fill":"none","stroke":"currentColor","stroke-width":"3","stroke-miterlimit":"10"}})])},staticRenderFns: [],
+  name: 'q-spinner-mat',
+  mixins: [mixin]
+};
+
+var audio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 55 80","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"matrix(1 0 0 -1 0 80)"}},[_c('rect',{attrs:{"width":"10","height":"20","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"4.3s","values":"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"15","width":"10","height":"80","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"80;55;33;5;75;23;73;33;12;14;60;80","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","width":"10","height":"50","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1.4s","values":"50;34;78;23;56;23;34;76;80;54;21;50","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"45","width":"10","height":"30","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"30;45;13;80;56;72;45;76;34;23;67;30","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-audio',
+  mixins: [mixin]
+};
+
+var ball = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 57 57","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"cx":"5","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;5;50;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","values":"5;27;49;5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"27","cy":"5","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","from":"5","to":"5","values":"5;50;50;5","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","from":"27","to":"27","values":"27;49;5;27","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"49","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;50;5;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","from":"49","to":"49","begin":"0s","dur":"2.2s","values":"49;5;27;49","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-ball',
+  mixins: [mixin]
+};
+
+var bars = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 140","xmlns":"http://www.w3.org/2000/svg"}},[_c('rect',{attrs:{"y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"60","width":"15","height":"140","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"90","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"120","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  name: 'q-spinner-bars',
+  mixins: [mixin]
+};
+
+var circles = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 135","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"-360 67 67","dur":"2.5s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"360 67 67","dur":"8s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
+  name: 'q-spinner-circles',
+  mixins: [mixin]
+};
+
+var comment = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('path',{attrs:{"d":"M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z","fill":"currentColor"}}),_c('circle',{attrs:{"cx":"30","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;1;1","keyTimes":"0;0.2;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"50","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.2;0.4;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"70","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.4;0.6;1","dur":"1s","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  name: 'q-spinner-comment',
+  mixins: [mixin]
+};
+
+var cube = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('g',{attrs:{"transform":"translate(25 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.1s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(25 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.7"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.3s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.2s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)])])},staticRenderFns: [],
+  name: 'q-spinner-cube',
+  mixins: [mixin]
+};
+
+var dots = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 120 30","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"15","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"60","cy":"15","r":"9","fill-opacity":".3"}},[_c('animate',{attrs:{"attributeName":"r","from":"9","to":"9","begin":"0s","dur":"0.8s","values":"9;15;9","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":".5","to":".5","begin":"0s","dur":"0.8s","values":".5;1;.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"105","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  name: 'q-spinner-dots',
+  mixins: [mixin]
+};
+
+var facebook = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","xmlns":"http://www.w3.org/2000/svg","preserveAspectRatio":"xMidYMid"}},[_c('g',{attrs:{"transform":"translate(20 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(50 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.1s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(80 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.2s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)])])},staticRenderFns: [],
+  name: 'q-spinner-facebook',
+  mixins: [mixin]
+};
+
+var gears = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(-20,-20)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"90 50 50","to":"0 50 50","dur":"1s","repeatCount":"indefinite"}})],1)]),_c('g',{attrs:{"transform":"translate(20,20) rotate(15 50 50)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"90 50 50","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  name: 'q-spinner-gears',
+  mixins: [mixin]
+};
+
+var grid = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 105 105","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"12.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"52.5","r":"12.5","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"100ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"300ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"600ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"800ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"400ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"700ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"500ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"200ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  name: 'q-spinner-grid',
+  mixins: [mixin]
+};
+
+var hearts = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 140 64","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0.7s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"}})])},staticRenderFns: [],
+  name: 'q-spinner-hearts',
+  mixins: [mixin]
+};
+
+var hourglass = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',[_c('path',{staticClass:"glass",attrs:{"fill":"none","stroke":"currentColor","stroke-width":"5","stroke-miterlimit":"10","d":"M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z"}}),_c('clipPath',{attrs:{"id":"uil-hourglass-clip1"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"20","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"25","to":"0","dur":"1s","repeatCount":"indefinite","vlaues":"25;0;0","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"20","to":"45","dur":"1s","repeatCount":"indefinite","vlaues":"20;45;45","keyTimes":"0;0.5;1"}})])]),_c('clipPath',{attrs:{"id":"uil-hourglass-clip2"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"55","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"0","to":"25","dur":"1s","repeatCount":"indefinite","vlaues":"0;25;25","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"80","to":"55","dur":"1s","repeatCount":"indefinite","vlaues":"80;55;55","keyTimes":"0;0.5;1"}})])]),_c('path',{staticClass:"sand",attrs:{"d":"M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z","clip-path":"url(#uil-hourglass-clip1)","fill":"currentColor"}}),_c('path',{staticClass:"sand",attrs:{"d":"M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z","clip-path":"url(#uil-hourglass-clip2)","fill":"currentColor"}}),_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"180 50 50","repeatCount":"indefinite","dur":"1s","values":"0 50 50;0 50 50;180 50 50","keyTimes":"0;0.7;1"}})],1)])},staticRenderFns: [],
+  name: 'q-spinner-hourglass',
+  mixins: [mixin]
+};
+
+var infinity = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('path',{attrs:{"d":"M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z","fill":"none","stroke":"currentColor","stroke-width":"8","stroke-dasharray":"10.691205342610678 10.691205342610678","stroke-dashoffset":"0"}},[_c('animate',{attrs:{"attributeName":"stroke-dashoffset","from":"0","to":"21.382410685221355","begin":"0","dur":"2s","repeatCount":"indefinite","fill":"freeze"}})])])},staticRenderFns: [],
+  name: 'q-spinner-infinity',
+  mixins: [mixin]
+};
+
+var QSpinner_ios = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"stroke":"currentColor","fill":"currentColor","viewBox":"0 0 64 64"}},[_c('g',{attrs:{"stroke-width":"4","stroke-linecap":"round"}},[_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(180)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(210)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(240)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(270)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(300)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(330)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(0)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(30)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(60)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(90)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(120)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(150)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-ios',
+  mixins: [mixin]
+};
+
+var oval = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"stroke-opacity":".5","cx":"18","cy":"18","r":"18"}}),_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  name: 'q-spinner-oval',
+  mixins: [mixin]
+};
+
+var pie = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M0 50A50 50 0 0 1 50 0L50 50L0 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"0.8s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 0A50 50 0 0 1 100 50L50 50L50 0","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"1.6s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M100 50A50 50 0 0 1 50 100L50 50L100 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"2.4s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 100A50 50 0 0 1 0 50L50 50L50 100","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"3.2s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
+  name: 'q-spinner-pie',
+  mixins: [mixin]
+};
+
+var puff = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 44 44","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"0s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"-0.9s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"-0.9s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-puff',
+  mixins: [mixin]
+};
+
+var radio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"scale(0.55)"}},[_c('circle',{attrs:{"cx":"30","cy":"150","r":"30","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.1","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.2","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-radio',
+  mixins: [mixin]
+};
+
+var rings = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 45 45","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","transform":"translate(1 1)","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"1.5s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"1.5s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"1.5s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"3s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"3s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"3s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"8"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.5s","values":"6;1;2;3;4;5;6","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  name: 'q-spinner-rings',
+  mixins: [mixin]
+};
+
+var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('defs',[_c('linearGradient',{attrs:{"x1":"8.042%","y1":"0%","x2":"65.682%","y2":"23.865%","id":"a"}},[_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":"0","offset":"0%"}}),_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":".631","offset":"63.146%"}}),_c('stop',{attrs:{"stop-color":"currentColor","offset":"100%"}})],1)],1),_c('g',{attrs:{"transform":"translate(1 1)","fill":"none","fill-rule":"evenodd"}},[_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18","stroke":"url(#a)","stroke-width":"2"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1),_c('circle',{attrs:{"fill":"currentColor","cx":"36","cy":"18","r":"1"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  name: 'q-spinner-tail',
+  mixins: [mixin]
+};
+
+var QSpinner = {
+  mixins: [DefaultSpinner],
+  name: 'q-spinner'
+};
+
+var QBtn = {
+  name: 'q-btn',
+  mixins: [BtnMixin],
+  props: {
+    value: Boolean,
+    loader: Boolean,
+    percentage: Number,
+    darkPercentage: Boolean,
+    waitForRipple: Boolean
+  },
+  data: function data () {
+    return {
+      loading: this.value || false
+    }
+  },
+  watch: {
+    value: function value (val) {
+      if (this.loading !== val) {
+        this.loading = val;
+      }
+    }
+  },
+  computed: {
+    hasPercentage: function hasPercentage () {
+      return this.percentage !== void 0
+    },
+    width: function width () {
+      return ((between(this.percentage, 0, 100)) + "%")
+    }
+  },
+  methods: {
+    click: function click (e) {
+      var this$1 = this;
+
+      this.$el.blur();
+
+      if (this.isDisabled) {
+        return
+      }
+
+      clearTimeout(this.timer);
+      var trigger = function () {
+        if (this$1.loader !== false || this$1.$slots.loading) {
+          this$1.loading = true;
+          this$1.$emit('input', true);
+        }
+        this$1.$emit('click', e, function () {
+          this$1.loading = false;
+          this$1.$emit('input', false);
+        });
+      };
+
+      if (this.waitForRipple && this.hasRipple) {
+        this.timer = setTimeout(trigger, 350);
+      }
+      else {
+        trigger();
+      }
+    }
+  },
+  beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.timer);
+  },
+  render: function render (h) {
+    return h('button', {
+      staticClass: 'q-btn row inline flex-center q-focusable q-hoverable relative-position',
+      'class': this.classes,
+      on: { click: this.click },
+      directives: this.hasRipple
+        ? [{
+          name: 'ripple',
+          value: true
+        }]
+        : null
+    }, [
+      h('div', { staticClass: 'desktop-only q-focus-helper' }),
+
+      this.loading && this.hasPercentage
+        ? h('div', {
+          staticClass: 'q-btn-progress absolute-full',
+          'class': { 'q-btn-dark-progress': this.darkPercentage },
+          style: { width: this.width }
+        })
+        : null,
+
+      h('span', {
+        staticClass: 'q-btn-inner row col flex-center',
+        'class': {
+          'no-wrap': this.noWrap,
+          'text-no-wrap': this.noWrap
+        }
+      },
+      this.loading
+        ? [ this.$slots.loading || h(QSpinner) ]
+        : [
+          this.icon
+            ? h('q-icon', {
+              'class': { 'on-left': this.label && !this.round },
+              props: { name: this.icon }
+            })
+            : null,
+
+          this.label && !this.round ? h('span', [ this.label ]) : null,
+
+          this.$slots.default,
+
+          this.iconRight && !this.round
+            ? h('q-icon', {
+              staticClass: 'on-right',
+              props: { name: this.iconRight }
+            })
+            : null
+        ]
+      )
+    ])
+  }
+};
+
+var QBtnToggle = {
+  name: 'q-btn-toggle',
+  mixins: [BtnMixin],
+  model: {
+    prop: 'toggled',
+    event: 'change'
+  },
+  props: {
+    toggled: {
+      type: Boolean,
+      required: true
+    },
+    toggleColor: {
+      type: String,
+      required: true
+    }
+  },
+  methods: {
+    click: function click (e) {
+      var this$1 = this;
+
+      this.$el.blur();
+
+      if (this.isDisabled) {
+        return
+      }
+
+      clearTimeout(this.timer);
+      var trigger = function () {
+        var state = !this$1.toggled;
+        this$1.$emit('change', state);
+        this$1.$emit('click', e, state);
+      };
+
+      if (this.waitForRipple && this.hasRipple) {
+        this.timer = setTimeout(trigger, 350);
+      }
+      else {
+        trigger();
+      }
+    }
+  },
+  render: function render (h) {
+    return h('button', {
+      staticClass: 'q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position',
+      'class': this.classes,
+      on: { click: this.click },
+      directives: this.hasRipple
+        ? [{
+          name: 'ripple',
+          value: true
+        }]
+        : null
+    }, [
+      h('div', { staticClass: 'desktop-only q-focus-helper' }),
+
+      h('span', {
+        staticClass: 'q-btn-inner row col flex-center',
+        'class': {
+          'no-wrap': this.noWrap,
+          'text-no-wrap': this.noWrap
+        }
+      }, [
+        this.icon
+          ? h('q-icon', {
+            'class': { 'on-left': this.label && !this.round },
+            props: { name: this.icon }
+          })
+          : null,
+
+        this.label && !this.round ? h('span', [ this.label ]) : null,
+
+        this.$slots.default,
+
+        this.iconRight && !this.round
+          ? h('q-icon', {
+            staticClass: 'on-right',
+            props: { name: this.iconRight }
+          })
+          : null
+      ])
+    ])
+  }
+};
+
+var QBtnGroup = {
+  name: 'q-btn-group',
+  functional: true,
+  props: {
+    outline: Boolean,
+    flat: Boolean,
+    rounded: Boolean,
+    push: Boolean
+  },
+  render: function render (h, ctx) {
+    var
+      data = ctx.data,
+      prop = ctx.props,
+      cls = data.staticClass,
+      moreCls = ['outline', 'flat', 'rounded', 'push'].filter(function (t) { return prop[t]; }).map(function (t) { return ("q-btn-group-" + t); }).join(' ');
+
+    data.staticClass = "q-btn-group row no-wrap inline" + (cls ? (" " + cls) : '') + (moreCls ? (" " + moreCls) : '');
+
+    return h('div', data, ctx.children)
+  }
+};
 
 function getAnchorPosition (el, offset) {
   var ref = el.getBoundingClientRect();
@@ -3109,6 +2899,154 @@ function parsePosition (pos) {
   return {vertical: parts[0], horizontal: parts[1]}
 }
 
+function debounce (fn, wait, immediate) {
+  if ( wait === void 0 ) wait = 250;
+
+  var timeout;
+
+  function debounced () {
+    var this$1 = this;
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    var later = function () {
+      timeout = null;
+      if (!immediate) {
+        fn.apply(this$1, args);
+      }
+    };
+
+    clearTimeout(timeout);
+    if (immediate && !timeout) {
+      fn.apply(this, args);
+    }
+    timeout = setTimeout(later, wait);
+  }
+
+  debounced.cancel = function () {
+    clearTimeout(timeout);
+  };
+
+  return debounced
+}
+
+function frameDebounce (fn) {
+  var wait = false;
+
+  return function () {
+    var this$1 = this;
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    if (wait) { return }
+
+    wait = true;
+    window.requestAnimationFrame(function () {
+      fn.apply(this$1, args);
+      wait = false;
+    });
+  }
+}
+
+function getScrollTarget (el) {
+  return el.closest('.scroll') || window
+}
+
+function getScrollHeight (el) {
+  return (el === window ? document.body : el).scrollHeight
+}
+
+function getScrollPosition (scrollTarget) {
+  if (scrollTarget === window) {
+    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
+  }
+  return scrollTarget.scrollTop
+}
+
+function animScrollTo (el, to, duration) {
+  if (duration <= 0) {
+    return
+  }
+
+  var pos = getScrollPosition(el);
+
+  window.requestAnimationFrame(function () {
+    setScroll(el, pos + (to - pos) / duration * 16);
+    if (el.scrollTop !== to) {
+      animScrollTo(el, to, duration - 16);
+    }
+  });
+}
+
+function setScroll (scrollTarget, offset$$1) {
+  if (scrollTarget === window) {
+    document.documentElement.scrollTop = offset$$1;
+    document.body.scrollTop = offset$$1;
+    return
+  }
+  scrollTarget.scrollTop = offset$$1;
+}
+
+function setScrollPosition (scrollTarget, offset$$1, duration) {
+  if (duration) {
+    animScrollTo(scrollTarget, offset$$1, duration);
+    return
+  }
+  setScroll(scrollTarget, offset$$1);
+}
+
+var size;
+function getScrollbarWidth () {
+  if (size !== undefined) {
+    return size
+  }
+
+  var
+    inner = document.createElement('p'),
+    outer = document.createElement('div');
+
+  css(inner, {
+    width: '100%',
+    height: '200px'
+  });
+  css(outer, {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    visibility: 'hidden',
+    width: '200px',
+    height: '150px',
+    overflow: 'hidden'
+  });
+
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  var w2 = inner.offsetWidth;
+
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+
+  document.body.removeChild(outer);
+  size = w1 - w2;
+
+  return size
+}
+
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth
+});
+
 var QPopover = {
   name: 'q-popover',
   mixins: [ModelToggleMixin],
@@ -3140,9 +3078,9 @@ var QPopover = {
     },
     disable: Boolean
   },
-  data: function data () {
-    return {
-      progress: false
+  watch: {
+    $route: function $route () {
+      this.hide();
     }
   },
   computed: {
@@ -3184,30 +3122,19 @@ var QPopover = {
         this$1.anchorEl.addEventListener('click', this$1.toggle);
       }
     });
+    if (this.value) {
+      this.show();
+    }
   },
   beforeDestroy: function beforeDestroy () {
     if (this.anchorClick && this.anchorEl) {
       this.anchorEl.removeEventListener('click', this.toggle);
     }
-    this.hide();
   },
   methods: {
-    show: function show (evt) {
+    __show: function __show (evt) {
       var this$1 = this;
 
-      if (this.disable) {
-        return Promise.resolve()
-      }
-      if (this.showing) {
-        this.__updatePosition();
-        return
-      }
-      if (evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
-      }
-
-      document.body.click(); // close other Popovers
       document.body.appendChild(this.$el);
       EscapeKey.register(function () { this$1.hide(); });
       this.scrollTarget = getScrollTarget(this.anchorEl);
@@ -3215,45 +3142,34 @@ var QPopover = {
       window.addEventListener('resize', this.__updatePosition);
       this.reposition(evt);
 
-      return new Promise(function (resolve, reject) {
-        this$1.timer = setTimeout(function () {
-          this$1.timer = null;
-          document.body.addEventListener('click', this$1.hide, true);
-          document.body.addEventListener('touchstart', this$1.hide, true);
-          this$1.__updateModel(true);
-          this$1.$emit('show');
-          resolve();
-        }, 1);
-      })
+      clearTimeout(this.timer);
+      this.timer = setTimeout(function () {
+        document.body.addEventListener('click', this$1.__bodyHide, true);
+        document.body.addEventListener('touchstart', this$1.__bodyHide, true);
+        this$1.showPromise && this$1.showPromiseResolve();
+      }, 0);
     },
-    hide: function hide (evt) {
-      var this$1 = this;
-
-      if (!this.showing || this.progress || (evt && evt.target && this.$el.contains(evt.target))) {
-        return Promise.resolve()
+    __bodyHide: function __bodyHide (evt) {
+      if (
+        evt && evt.target &&
+        (this.$el.contains(evt.target) || (this.anchorClick && this.anchorEl.contains(evt.target)))
+      ) {
+        return
       }
 
+      this.hide(evt);
+    },
+    __hide: function __hide (evt) {
       clearTimeout(this.timer);
-      document.body.removeEventListener('click', this.hide, true);
-      document.body.removeEventListener('touchstart', this.hide, true);
+
+      document.body.removeEventListener('click', this.__bodyHide, true);
+      document.body.removeEventListener('touchstart', this.__bodyHide, true);
       this.scrollTarget.removeEventListener('scroll', this.__updatePosition);
       window.removeEventListener('resize', this.__updatePosition);
       EscapeKey.pop();
-      this.progress = true;
 
-      /*
-        Using setTimeout to allow
-        v-models to take effect
-      */
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          this$1.progress = false;
-          document.body.removeChild(this$1.$el);
-          this$1.__updateModel(false);
-          this$1.$emit('hide');
-          resolve();
-        }, 1);
-      })
+      document.body.removeChild(this.$el);
+      this.hidePromise && this.hidePromiseResolve();
     },
     reposition: function reposition (event) {
       var this$1 = this;
@@ -3285,19 +3201,351 @@ var QPopover = {
   }
 };
 
+var QBtnDropdown = {
+  name: 'q-btn-dropdown',
+  mixins: [BtnMixin],
+  props: {
+    value: Boolean,
+    label: String,
+    split: Boolean
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    var
+      Popover = h(
+        QPopover,
+        {
+          ref: 'popover',
+          props: {
+            fit: true,
+            anchorClick: !this.split,
+            anchor: 'bottom right',
+            self: 'top right'
+          },
+          on: {
+            show: function (e) {
+              this$1.$emit('show', e);
+              this$1.$emit('input', true);
+            },
+            hide: function (e) {
+              this$1.$emit('hide', e);
+              this$1.$emit('input', false);
+            }
+          }
+        },
+        this.$slots.default
+      ),
+      Icon = h(
+        'q-icon',
+        {
+          props: {
+            name: 'arrow_drop_down'
+          },
+          staticClass: 'transition-generic',
+          'class': {
+            'rotate-180': this.showing,
+            'on-right': !this.split,
+            'q-btn-dropdown-arrow': !this.split
+          }
+        }
+      ),
+      child = [Popover];
+
+    var getBtn = function () {
+      return h(
+        QBtn,
+        {
+          props: {
+            disable: this$1.disable,
+            noCaps: this$1.noCaps,
+            noWrap: this$1.noWrap,
+            icon: this$1.icon,
+            label: this$1.label,
+            iconRight: this$1.split ? this$1.iconRight : null,
+            round: this$1.round,
+            outline: this$1.outline,
+            flat: this$1.flat,
+            rounded: this$1.rounded,
+            push: this$1.push,
+            small: this$1.small,
+            big: this$1.big,
+            color: this$1.color,
+            glossy: this$1.glossy,
+            compact: this$1.compact,
+            noRipple: this$1.noRipple,
+            waitForRipple: this$1.waitForRipple
+          },
+          staticClass: ("" + (this$1.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple')),
+          on: {
+            click: function (e) {
+              if (!this$1.disable) {
+                this$1.$emit('click', e);
+              }
+            }
+          }
+        },
+        this$1.split ? null : child
+      )
+    };
+
+    if (!this.split) {
+      child.push(Icon);
+      return getBtn()
+    }
+
+    return h(
+      QBtnGroup,
+      {
+        props: {
+          outline: this.outline,
+          flat: this.flat,
+          rounded: this.rounded,
+          push: this.push
+        },
+        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap'
+      },
+      [
+        getBtn(),
+        h(
+          QBtn,
+          {
+            props: {
+              round: this.round,
+              flat: this.flat,
+              rounded: this.rounded,
+              push: this.push,
+              small: this.small,
+              big: this.big,
+              color: this.color,
+              glossy: this.glossy,
+              noRipple: this.noRipple,
+              waitForRipple: this.waitForRipple
+            },
+            staticClass: 'q-btn-dropdown-arrow',
+            on: {
+              click: function () {
+                if (!this$1.disable) {
+                  this$1.show();
+                }
+              }
+            }
+          },
+          [ Icon ]
+        ),
+        child
+      ]
+    )
+  },
+  methods: {
+    show: function show () {
+      return this.$refs.popover.show()
+    },
+    hide: function hide () {
+      return this.$refs.popover.hide()
+    }
+  }
+};
+
+var QBtnToggleGroup = {
+  name: 'q-btn-toggle-group',
+  components: {
+    QBtnGroup: QBtnGroup,
+    QBtnToggle: QBtnToggle
+  },
+  props: {
+    value: {
+      required: true
+    },
+    color: String,
+    toggleColor: {
+      type: String,
+      required: true
+    },
+    options: {
+      type: Array,
+      required: true,
+      validator: function (v) { return v.every(function (opt) { return ('label' in opt || 'icon' in opt) && 'value' in opt; }); }
+    },
+    disable: Boolean,
+    noCaps: Boolean,
+    noWrap: Boolean,
+    outline: Boolean,
+    flat: Boolean,
+    compact: Boolean,
+    rounded: Boolean,
+    push: Boolean,
+    small: Boolean,
+    big: Boolean,
+    glossy: Boolean,
+    noRipple: Boolean,
+    waitForRipple: Boolean
+  },
+  computed: {
+    val: function val () {
+      var this$1 = this;
+
+      return this.options.map(function (opt) { return opt.value === this$1.value; })
+    }
+  },
+  methods: {
+    set: function set (value, opt) {
+      if (value !== this.value) {
+        this.$emit('input', value);
+        this.$emit('change', value, opt);
+      }
+    }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h(QBtnGroup, {
+      staticClass: 'q-btn-toggle-group',
+      props: {
+        outline: this.outline,
+        flat: this.flat,
+        rounded: this.rounded,
+        push: this.push
+      }
+    },
+    this.options.map(
+      function (opt, i) { return h(QBtnToggle, {
+        key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
+        on: { change: function () { return this$1.set(opt.value, opt); } },
+        props: {
+          toggled: this$1.val[i],
+          label: opt.label,
+          color: opt.color || this$1.color,
+          toggleColor: opt.toggleColor || this$1.toggleColor,
+          icon: opt.icon,
+          iconRight: opt.iconRight,
+          noCaps: this$1.noCaps,
+          noWrap: this$1.noWrap,
+          outline: this$1.outline,
+          flat: this$1.flat,
+          rounded: this$1.rounded,
+          push: this$1.push,
+          glossy: this$1.glossy,
+          small: this$1.small,
+          big: this$1.big,
+          compact: this$1.compact,
+          noRipple: this$1.noRipple,
+          waitForRipple: this$1.waitForRipple
+        }
+      }); }
+    ))
+  }
+};
+
+var QAlert = {
+  name: 'q-alert',
+  props: {
+    type: {
+      type: String,
+      validator: function (v) { return ['positive', 'negative', 'warning', 'info'].includes(v); }
+    },
+    color: {
+      type: String,
+      default: 'negative'
+    },
+    textColor: String,
+    message: String,
+    detail: String,
+    icon: String,
+    avatar: String,
+    actions: Array
+  },
+  computed: {
+    computedIcon: function computedIcon () {
+      return this.icon
+        ? this.icon
+        : typeIcon[this.type || this.color]
+    },
+    classes: function classes () {
+      return ("bg-" + (this.type || this.color) + " text-" + (this.textColor || 'white'))
+    }
+  },
+  render: function render (h) {
+    var side = [];
+
+    if (this.avatar) {
+      side.push(
+        h('img', {
+          staticClass: 'avatar',
+          domProps: { src: this.avatar }
+        })
+      );
+    }
+    else if (this.icon || this.type) {
+      side.push(
+        h(QIcon, {
+          props: { name: this.computedIcon }
+        })
+      );
+    }
+
+    return h('div', [
+      h('div', {
+        staticClass: 'q-alert row no-wrap shadow-2',
+        'class': this.classes
+      }, [
+        side.length
+          ? h('div', { staticClass: 'q-alert-side row col-auto flex-center' }, side)
+          : null,
+        h('div', {
+          staticClass: 'q-alert-content col self-center'
+        }, [
+          h('div', this.$slots.default || this.message),
+          this.detail ? h('div', { staticClass: 'q-alert-detail' }, [ this.detail ]) : null
+        ]),
+        this.actions && this.actions.length
+          ? h('div', {
+            staticClass: 'q-alert-actions col-auto xs-gutter flex-center'
+          },
+          this.actions.map(function (action) { return h('div', [
+              h(QBtn, {
+                props: {
+                  flat: true,
+                  compact: true
+                },
+                on: {
+                  click: function () { return action.handler(); }
+                }
+              }, [ action.label ])
+            ]); }
+          ))
+          : null
+      ])
+    ])
+  }
+};
+
+var filter = function (terms, ref) {
+  var field = ref.field;
+  var list = ref.list;
+
+  var token = terms.toLowerCase();
+  return list.filter(function (item) { return ('' + item[field]).toLowerCase().startsWith(token); })
+};
+
+function s4 () {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1)
+}
+
+var uid = function () {
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4()
+};
+
 function prevent (e) {
   e.preventDefault();
   e.stopPropagation();
 }
 
-var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-popover',{ref:"popover",attrs:{"fit":"","offset":[0, 10],"anchor-click":false},on:{"show":function($event){_vm.$emit('show');},"hide":function($event){_vm.$emit('hide');}}},[_c('q-list',{style:(_vm.computedWidth),attrs:{"no-border":"","link":"","separator":_vm.separator}},_vm._l((_vm.computedResults),function(result,index){return _c('q-item-wrapper',{key:result.id || JSON.stringify(result),class:{active: _vm.selectedIndex === index},attrs:{"cfg":result},on:{"click":function($event){_vm.setValue(result);}}})}))],1)},staticRenderFns: [],
+var QAutocomplete = {
   name: 'q-autocomplete',
-  components: {
-    QInput: QInput,
-    QPopover: QPopover,
-    QList: QList,
-    QItemWrapper: QItemWrapper
-  },
   props: {
     minCharacters: {
       type: Number,
@@ -3348,9 +3596,9 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
   },
   computed: {
     computedResults: function computedResults () {
-      if (this.maxResults && this.results.length > 0) {
-        return this.results.slice(0, this.maxResults)
-      }
+      return this.maxResults && this.results.length > 0
+        ? this.results.slice(0, this.maxResults)
+        : []
     },
     computedWidth: function computedWidth () {
       return {minWidth: this.width}
@@ -3507,475 +3755,39 @@ var QAutocomplete = {render: function(){var _vm=this;var _h=_vm.$createElement;v
       this.inputEl.removeEventListener('keydown', this.__handleKeypress);
       this.hide();
     }
-  }
-};
-
-function showRipple (evt, el, stopPropagation) {
-  if (stopPropagation) {
-    evt.stopPropagation();
-  }
-
-  var
-    container = document.createElement('span'),
-    animNode = document.createElement('span');
-
-  container.appendChild(animNode);
-  container.className = 'q-ripple-container';
-
-  var size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight;
-  size = (size * 2) + "px";
-  animNode.className = 'q-ripple-animation';
-  css(animNode, { width: size, height: size });
-
-  el.appendChild(container);
-
-  var
-    offset$$1 = el.getBoundingClientRect(),
-    pos = position(evt),
-    x = pos.left - offset$$1.left,
-    y = pos.top - offset$$1.top;
-
-  animNode.classList.add('q-ripple-animation-enter', 'q-ripple-animation-visible');
-  css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px) scale(.001)")));
-
-  setTimeout(function () {
-    animNode.classList.remove('q-ripple-animation-enter');
-    css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px)")));
-    setTimeout(function () {
-      animNode.classList.remove('q-ripple-animation-visible');
-      setTimeout(function () {
-        animNode.parentNode.remove();
-      }, 300);
-    }, 400);
-  }, 25);
-}
-
-function shouldAbort (ref) {
-  var mat = ref.mat;
-  var ios = ref.ios;
-
-  return (
-    (mat && "mat" !== 'mat') ||
-    (ios && "mat" !== 'ios')
-  )
-}
-
-var Ripple = {
-  name: 'ripple',
-  inserted: function inserted (el, ref) {
-    var value = ref.value;
-    var modifiers = ref.modifiers;
-
-    if (shouldAbort(modifiers)) {
-      return
-    }
-
-    var ctx = {
-      enabled: value !== false,
-      click: function click (evt) {
-        if (ctx.enabled) {
-          showRipple(evt, el, modifiers.stop);
-        }
-      }
-    };
-
-    el.__qripple = ctx;
-    el.addEventListener('click', ctx.click, false);
-  },
-  update: function update (el, ref) {
-    var value = ref.value;
-    var oldValue = ref.oldValue;
-
-    if (el.__qripple && value !== oldValue) {
-      el.__qripple.enabled = value !== false;
-    }
-  },
-  unbind: function unbind (el, ref) {
-    var modifiers = ref.modifiers;
-
-    if (shouldAbort(modifiers)) {
-      return
-    }
-
-    var ctx = el.__qripple;
-    el.removeEventListener('click', ctx.click, false);
-    delete el.__qripple;
-  }
-};
-
-var BtnMixin = {
-  components: {
-    QIcon: QIcon
-  },
-  directives: {
-    Ripple: Ripple
-  },
-  props: {
-    disable: Boolean,
-    label: [Number, String],
-    noCaps: Boolean,
-    noWrap: Boolean,
-    icon: String,
-    iconRight: String,
-    round: Boolean,
-    outline: Boolean,
-    flat: Boolean,
-    rounded: Boolean,
-    push: Boolean,
-    small: Boolean,
-    big: Boolean,
-    color: String,
-    glossy: Boolean,
-    compact: Boolean
-  },
-  computed: {
-    size: function size () {
-      return ("q-btn-" + (this.small ? 'small' : (this.big ? 'big' : 'standard')))
-    },
-    shape: function shape () {
-      return ("q-btn-" + (this.round ? 'round' : 'rectangle'))
-    },
-    isDisabled: function isDisabled () {
-      return this.disable || this.loading
-    },
-    classes: function classes () {
-      var
-        cls = [this.shape, this.size],
-        color = this.toggled ? this.toggleColor : this.color;
-
-      if (this.toggled) {
-        cls.push('q-btn-toggle-active');
-      }
-      if (this.compact) {
-        cls.push('q-btn-compact');
-      }
-
-      if (this.flat) {
-        cls.push('q-btn-flat');
-      }
-      else if (this.outline) {
-        cls.push('q-btn-outline');
-      }
-      else if (this.push) {
-        cls.push('q-btn-push');
-      }
-
-      this.isDisabled && cls.push('disabled');
-      this.noCaps && cls.push('q-btn-no-uppercase');
-      this.rounded && cls.push('q-btn-rounded');
-      this.glossy && cls.push('glossy');
-
-      if (color) {
-        if (this.flat || this.outline) {
-          cls.push(("text-" + color));
-        }
-        else {
-          cls.push(("bg-" + color));
-          cls.push("text-white");
-        }
-      }
-
-      return cls
-    }
-  }
-};
-
-var QBtn = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_vm._v(" "),(_vm.loading && _vm.hasPercentage)?_c('div',{staticClass:"q-btn-progress absolute-full",class:{'q-btn-dark-progress': _vm.darkPercentage},style:({width: _vm.width})}):_vm._e(),_vm._v(" "),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap, 'text-no-wrap': _vm.noWrap}},[(_vm.loading)?_vm._t("loading",[_c('q-spinner')]):[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._v(" "),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()]],2)])},staticRenderFns: [],
-  name: 'q-btn',
-  mixins: [BtnMixin],
-  components: {
-    QSpinner: QSpinner
-  },
-  props: {
-    value: Boolean,
-    loader: Boolean,
-    percentage: Number,
-    darkPercentage: Boolean
-  },
-  data: function data () {
-    return {
-      loading: this.value || false
-    }
-  },
-  watch: {
-    value: function value (val) {
-      if (this.loading !== val) {
-        this.loading = val;
-      }
-    }
-  },
-  computed: {
-    hasPercentage: function hasPercentage () {
-      return this.percentage !== void 0
-    },
-    width: function width () {
-      return ((between(this.percentage, 0, 100)) + "%")
-    }
-  },
-  methods: {
-    click: function click (e) {
-      var this$1 = this;
-
-      this.$el.blur();
-
-      if (this.isDisabled) {
-        return
-      }
-      if (this.loader !== false || this.$slots.loading) {
-        this.loading = true;
-        this.$emit('input', true);
-      }
-      this.$emit('click', e, function () {
-        this$1.loading = false;
-        this$1.$emit('input', false);
-      });
-    }
-  }
-};
-
-var QBtnToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('button',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.isDisabled),expression:"!isDisabled",modifiers:{"mat":true}}],staticClass:"q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position",class:_vm.classes,on:{"click":_vm.click}},[_c('div',{staticClass:"desktop-only q-focus-helper"}),_vm._v(" "),_c('span',{staticClass:"q-btn-inner row col flex-center",class:{'no-wrap': _vm.noWrap, 'text-no-wrap': _vm.noWrap}},[(_vm.icon)?_c('q-icon',{class:{'on-left': _vm.label && !_vm.round},attrs:{"name":_vm.icon}}):_vm._e(),_vm._v(" "),(_vm.label && !_vm.round)?_c('span',[_vm._v(_vm._s(_vm.label))]):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(!_vm.round && _vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e()],2)])},staticRenderFns: [],
-  name: 'q-btn-toggle',
-  mixins: [BtnMixin],
-  model: {
-    prop: 'toggled',
-    event: 'change'
-  },
-  props: {
-    toggled: {
-      type: Boolean,
-      required: true
-    },
-    toggleColor: {
-      type: String,
-      required: true
-    }
-  },
-  methods: {
-    click: function click (e) {
-      this.$el.blur();
-
-      if (this.isDisabled) {
-        return
-      }
-
-      var state = !this.toggled;
-      this.$emit('change', state);
-      this.$emit('click', e, state);
-    }
-  }
-};
-
-var QBtnGroup = {
-  name: 'q-btn-group',
-  functional: true,
-  props: {
-    outline: Boolean,
-    flat: Boolean,
-    rounded: Boolean,
-    push: Boolean
-  },
-  render: function render (h, ctx) {
-    var
-      data = ctx.data,
-      prop = ctx.props,
-      cls = data.staticClass,
-      moreCls = ['outline', 'flat', 'rounded', 'push'].filter(function (t) { return prop[t]; }).map(function (t) { return ("q-btn-group-" + t); }).join(' ');
-
-    data.staticClass = "q-btn-group row no-wrap inline" + (cls ? (" " + cls) : '') + (moreCls ? (" " + moreCls) : '');
-
-    return h('div', data, ctx.children)
-  }
-};
-
-var QBtnDropdown = {
-  name: 'q-btn-dropdown',
-  mixins: [BtnMixin, ModelToggleMixin],
-  props: {
-    label: String,
-    split: Boolean
   },
   render: function render (h) {
     var this$1 = this;
 
-    var
-      Popover = h(
-        QPopover,
-        {
-          ref: 'popover',
-          props: {
-            fit: true,
-            anchorClick: !this.split,
-            anchor: 'bottom right',
-            self: 'top right'
-          },
-          on: {
-            show: function (e) {
-              this$1.__updateModel(true);
-              this$1.$emit('show', e);
-            },
-            hide: function (e) {
-              this$1.__updateModel(false);
-              this$1.$emit('hide', e);
-            }
-          }
-        },
-        this.$slots.default
-      ),
-      Icon = h(
-        'q-icon',
-        {
-          props: {
-            name: 'arrow_drop_down'
-          },
-          staticClass: 'transition-generic',
-          'class': {
-            'rotate-180': this.showing,
-            'on-right': !this.split,
-            'q-btn-dropdown-arrow': !this.split
-          }
-        }
-      ),
-      child = [Popover];
-
-    var getBtn = function () {
-      return h(
-        QBtn,
-        {
-          props: {
-            disable: this$1.disable,
-            noCaps: this$1.noCaps,
-            noWrap: this$1.noWrap,
-            icon: this$1.icon,
-            label: this$1.label,
-            iconRight: this$1.split ? this$1.iconRight : null,
-            round: this$1.round,
-            outline: this$1.outline,
-            flat: this$1.flat,
-            rounded: this$1.rounded,
-            push: this$1.push,
-            small: this$1.small,
-            big: this$1.big,
-            color: this$1.color,
-            glossy: this$1.glossy,
-            compact: this$1.compact
-          },
-          staticClass: ("" + (this$1.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple')),
-          on: {
-            click: function (e) {
-              if (!this$1.disable) {
-                this$1.$emit('click', e);
-              }
-            }
-          }
-        },
-        this$1.split ? null : child
-      )
-    };
-
-    if (!this.split) {
-      child.push(Icon);
-      return getBtn()
-    }
-
-    return h(
-      QBtnGroup,
-      {
-        props: {
-          outline: this.outline,
-          flat: this.flat,
-          rounded: this.rounded,
-          push: this.push
-        },
-        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap'
+    return h(QPopover, {
+      ref: 'popover',
+      props: {
+        fit: true,
+        offset: [0, 10],
+        anchorClick: false
       },
-      [
-        getBtn(),
-        h(
-          QBtn,
-          {
-            props: {
-              round: this.round,
-              flat: this.flat,
-              rounded: this.rounded,
-              push: this.push,
-              small: this.small,
-              big: this.big,
-              color: this.color,
-              glossy: this.glossy
-            },
-            staticClass: 'q-btn-dropdown-arrow',
-            on: {
-              click: function () {
-                if (!this$1.disable) {
-                  this$1.$refs.popover.show();
-                }
-              }
-            }
-          },
-          [ Icon ]
-        ),
-        child
-      ]
-    )
-  },
-  methods: {
-    show: function show () {
-      return this.$refs.popover
-        ? this.$refs.popover.show()
-        : Promise.resolve()
-    },
-    hide: function hide () {
-      return this.$refs.popover
-        ? this.$refs.popover.hide()
-        : Promise.resolve()
-    }
-  }
-};
-
-var QBtnToggleGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn-group',{staticClass:"q-btn-toggle-group",attrs:{"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push}},_vm._l((_vm.options),function(opt,i){return _c('q-btn-toggle',{key:("" + (opt.label) + (opt.icon) + (opt.iconRight)),attrs:{"toggled":_vm.val[i],"label":opt.label,"color":opt.color || _vm.color,"toggle-color":opt.toggleColor || _vm.toggleColor,"icon":opt.icon,"icon-right":opt.iconRight,"no-caps":_vm.noCaps,"no-wrap":_vm.noWrap,"outline":_vm.outline,"flat":_vm.flat,"rounded":_vm.rounded,"push":_vm.push,"glossy":_vm.glossy,"small":_vm.small,"big":_vm.big,"compact":_vm.compact},on:{"change":function($event){_vm.set(opt.value, opt);}}})}))},staticRenderFns: [],
-  name: 'q-btn-toggle-group',
-  components: {
-    QBtnGroup: QBtnGroup,
-    QBtnToggle: QBtnToggle
-  },
-  props: {
-    value: {
-      required: true
-    },
-    color: String,
-    toggleColor: {
-      type: String,
-      required: true
-    },
-    options: {
-      type: Array,
-      required: true,
-      validator: function (v) { return v.every(function (opt) { return ('label' in opt || 'icon' in opt) && 'value' in opt; }); }
-    },
-    disable: Boolean,
-    noCaps: Boolean,
-    outline: Boolean,
-    flat: Boolean,
-    rounded: Boolean,
-    push: Boolean,
-    small: Boolean,
-    big: Boolean,
-    glossy: Boolean
-  },
-  computed: {
-    val: function val () {
-      var this$1 = this;
-
-      return this.options.map(function (opt) { return opt.value === this$1.value; })
-    }
-  },
-  methods: {
-    set: function set (value, opt) {
-      if (value !== this.value) {
-        this.$emit('input', value);
-        this.$emit('change', value, opt);
+      on: {
+        show: function () { return this$1.$emit('show'); },
+        hide: function () { return this$1.$emit('hide'); }
       }
-    }
+    }, [
+      h(QList, {
+        props: {
+          noBorder: true,
+          link: true,
+          separator: this.separator
+        },
+        style: this.computedWidth
+      },
+      this.computedResults.map(function (result, index) { return h(QItemWrapper, {
+        key: result.id || JSON.stringify(result),
+        'class': { active: this$1.selectedIndex === index },
+        props: { cfg: result },
+        on: {
+          click: function () { this$1.setValue(result); }
+        }
+      }); }))
+    ])
   }
 };
 
@@ -5218,7 +5030,7 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:_vm.classes,on:{"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),_vm._v(" "),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),_vm._v(" "),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('hide');}}}):_vm._e()],1):_vm._e()],1)},staticRenderFns: [],
+var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:_vm.classes,on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),_vm._v(" "),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),_vm._v(" "),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('hide');}}}):_vm._e()],1):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chip',
   components: {
     QIcon: QIcon
@@ -5259,11 +5071,245 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   methods: {
     __onClick: function __onClick (e) {
       this.$emit('click', e);
+    },
+    __onMouseDown: function __onMouseDown (e) {
+      this.$emit('focus', e);
     }
   }
 };
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"hide":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var marginal = {
+  type: Array,
+  validator: function (v) { return v.every(function (i) { return 'icon' in i; }); }
+};
+
+var align = {
+  left: 'start',
+  center: 'center',
+  right: 'end'
+};
+
+var FrameMixin = {
+  components: {
+    QIcon: QIcon
+  },
+  props: {
+    prefix: String,
+    suffix: String,
+    stackLabel: String,
+    floatLabel: String,
+    error: Boolean,
+    warning: Boolean,
+    disable: Boolean,
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    dark: Boolean,
+    light: Boolean,
+    before: marginal,
+    after: marginal,
+    inverted: Boolean,
+    align: {
+      type: String,
+      default: 'left',
+      validator: function (v) { return ['left', 'center', 'right'].includes(v); }
+    }
+  },
+  computed: {
+    labelIsAbove: function labelIsAbove () {
+      return this.focused || this.length || this.additionalLength || this.stackLabel
+    },
+    alignClass: function alignClass () {
+      return ("justify-" + (align[this.align]))
+    }
+  }
+};
+
+var InputMixin = {
+  props: {
+    autofocus: Boolean,
+    name: String,
+    maxLength: [Number, String],
+    maxHeight: Number,
+    placeholder: String,
+    loading: Boolean
+  },
+  data: function data () {
+    return {
+      focused: false,
+      timer: null
+    }
+  },
+  computed: {
+    inputPlaceholder: function inputPlaceholder () {
+      if ((!this.floatLabel && !this.stackLabel) || this.labelIsAbove) {
+        return this.placeholder
+      }
+    }
+  },
+  methods: {
+    focus: function focus () {
+      if (!this.disable) {
+        this.$refs.input.focus();
+      }
+    },
+    blur: function blur () {
+      this.$refs.input.blur();
+    },
+    select: function select () {
+      this.$refs.input.select();
+    },
+
+    __onFocus: function __onFocus (e) {
+      clearTimeout(this.timer);
+      this.focused = true;
+      this.$emit('focus', e);
+    },
+    __onInputBlur: function __onInputBlur (e) {
+      var this$1 = this;
+
+      clearTimeout(this.timer);
+      this.timer = setTimeout(function () {
+        this$1.__onBlur(e);
+      }, 200);
+    },
+    __onBlur: function __onBlur (e) {
+      this.focused = false;
+      this.$emit('blur', e);
+      if (JSON.stringify(this.model) !== JSON.stringify(this.value)) {
+        this.$emit('input', this.model);
+        this.$emit('change', this.model);
+      }
+    },
+    __onKeydown: function __onKeydown (e) {
+      this.$emit('keydown', e);
+    },
+    __onKeyup: function __onKeyup (e) {
+      this.$emit('keyup', e);
+    },
+    __onClick: function __onClick (e) {
+      this.focus();
+      this.$emit('click', e);
+    }
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      var input = this$1.$refs.input;
+      if (this$1.autofocus && input) {
+        input.focus();
+      }
+    });
+  },
+  beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.timer);
+  }
+};
+
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
+  name: 'q-input-frame',
+  mixins: [FrameMixin],
+  props: {
+    topAddons: Boolean,
+    focused: Boolean,
+    length: Number,
+    focusable: Boolean,
+    additionalLength: Boolean
+  },
+  data: function data () {
+    return {
+      field: {}
+    }
+  },
+  inject: {
+    __field: { default: null }
+  },
+  computed: {
+    label: function label () {
+      return this.stackLabel || this.floatLabel
+    },
+    addonClass: function addonClass () {
+      return {
+        'q-if-addon-visible': this.labelIsAbove,
+        'self-start': this.topAddons
+      }
+    },
+    classes: function classes () {
+      var cls = [{
+        'q-if-has-label': this.label,
+        'q-if-focused': this.focused,
+        'q-if-error': this.hasError,
+        'q-if-warning': this.hasWarning,
+        'q-if-disabled': this.disable,
+        'q-if-focusable': this.focusable && !this.disable,
+        'q-if-inverted': this.inverted,
+        'q-if-dark': this.dark || (this.inverted && !this.light)
+      }];
+
+      var color = this.hasError ? 'negative' : this.hasWarning ? 'warning' : this.color;
+      if (this.inverted) {
+        cls.push(("bg-" + color));
+        if (!this.light) {
+          cls.push("text-white");
+        }
+      }
+      else {
+        cls.push(("text-" + color));
+      }
+      return cls
+    },
+    hasError: function hasError () {
+      return !!(this.field.error || this.error)
+    },
+    hasWarning: function hasWarning () {
+      // error is the higher priority
+      return !!(!this.hasError && (this.field.warning || this.warning))
+    }
+  },
+  methods: {
+    __onClick: function __onClick (e) {
+      this.$emit('click', e);
+    },
+    __onMouseDown: function __onMouseDown (e) {
+      var this$1 = this;
+
+      this.$nextTick(function () { return this$1.$emit('focus', e); });
+    },
+    __additionalHidden: function __additionalHidden (item, hasError, hasWarning, length) {
+      if (item.condition !== void 0) {
+        return item.condition === false
+      }
+      return (
+        (item.content !== void 0 && !item.content === (length > 0)) ||
+        (item.error !== void 0 && !item.error === hasError) ||
+        (item.warning !== void 0 && !item.warning === hasWarning)
+      )
+    },
+    __baHandler: function __baHandler (evt, item) {
+      if (!item.allowPropagation) {
+        evt.stopPropagation();
+      }
+      if (item.handler) {
+        item.handler(evt);
+      }
+    }
+  },
+  created: function created () {
+    if (this.__field) {
+      this.field = this.__field;
+      this.field.__registerInput(this);
+    }
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (this.__field) {
+      this.field.__unregisterInput();
+    }
+  }
+};
+
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -5319,6 +5365,11 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         this.model.splice(index, 1);
         this.$emit('input', this.model);
       }
+    },
+    __clearTimer: function __clearTimer () {
+      var this$1 = this;
+
+      this.$nextTick(function () { return clearTimeout(this$1.timer); });
     },
     __handleKey: function __handleKey (e) {
       // ENTER key
@@ -5445,37 +5496,81 @@ var QSlideTransition = {
 
 var eventName = 'q:collapsible:close';
 
-var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-collapsible q-item-division relative-position",class:[ ("q-collapsible-" + (_vm.showing ? 'opened' : 'closed')), { 'q-item-separator': _vm.separator, 'q-item-inset-separator': _vm.insetSeparator } ]},[_c('q-item-wrapper',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(!_vm.iconToggle && !_vm.disable),expression:"!iconToggle && !disable",modifiers:{"mat":true}}],class:{disabled: _vm.disable},attrs:{"cfg":_vm.cfg},on:{"click":_vm.__toggleItem}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat.stop",value:(_vm.iconToggle),expression:"iconToggle",modifiers:{"mat":true,"stop":true}}],staticClass:"cursor-pointer relative-position inline-block",attrs:{"slot":"right"},on:{"click":function($event){$event.stopPropagation();_vm.toggle($event);}},slot:"right"},[_c('q-item-tile',{staticClass:"transition-generic",class:{'rotate-180': _vm.showing, invisible: _vm.disable},attrs:{"icon":"keyboard_arrow_down"}})],1)]),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.showing),expression:"showing"}]},[_c('div',{staticClass:"q-collapsible-sub-item relative-position",class:{indent: _vm.indent}},[_vm._t("default")],2)])])],1)},staticRenderFns: [],
+var QCollapsible = {
   name: 'q-collapsible',
   mixins: [ModelToggleMixin],
-  components: {
-    QItemWrapper: QItemWrapper,
-    QItemTile: QItemTile,
-    QSlideTransition: QSlideTransition
+  modelToggle: {
+    history: false
   },
   directives: {
     Ripple: Ripple
   },
   props: {
     disable: Boolean,
+    popup: Boolean,
     indent: Boolean,
     group: String,
     iconToggle: Boolean,
+    separator: Boolean,
+    insetSeparator: Boolean,
+    noRipple: Boolean,
 
     dense: Boolean,
     sparse: Boolean,
     multiline: Boolean,
-    separator: Boolean,
-    insetSeparator: Boolean,
 
     icon: String,
+    rightIcon: String,
     image: String,
+    rightImage: String,
     avatar: String,
+    rightAvatar: String,
     letter: String,
+    rightLetter: String,
     label: String,
     sublabel: String,
     labelLines: [String, Number],
     sublabelLines: [String, Number]
+  },
+  computed: {
+    cfg: function cfg () {
+      return {
+        link: !this.iconToggle,
+        headerStyle: [Array, String, Object],
+        headerClass: [Array, String, Object],
+
+        dark: this.dark,
+        dense: this.dense,
+        sparse: this.sparse,
+        multiline: this.multiline,
+
+        icon: this.icon,
+        rightIcon: this.rightIcon,
+        image: this.image,
+        rightImage: this.rightImage,
+        avatar: this.avatar,
+        rightAvatar: this.rightAvatar,
+        letter: this.letter,
+        rightLetter: this.rightLetter,
+
+        label: this.label,
+        sublabel: this.sublabel,
+        labelLines: this.labelLines,
+        sublabelLines: this.sublabelLines
+      }
+    },
+    hasRipple: function hasRipple () {
+      return "mat" === 'mat' && !this.noRipple
+    },
+    classes: function classes () {
+      return {
+        'q-collapsible-opened': this.popup && this.showing,
+        'q-collapsible-closed': this.popup && !this.showing,
+        'q-item-separator': this.separator,
+        'q-item-inset-separator': this.insetSeparator,
+        disabled: this.disable
+      }
+    }
   },
   watch: {
     showing: function showing (val) {
@@ -5484,43 +5579,15 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       }
     }
   },
-  computed: {
-    cfg: function cfg () {
-      return {
-        link: !this.iconToggle,
-
-        dark: this.dark,
-        dense: this.dense,
-        sparse: this.sparse,
-        multiline: this.multiline,
-
-        icon: this.icon,
-        image: this.image,
-        avatar: this.avatar,
-        letter: this.letter,
-
-        label: this.label,
-        sublabel: this.sublabel,
-        labelLines: this.labelLines,
-        sublabelLines: this.sublabelLines
-      }
-    }
-  },
   methods: {
-    show: function show () {
-      if (!this.disable) {
-        this.__updateModel(true, false);
-      }
-      return Promise.resolve()
-    },
-    hide: function hide () {
-      if (!this.disable) {
-        this.__updateModel(false, false);
-      }
-      return Promise.resolve()
-    },
     __toggleItem: function __toggleItem () {
       if (!this.iconToggle) {
+        this.toggle();
+      }
+    },
+    __toggleIcon: function __toggleIcon (e) {
+      if (this.iconToggle) {
+        e && e.stopPropagation();
         this.toggle();
       }
     },
@@ -5528,13 +5595,80 @@ var QCollapsible = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       if (this.group && this !== comp && comp.group === this.group) {
         this.hide();
       }
+    },
+    __getToggleSide: function __getToggleSide (h, slot) {
+      return [
+        h(QItemTile, {
+          slot: slot ? 'right' : undefined,
+          staticClass: 'cursor-pointer transition-generic relative-position',
+          'class': {
+            'rotate-180': this.showing,
+            invisible: this.disable
+          },
+          on: {
+            click: this.__toggleIcon
+          },
+          props: { icon: 'keyboard_arrow_down' },
+          directives: this.iconToggle && this.hasRipple
+            ? [{ name: 'ripple', value: !this.disable }]
+            : []
+        })
+      ]
+    },
+    __getItemProps: function __getItemProps (wrapper) {
+      return {
+        props: wrapper
+          ? { cfg: this.cfg }
+          : { link: !this.iconToggle },
+        style: this.headerStyle,
+        'class': this.headerClass,
+        on: {
+          click: this.__toggleItem
+        },
+        directives: this.hasRipple && !this.iconToggle
+          ? [{ name: 'ripple', value: !this.disable }]
+          : []
+      }
     }
   },
   created: function created () {
     this.$root.$on(eventName, this.__eventHandler);
+    if (this.value) {
+      this.show();
+    }
   },
   beforeDestroy: function beforeDestroy () {
     this.$root.$off(eventName, this.__eventHandler);
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-collapsible q-item-division relative-position',
+      'class': this.classes
+    }, [
+      h('div', {
+        staticClass: 'q-collapsible-inner'
+      }, [
+        this.$slots.header
+          ? h(QItem, this.__getItemProps(), [
+            this.$slots.header,
+            h(QItemSide, { props: { right: true }, staticClass: 'relative-position' }, this.__getToggleSide(h))
+          ])
+          : h(QItemWrapper, this.__getItemProps(true), this.__getToggleSide(h, true)),
+
+        h(QSlideTransition, [
+          h('div', {
+            directives: [{ name: 'show', value: this.showing }]
+          }, [
+            h('div', {
+              staticClass: 'q-collapsible-sub-item relative-position',
+              'class': { indent: this.indent }
+            }, [
+              this.$slots.default
+            ])
+          ])
+        ])
+      ])
+    ])
   }
 };
 
@@ -5671,21 +5805,63 @@ var QContextMenu = {
   }
 };
 
+var modelValidator = function (v) {
+  var type = typeof v;
+  return (
+    v === null || v === undefined ||
+    type === 'number' || type === 'string' ||
+    isDate(v)
+  )
+};
+
+var inline = {
+  value: {
+    validator: modelValidator,
+    required: true
+  },
+  type: {
+    type: String,
+    default: 'date',
+    validator: function validator (value) {
+      return ['date', 'time', 'datetime'].includes(value)
+    }
+  },
+  color: {
+    type: String,
+    default: 'primary'
+  },
+  light: Boolean,
+  min: {
+    validator: modelValidator,
+    default: null
+  },
+  max: {
+    validator: modelValidator,
+    default: null
+  },
+  firstDayOfWeek: Number,
+  format24h: {
+    type: [Boolean, Number],
+    default: 0,
+    validator: function (v) { return [true, false, 0].includes(v); }
+  }
+};
+
+var input = {
+  format: String,
+  noClear: Boolean,
+  placeholder: String,
+  clearLabel: String,
+  okLabel: String,
+  cancelLabel: String
+};
+
 /* eslint no-fallthrough: 0 */
 
 var MILLISECONDS_IN_DAY = 86400000;
 var MILLISECONDS_IN_HOUR = 3600000;
 var MILLISECONDS_IN_MINUTE = 60000;
-var token = /d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
-
-var dayNames = [
-  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-];
-
-var monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
+var token = /\[((?:[^\]\\]|\\]|\\)*)\]|d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
 
 function formatTimezone (offset, delimeter) {
   if ( delimeter === void 0 ) delimeter = '';
@@ -6011,14 +6187,12 @@ var formatter = {
 
   // Month Short Name: Jan, Feb, ...
   MMM: function MMM (date) {
-    return this.MMMM(date).slice(0, 3)
+    return i18n.lang.date.monthsShort[date.getMonth()]
   },
 
   // Month Name: January, February, ...
-  MMMM: function MMMM (date, opts) {
-    if ( opts === void 0 ) opts = {};
-
-    return (opts.monthNames || monthNames)[date.getMonth()]
+  MMMM: function MMMM (date) {
+    return i18n.lang.date.months[date.getMonth()]
   },
 
   // Quarter: 1, 2, 3, 4
@@ -6068,14 +6242,12 @@ var formatter = {
 
   // Day of week: Sun, Mon, ...
   ddd: function ddd (date) {
-    return this.dddd(date).slice(0, 3)
+    return i18n.lang.date.daysShort[date.getDay()]
   },
 
   // Day of week: Sunday, Monday, ...
-  dddd: function dddd (date, opts) {
-    if ( opts === void 0 ) opts = {};
-
-    return (opts.dayNames || dayNames)[date.getDay()]
+  dddd: function dddd (date) {
+    return i18n.lang.date.days[date.getDay()]
   },
 
   // Day of ISO week: 1, 2, ..., 7
@@ -6191,7 +6363,7 @@ var formatter = {
   }
 };
 
-function formatDate (val, mask, opts) {
+function formatDate (val, mask) {
   if ( mask === void 0 ) mask = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
   if (!val) {
@@ -6200,18 +6372,18 @@ function formatDate (val, mask, opts) {
 
   var date = new Date(val);
 
-  return mask.replace(token, function (match) {
+  return mask.replace(token, function (match, text) {
     if (match in formatter) {
-      return formatter[match](date, opts)
+      return formatter[match](date)
     }
-    return match
+    return text === void 0
+      ? match
+      : text.split('\\]').join(']')
   })
 }
 
 
 var date = Object.freeze({
-	dayNames: dayNames,
-	monthNames: monthNames,
 	isValid: isValid,
 	buildDate: buildDate,
 	getDayOfWeek: getDayOfWeek,
@@ -6233,71 +6405,6 @@ var date = Object.freeze({
 	formatter: formatter,
 	formatDate: formatDate
 });
-
-var modelValidator = function (v) {
-  var type = typeof v;
-  return (
-    v === null || v === undefined ||
-    type === 'number' || type === 'string' ||
-    isDate(v)
-  )
-};
-
-var inline = {
-  value: {
-    validator: modelValidator,
-    required: true
-  },
-  type: {
-    type: String,
-    default: 'date',
-    validator: function validator (value) {
-      return ['date', 'time', 'datetime'].includes(value)
-    }
-  },
-  color: {
-    type: String,
-    default: 'primary'
-  },
-  light: Boolean,
-  min: {
-    validator: modelValidator,
-    default: null
-  },
-  max: {
-    validator: modelValidator,
-    default: null
-  },
-  monthNames: {
-    type: Array,
-    default: function () { return monthNames; }
-  },
-  dayNames: {
-    type: Array,
-    default: function () { return dayNames; }
-  },
-  mondayFirst: Boolean,
-  saturdayFirst: Boolean,
-  format24h: Boolean
-};
-
-var input = {
-  format: String,
-  noClear: Boolean,
-  placeholder: String,
-  clearLabel: {
-    type: String,
-    default: 'Clear'
-  },
-  okLabel: {
-    type: String,
-    default: 'Set'
-  },
-  cancelLabel: {
-    type: String,
-    default: 'Cancel'
-  }
-};
 
 var DateMixin = {
   props: inline,
@@ -6425,7 +6532,7 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(" "+_vm._s(_vm.day)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])]),_vm._v(" "),(!_vm.format24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:n,staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":""},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:index,staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":""},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.monthNames[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.beforeMinDays,"icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-dark"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.afterMaxDays,"icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._v(" "),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")]):_vm._e()}),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"row items-center content-center justify-center cursor-pointer",class:{ 'q-datetime-day-active': monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today },on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),_vm._l((_vm.afterMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")]):_vm._e()})],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.format24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
+var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){_vm.view = 'month';}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){_vm.view = 'day';}}},[_vm._v(" "+_vm._s(_vm.day)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){_vm.view = 'year';}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){_vm.view = 'hour';}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){_vm.view = 'minute';}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:n,staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":""},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:index,staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":""},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.beforeMinDays,"icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-dark"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{attrs:{"round":"","small":"","flat":"","color":_vm.color,"disabled":_vm.afterMaxDays,"icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{staticClass:"q-datetime-fillerday"})}),_vm._v(" "),_vm._l((_vm.beforeMinDays),function(fillerDay){return (_vm.min)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")]):_vm._e()}),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{staticClass:"row items-center content-center justify-center cursor-pointer",class:{ 'q-datetime-day-active': monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today },on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),_vm._l((_vm.afterMaxDays),function(fillerDay){return (_vm.max)?_c('div',{staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")]):_vm._e()})],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-inline-datetime',
   mixins: [DateMixin],
   props: {
@@ -6492,15 +6599,20 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
       }
       return cls
     },
-    firstDayOfWeek: function firstDayOfWeek () {
-      return this.mondayFirst
-        ? 1
-        : (this.saturdayFirst ? 6 : 0)
+    computedFormat24h: function computedFormat24h () {
+      return this.format24h !== 0
+        ? this.format24h
+        : this.$q.i18n.date.format24h
+    },
+    computedFirstDayOfWeek: function computedFirstDayOfWeek () {
+      return this.firstDayOfWeek !== void 0
+        ? this.firstDayOfWeek
+        : this.$q.i18n.date.firstDayOfWeek
     },
     headerDayNames: function headerDayNames () {
       var
-        days = this.dayNames.map(function (day) { return day.slice(0, 3); }),
-        first = this.firstDayOfWeek;
+        days = this.$q.i18n.date.daysShort,
+        first = this.computedFirstDayOfWeek;
 
       return first > 0
         ? days.slice(first, 7).concat(days.slice(0, first))
@@ -6508,17 +6620,17 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
     },
 
     monthString: function monthString () {
-      return ("" + (this.monthNames[this.month - 1].slice(0, 3)))
+      return ("" + (this.$q.i18n.date.monthsShort[this.month - 1]))
     },
     monthStamp: function monthStamp () {
-      return ((this.monthNames[this.month - 1]) + " " + (this.year))
+      return ((this.$q.i18n.date.months[this.month - 1]) + " " + (this.year))
     },
     weekDayString: function weekDayString () {
-      return this.dayNames[this.model.getDay()]
+      return this.$q.i18n.date.days[this.model.getDay()]
     },
 
     fillerDays: function fillerDays () {
-      var days = (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.firstDayOfWeek);
+      var days = (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.computedFirstDayOfWeek);
       if (days < 0) {
         days += 7;
       }
@@ -6552,7 +6664,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
 
     hour: function hour () {
       var h = this.model.getHours();
-      return this.format24h
+      return this.computedFormat24h
         ? h
         : convertToAmPm(h)
     },
@@ -6564,7 +6676,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
     },
     clockPointerStyle: function clockPointerStyle () {
       var
-        divider = this.view === 'minute' ? 60 : (this.format24h ? 24 : 12),
+        divider = this.view === 'minute' ? 60 : (this.computedFormat24h ? 24 : 12),
         degrees = Math.round((this.view === 'minute' ? this.minute : this.hour) * (360 / divider)) - 180;
 
       return cssTransform(("rotate(" + degrees + "deg)"))
@@ -6603,7 +6715,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
 
       value = this.__parseTypeValue('hour', value);
 
-      if (!this.format24h && value < 12 && !this.am) {
+      if (!this.computedFormat24h && value < 12 && !this.am) {
         value += 12;
       }
 
@@ -6669,7 +6781,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
       }
 
       if (this.view === 'hour') {
-        this.setHour(Math.round(angle / (this.format24h ? 15 : 30)));
+        this.setHour(Math.round(angle / (this.computedFormat24h ? 15 : 30)));
       }
       else {
         this.setMinute(Math.round(angle / 6));
@@ -6683,7 +6795,7 @@ var contentCSS = {
     maxHeight: '98vh'
   };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.css},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.clear();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.clearLabel)}})]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close();}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.cancelLabel)}})]),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":""},on:{"click":function($event){_vm.close(_vm.__update);}}},[_c('span',{domProps:{"innerHTML":_vm._s(_vm.okLabel)}})])],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.ok},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.contentCSS},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.ok},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
   name: 'q-datetime',
   mixins: [FrameMixin],
   components: {
@@ -6703,7 +6815,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   ),
   data: function data () {
     var data = this.usingPopover ? {} : {
-      css: contentCSS,
+      contentCSS: contentCSS,
       position: 'flex-center',
       transition: 'q-modal',
       classNames: 'minimized'
@@ -6739,10 +6851,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         format = 'YYYY-MM-DD HH:mm:ss';
       }
 
-      return formatDate(this.value, format, {
-        dayNames: this.dayNames,
-        monthNames: this.monthNames
-      })
+      return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
     }
   },
   methods: {
@@ -6751,18 +6860,17 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         this.__setModel();
         return this.$refs.popup.show()
       }
-      return Promise.resolve()
     },
     hide: function hide () {
       this.focused = false;
       return this.$refs.popup.hide()
     },
     clear: function clear () {
-      this.$refs.popup.hide();
       if (this.value !== '') {
         this.$emit('input', '');
         this.$emit('change', '');
       }
+      this.$refs.popup.hide();
     },
 
     __onFocus: function __onFocus () {
@@ -6797,7 +6905,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   }
 };
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range no-wrap",class:_vm.classes},[_c('q-datetime',{staticClass:"col q-datetime-range-left",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.$set(_vm.value, "from", $$v);},expression:"value.from"}}),_vm._v(" "),_c('q-datetime',{staticClass:"col q-datetime-range-right",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"monday-first":_vm.mondayFirst,"saturday-first":_vm.saturdayFirst,"month-names":_vm.monthNames,"day-names":_vm.dayNames},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.$set(_vm.value, "to", $$v);},expression:"value.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range no-wrap",class:_vm.classes},[_c('q-datetime',{staticClass:"col q-datetime-range-left",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.$set(_vm.value, "from", $$v);},expression:"value.from"}}),_vm._v(" "),_c('q-datetime',{staticClass:"col q-datetime-range-right",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabelTo,"stack-label":_vm.stackLabelTo,"placeholder":_vm.placeholderTo,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.$set(_vm.value, "to", $$v);},expression:"value.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   mixins: [FrameMixin],
   components: {
@@ -6816,12 +6924,15 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
       css: [String, Object],
       defaultFrom: [String, Number, Date],
       defaultTo: [String, Number, Date],
-      vertical: Boolean
+      vertical: Boolean,
+      floatLabelTo: String,
+      stackLabelTo: String,
+      placeholderTo: String
     }
   ),
   computed: {
     classes: function classes () {
-      return this.vertical ? 'column' : 'row'
+      return this.vertical ? null : 'row'
     }
   },
   methods: {
@@ -6829,8 +6940,327 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
       var this$1 = this;
 
       this.$nextTick(function () {
+        this$1.$emit('input', this$1.value);
         this$1.$emit('change', this$1.value);
       });
+    }
+  }
+};
+
+var inputTypes = [
+  'text', 'textarea', 'email',
+  'tel', 'file', 'number',
+  'password', 'url', 'time', 'date'
+];
+
+function getSize (el) {
+  return {
+    width: el.offsetWidth,
+    height: el.offsetHeight
+  }
+}
+
+var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_vm._v(" "),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
+  name: 'q-resize-observable',
+  methods: {
+    onResize: function onResize () {
+      var size = getSize(this.$el.parentNode);
+
+      if (size.width === this.size.width && size.height === this.size.height) {
+        return
+      }
+
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+
+      this.size = size;
+    },
+    emit: function emit () {
+      this.timer = null;
+      this.reset();
+      this.$emit('resize', this.size);
+    },
+    reset: function reset () {
+      var ref = this.$refs;
+      if (ref.expand) {
+        ref.expand.scrollLeft = 100000;
+        ref.expand.scrollTop = 100000;
+      }
+      if (ref.shrink) {
+        ref.shrink.scrollLeft = 100000;
+        ref.shrink.scrollTop = 100000;
+      }
+    }
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      this$1.size = {};
+      this$1.onResize();
+    });
+  },
+  beforeDestroy: function beforeDestroy () {
+    window.cancelAnimationFrame(this.timer);
+    this.$emit('resize', {width: 0, height: 0});
+  }
+};
+
+var QScrollObservable = {
+  name: 'q-scroll-observable',
+  render: function render () {},
+  data: function data () {
+    return {
+      pos: 0,
+      dir: 'down',
+      dirChanged: false,
+      dirChangePos: 0
+    }
+  },
+  methods: {
+    getPosition: function getPosition () {
+      return {
+        position: this.pos,
+        direction: this.dir,
+        directionChanged: this.dirChanged,
+        inflexionPosition: this.dirChangePos
+      }
+    },
+    trigger: function trigger () {
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+    },
+    emit: function emit () {
+      var
+        pos = Math.max(0, getScrollPosition(this.target)),
+        delta = pos - this.pos,
+        dir = delta < 0 ? 'up' : 'down';
+
+      this.dirChanged = this.dir !== dir;
+      if (this.dirChanged) {
+        this.dir = dir;
+        this.dirChangePos = this.pos;
+      }
+
+      this.timer = null;
+      this.pos = pos;
+      this.$emit('scroll', this.getPosition());
+    }
+  },
+  mounted: function mounted () {
+    this.target = getScrollTarget(this.$el.parentNode);
+    this.target.addEventListener('scroll', this.trigger);
+    this.trigger();
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.target.removeEventListener('scroll', this.trigger);
+  }
+};
+
+var QWindowResizeObservable = {
+  name: 'q-window-resize-observable',
+  render: function render () {},
+  methods: {
+    trigger: function trigger () {
+      if (!this.timer) {
+        this.timer = window.requestAnimationFrame(this.emit);
+      }
+    },
+    emit: function emit () {
+      this.timer = null;
+      this.$emit('resize', viewport());
+    }
+  },
+  created: function created () {
+    this.emit();
+  },
+  mounted: function mounted () {
+    window.addEventListener('resize', this.trigger);
+  },
+  beforeDestroy: function beforeDestroy () {
+    window.removeEventListener('resize', this.trigger);
+  }
+};
+
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.model}}),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.attributes,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.attributes,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isNumber && !_vm.noNumberToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showNumber ? 'keyboard' : 'keyboard_hide'},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.toggleNumber},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+  name: 'q-input',
+  mixins: [FrameMixin, InputMixin],
+  components: {
+    QInputFrame: QInputFrame,
+    QSpinner: QSpinner,
+    QResizeObservable: QResizeObservable
+  },
+  props: {
+    value: { required: true },
+    type: {
+      type: String,
+      default: 'text',
+      validator: function (t) { return inputTypes.includes(t); }
+    },
+    minRows: Number,
+    clearable: Boolean,
+    noPassToggle: Boolean,
+    noNumberToggle: Boolean,
+    readonly: Boolean,
+    attributes: Object,
+
+    min: Number,
+    max: Number,
+    step: {
+      type: Number,
+      default: 1
+    },
+    maxDecimals: Number,
+    upperCase: Boolean
+  },
+  data: function data () {
+    var this$1 = this;
+
+    return {
+      showPass: false,
+      showNumber: true,
+      model: this.value,
+      shadow: {
+        val: this.model,
+        set: this.__set,
+        loading: false,
+        hasFocus: function () {
+          return document.activeElement === this$1.$refs.input
+        },
+        register: function () {
+          this$1.watcher = this$1.$watch('model', function (val) {
+            this$1.shadow.val = val;
+          });
+        },
+        unregister: function () {
+          this$1.watcher();
+        },
+        getEl: function () {
+          return this$1.$refs.input
+        }
+      }
+    }
+  },
+  watch: {
+    value: function value (v) {
+      this.model = v;
+    }
+  },
+  provide: function provide () {
+    return {
+      __input: this.shadow
+    }
+  },
+  computed: {
+    isNumber: function isNumber () {
+      return this.type === 'number'
+    },
+    isPassword: function isPassword () {
+      return this.type === 'password'
+    },
+    isTextarea: function isTextarea () {
+      return this.type === 'textarea'
+    },
+    isLoading: function isLoading () {
+      return this.loading || this.shadow.loading
+    },
+    pattern: function pattern () {
+      if (this.isNumber) {
+        return '[0-9]*'
+      }
+    },
+    inputStep: function inputStep () {
+      if (this.isNumber) {
+        return this.step
+      }
+    },
+    inputType: function inputType () {
+      return this.isPassword
+        ? (this.showPass ? 'text' : 'password')
+        : (
+          this.isNumber
+            ? (this.showNumber ? 'number' : 'text')
+            : this.type
+        )
+    },
+    length: function length () {
+      return this.model !== null && this.model !== undefined
+        ? ('' + this.model).length
+        : 0
+    },
+    editable: function editable () {
+      return !this.disable && !this.readonly
+    }
+  },
+  methods: {
+    togglePass: function togglePass () {
+      this.showPass = !this.showPass;
+      clearTimeout(this.timer);
+      this.focus();
+    },
+    toggleNumber: function toggleNumber () {
+      this.showNumber = !this.showNumber;
+      clearTimeout(this.timer);
+      this.focus();
+    },
+    clear: function clear () {
+      clearTimeout(this.timer);
+      this.focus();
+      if (this.editable) {
+        this.model = this.isNumber ? null : '';
+        this.$emit('input', this.model);
+      }
+    },
+
+    __clearTimer: function __clearTimer () {
+      var this$1 = this;
+
+      this.$nextTick(function () { return clearTimeout(this$1.timer); });
+    },
+
+    __set: function __set (e) {
+      var val = e.target ? e.target.value : e;
+
+      if (this.isNumber) {
+        val = parseFloat(val);
+        if (isNaN(val)) {
+          // Number.isInteger(this.maxDecimals)
+          val = null;
+        }
+        else if (Number.isInteger(this.maxDecimals)) {
+          val = parseFloat(val.toFixed(this.maxDecimals));
+        }
+      }
+      else if (this.upperCase) {
+        val = val.toUpperCase();
+      }
+
+      if (val !== this.model) {
+        this.$emit('input', val);
+      }
+      this.model = val;
+    },
+    __updateArea: function __updateArea () {
+      var shadow = this.$refs.shadow;
+      if (shadow) {
+        var h = shadow.scrollHeight;
+        var max = this.maxHeight || h;
+        this.$refs.input.style.minHeight = (between(h, 19, max)) + "px";
+      }
+    }
+  },
+  mounted: function mounted () {
+    this.__updateArea = frameDebounce(this.__updateArea);
+    if (this.isTextarea) {
+      this.__updateArea();
+      this.watcher = this.$watch('model', this.__updateArea);
+    }
+  },
+  beforeDestroy: function beforeDestroy () {
+    if (this.watcher !== void 0) {
+      this.watcher();
     }
   }
 };
@@ -7069,14 +7499,10 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       return (this.isActive ? this.checkedIcon : this.uncheckedIcon) || this.icon
     },
     iconColor: function iconColor () {
-      return this.$q.theme === 'ios'
-        ? 'dark'
-        : (this.isActive ? 'white' : 'dark')
+      return this.isActive ? 'white' : 'dark'
     },
     baseClass: function baseClass () {
-      if (this.$q.theme === 'ios' && this.dark) {
-        return "q-toggle-base-dark"
-      }
+      
     }
   },
   methods: {
@@ -7091,7 +7517,11 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   }
 };
 
-var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-option-group group",class:{'q-option-group-inline-opts': _vm.inline}},_vm._l((_vm.options),function(opt,index){return _c('div',[_c(_vm.component,{tag:"component",attrs:{"val":opt.value,"disable":_vm.disable || opt.disable,"label":opt.label,"left-label":_vm.leftLabel,"color":opt.color || _vm.color,"checked-icon":opt.checkedIcon,"unchecked-icon":opt.uncheckedIcon,"indeterminate-icon":opt.indeterminateIcon,"indeterminate":_vm.indeterminate,"dark":opt.dark || _vm.dark,"keep-color":opt.keepColor || _vm.keepColor},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"change":_vm.__onChange},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}})],1)}))},staticRenderFns: [],
+var clone = function (data) {
+  return JSON.parse(JSON.stringify(data))
+};
+
+var QOptionGroup = {
   name: 'q-option-group',
   inject: {
     __field: { default: null }
@@ -7129,7 +7559,7 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     },
     model: {
       get: function get () {
-        return this.value
+        return clone(this.value)
       },
       set: function set (value) {
         this.$emit('input', value);
@@ -7143,6 +7573,9 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
   },
   methods: {
     __onChange: function __onChange (val) {
+      if (this.type !== 'radio') {
+        this.$emit('input', val);
+      }
       this.$emit('change', val);
     },
     __onFocus: function __onFocus () {
@@ -7171,17 +7604,52 @@ var QOptionGroup = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     if (this.__field) {
       this.field.__unregisterInput();
     }
-  }
-};
+  },
+  render: function render (h) {
+    var this$1 = this;
 
-var clone = function (data) {
-  return JSON.parse(JSON.stringify(data))
+    return h(
+      'div',
+      {
+        staticClass: 'q-option-group group',
+        'class': { 'q-option-group-inline-opts': this.inline }
+      },
+      this.options.map(
+        function (opt) { return h('div', [
+          h(this$1.component, {
+            props: {
+              value: this$1.model,
+              val: opt.value,
+              disable: this$1.disable || opt.disable,
+              label: opt.label,
+              leftLabel: opt.leftLabel,
+              color: opt.color || this$1.color,
+              checkedIcon: opt.checkedIcon,
+              uncheckedIcon: opt.uncheckedIcon,
+              indeterminateIcon: opt.indeterminateIcon,
+              indeterminate: opt.indeterminate,
+              dark: opt.dark || this$1.dark,
+              keepColor: opt.keepColor || this$1.keepColor
+            },
+            on: {
+              input: function (val) {
+                this$1.model = val;
+              },
+              focus: this$1.__onFocus,
+              blur: this$1.__onBlur,
+              change: this$1.__onChange
+            }
+          })
+        ]); }
+      )
+    )
+  }
 };
 
 var QDialog = {
   name: 'q-dialog',
-  mixins: [ModelToggleMixin],
   props: {
+    value: Boolean,
     title: String,
     message: String,
     prompt: Object,
@@ -7261,14 +7729,39 @@ var QDialog = {
     return h(QModal, {
       ref: 'modal',
       props: {
+        value: this.value,
         minimized: true,
         noBackdropDismiss: this.preventClose,
         noEscDismiss: this.preventClose,
         position: this.position
       },
       on: {
+        input: function (val) {
+          this$1.$emit('input', val);
+        },
+        show: function () {
+          this$1.$emit('show');
+
+          if (!this$1.$q.platform.is.desktop) {
+            return
+          }
+
+          var node = this$1.$refs.modal.$el.getElementsByTagName('INPUT');
+          if (node.length) {
+            node[0].focus();
+            return
+          }
+
+          node = this$1.$refs.modal.$el.getElementsByTagName('BUTTON');
+          if (node.length) {
+            node[node.length - 1].focus();
+          }
+        },
+        hide: function () {
+          this$1.$emit('hide');
+        },
         dismiss: function () {
-          this$1.hide().then(function () { return this$1.$emit('cancel'); });
+          this$1.$emit('cancel');
         },
         'escape-key': function () {
           this$1.hide().then(function () {
@@ -7285,59 +7778,30 @@ var QDialog = {
     },
     okLabel: function okLabel () {
       return this.ok === true
-        ? 'OK'
+        ? this.$q.i18n.label.ok
         : this.ok
     },
     cancelLabel: function cancelLabel () {
       return this.cancel === true
-        ? 'Cancel'
+        ? this.$q.i18n.label.cancel
         : this.cancel
     }
   },
   methods: {
     show: function show () {
-      var this$1 = this;
-
-      if (this.showing) {
-        return Promise.resolve()
-      }
-
-      return this.$refs.modal.show().then(function () {
-        this$1.$emit('show');
-        this$1.__updateModel(true);
-
-        if (!this$1.$q.platform.is.desktop) {
-          return
-        }
-
-        var node = this$1.$refs.modal.$el.getElementsByTagName('INPUT');
-        if (node.length) {
-          node[0].focus();
-          return
-        }
-
-        node = this$1.$refs.modal.$el.getElementsByTagName('INPUT');
-        if (node.length) {
-          node[node.length - 1].focus();
-        }
-      })
+      return this.$refs.modal.show()
     },
     hide: function hide () {
       var this$1 = this;
 
       var data;
 
-      if (this.hasForm) {
-        data = clone(this.__getData());
-      }
-
-      return this.showing
-        ? this.$refs.modal.hide().then(function () {
-          this$1.$emit('hide', data);
-          this$1.__updateModel(false);
-          return data
-        })
-        : Promise.resolve(data)
+      return this.$refs.modal.hide().then(function () {
+        if (this$1.hasForm) {
+          data = clone(this$1.__getData());
+        }
+        return data
+      })
     },
     __getPrompt: function __getPrompt (h) {
       var this$1 = this;
@@ -7380,13 +7844,13 @@ var QDialog = {
 
       if (this.cancel) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: this.cancelLabel },
+          props: { color: this.color, flat: true, label: this.cancelLabel, waitForRipple: true },
           on: { click: this.__onCancel }
         }));
       }
       if (this.ok) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: this.okLabel },
+          props: { color: this.color, flat: true, label: this.okLabel, waitForRipple: true },
           on: { click: this.__onOk }
         }));
       }
@@ -7443,6 +7907,11 @@ var QTooltip = {
     maxHeight: String,
     disable: Boolean
   },
+  watch: {
+    $route: function $route () {
+      this.hide();
+    }
+  },
   computed: {
     anchorOrigin: function anchorOrigin () {
       return parsePosition(this.anchor)
@@ -7457,11 +7926,9 @@ var QTooltip = {
     }
   },
   methods: {
-    show: function show () {
-      if (this.disable || this.showing) {
-        return Promise.resolve()
-      }
+    __show: function __show () {
       clearTimeout(this.timer);
+
       document.body.appendChild(this.$el);
       this.scrollTarget = getScrollTarget(this.anchorEl);
       this.scrollTarget.addEventListener('scroll', this.hide);
@@ -7469,16 +7936,12 @@ var QTooltip = {
       if (this.$q.platform.is.mobile) {
         document.body.addEventListener('click', this.hide, true);
       }
-      this.__updateModel(true, false);
-      this.$emit('show');
+
       this.__updatePosition();
-      return Promise.resolve()
+      this.showPromise && this.showPromiseResolve();
     },
-    hide: function hide () {
+    __hide: function __hide () {
       clearTimeout(this.timer);
-      if (!this.showing) {
-        return Promise.resolve()
-      }
 
       this.scrollTarget.removeEventListener('scroll', this.hide);
       window.removeEventListener('resize', this.__debouncedUpdatePosition);
@@ -7486,9 +7949,8 @@ var QTooltip = {
       if (this.$q.platform.is.mobile) {
         document.body.removeEventListener('click', this.hide, true);
       }
-      this.__updateModel(false, false);
-      this.$emit('hide');
-      return Promise.resolve()
+
+      this.hidePromise && this.hidePromiseResolve();
     },
     __updatePosition: function __updatePosition () {
       setPosition({
@@ -7503,6 +7965,10 @@ var QTooltip = {
     __delayShow: function __delayShow () {
       clearTimeout(this.timer);
       this.timer = setTimeout(this.show, this.delay);
+    },
+    __delayHide: function __delayHide () {
+      clearTimeout(this.timer);
+      this.hide();
     }
   },
   render: function render (h) {
@@ -7540,12 +8006,17 @@ var QTooltip = {
       else {
         this$1.anchorEl.addEventListener('mouseenter', this$1.__delayShow);
         this$1.anchorEl.addEventListener('focus', this$1.__delayShow);
-        this$1.anchorEl.addEventListener('mouseleave', this$1.hide);
-        this$1.anchorEl.addEventListener('blur', this$1.hide);
+        this$1.anchorEl.addEventListener('mouseleave', this$1.__delayHide);
+        this$1.anchorEl.addEventListener('blur', this$1.__delayHide);
+      }
+
+      if (this$1.value) {
+        this$1.show();
       }
     });
   },
   beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.timer);
     if (!this.anchorEl) {
       return
     }
@@ -7555,10 +8026,9 @@ var QTooltip = {
     else {
       this.anchorEl.removeEventListener('mouseenter', this.__delayShow);
       this.anchorEl.removeEventListener('focus', this.__delayShow);
-      this.anchorEl.removeEventListener('mouseleave', this.hide);
-      this.anchorEl.removeEventListener('blur', this.hide);
+      this.anchorEl.removeEventListener('mouseleave', this.__delayHide);
+      this.anchorEl.removeEventListener('blur', this.__delayHide);
     }
-    this.hide();
   }
 };
 
@@ -7725,7 +8195,7 @@ function getToolbar (h, vm) {
   }
 }
 
-function getFonts (defaultFont, fonts) {
+function getFonts (defaultFont, defaultFontLabel, fonts) {
   if ( fonts === void 0 ) fonts = {};
 
   var aliases = Object.keys(fonts);
@@ -7738,7 +8208,7 @@ function getFonts (defaultFont, fonts) {
       cmd: 'fontName',
       param: defaultFont,
       icon: 'font_download',
-      tip: 'Default Font'
+      tip: defaultFontLabel
     }
   };
 
@@ -7755,50 +8225,6 @@ function getFonts (defaultFont, fonts) {
 
   return def
 }
-
-var buttons = {
-  bold: {cmd: 'bold', icon: 'format_bold', tip: 'Bold', key: 66},
-  italic: {cmd: 'italic', icon: 'format_italic', tip: 'Italic', key: 73},
-  strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: 'Strikethrough', key: 83},
-  underline: {cmd: 'underline', icon: 'format_underlined', tip: 'Underline', key: 85},
-  unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: 'Unordered List'},
-  ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: 'Ordered List'},
-  subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: 'Subscript', htmlTip: 'x<subscript>2</subscript>'},
-  superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: 'Superscript', htmlTip: 'x<superscript>2</superscript>'},
-  link: {cmd: 'link', icon: 'link', tip: 'Hyperlink', key: 76},
-  fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: 'Toggle Fullscreen', key: 70},
-
-  quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: 'Quote', key: 81},
-  left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: 'Left align'},
-  center: {cmd: 'justifyCenter', icon: 'format_align_center', tip: 'Center align'},
-  right: {cmd: 'justifyRight', icon: 'format_align_right', tip: 'Right align'},
-  justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: 'Justify align'},
-
-  print: {type: 'no-state', cmd: 'print', icon: 'print', tip: 'Print', key: 80},
-  outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: 'Decrease indentation'},
-  indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: 'Increase indentation'},
-  removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: 'Remove formatting'},
-  hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: 'Insert Horizontal Rule'},
-  undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: 'Undo', key: 90},
-  redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: 'Redo', key: 89},
-
-  h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: 'Header 1', htmlTip: '<h1>Header 1</h1>'},
-  h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: 'Header 2', htmlTip: '<h2>Header 2</h2>'},
-  h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: 'Header 3', htmlTip: '<h3>Header 3</h3>'},
-  h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: 'Header 4', htmlTip: '<h4>Header 4</h4>'},
-  h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: 'Header 5', htmlTip: '<h5>Header 5</h5>'},
-  h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: 'Header 6', htmlTip: '<h6>Header 6</h6>'},
-  p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: 'Paragraph'},
-  code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: '<code>Code</code>'},
-
-  'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: 'Very small', htmlTip: '<font size="1">Very small</font>'},
-  'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: 'A bit small', htmlTip: '<font size="2">A bit small</font>'},
-  'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: 'Normal', htmlTip: '<font size="3">Normal</font>'},
-  'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: 'Medium-large', htmlTip: '<font size="4">Medium-large</font>'},
-  'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: 'Big', htmlTip: '<font size="5">Big</font>'},
-  'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: 'Very big', htmlTip: '<font size="6">Very big</font>'},
-  'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: 'Maximum', htmlTip: '<font size="7">Maximum</font>'}
-};
 
 function getBlockElement (el, parent) {
   if (parent && el === parent) {
@@ -8103,10 +8529,57 @@ var QEditor = {
         compact: true
       }
     },
-    buttons: function buttons$1 () {
+    buttonDef: function buttonDef () {
+      var e = this.$q.i18n.editor;
+
+      return {
+        bold: {cmd: 'bold', icon: 'format_bold', tip: e.bold, key: 66},
+        italic: {cmd: 'italic', icon: 'format_italic', tip: e.italic, key: 73},
+        strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: e.strikethrough, key: 83},
+        underline: {cmd: 'underline', icon: 'format_underlined', tip: e.underline, key: 85},
+        unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: e.unorderedList},
+        ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: e.orderedList},
+        subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: e.subscript, htmlTip: 'x<subscript>2</subscript>'},
+        superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: e.superscript, htmlTip: 'x<superscript>2</superscript>'},
+        link: {cmd: 'link', icon: 'link', tip: e.hyperlink, key: 76},
+        fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: e.toggleFullscreen, key: 70},
+
+        quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: e.quote, key: 81},
+        left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: e.left},
+        center: {cmd: 'justifyCenter', icon: 'format_align_center', tip: e.center},
+        right: {cmd: 'justifyRight', icon: 'format_align_right', tip: e.right},
+        justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: e.justify},
+
+        print: {type: 'no-state', cmd: 'print', icon: 'print', tip: e.print, key: 80},
+        outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: e.outdent},
+        indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: e.indent},
+        removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: e.removeFormat},
+        hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: e.hr},
+        undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: e.undo, key: 90},
+        redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: e.redo, key: 89},
+
+        h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: e.header1, htmlTip: ("<h1>" + (e.header1) + "</h1>")},
+        h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: e.header2, htmlTip: ("<h2>" + (e.header2) + "</h2>")},
+        h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: e.header3, htmlTip: ("<h3>" + (e.header3) + "</h3>")},
+        h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: e.header4, htmlTip: ("<h4>" + (e.header4) + "</h4>")},
+        h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: e.header5, htmlTip: ("<h5>" + (e.header5) + "</h5>")},
+        h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: e.header6, htmlTip: ("<h6>" + (e.header6) + "</h6>")},
+        p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: e.paragraph},
+        code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: ("<code>" + (e.code) + "</code>")},
+
+        'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: e.size1, htmlTip: ("<font size=\"1\">" + (e.size1) + "</font>")},
+        'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: e.size2, htmlTip: ("<font size=\"2\">" + (e.size2) + "</font>")},
+        'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: e.size3, htmlTip: ("<font size=\"3\">" + (e.size3) + "</font>")},
+        'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: e.size4, htmlTip: ("<font size=\"4\">" + (e.size4) + "</font>")},
+        'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: e.size5, htmlTip: ("<font size=\"5\">" + (e.size5) + "</font>")},
+        'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: e.size6, htmlTip: ("<font size=\"6\">" + (e.size6) + "</font>")},
+        'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: e.size7, htmlTip: ("<font size=\"7\">" + (e.size7) + "</font>")}
+      }
+    },
+    buttons: function buttons () {
       var def = this.definitions || this.fonts
-        ? extend(true, {}, buttons, this.definitions || {}, getFonts(this.defaultFont, this.fonts))
-        : buttons;
+        ? extend(true, {}, this.buttonDef, this.definitions || {}, getFonts(this.defaultFont, this.$q.i18n.editor.defaultFont, this.fonts))
+        : this.buttonDef;
 
       return this.toolbar.map(
         function (group) { return group.map(function (token) {
@@ -8259,8 +8732,7 @@ var QEditor = {
             'class': {
               disabled: this.disable,
               fullscreen: this.inFullscreen,
-              column: this.inFullscreen,
-              'z-max': this.inFullscreen
+              column: this.inFullscreen
             }
           },
           [
@@ -8321,6 +8793,11 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     QBtn: QBtn,
     QIcon: QIcon
   },
+  provide: function provide () {
+    return {
+      __qFabClose: this.hide
+    }
+  },
   props: {
     icon: {
       type: String,
@@ -8335,25 +8812,14 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
       default: 'right'
     }
   },
-  provide: function provide () {
-    return {
-      __qFabClose: this.hide
+  watch: {
+    $route: function $route () {
+      this.hide();
     }
   },
-  methods: {
-    show: function show () {
-      if (!this.showing) {
-        this.__updateModel(true);
-        this.$emit('show');
-      }
-      return Promise.resolve()
-    },
-    hide: function hide () {
-      if (this.showing) {
-        this.__updateModel(false);
-        this.$emit('hide');
-      }
-      return Promise.resolve()
+  created: function created () {
+    if (this.value) {
+      this.show();
     }
   }
 };
@@ -8490,7 +8956,7 @@ var QFieldReset = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-var QInfiniteScroll = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-infinite-scroll"},[_c('div',{ref:"content",staticClass:"q-infinite-scroll-content"},[_vm._t("default")],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.fetching),expression:"fetching"}],staticClass:"q-infinite-scroll-message"},[_vm._t("message")],2)])},staticRenderFns: [],
+var QInfiniteScroll = {
   name: 'q-infinite-scroll',
   props: {
     handler: {
@@ -8575,6 +9041,23 @@ var QInfiniteScroll = {render: function(){var _vm=this;var _h=_vm.$createElement
   },
   beforeDestroy: function beforeDestroy () {
     this.scrollContainer.removeEventListener('scroll', this.poll);
+  },
+  render: function render (h) {
+    return h('div', { staticClass: 'q-infinite-scroll' }, [
+      h('div', {
+        ref: 'content',
+        staticClass: 'q-infinite-scroll-content'
+      }, [ this.$slots.default ]),
+      h('div', {
+        staticClass: 'q-infinite-scroll-message',
+        directives: [{
+          name: 'show',
+          value: this.fetching
+        }]
+      }, [
+        this.$slots.message
+      ])
+    ])
   }
 };
 
@@ -8609,7 +9092,7 @@ var QInnerLoading = {
   }
 };
 
-var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-knob non-selectable",class:_vm.classes,style:({width: _vm.size, height: _vm.size})},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan",value:(_vm.__pan),expression:"__pan"}],on:{"click":_vm.__onInput}},[_c('svg',{attrs:{"viewBox":"0 0 100 100"}},[_c('path',{class:("text-" + (_vm.trackColor)),attrs:{"d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth,"fill-opacity":"0"}}),_vm._v(" "),_c('path',{style:(_vm.svgStyle),attrs:{"stroke-linecap":"round","fill-opacity":"0","d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth}})]),_vm._v(" "),_c('div',{staticClass:"q-knob-label row flex-center content-center"},[(!_vm.$slots.default)?_c('span',[_vm._v(_vm._s(_vm.value))]):_vm._t("default")],2)])])},staticRenderFns: [],
+var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-knob non-selectable",class:_vm.classes,style:({width: _vm.size, height: _vm.size})},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan",value:(_vm.__pan),expression:"__pan"}],on:{"click":function($event){_vm.__onInput($event, undefined, true);}}},[_c('svg',{attrs:{"viewBox":"0 0 100 100"}},[_c('path',{class:("text-" + (_vm.trackColor)),attrs:{"d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth,"fill-opacity":"0"}}),_vm._v(" "),_c('path',{style:(_vm.svgStyle),attrs:{"stroke-linecap":"round","fill-opacity":"0","d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth}})]),_vm._v(" "),_c('div',{staticClass:"q-knob-label row flex-center content-center"},[(!_vm.$slots.default)?_c('span',[_vm._v(_vm._s(_vm.model))]):_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-knob',
   directives: {
     TouchPan: TouchPan
@@ -8664,7 +9147,7 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     svgStyle: function svgStyle () {
       return {
         'stroke-dasharray': '295.31px, 295.31px',
-        'stroke-dashoffset': (295.31 * (1.0 - (this.value - this.min) / (this.max - this.min))) + 'px',
+        'stroke-dashoffset': (295.31 * (1.0 - (this.model - this.min) / (this.max - this.min))) + 'px',
         'transition': this.dragging ? '' : 'stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease'
       }
     },
@@ -8674,6 +9157,7 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   },
   data: function data () {
     return {
+      model: this.value,
       dragging: false
     }
   },
@@ -8681,9 +9165,14 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     value: function value (value$1) {
       if (value$1 < this.min) {
         this.$emit('input', this.min);
+        this.model = this.min;
       }
       else if (value$1 > this.max) {
         this.$emit('input', this.max);
+        this.model = this.max;
+      }
+      else {
+        this.model = value$1;
       }
     }
   },
@@ -8729,8 +9218,9 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       ev.stopPropagation();
       ev.preventDefault();
       this.dragging = false;
+      this.__onInput(ev, this.centerPosition, true);
     },
-    __onInput: function __onInput (ev, center) {
+    __onInput: function __onInput (ev, center, emitChange) {
       if ( center === void 0 ) center = this.__getCenter();
 
       if (!this.editable) {
@@ -8762,8 +9252,11 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
         this.max
       );
 
-      if (this.value !== val) {
+      if (this.model !== val) {
+        this.model = val;
         this.$emit('input', val);
+      }
+      if (emitChange && this.value !== val) {
         this.$emit('change', val);
       }
     },
@@ -8839,7 +9332,6 @@ var QLayout = {
     }
   },
   render: function render (h) {
-    console.log('layout render');
     return h('div', { staticClass: 'q-layout' }, [
       h(QScrollObservable, {
         on: { scroll: this.__onPageScroll }
@@ -8890,8 +9382,9 @@ var QLayout = {
   }
 };
 
-var bodyClass = 'with-layout-drawer-opened';
-var duration$1 = 150;
+var bodyClassBelow = 'with-layout-drawer-opened';
+var bodyClassAbove = 'with-layout-drawer-opened-above';
+var duration = 150;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
@@ -8920,15 +9413,23 @@ var QLayoutDrawer = {
     }
   },
   data: function data () {
-    var belowBreakpoint = (
-      this.behavior === 'mobile' ||
-      (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width)
-    );
+    var
+      largeScreenState = this.value !== void 0 ? this.value : true,
+      showing = this.behavior !== 'mobile' && this.breakpoint < this.layout.width && !this.overlay
+        ? largeScreenState
+        : false;
+
+    if (this.value !== void 0 && this.value !== showing) {
+      this.$emit('input', showing);
+    }
 
     return {
-      showing: true,
-      belowBreakpoint: belowBreakpoint,
-      largeScreenState: this.value,
+      showing: showing,
+      belowBreakpoint: (
+        this.behavior === 'mobile' ||
+        (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width)
+      ),
+      largeScreenState: largeScreenState,
       mobileOpened: false,
 
       size: 300,
@@ -8939,24 +9440,19 @@ var QLayoutDrawer = {
   },
   watch: {
     belowBreakpoint: function belowBreakpoint (val, old) {
-      console.log('belowBreakpoint: change detected', val);
       if (this.mobileOpened) {
-        console.log('belowBreakpoint: mobile view is opened; aborting');
         return
       }
 
       if (val) { // from lg to xs
-        console.log('belowBreakpoint: from lg to xs; model force to false');
         if (!this.overlay) {
-          console.log('belowBreakpoint: largeScreenState set to', this.showing);
           this.largeScreenState = this.showing;
         }
         // ensure we close it for small screen
-        this.__updateModel(false);
+        this.hide();
       }
       else if (!this.overlay) { // from xs to lg
-        console.log('belowBreakpoint: from xs to lg; model set to', this.largeScreenState);
-        this.__updateModel(this.largeScreenState);
+        this[this.largeScreenState ? 'show' : 'hide']();
       }
     },
     behavior: function behavior (val) {
@@ -8986,19 +9482,16 @@ var QLayoutDrawer = {
       }
     },
     onLayout: function onLayout (val) {
-      console.log('onLayout', val);
       this.__update('space', val);
       this.layout.__animate();
     },
     $route: function $route () {
       if (this.mobileOpened) {
-        console.log('$route watch closing');
         this.hide();
         return
       }
       if (this.onScreenOverlay) {
-        console.log('$route watch updating model');
-        this.__updateModel(false);
+        this.hide();
       }
     }
   },
@@ -9103,7 +9596,6 @@ var QLayoutDrawer = {
     }
   },
   render: function render (h) {
-    console.log(("drawer " + (this.side) + " render"));
     var child = [];
 
     if (this.mobileView) {
@@ -9149,10 +9641,7 @@ var QLayoutDrawer = {
   created: function created () {
     var this$1 = this;
 
-    if (this.belowBreakpoint || this.overlay) {
-      this.__updateModel(false);
-    }
-    else if (this.onLayout) {
+    if (this.onLayout) {
       this.__update('space', true);
       this.__update('offset', this.offset);
     }
@@ -9162,6 +9651,7 @@ var QLayoutDrawer = {
     });
   },
   beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.timer);
     this.__update('size', 0);
     this.__update('space', false);
   },
@@ -9189,7 +9679,7 @@ var QLayoutDrawer = {
       this.percentage = between(position / width$$1, 0, 1);
 
       if (evt.isFirst) {
-        document.body.classList.add(bodyClass);
+        document.body.classList.add(bodyClassBelow);
         this.inTransit = true;
       }
     },
@@ -9218,48 +9708,37 @@ var QLayoutDrawer = {
         this.inTransit = true;
       }
     },
-    show: function show () {
+    __show: function __show () {
       var this$1 = this;
-
-      console.log('show', this.showing);
-      if (this.showing) {
-        return Promise.resolve()
-      }
 
       if (this.belowBreakpoint) {
-        console.log('watcher value: opening mobile');
         this.mobileOpened = true;
         this.percentage = 1;
-        document.body.classList.add(bodyClass);
       }
 
-      this.__updateModel(true);
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          this$1.$emit('show');
-          resolve();
-        }, duration$1);
-      })
+      document.body.classList.add(this.belowBreakpoint ? bodyClassBelow : bodyClassAbove);
+
+      clearTimeout(this.timer);
+      this.timer = setTimeout(function () {
+        if (this$1.showPromise) {
+          this$1.showPromise.then(function () {
+            document.body.classList.remove(bodyClassAbove);
+          });
+          this$1.showPromiseResolve();
+        }
+      }, duration);
     },
-    hide: function hide () {
+    __hide: function __hide () {
       var this$1 = this;
-
-      console.log('hide', this.showing);
-      if (!this.showing) {
-        return Promise.resolve()
-      }
 
       this.mobileOpened = false;
       this.percentage = 0;
-      document.body.classList.remove(bodyClass);
-      this.__updateModel(false);
+      document.body.classList.remove(bodyClassAbove, bodyClassBelow);
 
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-          this$1.$emit('hide');
-          resolve();
-        }, duration$1);
-      })
+      clearTimeout(this.timer);
+      this.timer = setTimeout(function () {
+        this$1.hidePromise && this$1.hidePromiseResolve();
+      }, duration);
     },
 
     __onResize: function __onResize (ref) {
@@ -9363,7 +9842,6 @@ var QLayoutFooter = {
     }
   },
   render: function render (h) {
-    console.log('footer render');
     return h('footer', {
       staticClass: 'q-layout-footer q-layout-transition',
       'class': this.computedClass,
@@ -9503,7 +9981,6 @@ var QLayoutHeader = {
     }
   },
   render: function render (h) {
-    console.log('header render');
     return h('header', {
       staticClass: 'q-layout-header q-layout-transition',
       'class': this.computedClass,
@@ -9721,7 +10198,6 @@ var QPageSticky = {
     }
   },
   render: function render (h) {
-    console.log('sticky render');
     return h('div', {
       staticClass: 'q-page-sticky q-layout-transition z-fixed',
       'class': ("fixed-" + (this.position)),
@@ -10020,11 +10496,8 @@ var QProgress = {
   }
 };
 
-var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"pull-to-refresh"},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical.scroll",value:(_vm.__pull),expression:"__pull",modifiers:{"vertical":true,"scroll":true}}],staticClass:"pull-to-refresh-container",style:(_vm.style)},[_c('div',{staticClass:"pull-to-refresh-message row flex-center"},[_c('q-icon',{directives:[{name:"show",rawName:"v-show",value:(_vm.state !== 'refreshing'),expression:"state !== 'refreshing'"}],class:{'rotate-180': _vm.state === 'pulled'},attrs:{"name":"arrow_downward"}}),_vm._v(" "),_c('q-icon',{directives:[{name:"show",rawName:"v-show",value:(_vm.state === 'refreshing'),expression:"state === 'refreshing'"}],staticClass:"animate-spin",attrs:{"name":_vm.refreshIcon}}),_vm._v("    "),_c('span',{domProps:{"innerHTML":_vm._s(_vm.message)}})],1),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
+var QPullToRefresh = {
   name: 'q-pull-to-refresh',
-  components: {
-    QIcon: QIcon
-  },
   directives: {
     TouchPan: TouchPan
   },
@@ -10037,18 +10510,9 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
       type: Number,
       default: 35
     },
-    pullMessage: {
-      type: String,
-      default: 'Pull down to refresh'
-    },
-    releaseMessage: {
-      type: String,
-      default: 'Release to refresh'
-    },
-    refreshMessage: {
-      type: String,
-      default: 'Refreshing...'
-    },
+    pullMessage: String,
+    releaseMessage: String,
+    refreshMessage: String,
     refreshIcon: {
       type: String,
       default: 'refresh'
@@ -10072,12 +10536,12 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
     message: function message () {
       switch (this.state) {
         case 'pulled':
-          return this.releaseMessage
+          return this.releaseMessage || this.$q.i18n.label.pullToRefresh.release
         case 'refreshing':
-          return this.refreshMessage
+          return this.refreshMessage || this.$q.i18n.label.pullToRefresh.refresh
         case 'pull':
         default:
-          return this.pullMessage
+          return this.pullMessage || this.$q.i18n.label.pullToRefresh.pull
       }
     },
     style: function style$$1 () {
@@ -10164,6 +10628,43 @@ var QPullToRefresh = {render: function(){var _vm=this;var _h=_vm.$createElement;
     this.$nextTick(function () {
       this$1.scrollContainer = this$1.inline ? this$1.$el.parentNode : getScrollTarget(this$1.$el);
     });
+  },
+  render: function render (h) {
+    return h('div', { staticClass: 'pull-to-refresh' }, [
+      h('div', {
+        staticClass: 'pull-to-refresh-container',
+        style: this.style,
+        directives: [{
+          name: 'touch-pan',
+          modifiers: {
+            vertical: true,
+            scroll: true
+          },
+          value: this.__pull
+        }]
+      }, [
+        h('div', { staticClass: 'pull-to-refresh-message row flex-center' }, [
+          h(QIcon, {
+            'class': { 'rotate-180': this.state === 'pulled' },
+            props: { name: 'arrow_downward' },
+            directives: [{
+              name: 'show',
+              value: this.state !== 'refreshing'
+            }]
+          }),
+          h(QIcon, {
+            staticClass: 'animate-spin',
+            props: { name: this.refreshIcon },
+            directives: [{
+              name: 'show',
+              value: this.state === 'refreshing'
+            }]
+          }),
+          (" " + (this.message))
+        ]),
+        this.$slots.default
+      ])
+    ])
   }
 };
 
@@ -10225,6 +10726,11 @@ var mixin$1 = {
     disable: Boolean
   },
   computed: {
+    data: function data () {
+      return {
+        clickDisabled: false
+      }
+    },
     classes: function classes () {
       var cls = {
         disabled: this.disable,
@@ -10246,10 +10752,16 @@ var mixin$1 = {
   },
   methods: {
     __pan: function __pan (event) {
+      var this$1 = this;
+
       if (this.disable) {
         return
       }
       if (event.isFinal) {
+        this.clickDisabled = true;
+        this.$nextTick(function () {
+          this$1.clickDisabled = false;
+        });
         this.__end(event.evt);
       }
       else if (event.isFirst) {
@@ -10260,7 +10772,7 @@ var mixin$1 = {
       }
     },
     __click: function __click (event) {
-      if (this.disable) {
+      if (this.disable || this.clickDisabled) {
         return
       }
       this.__setActive(event);
@@ -10278,7 +10790,7 @@ var dragType = {
   MAX: 2
 };
 
-var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_vm._v(" "),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.leftTooltipColor}},[_vm._v(" "+_vm._s(_vm.leftDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_vm._v(" "),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.value.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.rightTooltipColor}},[_vm._v(" "+_vm._s(_vm.rightDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
+var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),(_vm.markers)?_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return _c('div',{key:n,staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_vm._v(" "),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.model.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.leftTooltipColor}},[_vm._v(" "+_vm._s(_vm.leftDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_vm._v(" "),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.model.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.rightTooltipColor}},[_vm._v(" "+_vm._s(_vm.rightDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
   name: 'q-range',
   directives: {
     TouchPan: TouchPan
@@ -10301,6 +10813,7 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   data: function data () {
     return {
+      model: clone(this.value),
       dragging: false,
       currentMinPercentage: (this.value.min - this.min) / (this.max - this.min),
       currentMaxPercentage: (this.value.max - this.min) / (this.max - this.min)
@@ -10308,10 +10821,10 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   computed: {
     percentageMin: function percentageMin () {
-      return this.snap ? (this.value.min - this.min) / (this.max - this.min) : this.currentMinPercentage
+      return this.snap ? (this.model.min - this.min) / (this.max - this.min) : this.currentMinPercentage
     },
     percentageMax: function percentageMax () {
-      return this.snap ? (this.value.max - this.min) / (this.max - this.min) : this.currentMaxPercentage
+      return this.snap ? (this.model.max - this.min) / (this.max - this.min) : this.currentMaxPercentage
     },
     activeTrackWidth: function activeTrackWidth () {
       return 100 * (this.percentageMax - this.percentageMin) + '%'
@@ -10319,12 +10832,12 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     leftDisplayValue: function leftDisplayValue () {
       return this.leftLabelValue !== void 0
         ? this.leftLabelValue
-        : this.value.min
+        : this.model.min
     },
     rightDisplayValue: function rightDisplayValue () {
       return this.rightLabelValue !== void 0
         ? this.rightLabelValue
-        : this.value.max
+        : this.model.max
     },
     leftTooltipColor: function leftTooltipColor () {
       return this.leftLabelColor || this.labelColor
@@ -10335,37 +10848,43 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   },
   watch: {
     'value.min': function value_min (value) {
+      this.model.min = value;
+    },
+    'value.max': function value_max (value) {
+      this.model.max = value;
+    },
+    'model.min': function model_min (value) {
       if (this.dragging) {
         return
       }
-      if (value > this.value.max) {
-        value = this.value.max;
+      if (value > this.model.max) {
+        value = this.model.max;
       }
       this.currentMinPercentage = (value - this.min) / (this.max - this.min);
     },
-    'value.max': function value_max (value) {
+    'model.max': function model_max (value) {
       if (this.dragging) {
         return
       }
-      if (value < this.value.min) {
-        value = this.value.min;
+      if (value < this.model.min) {
+        value = this.model.min;
       }
       this.currentMaxPercentage = (value - this.min) / (this.max - this.min);
     },
     min: function min (value) {
-      if (this.value.min < value) {
+      if (this.model.min < value) {
         this.__update({min: value});
       }
-      if (this.value.max < value) {
+      if (this.model.max < value) {
         this.__update({max: value});
       }
       this.$nextTick(this.__validateProps);
     },
     max: function max (value) {
-      if (this.value.min > value) {
+      if (this.model.min > value) {
         this.__update({min: value});
       }
-      if (this.value.max > value) {
+      if (this.model.max > value) {
         this.__update({max: value});
       }
       this.$nextTick(this.__validateProps);
@@ -10384,8 +10903,8 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.dragging = {
         left: container.getBoundingClientRect().left,
         width: width,
-        valueMin: this.value.min,
-        valueMax: this.value.max,
+        valueMin: this.model.min,
+        valueMax: this.model.max,
         percentageMin: this.currentMinPercentage,
         percentageMax: this.currentMaxPercentage
       };
@@ -10492,17 +11011,20 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     __end: function __end () {
       this.dragging = false;
-      this.currentMinPercentage = (this.value.min - this.min) / (this.max - this.min);
-      this.currentMaxPercentage = (this.value.max - this.min) / (this.max - this.min);
+      this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
+      this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
+      if (this.model.min !== this.value.min || this.model.max !== this.value.max) {
+        this.$emit('change', this.model);
+      }
     },
     __updateInput: function __updateInput (ref) {
-      var min = ref.min; if ( min === void 0 ) min = this.value.min;
-      var max = ref.max; if ( max === void 0 ) max = this.value.max;
+      var min = ref.min; if ( min === void 0 ) min = this.model.min;
+      var max = ref.max; if ( max === void 0 ) max = this.model.max;
 
       var val = {min: min, max: max};
-      if (this.value.min !== min || this.value.max !== max) {
+      if (this.model.min !== min || this.model.max !== max) {
+        this.model = val;
         this.$emit('input', val);
-        this.$emit('change', val);
       }
     },
     __validateProps: function __validateProps () {
@@ -10512,18 +11034,19 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
         console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step);
       }
-      else if (notDivides((this.value.min - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of initial value.min - min', this.value.min, this.min, this.step);
+      else if (notDivides((this.model.min - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of initial value.min - min', this.model.min, this.min, this.step);
       }
-      else if (notDivides((this.value.max - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of initial value.max - min', this.value.max, this.max, this.step);
+      else if (notDivides((this.model.max - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of initial value.max - min', this.model.max, this.max, this.step);
       }
     }
   }
 };
 
-var QRating = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating row inline items-center no-wrap",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj ),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))
-var obj;},staticRenderFns: [],
+var QRating = {render: function(){
+var obj;
+var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating row inline items-center no-wrap",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))},staticRenderFns: [],
   name: 'q-rating',
   components: {
     QIcon: QIcon
@@ -10740,7 +11263,7 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 };
 
-var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"max-length":_vm.maxLength,"color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keyup":_vm.__onKeyup,"keydown":_vm.__onKeydown,"click":_vm.__onClick},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_vm._t("default")],2)},staticRenderFns: [],
+var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"placeholder":_vm.placeholder || _vm.$q.i18n.label.search,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"max-length":_vm.maxLength,"color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keyup":_vm.__onKeyup,"keydown":_vm.__onKeydown,"click":_vm.__onClick},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-search',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -10761,10 +11284,7 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       type: String,
       default: 'search'
     },
-    placeholder: {
-      type: String,
-      default: 'Search'
-    }
+    placeholder: String
   },
   data: function data () {
     return {
@@ -10800,7 +11320,7 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         return
       }
       if (!val && val !== 0) {
-        this.model = '';
+        this.model = this.type === 'number' ? null : '';
       }
       this.timer = setTimeout(function () {
         this$1.$emit('input', this$1.model);
@@ -10857,8 +11377,14 @@ var SelectMixin = {
   },
   data: function data () {
     return {
+      model: clone(this.value),
       terms: '',
       focused: false
+    }
+  },
+  watch: {
+    value: function value (val) {
+      this.model = clone(val);
     }
   },
   computed: {
@@ -10869,7 +11395,7 @@ var SelectMixin = {
         return this.displayValue
       }
       if (!this.multiple) {
-        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.value; });
+        var opt$1 = this.options.find(function (opt) { return opt.value === this$1.model; });
         return opt$1 ? opt$1.label : ''
       }
 
@@ -10881,7 +11407,7 @@ var SelectMixin = {
 
       if (this.multiple) {
         return this.length > 0
-          ? this.options.filter(function (opt) { return this$1.value.includes(opt.value); })
+          ? this.options.filter(function (opt) { return this$1.model.includes(opt.value); })
           : []
       }
     },
@@ -10890,8 +11416,8 @@ var SelectMixin = {
     },
     length: function length () {
       return this.multiple
-        ? this.value.length
-        : ([null, undefined, ''].includes(this.value) ? 0 : 1)
+        ? this.model.length
+        : ([null, undefined, ''].includes(this.model) ? 0 : 1)
     },
     additionalLength: function additionalLength () {
       return this.displayValue && this.displayValue.length > 0
@@ -10903,7 +11429,7 @@ var SelectMixin = {
         return
       }
       var
-        model = this.value,
+        model = this.model,
         index = model.indexOf(value);
 
       if (index > -1) {
@@ -10914,7 +11440,6 @@ var SelectMixin = {
       }
 
       this.$emit('input', model);
-      this.$emit('change', model);
     },
     __emit: function __emit (val) {
       if (this.value !== val) {
@@ -10936,7 +11461,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -10951,10 +11476,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
   },
   props: {
     filter: [Function, Boolean],
-    filterPlaceholder: {
-      type: String,
-      default: 'Filter'
-    },
+    filterPlaceholder: String,
     autofocusFilter: Boolean,
     radio: Boolean,
     placeholder: String,
@@ -10965,8 +11487,8 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       var this$1 = this;
 
       if (this.multiple) {
-        return this.value.length > 0
-          ? this.options.map(function (opt) { return this$1.value.includes(opt.value); })
+        return this.model.length > 0
+          ? this.options.map(function (opt) { return this$1.model.includes(opt.value); })
           : this.options.map(function (opt) { return false; })
       }
     },
@@ -10997,14 +11519,13 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
   },
   methods: {
     show: function show () {
-      if (!this.disable) {
-        return this.$refs.popover.show()
+      if (this.disable) {
+        return Promise.reject(new Error())
       }
+      return this.$refs.popover.show()
     },
     hide: function hide () {
-      if (!this.disable) {
-        return this.$refs.popover.hide()
-      }
+      return this.$refs.popover.hide()
     },
     reposition: function reposition () {
       var popover = this.$refs.popover;
@@ -11039,6 +11560,9 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       this.focused = false;
       this.$emit('blur');
       this.terms = '';
+      if (JSON.stringify(this.model) !== JSON.stringify(this.value)) {
+        this.$emit('change', this.model);
+      }
     },
     __singleSelect: function __singleSelect (val, disable) {
       if (disable) {
@@ -11058,14 +11582,8 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
-    okLabel: {
-      type: String,
-      default: 'OK'
-    },
-    cancelLabel: {
-      type: String,
-      default: 'Cancel'
-    },
+    okLabel: String,
+    cancelLabel: String,
     title: {
       type: String,
       default: 'Select'
@@ -11094,41 +11612,30 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
 
       // TODO
       this.dialog = this.$q.dialog({
-        title: this.title,
+        title: this.title || this.$q.i18n.label.select,
         message: this.message,
-        onDismiss: function () {
-          this$1.dialog = null;
+        color: this.color,
+        options: {
+          type: this.type,
+          model: clone(this.value),
+          items: this.options
         },
-        form: {
-          select: {
-            type: this.type,
-            model: clone(this.value),
-            color: this.color,
-            items: this.options
-          }
-        },
-        buttons: [
-          {
-            label: this.cancelLabel,
-            color: this.color
-          },
-          {
-            label: this.okLabel,
-            color: this.color,
-            handler: function (data) {
-              if (JSON.stringify(this$1.value) !== JSON.stringify(data.select)) {
-                this$1.__emit(data.select);
-              }
-            }
-          }
-        ]
+        cancel: this.cancelLabel || true,
+        ok: this.okLabel || true
+      }).catch(function () {
+        this$1.dialog = null;
+      }).then(function (data) {
+        this$1.dialog = null;
+        if (JSON.stringify(this$1.value) !== JSON.stringify(data)) {
+          this$1.$emit('input', data);
+          this$1.$emit('change', data);
+        }
       });
     },
     hide: function hide () {
-      if (this.dialog) {
-        return this.dialog.hide()
-      }
-      return Promise.resolve()
+      return this.dialog
+        ? this.dialog.hide()
+        : Promise.resolve()
     },
 
     __onFocus: function __onFocus () {
@@ -11142,7 +11649,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
   }
 };
 
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return (_vm.markers)?_c('div',{staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})}):_vm._e()}),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.value === _vm.min},style:({width: _vm.percentage})}),_vm._v(" "),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.value === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(" "+_vm._s(_vm.displayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
+var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),(_vm.markers)?_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return _c('div',{key:n,staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.model === _vm.min},style:({width: _vm.percentage})}),_vm._v(" "),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.model === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(" "+_vm._s(_vm.displayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
   name: 'q-slider',
   directives: {
     TouchPan: TouchPan
@@ -11157,6 +11664,7 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   },
   data: function data () {
     return {
+      model: this.value,
       dragging: false,
       currentPercentage: (this.value - this.min) / (this.max - this.min)
     }
@@ -11164,14 +11672,14 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   computed: {
     percentage: function percentage () {
       if (this.snap) {
-        return (this.value - this.min) / (this.max - this.min) * 100 + '%'
+        return (this.model - this.min) / (this.max - this.min) * 100 + '%'
       }
       return 100 * this.currentPercentage + '%'
     },
     displayValue: function displayValue () {
       return this.labelValue !== void 0
         ? this.labelValue
-        : this.value
+        : this.model
     }
   },
   watch: {
@@ -11179,18 +11687,27 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       if (this.dragging) {
         return
       }
-      this.currentPercentage = (value$1 - this.min) / (this.max - this.min);
+      if (value$1 < this.min) {
+        this.model = this.min;
+      }
+      else if (value$1 > this.max) {
+        this.model = this.max;
+      }
+      else {
+        this.model = value$1;
+      }
+      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
     },
     min: function min (value) {
-      if (this.value < value) {
-        this.value = value;
+      if (this.model < value) {
+        this.model = value;
         return
       }
       this.$nextTick(this.__validateProps);
     },
     max: function max (value) {
-      if (this.value > value) {
-        this.value = value;
+      if (this.model > value) {
+        this.model = value;
         return
       }
       this.$nextTick(this.__validateProps);
@@ -11215,14 +11732,17 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         model = getModel(percentage, this.min, this.max, this.step, this.decimals);
 
       this.currentPercentage = percentage;
-      if (model !== this.value) {
+      if (model !== this.model) {
         this.$emit('input', model);
-        this.$emit('change', model);
+        this.model = model;
       }
     },
     __end: function __end () {
       this.dragging = false;
-      this.currentPercentage = (this.value - this.min) / (this.max - this.min);
+      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
+      if (this.value !== this.model) {
+        this.$emit('change', this.model);
+      }
     },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
@@ -11235,7 +11755,7 @@ var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   }
 };
 
-var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.vm.done),expression:"vm.done",modifiers:{"mat":true}}],staticClass:"q-stepper-tab col-grow flex no-wrap relative-position",class:{ 'step-error': _vm.vm.error, 'step-active': _vm.vm.active, 'step-done': _vm.vm.done, 'step-waiting': _vm.vm.waiting, 'step-disabled': _vm.vm.disable, 'step-colored': _vm.vm.active || _vm.vm.done, 'items-center': !_vm.vm.__stepper.vertical, 'items-start': _vm.vm.__stepper.vertical, 'q-stepper-first': _vm.vm.first, 'q-stepper-last': _vm.vm.last },on:{"click":_vm.__select}},[_c('div',{staticClass:"q-stepper-dot row flex-center q-stepper-line relative-position"},[_c('span',{staticClass:"row flex-center"},[(_vm.vm.stepIcon)?_c('q-icon',{attrs:{"name":_vm.vm.stepIcon}}):_c('span',[_vm._v(_vm._s(_vm.vm.innerOrder + 1))])],1)]),_vm._v(" "),(_vm.vm.title)?_c('div',{staticClass:"q-stepper-label q-stepper-line relative-position"},[_c('div',{staticClass:"q-stepper-title",domProps:{"innerHTML":_vm._s(_vm.vm.title)}}),_vm._v(" "),_c('div',{staticClass:"q-stepper-subtitle",domProps:{"innerHTML":_vm._s(_vm.vm.subtitle)}})]):_vm._e()])},staticRenderFns: [],
+var StepTab = {
   name: 'q-step-header',
   components: {
     QIcon: QIcon
@@ -11244,14 +11764,62 @@ var StepTab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     Ripple: Ripple
   },
   props: ['vm'],
+  computed: {
+    classes: function classes () {
+      return {
+        'step-error': this.vm.error,
+        'step-active': this.vm.active,
+        'step-done': this.vm.done,
+        'step-waiting': this.vm.waiting,
+        'step-disabled': this.vm.disable,
+        'step-colored': this.vm.active || this.vm.done,
+        'items-center': !this.vm.__stepper.vertical,
+        'items-start': this.vm.__stepper.vertical,
+        'q-stepper-first': this.vm.first,
+        'q-stepper-last': this.vm.last
+      }
+    }
+  },
   methods: {
     __select: function __select () {
       this.vm.select();
     }
+  },
+  render: function render (h) {
+    var icon = this.vm.stepIcon
+      ? h(QIcon, { props: { name: this.vm.stepIcon } })
+      : h('span', [ (this.vm.innerOrder + 1) ]);
+
+    return h('div', {
+      staticClass: 'q-stepper-tab col-grow flex no-wrap relative-position',
+      'class': this.classes,
+      on: {
+        click: this.__select
+      },
+      directives: [{
+        name: 'ripple',
+        modifiers: {
+          mat: true
+        },
+        value: this.vm.done
+      }]
+    }, [
+      h('div', { staticClass: 'q-stepper-dot row flex-center q-stepper-line relative-position' }, [
+        h('span', { staticClass: 'row flex-center' }, [ icon ])
+      ]),
+      this.vm.title
+        ? h('div', {
+          staticClass: 'q-stepper-label q-stepper-line relative-position'
+        }, [
+          h('div', { staticClass: 'q-stepper-title' }, [ this.vm.title ]),
+          h('div', { staticClass: 'q-stepper-subtitle' }, [ this.vm.subtitle ])
+        ])
+        : null
+    ])
   }
 };
 
-var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper-step",style:(_vm.style)},[(_vm.__stepper.vertical)?_c('step-tab',{attrs:{"vm":this}}):_vm._e(),_vm._v(" "),_c('q-slide-transition',[(_vm.active)?_c('div',{staticClass:"q-stepper-step-content"},[_c('div',{staticClass:"q-stepper-step-inner"},[_vm._t("default")],2)]):_vm._e()])],1)},staticRenderFns: [],
+var QStep = {
   name: 'q-step',
   inject: {
     __stepper: {
@@ -11259,10 +11827,6 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
         console.error('QStep needs to be child of QStepper');
       }
     }
-  },
-  components: {
-    QSlideTransition: QSlideTransition,
-    StepTab: StepTab
   },
   props: {
     name: {
@@ -11349,10 +11913,31 @@ var QStep = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
   },
   beforeDestroy: function beforeDestroy () {
     this.__stepper.__unregisterStep(this);
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-stepper-step',
+      style: this.style
+    }, [
+      this.__stepper.vertical
+        ? h(StepTab, { props: { vm: this } })
+        : null,
+      h(QSlideTransition, [
+        this.active
+          ? h('div', {
+            staticClass: 'q-stepper-step-content'
+          }, [
+            h('div', { staticClass: 'q-stepper-step-inner' }, [
+              this.$slots.default
+            ])
+          ])
+          : null
+      ])
+    ])
   }
 };
 
-var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-stepper column overflow-hidden relative-position",class:_vm.classes},[(!_vm.vertical)?_c('div',{staticClass:"q-stepper-header row items-stretch justify-between shadow-1",class:{'alternative-labels': _vm.alternativeLabels}},_vm._l((_vm.steps),function(step,index){return _c('step-tab',{key:step.name,attrs:{"vm":step}})})):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QStepper = {
   name: 'q-stepper',
   components: {
     StepTab: StepTab
@@ -11501,6 +12086,26 @@ var QStepper = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
   },
   created: function created () {
     this.__sortSteps = frameDebounce(this.__sortSteps);
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-stepper column overflow-hidden relative-position',
+      'class': this.classes
+    }, [
+      this.vertical
+        ? null
+        : h('div', {
+          staticClass: 'q-stepper-header row items-stretch justify-between shadow-1',
+          'class': { 'alternative-labels': this.alternativeLabels }
+        },
+        this.steps.map(function (step) { return h(StepTab, {
+          key: step.name,
+          props: {
+            vm: step
+          }
+        }); })),
+      this.$slots.default
+    ])
   }
 };
 
@@ -11581,7 +12186,7 @@ var TabMixin = {
         : this.color;
 
       if (color) {
-        cls[("text-" + color)] = this.$q.theme === 'ios' ? this.active : true;
+        cls[("text-" + color)] = true;
       }
 
       return cls
@@ -11624,7 +12229,7 @@ var TabMixin = {
       }
 
       child.push(this.$slots.default);
-      if (this.$q.theme !== 'ios') {
+      {
         child.push(h('div', {
           staticClass: 'q-tabs-bar',
           style: this.barStyle
@@ -11775,8 +12380,9 @@ var QTabPane = {
 var scrollNavigationSpeed = 5;
 var debounceDelay = 50; // in ms
 
-var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{staticClass:"column full-width no-wrap",style:(_vm.tabStyle)},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = { glossy: _vm.glossy }, obj[("q-tabs-align-" + (_vm.align))] = true, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj )},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes column scroll"},[_vm._t("default")],2)])])
-var obj;},staticRenderFns: [],
+var QTabs = {render: function(){
+var obj;
+var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{staticClass:"column full-width no-wrap",style:(_vm.tabStyle)},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj.glossy = _vm.glossy, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj)},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes column scroll"},[_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-tabs',
   provide: function provide () {
     return {
@@ -11851,7 +12457,7 @@ var obj;},staticRenderFns: [],
         this.__scrollToTab(el);
       }
 
-      if (this.$q.theme !== 'ios') {
+      {
         this.currentEl = el;
         this.__repositionBar();
       }
@@ -12198,7 +12804,8 @@ var TableHeader = {
             h(QProgress, {
               props: {
                 color: this.color,
-                indeterminate: true
+                indeterminate: true,
+                height: '2px'
               }
             })
           ])
@@ -12307,8 +12914,6 @@ var TableBody = {
       var
         child = [];
 
-      console.log('RENDER');
-
       if (body) {
         child = this.computedRows.map(function (row) {
           var
@@ -12412,21 +13017,13 @@ var TableBody = {
   }
 };
 
-var TableFooter = {
-  methods: {
-    getTableFooter: function getTableFooter (h) {
-      return h('tfoot', [])
-    }
-  }
-};
-
 var Bottom = {
   methods: {
     getBottom: function getBottom (h) {
       if (this.nothingToDisplay) {
         var message = this.filter
-          ? this.noResultsLabel
-          : (this.loader ? this.loaderLabel : this.noDataLabel);
+          ? this.noResultsLabel || this.$q.i18n.table.noResults
+          : (this.loader ? this.loaderLabel || this.$q.i18n.table.loader : this.noDataLabel || this.$q.i18n.table.noData);
 
         return h('div', { staticClass: 'q-table-bottom row items-center q-table-nodata' }, [
           h(QIcon, {props: {name: 'warning'}}),
@@ -12448,16 +13045,17 @@ var Bottom = {
       var ref = this.computedPagination;
       var page = ref.page;
       var rowsPerPage = ref.rowsPerPage;
+      var paginationLabel = this.paginationLabel || this.$q.i18n.table.pagination;
 
       return [
         h('div', { staticClass: 'col' }, [
           this.selection && this.rowsSelectedNumber > 0
-            ? this.selectedRowsLabel(this.rowsSelectedNumber)
+            ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRows)(this.rowsSelectedNumber)
             : ''
         ]),
         h('div', [
           h('span', { style: {marginRight: '32px'} }, [
-            this.rowsPerPageLabel
+            this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
             staticClass: 'inline',
@@ -12482,8 +13080,8 @@ var Bottom = {
           }),
           h('span', { style: {margin: '0 32px'} }, [
             rowsPerPage
-              ? this.paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
-              : this.paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
+              ? paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
+              : paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
           ]),
           h(QBtn, {
             props: {
@@ -12646,7 +13244,7 @@ var Pagination = {
     pagination: Object,
     rowsPerPageOptions: {
       type: Array,
-      default: function () { return [3, 5, 7, 10, 15, 20, 25, 50, 'All']; }
+      default: function () { return [3, 5, 7, 10, 15, 20, 25, 50, 0]; }
     }
   },
   data: function data () {
@@ -12676,9 +13274,11 @@ var Pagination = {
       return page * rowsPerPage
     },
     computedRowsPerPageOptions: function computedRowsPerPageOptions () {
+      var this$1 = this;
+
       return this.rowsPerPageOptions.map(function (count) { return ({
-        label: '' + count,
-        value: typeof count === 'string' ? 0 : count
+        label: count === 0 ? this$1.$q.i18n.table.allRows : '' + count,
+        value: count
       }); })
     }
   },
@@ -12823,7 +13423,6 @@ var QTable = {
     Top,
     TableHeader,
     TableBody,
-    TableFooter,
     Bottom,
     Sort,
     Filter,
@@ -12857,30 +13456,12 @@ var QTable = {
       default: 'horizontal',
       validator: function (v) { return ['horizontal', 'vertical', 'cell', 'none'].includes(v); }
     },
-    noDataLabel: {
-      type: String,
-      default: 'No data available'
-    },
-    noResultsLabel: {
-      type: String,
-      default: 'No matching records found'
-    },
-    loaderLabel: {
-      type: String,
-      default: 'Loading...'
-    },
-    selectedRowsLabel: {
-      type: Function,
-      default: function (rows) { return (rows + " selected row(s)."); }
-    },
-    rowsPerPageLabel: {
-      type: String,
-      default: 'Rows per page:'
-    },
-    paginationLabel: {
-      type: Function,
-      default: function (start, end, total) { return (start + "-" + end + " of " + total); }
-    },
+    noDataLabel: String,
+    noResultsLabel: String,
+    loaderLabel: String,
+    selectedRowsLabel: Function,
+    rowsPerPageLabel: String,
+    paginationLabel: Function,
     tableStyle: {
       type: [String, Array, Object],
       default: ''
@@ -12907,7 +13488,7 @@ var QTable = {
       var rowsPerPage = ref.rowsPerPage;
 
       if (this.hasFilter && this.filter) {
-        rows = this.filterMethod(rows, this.filter, this.computedCols);
+        rows = this.filterMethod(rows, this.filter, this.computedCols, this.getCellValue);
       }
 
       if (this.columnToSort) {
@@ -12948,8 +13529,7 @@ var QTable = {
           h('table', { staticClass: ("q-table q-table-" + (this.separator) + "-separator" + (this.dark ? ' q-table-dark' : '')) },
             [
               this.getTableHeader(h),
-              this.getTableBody(h),
-              this.getTableFooter(h)
+              this.getTableBody(h)
             ]
           )
         ]),
@@ -13042,10 +13622,7 @@ var QTableColumns = {
       type: Array,
       required: true
     },
-    label: {
-      type: String,
-      default: 'Columns'
-    },
+    label: String,
     columns: {
       type: Array,
       required: true
@@ -13067,10 +13644,106 @@ var QTableColumns = {
         toggle: true,
         value: this.value,
         options: this.computedOptions,
-        displayValue: this.label,
+        displayValue: this.label || this.$q.i18n.table.columns,
         color: this.color
       }
     })
+  }
+};
+
+var QTimeline = {
+  name: 'q-timeline',
+  provide: function provide () {
+    return {
+      __timeline: this
+    }
+  },
+  props: {
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    dark: Boolean
+  },
+  render: function render (h) {
+    return h('ul', {
+      staticClass: 'q-timeline',
+      'class': { 'q-timeline-dark': this.dark }
+    }, [
+      this.$slots.default
+    ])
+  }
+};
+
+var QTimelineEntry = {
+  name: 'q-timeline-entry',
+  inject: {
+    __timeline: {
+      default: function default$1 () {
+        console.error('QTimelineEntry needs to be child of QTimeline');
+      }
+    }
+  },
+  props: {
+    heading: Boolean,
+    tag: {
+      type: String,
+      default: 'h3'
+    },
+    side: {
+      type: String,
+      default: 'right',
+      validator: function (v) { return ['left', 'right'].includes(v); }
+    },
+    icon: String,
+    color: String,
+    title: String,
+    subtitle: String
+  },
+  computed: {
+    colorClass: function colorClass () {
+      return ("text-" + (this.color || this.__timeline.color))
+    },
+    classes: function classes () {
+      return [
+        ("q-timeline-entry-" + (this.side === 'left' ? 'left' : 'right')),
+        this.icon ? 'q-timeline-entry-with-icon' : ''
+      ]
+    }
+  },
+  render: function render (h) {
+    if (this.heading) {
+      return h('div', { staticClass: 'q-timeline-heading' }, [
+        h('div'),
+        h('div'),
+        h(this.tag, { staticClass: 'q-timeline-heading-title' }, [
+          this.$slots.default
+        ])
+      ])
+    }
+
+    return h('li', {
+      staticClass: "q-timeline-entry",
+      'class': this.classes
+    }, [
+      h('div', { staticClass: 'q-timeline-subtitle' }, [
+        h('span', this.subtitle)
+      ]),
+
+      h('div', {
+        staticClass: 'q-timeline-dot',
+        'class': this.colorClass
+      }, [
+        this.icon
+          ? h(QIcon, { props: { name: this.icon } })
+          : null
+      ]),
+
+      h('div', { staticClass: 'q-timeline-content' }, [
+        h('h6', { staticClass: 'q-timeline-title' }, [ this.title ]),
+        this.$slots.default
+      ])
+    ])
   }
 };
 
@@ -13124,7 +13797,7 @@ var QToolbarTitle = {
   }
 };
 
-var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.model.handler || _vm.isExpandable}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center",on:{"click":_vm.tap}},[(_vm.model.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.model.icon}}):_vm._e(),_vm._v(" "),(_vm.model.safe)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.model.title)}}):_c('span',[_vm._v(_vm._s(_vm.model.title))])],1),_vm._v(" "),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.model.expanded ? _vm.contractHtml : _vm.expandHtml)},on:{"click":_vm.toggle}}):_vm._e()]),_vm._v(" "),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.model.expanded),expression:"isExpandable && model.expanded"}]},_vm._l((_vm.model.children),function(item){return _c('q-tree-item',{key:item.id || item.title,attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
+var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.hasHandler || _vm.isExpandable}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.hasHandler || _vm.isExpandable),expression:"hasHandler || isExpandable",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center",on:{"click":_vm.tap}},[(_vm.item.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.item.icon}}):_vm._e(),_vm._v(" "),(_vm.item.safe)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.item.title)}}):_c('span',[_vm._v(_vm._s(_vm.item.title))])],1),_vm._v(" "),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.item.expanded ? _vm.contractHtml : _vm.expandHtml)},on:{"click":_vm.toggle}}):_vm._e()]),_vm._v(" "),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.item.expanded),expression:"isExpandable && item.expanded"}]},_vm._l((_vm.item.children),function(item){return _c('q-tree-item',{key:item.id || item.title,attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
   name: 'q-tree-item',
   components: {
     QIcon: QIcon,
@@ -13134,22 +13807,39 @@ var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     Ripple: Ripple
   },
   props: ['model', 'contractHtml', 'expandHtml'],
+  data: function data () {
+    return {
+      item: extend({
+        expanded: false,
+        children: []
+      }, this.model)
+    }
+  },
+  watch: {
+    model: function model (value) {
+      this.item = extend({
+        expanded: false,
+        children: []
+      }, value);
+    }
+  },
   methods: {
     tap: function tap () {
-      if (typeof this.model.handler === 'function') {
-        this.model.handler(this.model);
+      if (this.hasHandler) {
+        return this.item.handler(this.model)
       }
       this.toggle();
     },
     toggle: function toggle () {
-      if (this.isExpandable) {
-        this.model.expanded = !this.model.expanded;
-      }
+      this.item.expanded = !this.item.expanded;
     }
   },
   computed: {
     isExpandable: function isExpandable () {
-      return this.model.children && this.model.children.length
+      return this.item.children && this.item.children.length > 0
+    },
+    hasHandler: function hasHandler () {
+      return typeof this.item.handler === 'function'
     }
   }
 };
@@ -13481,7 +14171,8 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         }
       };
 
-      this.queue.map(function (file) { return this$1.__getUploadPromise(file); })
+      this.queue
+        .map(function (file) { return this$1.__getUploadPromise(file); })
         .forEach(function (promise) {
           promise.then(solved).catch(solved);
         });
@@ -13530,6 +14221,8 @@ var QVideo = {
 
 function updateBinding (el, ref) {
   var value = ref.value;
+  var modifiers = ref.modifiers;
+
   var ctx = el.__qbacktotop;
 
   if (!value) {
@@ -13663,6 +14356,8 @@ function updateBinding$1 (el, selector) {
 var move = {
   name: 'move',
   bind: function bind (el, ref) {
+    var value = ref.value;
+
     el.__qmove = {};
   },
   update: function update (el, ref) {
@@ -13900,13 +14595,13 @@ var modalFn = function (Component, Vue) {
 var actionSheet = {
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
     var Vue = ref.Vue;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.actionSheet = modalFn(QActionSheet, Vue);
+    $q.actionSheet = modalFn(QActionSheet, Vue);
   }
 };
 
@@ -14035,7 +14730,7 @@ var appFullscreen = {
   __installed: false,
   install: function install (ref) {
     var this$1 = this;
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
     var Vue = ref.Vue;
 
     if (this.__installed) { return }
@@ -14077,7 +14772,7 @@ var appFullscreen = {
     });
 
     Vue.util.defineReactive({}, 'isActive', this);
-    Quasar.fullscreen = this;
+    $q.fullscreen = this;
   }
 };
 
@@ -14087,7 +14782,7 @@ var appVisibility = {
   __installed: false,
   install: function install (ref) {
     var this$1 = this;
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
     var Vue = ref.Vue;
 
     if (this.__installed) { return }
@@ -14109,13 +14804,13 @@ var appVisibility = {
     }
 
     var update = function () {
-      this$1.isVisible = Quasar.appVisible = !document[prop];
+      this$1.isVisible = $q.appVisible = !document[prop];
     };
 
     update();
 
     if (evt && typeof document[prop] !== 'undefined') {
-      Vue.util.defineReactive({}, 'appVisible', Quasar);
+      Vue.util.defineReactive({}, 'appVisible', $q);
       document.addEventListener(evt, update, false);
     }
   }
@@ -14221,134 +14916,254 @@ var cookies = {
 
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.cookies = this;
+    $q.cookies = this;
   }
 };
 
 var dialog = {
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
     var Vue = ref.Vue;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.dialog = modalFn(QDialog, Vue);
+    $q.dialog = modalFn(QDialog, Vue);
   }
 };
 
 var vm;
-var appIsInProgress = false;
 var timeout;
 var props = {};
 
 var staticClass = 'q-loading animate-fade fullscreen column flex-center z-max';
 
-function show (ref) {
-  if ( ref === void 0 ) ref = {};
-  var delay = ref.delay; if ( delay === void 0 ) delay = 500;
-  var message = ref.message; if ( message === void 0 ) message = false;
-  var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
-  var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
-  var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
-  var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
-  var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
-
-  props.spinner = spinner;
-  props.message = message;
-  props.spinnerSize = spinnerSize;
-  props.spinnerColor = spinnerColor;
-  props.messageColor = messageColor;
-
-  if (customClass && typeof customClass === 'string') {
-    props.customClass = " " + (customClass.trim());
-  }
-
-  if (appIsInProgress) {
-    vm && vm.$forceUpdate();
-    return
-  }
-
-  timeout = setTimeout(function () {
-    timeout = null;
-
-    var node = document.createElement('div');
-    document.body.appendChild(node);
-    document.body.classList.add('with-loading');
-
-    vm = new Vue({
-      name: 'q-loading',
-      el: node,
-      functional: true,
-      render: function render (h) {
-        var child = [
-          h(props.spinner, {
-            props: {
-              color: props.spinnerColor,
-              size: props.spinnerSize
-            }
-          })
-        ];
-
-        if (message) {
-          child.push(h('div', {
-            staticClass: ("text-" + (props.messageColor)),
-            domProps: {
-              innerHTML: props.message
-            }
-          }));
-        }
-
-        return h('div', {staticClass: staticClass + props.customClass}, child)
-      }
-    });
-  }, delay);
-
-  appIsInProgress = true;
-}
-
-function hide () {
-  if (!appIsInProgress) {
-    return
-  }
-
-  if (timeout) {
-    clearTimeout(timeout);
-    timeout = null;
-  }
-  else {
-    vm.$destroy();
-    document.body.classList.remove('with-loading');
-    document.body.removeChild(vm.$el);
-    vm = null;
-  }
-
-  appIsInProgress = false;
-}
-
 var Loading = {
-  show: show,
-  hide: hide,
+  isActive: false,
 
+  show: function show (ref) {
+    var this$1 = this;
+    if ( ref === void 0 ) ref = {};
+    var delay = ref.delay; if ( delay === void 0 ) delay = 500;
+    var message = ref.message; if ( message === void 0 ) message = false;
+    var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
+    var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
+    var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
+    var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
+    var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
+
+    props.spinner = spinner;
+    props.message = message;
+    props.spinnerSize = spinnerSize;
+    props.spinnerColor = spinnerColor;
+    props.messageColor = messageColor;
+
+    if (customClass && typeof customClass === 'string') {
+      props.customClass = " " + (customClass.trim());
+    }
+
+    if (this.isActive) {
+      vm && vm.$forceUpdate();
+      return
+    }
+
+    timeout = setTimeout(function () {
+      timeout = null;
+
+      var node = document.createElement('div');
+      document.body.appendChild(node);
+      document.body.classList.add('with-loading');
+
+      vm = new this$1.__Vue({
+        name: 'q-loading',
+        el: node,
+        functional: true,
+        render: function render (h) {
+          var child = [
+            h(props.spinner, {
+              props: {
+                color: props.spinnerColor,
+                size: props.spinnerSize
+              }
+            })
+          ];
+
+          if (message) {
+            child.push(h('div', {
+              staticClass: ("text-" + (props.messageColor)),
+              domProps: {
+                innerHTML: props.message
+              }
+            }));
+          }
+
+          return h('div', {staticClass: staticClass + props.customClass}, child)
+        }
+      });
+    }, delay);
+
+    this.isActive = true;
+  },
+  hide: function hide () {
+    if (!this.isActive) {
+      return
+    }
+
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    else {
+      vm.$destroy();
+      document.body.classList.remove('with-loading');
+      document.body.removeChild(vm.$el);
+      vm = null;
+    }
+
+    this.isActive = false;
+  },
+
+  __Vue: null,
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
+    var Vue = ref.Vue;
+
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.loading = Loading;
+    $q.loading = Loading;
+    this.__Vue = Vue;
   }
 };
 
-Object.defineProperty(Loading, 'isActive', {
-  get: function () { return appIsInProgress; }
-});
+var positionList = [
+  'top-left', 'top-right',
+  'bottom-left', 'bottom-right',
+  'top', 'bottom', 'left', 'right', 'center'
+];
+
+var notify = {
+  create: function create (opts) {
+    return this.__vm.add(opts)
+  },
+
+  __installed: false,
+  install: function install (ref) {
+    var $q = ref.$q;
+    var Vue = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    var node = document.createElement('div');
+    document.body.appendChild(node);
+
+    this.__vm = new Vue({
+      name: 'q-notifications',
+      data: {
+        notifs: {
+          center: [],
+          left: [],
+          right: [],
+          top: [],
+          'top-left': [],
+          'top-right': [],
+          bottom: [],
+          'bottom-left': [],
+          'bottom-right': []
+        }
+      },
+      methods: {
+        add: function add (notif) {
+          var this$1 = this;
+
+          if (!notif) {
+            console.error('Notify: parameter required');
+            return false
+          }
+          if (typeof notif === 'string') {
+            notif = {
+              message: notif,
+              timeout: 5000,
+              position: 'bottom'
+            };
+          }
+          else if (notif.position) {
+            if (!positionList.includes(notif.position)) {
+              console.error(("Notify: wrong position: " + (notif.position)));
+              return false
+            }
+          }
+          else {
+            notif.position = 'bottom';
+          }
+
+          notif.__uid = uid();
+
+          var action = notif.position.indexOf('top') > -1 ? 'unshift' : 'push';
+          this.notifs[notif.position][action](notif);
+
+          var close = function () {
+            this$1.remove(notif);
+          };
+
+          if (notif.timeout) {
+            notif.__timeout = setTimeout(function () {
+              close();
+            }, notif.timeout + /* show duration */ 1000);
+          }
+
+          return close
+        },
+        remove: function remove (notif) {
+          if (notif.__timeout) { clearTimeout(notif.__timeout); }
+
+          var index = this.notifs[notif.position].indexOf(notif);
+          if (index !== -1) {
+            this.notifs[notif.position].splice(index, 1);
+          }
+        }
+      },
+      render: function render (h) {
+        var this$1 = this;
+
+        return h('div', { staticClass: 'q-notifications' }, positionList.map(function (pos) {
+          var
+            vert = ['left', 'center', 'right'].includes(pos) ? 'center' : (pos.indexOf('top') > -1 ? 'top' : 'bottom'),
+            align = pos.indexOf('left') > -1 ? 'start' : (pos.indexOf('right') > -1 ? 'end' : 'center'),
+            classes = ['left', 'right'].includes(pos) ? ("items-" + (pos === 'left' ? 'start' : 'end') + " justify-center") : (pos === 'center' ? 'flex-center' : ("items-" + align));
+
+          return h(QTransition, {
+            key: pos,
+            staticClass: ("q-notification-list q-notification-list-" + vert + " fixed column " + classes),
+            tag: 'div',
+            props: {
+              group: true,
+              name: ("q-notification-" + pos),
+              mode: 'out-in'
+            }
+          }, this$1.notifs[pos].map(function (notif) {
+            return h(QAlert, {
+              key: notif.__uid,
+              staticClass: 'q-notification',
+              props: notif
+            }, [ notif.message ])
+          }))
+        }))
+      }
+    });
+
+    this.__vm.$mount(node);
+    $q.notify = this.create.bind(this);
+  }
+};
 
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
@@ -14382,7 +15197,7 @@ function decode$1 (value) {
   var type, length, source;
 
   length = value.length;
-  if (length < 10) {
+  if (length < 9) {
     // then it wasn't encoded by us
     return value
   }
@@ -14506,12 +15321,12 @@ var LocalStorage = {
 
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.localStorage = LocalStorage;
+    $q.localStorage = LocalStorage;
   }
 };
 
@@ -14530,264 +15345,12 @@ var SessionStorage = {
 
   __installed: false,
   install: function install (ref) {
-    var Quasar = ref.Quasar;
+    var $q = ref.$q;
 
     if (this.__installed) { return }
     this.__installed = true;
 
-    Quasar.sessionStorage = SessionStorage;
-  }
-};
-
-function create (opts) {
-  var node = document.createElement('div');
-  document.body.appendChild(node);
-
-  var state = extend(
-    {position: 'top-right'},
-    opts,
-    {
-      value: true,
-      appear: true,
-      dismissible: !opts.actions || !opts.actions.length
-    }
-  );
-
-  var vm = new Vue({
-    functional: true,
-    render: function render (h, ctx) {
-      var on = {};
-      on[opts.leave === void 0 ? 'dismiss' : 'dismiss-end'] = function () {
-        vm.$destroy();
-        vm.$el.parentNode.removeChild(vm.$el);
-        if (opts.onDismiss) {
-          opts.onDismiss();
-        }
-      };
-
-      return h(
-        QAlert, {
-          style: {
-            padding: '18px'
-          },
-          on: on,
-          props: state
-        },
-        [
-          h('span', {
-            domProps: {
-              innerHTML: opts.html
-            }
-          })
-        ]
-      )
-    }
-  });
-
-  vm.$mount(node);
-
-  return {
-    dismiss: function dismiss () {
-      state.value = false;
-      vm.$forceUpdate();
-    }
-  }
-}
-
-var Alert = {
-  create: create
-};
-
-var transitionDuration = 300;
-var displayDuration = 2500; // in ms
-
-function parseOptions (opts, defaults) {
-  if (!opts) {
-    throw new Error('Missing toast options.')
-  }
-
-  var options = extend(
-    true,
-    {},
-    defaults,
-    typeof opts === 'string' ? {html: opts} : opts
-  );
-
-  if (!options.html) {
-    throw new Error('Missing toast content/HTML.')
-  }
-
-  return options
-}
-
-var Toast = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-toast-container",class:{active: _vm.active}},[(_vm.stack[0])?_c('div',{staticClass:"q-toast row no-wrap items-center non-selectable",class:_vm.classes,style:({color: _vm.stack[0].color, background: _vm.stack[0].bgColor})},[(_vm.stack[0].icon)?_c('q-icon',{attrs:{"name":_vm.stack[0].icon}}):_vm._e(),_vm._v(" "),(_vm.stack[0].image)?_c('img',{attrs:{"src":_vm.stack[0].image}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-toast-message col",domProps:{"innerHTML":_vm._s(_vm.stack[0].html)}}),_vm._v(" "),(_vm.stack[0].button && _vm.stack[0].button.label)?_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss(_vm.stack[0].button.handler);}}},[_vm._v(" "+_vm._s(_vm.stack[0].button.label)+" ")]):_vm._e(),_vm._v(" "),_c('a',{style:({color: _vm.stack[0].button.color}),on:{"click":function($event){_vm.dismiss();}}},[_c('q-icon',{attrs:{"name":"close"}})],1)],1):_vm._e()])},staticRenderFns: [],
-  name: 'q-toast',
-  components: {
-    QIcon: QIcon
-  },
-  data: function data () {
-    return {
-      active: false,
-      inTransition: false,
-      stack: [],
-      timer: null,
-      defaults: {
-        color: 'white',
-        bgColor: '#323232',
-        button: {
-          color: 'inherit'
-        }
-      }
-    }
-  },
-  computed: {
-    classes: function classes () {
-      if (!this.stack.length || !this.stack[0].classes) {
-        return {}
-      }
-
-      return this.stack[0].classes.split(' ')
-    }
-  },
-  methods: {
-    create: function create (options) {
-      var this$1 = this;
-
-      this.stack.push(parseOptions(options, this.defaults));
-
-      if (this.active || this.inTransition) {
-        return
-      }
-
-      this.activeTimer = setTimeout(function () {
-        this$1.active = true;
-      }, 10);
-      this.inTransition = true;
-
-      this.__show();
-    },
-    __show: function __show () {
-      var this$1 = this;
-
-      this.timer = setTimeout(function () {
-        if (this$1.stack.length > 0) {
-          this$1.dismiss();
-        }
-        else {
-          this$1.inTransition = false;
-        }
-      }, transitionDuration + (this.stack[0].timeout || displayDuration));
-    },
-    dismiss: function dismiss (done) {
-      var this$1 = this;
-
-      clearTimeout(this.timer);
-      clearTimeout(this.activeTimer);
-      this.active = false;
-      this.timer = null;
-
-      setTimeout(function () {
-        if (typeof this$1.stack[0].onDismiss === 'function') {
-          this$1.stack[0].onDismiss();
-        }
-
-        this$1.stack.shift();
-        done && done();
-
-        if (this$1.stack.length > 0) {
-          this$1.active = true;
-          this$1.__show();
-          return
-        }
-
-        this$1.inTransition = false;
-      }, transitionDuration + 50);
-    },
-    setDefaults: function setDefaults (opts) {
-      extend(true, this.defaults, opts);
-    }
-  }
-};
-
-var toast;
-var defaults;
-var toastStack = [];
-var installed = false;
-var types = [
-    {
-      name: 'positive',
-      defaults: {icon: typeIcon.positive, classes: 'bg-positive'}
-    },
-    {
-      name: 'negative',
-      defaults: {icon: typeIcon.negative, classes: 'bg-negative'}
-    },
-    {
-      name: 'info',
-      defaults: {icon: typeIcon.info, classes: 'bg-info'}
-    },
-    {
-      name: 'warning',
-      defaults: {icon: typeIcon.warning, classes: 'bg-warning'}
-    }
-  ];
-
-function create$1 (opts, defaults) {
-  if (!opts) {
-    throw new Error('Missing toast options.')
-  }
-
-  if (defaults) {
-    opts = extend(
-      true,
-      typeof opts === 'string' ? {html: opts} : opts,
-      defaults
-    );
-  }
-
-  if (!toast) {
-    toastStack.push(opts);
-    if (!installed) {
-      install$1();
-    }
-    return
-  }
-
-  toast.create(opts);
-}
-
-types.forEach(function (type) {
-  create$1[type.name] = function (opts) { return create$1(opts, type.defaults); };
-});
-
-function install$1 () {
-  installed = true;
-  ready(function () {
-    var node = document.createElement('div');
-    document.body.appendChild(node);
-    toast = new Vue(Toast).$mount(node);
-    if (defaults) {
-      toast.setDefaults(defaults);
-    }
-    if (toastStack.length) {
-      setTimeout(function () {
-        toastStack.forEach(function (opts) {
-          toast.create(opts);
-        });
-      }, 100);
-    }
-  });
-}
-
-var index = {
-  create: create$1,
-  setDefaults: function setDefaults (opts) {
-    if (toast) {
-      toast.setDefaults(opts);
-    }
-    else {
-      defaults = opts;
-    }
+    $q.sessionStorage = SessionStorage;
   }
 };
 
@@ -14835,8 +15398,9 @@ function noop () {}
 var index_esm = {
   version: version,
   install: install,
+  i18n: i18n,
   theme: "mat"
 };
 
-export { QApp, QActionSheet, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QDialog, QEditor, QFab, QFabAction, QField, QFieldReset, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, actionSheet as ActionSheet, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, dialog as Dialog, Loading, Platform, LocalStorage, SessionStorage, Alert, index as Toast, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
+export { QApp, QActionSheet, QAjaxBar, QAlert, QAutocomplete, QBtn, QBtnGroup, QBtnToggle, QBtnDropdown, QBtnToggleGroup, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QContextMenu, QDatetime, QDatetimeRange, QInlineDatetime, QDialog, QEditor, QFab, QFabAction, QField, QFieldReset, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QDialogSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, QSpinner_ios as QSpinnerIos, DefaultSpinner as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QTimeline, QTimelineEntry, QToggle, QToolbar, QToolbarTitle, QTooltip, QTransition, QTree, QUploader, QVideo, backToTop as BackToTop, goBack as GoBack, move as Move, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, actionSheet as ActionSheet, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, dialog as Dialog, Loading, notify as Notify, Platform, LocalStorage, SessionStorage, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
 export default index_esm;

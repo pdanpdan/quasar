@@ -498,10 +498,9 @@ $z-modal          ?= 5000
 $z-fullscreen     ?= 5500
 $z-popover        ?= 6000
 $z-tooltip        ?= 7000
-$z-toast          ?= 8000
-$z-alert          ?= 8100
-$z-body-dimmed    ?= 10000
-$z-max            ?= 20000
+$z-body-dimmed    ?= 9000
+$z-notify         ?= 9500
+$z-max            ?= 9998
 $shadow-color ?= black
 $shadow-transition ?= box-shadow .28s cubic-bezier(.4, 0, .2, 1)
 $inset-shadow = 0 7px 9px -7px alpha($shadow-color, .7) inset
@@ -562,14 +561,8 @@ $generic-border-radius      ?= 4px
 $typography-font-family     ?= '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
 $action-sheet-background       ?= white
 $action-sheet-border-radius    ?= 13px
-$action-sheet-max-width        ?= 95%
-$action-sheet-margin-bottom    ?= .6rem
-$action-sheet-font-size        ?= 1.3rem
-$action-sheet-avatar-padding   ?= .6rem 1.1rem
 $action-sheet-hover-background ?= #d0d0d0
-$alert-padding        ?= .7rem
-$alert-color          ?= white
-$alert-background     ?= $negative
+$alert-padding        ?= 12px
 $alert-border-radius  ?= $generic-border-radius
 $alert-min-width      ?= 200px
 $breadcrumb-radius    ?= $generic-border-radius
@@ -835,39 +828,37 @@ input[type='search']
 input[type='search']::-webkit-search-cancel-button,
 input[type='search']::-webkit-search-decoration
   -webkit-appearance none
-.q-action-sheet-gallery
-  > div
-    padding $action-sheet-avatar-padding
-    border-radius $generic-border-radius
-    transition all .3s
-    &:hover, &:focus
-      background $action-sheet-hover-background
-      outline 0
-  i, img
-    font-size 2rem
-    margin-bottom 5px
-  .avatar
-    width 50px
-    height 50px
-.q-action-sheet
+.q-actionsheet
   border-radius $action-sheet-border-radius
   background $action-sheet-background
-  max-width $action-sheet-max-width
+  max-width 95%
   margin-left auto
   margin-right auto
-  margin-bottom $action-sheet-margin-bottom
+  margin-bottom 10px
   overflow hidden
-  .modal-header
-    border-bottom 2px solid $grey-4
-    padding-bottom 15px !important
-  .link
-    font-size $action-sheet-font-size
-    &:first-child
-      margin-top 0
-    &:last-child
-      margin-bottom 0
-    &:not(:last-child)
-      border-bottom 1px solid $grey-4
+.q-actionsheet-title
+  min-height 48px
+  padding 0 16px
+  color $faded
+  text-align center
+.q-actionsheet-grid
+  padding 8px 16px
+  .q-item-separator-component
+    margin 18px 0
+.q-actionsheet-grid-item
+  padding 8px 16px
+  transition background .3s
+  &:hover, &:focus
+    background $action-sheet-hover-background
+    outline 0
+  i, img
+    font-size 48px
+    margin-bottom 4px
+  .avatar
+    width 48px
+    height 48px
+  span
+    color $faded
 .q-loading-bar
   position fixed
   z-index $z-max
@@ -896,32 +887,23 @@ input[type='search']::-webkit-search-decoration
     width 100%
     height 100%
     transition height 1s
-.q-alert-container
-  pointer-events none
 .q-alert
-  color $alert-color
-  background $alert-background
-  border-radius $alert-border-radius
-  min-width $alert-min-width
-  pointer-events all
-.q-alert-icon, .q-alert-content
-  padding $alert-padding
-.q-alert-icon
-  font-size 150%
-  background rgba(0, 0, 0, .2)
-.q-alert-close
-  padding 0
-  .q-icon
-    padding .9rem
+  border-radius $generic-border-radius
+  min-width 200px
+  box-shadow none
+  .avatar
+    width 32px
+    height 32px
+.q-alert-side, .q-alert-content
+  padding 12px
+  font-size 16px
+.q-alert-side
+  font-size 24px
+  background rgba(0, 0, 0, .1)
 .q-alert-actions
-  margin-top .5rem
-  border-top 1px solid rgba(0, 0, 0, .2)
-  padding-top .5rem
-  font-size .8rem
-  span
-    cursor pointer
-  span + span
-    margin-left 16px
+  padding 12px 12px 12px 0
+.q-alert-detail
+  font-size 12px
 ul.breadcrumb
   list-style none
   display inline-flex
@@ -1003,8 +985,6 @@ button-round-factor($size)
   outline 0
   border 0
   vertical-align middle
-  vertical-align -webkit-baseline-middle
-  vertical-align -moz-middle-with-baseline
   cursor pointer
   -webkit-appearance button
   padding $button-padding
@@ -1031,7 +1011,8 @@ button-round-factor($size)
   border-radius $button-push-border-radius
   border-bottom 3px solid rgba(0, 0, 0, .15)
   &:active:not(.disabled)
-    border-bottom 0
+    transform translateY(3px)
+    border-bottom-color transparent
 .q-btn-rounded
   border-radius $button-rounded-border-radius
 .q-btn-round
@@ -1077,6 +1058,9 @@ for $name, $size in $button-round-sizes
     border-bottom-left-radius 0
 .q-btn-group-push
   border-radius $button-push-border-radius
+  .q-btn-push:active:not(.disabled)
+    border-bottom 0 solid transparent
+    transform translateY(0)
 .q-btn-group-rounded
   border-radius $button-rounded-border-radius
 .q-btn-group-outline
@@ -1392,6 +1376,23 @@ $checkbox-size = 21px
     margin-bottom 0
 .q-collapsible.router-link-active > .q-item
   background $collapsible-active-color
+.q-collapsible
+  transition padding .5s
+.q-collapsible-closed
+  padding 0 15px
+  .q-collapsible-inner
+    border 1px solid $item-separator-color
+  & + &
+    .q-collapsible-inner
+      border-top 0
+.q-collapsible-opened
+  padding 15px 0
+  .q-collapsible-inner
+    box-shadow $shadow-2
+  & + &, &:first-child
+    padding-top 0
+  &:last-child
+    padding-bottom 0
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime
@@ -1875,7 +1876,7 @@ input.q-input-target
     transform translateX(0)
   &.fixed
     border-left $layout-border
-main, .q-layout, .q-layout-header, .q-layout-footer
+.q-layout, .q-layout-header, .q-layout-footer, .q-layout-page
   position relative
 .q-layout-header, .q-layout-footer
   color $toolbar-color
@@ -1895,6 +1896,8 @@ body
     transition all .12s ease-in
   &.with-layout-drawer-opened
     overflow hidden
+  &.with-layout-drawer-opened-above
+    overflow-x hidden
   &.cordova.platform-ios
     .q-layout-header > .q-toolbar:first-child, .q-layout-drawer.top-padding
       padding-top $ios-statusbar-height
@@ -2058,9 +2061,6 @@ maximized-modal()
   max-height 80vh
   border-radius $modal-border-radius
   -webkit-backface-visibility hidden
-  .layout
-    width 100%
-    height 100%
 .modal
   z-index $z-modal
   &.minimized, &.with-backdrop
@@ -2081,14 +2081,14 @@ maximized-modal()
   .modal.maximized
     &.q-modal-enter, &.q-modal-leave-active
       .modal-content
-        transform translateX(101%)
+        transform translateX(30%)
 @media (max-width $breakpoint-sm-max)
   .modal:not(.minimized)
     .modal-content
       maximized-modal()
     &.q-modal-enter, &.q-modal-leave-active
       .modal-content
-        transform translateX(101%)
+        transform translateX(30%)
   .modal.minimized
     &.q-modal-enter .modal-content
       transform scale(1.2)
@@ -2142,19 +2142,89 @@ maximized-modal()
 .q-modal-bottom-enter, .q-modal-bottom-leave-active
   opacity 0
   .modal-content
-    transform translateY(101%)
+    transform translateY(30%)
 .q-modal-top-enter, .q-modal-top-leave-active
   opacity 0
   .modal-content
-    transform translateY(-101%)
+    transform translateY(-30%)
 .q-modal-right-enter, .q-modal-right-leave-active
   opacity 0
   .modal-content
-    transform translateX(101%)
+    transform translateX(30%)
 .q-modal-left-enter, .q-modal-left-leave-active
   opacity 0
   .modal-content
-    transform translateX(-101%)
+    transform translateX(-30%)
+.q-notifications > div
+  z-index $z-notify
+.q-notification-list
+  pointer-events none
+  left 0
+  right 0
+  margin-bottom 10px
+.q-notification-list-center
+  top 0
+  bottom 0
+.q-notification-list-top
+  top 0
+.q-notification-list-bottom
+  bottom 0
+.q-notification
+  border-radius 5px
+  pointer-events all
+  display inline-block
+  margin 10px 10px 0
+  transition all 1s
+  z-index $z-notify
+.q-notification-
+  &top-enter,
+  &top-right-enter, &top-right-leave-to,
+  &top-left-enter, &top-left-leave-to,
+  &top-enter, &top-leave-to
+    opacity 0
+    transform translateY(-50px)
+    z-index ($z-notify - 1)
+  &center-enter, &center-leave-to,
+  &bottom-enter, &bottom-leave-to,
+  &left-enter, &left-leave-to,
+  &right-enter, &right-leave-to,
+  &bottom-right-enter, &bottom-right-leave-to,
+  &bottom-left-enter, &bottom-left-leave-to,
+  &bottom-enter, &bottom-leave-to
+    opacity 0
+    transform translateY(50px)
+    z-index ($z-notify - 1)
+  &center-leave-active,
+  &top-leave-active
+    position absolute
+    top 0
+    margin 10px 0
+    z-index ($z-notify - 1)
+  &right-leave-active,
+  &top-right-leave-active
+    position absolute
+    right 0
+    z-index ($z-notify - 1)
+  &left-leave-active,
+  &top-left-leave-active
+    position absolute
+    left 0
+    z-index ($z-notify - 1)
+  &bottom-leave-active
+    position absolute
+    bottom 0
+    margin 10px 0
+    z-index ($z-notify - 1)
+  &bottom-right-leave-active
+    position absolute
+    bottom 0
+    right 0
+    z-index ($z-notify - 1)
+  &bottom-left-leave-active
+    position absolute
+    bottom 0
+    left 0
+    z-index ($z-notify - 1)
 .q-option-inner
   display inline-block
   line-height 0
@@ -2637,7 +2707,7 @@ body.desktop .q-stepper-tab.step-done:hover
     margin-top 7px
   .q-tab-label
     text-align center
-  &.icon-and-label
+  &.icon-and-label:not(.hide-icon):not(.hide-label)
     padding $tabs-padding-with-icon
     min-height $tabs-min-height-with-icon
   .q-tab-icon
@@ -2667,7 +2737,7 @@ body.desktop .q-stepper-tab.step-done:hover
     .q-tabs-scroller, .q-tab
       flex 1 1 auto
 @media (min-width $breakpoint-lg-min)
-  .q-tab, .q-tab.icon-and-label
+  .q-tab, .q-tab.icon-and-label:not(.hide-icon):not(.hide-label)
     padding-left $tabs-big-screen-horiz-padding
     padding-right $tabs-big-screen-horiz-padding
   .q-tabs-head:not(.scrollable)
@@ -2902,58 +2972,152 @@ body.mobile .q-tabs-scroller
       background $table-dark-selected-background
     &:hover
       background $table-dark-hover-background
-.q-toast-container
-  pointer-events none
-  position fixed
-  left 0
-  right 0
+.q-timeline
+  margin 0
+  padding 0
+  width 100%
+  list-style none
+  h6
+    line-height inherit
+.q-timeline-subtitle
+  font-size 12px
+  margin-bottom 8px
+  opacity .4
+  text-transform uppercase
+  letter-spacing 1px
+  font-weight 700
+.q-timeline-dot
+  position absolute
+  top 0
   bottom 0
-  z-index $z-toast
-  will-change transform
-  transform translateY(101%)
-  transition transform .3s ease-in
-  margin 10px
-  border-radius $generic-border-radius
-  &.active
-    transform translateY(0)
-.q-toast
-  pointer-events all
-  padding 0 24px
-  font-size .9rem
-  > img, > i
-    font-size 1.4rem
-    vertical-align middle
-    margin-right 24px
-    max-height 30px
-    max-width 30px
-    border-radius 50%
-  a
-    padding 10px 0 10px 10px
-    text-align center
-    text-transform uppercase
-    &:active
+  left 0
+  width 15px
+  &:before, &:after
+    content ''
+    background currentColor
+    display block
+    position absolute
+  &:before
+    border 3px solid transparent
+    border-radius 100%
+    height 15px
+    width 15px
+    top 4px
+    left 0
+    transition background .3s ease-in-out, border .3s ease-in-out
+  &:after
+    width 3px
+    opacity .4
+    top 24px
+    bottom 0
+    left 6px
+.q-timeline-entry-with-icon
+  .q-timeline-dot
+    width 31px
+    left -8px
+    &:before
+      height 31px
+      width 31px
+    &:after
+      top 41px
+      left 14px
+    .q-icon
+      position absolute
+      top 8px
+      left 4px
+      font-size 23px
       color white
-      text-shadow 0 0 5px white
-    i
-      font-size 1.3rem
-.q-toast-message
-  padding 20px 0
-@media (min-width $breakpoint-md-min)
-  .q-toast
-    display inline-flex !important
-    font-size 1.1rem
-    border-radius $generic-border-radius
-    max-width $breakpoint-md-min
-    margin 24px auto
-    box-shadow $shadow-6
-    a
-      i
-        font-size 1.6rem
-      &:first-of-type
-        margin-left 30px
-    > img, > i
-      font-size 2rem
-      margin-right 48px
+      transition color .3s ease-in-out
+  .q-timeline-subtitle
+    padding-top 8px
+.q-timeline-dark
+  color white
+  .q-timeline-subtitle
+    opacity .7
+.q-timeline-entry
+  padding-left 40px
+  position relative
+  line-height 22px
+  &:last-child
+    padding-bottom 0
+    .q-timeline-dot:after
+      content none
+  &:hover
+    .q-timeline-dot:before
+      background transparent
+      border 3px solid currentColor
+  &.q-timeline-entry-with-icon:hover .q-timeline-dot .q-icon
+    color currentColor
+.q-timeline-content
+  padding-bottom 24px
+.q-timeline-heading
+  position relative
+  &:first-child .q-timeline-heading-title
+    padding-top 0
+  &:last-child .q-timeline-heading-title
+    padding-bottom 0
+.q-timeline-heading-title
+  padding 32px 0
+  margin 0
+@media (min-width $breakpoint-md-min) and (max-width $breakpoint-md-max)
+  .q-timeline-heading
+    display table-row
+    font-size 200%
+    > div
+      display table-cell
+  .q-timeline-heading-title
+    margin-left -50px
+  .q-timeline
+    display table
+  .q-timeline-entry
+    display table-row
+    padding 0
+  .q-timeline-subtitle, .q-timeline-dot, .q-timeline-content
+    display table-cell
+    vertical-align top
+  .q-timeline-subtitle
+    text-align right
+    width 35%
+  .q-timeline-dot
+    position relative
+  .q-timeline-content
+    padding-left 30px
+  .q-timeline-entry-with-icon .q-timeline-content
+    padding-top 8px
+  .q-timeline-subtitle
+    padding-right 30px
+@media (min-width $breakpoint-lg-min)
+  .q-timeline-heading-title
+    text-align center
+    margin-left 0
+  .q-timeline-entry, .q-timeline-subtitle, .q-timeline-dot, .q-timeline-content
+    display block
+    margin 0
+    padding 0
+  .q-timeline-dot
+    position absolute
+    left 50%
+    margin-left -7.15px
+  .q-timeline-entry-with-icon .q-timeline-dot
+    left 50%
+    margin-left -15px
+  .q-timeline-subtitle, .q-timeline-content
+    width 50%
+  .q-timeline-entry-left .q-timeline-content,
+  .q-timeline-entry-right .q-timeline-subtitle
+    float left
+    padding-right 30px
+    text-align right
+  .q-timeline-entry-left .q-timeline-subtitle,
+  .q-timeline-entry-right .q-timeline-content
+    float right
+    text-align left
+    padding-left 30px
+  .q-timeline-entry-with-icon .q-timeline-content
+    padding-top 8px
+  .q-timeline-entry
+    padding-bottom 24px
+    overflow hidden
 $toggle-width           = 50px
 $toggle-height          = 32px
 $toggle-span            = 2px
@@ -5065,12 +5229,6 @@ ie_style = @block
   .row > .col
     &.q-alert-content
       flex-basis auto
-  
-  .q-toast
-    a
-      white-space nowrap
-  .col.q-toast-message
-    flex-basis auto
   
   .q-slider-handle
     > .q-chip.inline.row
