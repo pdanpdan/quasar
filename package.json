@@ -15,7 +15,7 @@
     "dev": "node build/script.dev.js",
     "build": "node build/script.build.js",
     "lint": "eslint --ext .js,.vue src dev",
-    "deploy": "sh build/deploy.sh"
+    "deploy": "build/deploy.sh"
   },
   "repository": {
     "type": "git",
@@ -77,7 +77,7 @@
     "parse5": "^3.0.3",
     "postcss-loader": "^2.0.9",
     "progress-bar-webpack-plugin": "^1.10.0",
-    "quasar-extras": "^1.0.0",
+    "quasar-extras": "^1.0.1",
     "raw-loader": "^0.5.1",
     "rollup": "^0.52.2",
     "rollup-plugin-babel": "^3.0.2",
@@ -104,7 +104,7 @@
     "webpack-merge": "^4.1.1"
   },
   "peerDependencies": {
-    "quasar-extras": "^1.0.0",
+    "quasar-extras": "^1.0.1",
     "vue": "^2.5.11"
   }
 }
