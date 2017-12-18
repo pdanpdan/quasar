@@ -7,7 +7,8 @@
   "jsnext:main": "dist/quasar.esm.js",
   "files": [
     "dist",
-    "i18n"
+    "i18n",
+    "icons"
   ],
   "scripts": {
     "clean": "node build/script.clean.js",
@@ -43,7 +44,7 @@
   },
   "homepage": "http://quasar-framework.org",
   "devDependencies": {
-    "autoprefixer": "^7.2.1",
+    "autoprefixer": "^7.2.3",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-loader": "^7.1.2",
@@ -55,7 +56,7 @@
     "connect-history-api-fallback": "^1.5.0",
     "css-loader": "^0.28.7",
     "es6-promise-shim": "^0.1.1",
-    "eslint": "^4.12.1",
+    "eslint": "^4.13.1",
     "eslint-config-standard": "^10.2.1",
     "eslint-friendly-formatter": "^3.0.0",
     "eslint-loader": "^1.9.0",
@@ -67,7 +68,7 @@
     "eventsource-polyfill": "^0.9.6",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.5",
+    "file-loader": "^1.1.6",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "git-directory-deploy": "^1.5.1",
     "html-webpack-plugin": "^2.30.1",
@@ -76,9 +77,9 @@
     "parse5": "^3.0.3",
     "postcss-loader": "^2.0.9",
     "progress-bar-webpack-plugin": "^1.10.0",
-    "quasar-extras": "^0.0.8",
+    "quasar-extras": "^1.0.0",
     "raw-loader": "^0.5.1",
-    "rollup": "^0.52.0",
+    "rollup": "^0.52.2",
     "rollup-plugin-babel": "^3.0.2",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-json": "^2.3.0",
@@ -90,20 +91,20 @@
     "stylint": "^1.5.9",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
-    "uglify-es": "^3.2.1",
+    "uglify-es": "^3.2.2",
     "url-loader": "^0.6.2",
-    "vue": "^2.5.9",
-    "vue-loader": "^13.5.0",
+    "vue": "^2.5.11",
+    "vue-loader": "^13.6.0",
     "vue-router": "^3.0.1",
     "vue-style-loader": "^3.0.3",
-    "vue-template-compiler": "^2.5.9",
-    "webpack": "^3.9.1",
-    "webpack-dev-middleware": "^1.12.2",
+    "vue-template-compiler": "^2.5.11",
+    "webpack": "^3.10.0",
+    "webpack-dev-middleware": "^2.0.1",
     "webpack-hot-middleware": "^2.21.0",
     "webpack-merge": "^4.1.1"
   },
   "peerDependencies": {
-    "quasar-extras": "0.x",
-    "vue": "^2.5.9"
+    "quasar-extras": "^1.0.0",
+    "vue": "^2.5.11"
   }
 }

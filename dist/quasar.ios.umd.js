@@ -100,6 +100,7 @@ var dom = Object.freeze({
 });
 
 /* eslint-disable no-useless-escape */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable no-mixed-operators */
 
 function getUserAgent () {
@@ -280,6 +281,15 @@ var Platform = {
       iframe: window.self !== window.top
     };
 
+    try {
+      if (window.localStorage) {
+        Platform.has.webStorage = true;
+      }
+    }
+    catch (e) {
+      Platform.has.webStorage = false;
+    }
+
     $q.platform = Platform;
   }
 };
@@ -319,7 +329,7 @@ var History = {
       }, false);
     });
   }
-};
+}
 
 /* eslint-disable no-extend-native, one-var, no-self-compare */
 
@@ -463,7 +473,7 @@ var langEn = {
     noData: 'No data available',
     noResults: 'No matching records found',
     loader: 'Loading...',
-    selectedRows: function (rows) { return rows > 1 ? (rows + " selected row(s).") : ((rows === 0 ? 'No' : '1') + " selected rows."); },
+    selectedRows: function (rows) { return rows > 0 ? (rows + " row" + (rows === 1 ? '' : 's') + " selected.") : 'No selected rows.'; },
     rowsPerPage: 'Rows per page:',
     allRows: 'All',
     pagination: function (start, end, total) { return (start + "-" + end + " of " + total); },
@@ -512,8 +522,12 @@ var langEn = {
     size6: 'Very big',
     size7: 'Maximum',
     defaultFont: 'Default Font'
+  },
+  tree: {
+    noNodes: 'No nodes available',
+    noResults: 'No matching nodes found'
   }
-};
+}
 
 var i18n = {
   __installed: false,
@@ -538,7 +552,180 @@ var i18n = {
 
     this.set(lang);
   }
-};
+}
+
+var iconMaterial = {
+  name: 'material',
+  type: {
+    positive: 'check_circle',
+    negative: 'warning',
+    info: 'info',
+    warning: 'priority_high'
+  },
+  arrow: {
+    up: 'arrow_upward',
+    right: 'arrow_forward',
+    down: 'arrow_downward',
+    left: 'arrow_back'
+  },
+  chevron: {
+    left: 'chevron_left',
+    right: 'chevron_right'
+  },
+
+  pullToRefresh: {
+    arrow: 'arrow_downward',
+    refresh: 'refresh'
+  },
+  search: {
+    icon: 'search',
+    clear: 'cancel',
+    clearInverted: 'clear'
+  },
+  carousel: {
+    left: 'chevron_left',
+    right: 'chevron_right',
+    quickNav: 'lens'
+  },
+  checkbox: {
+    checked: {
+      ios: 'check_circle',
+      mat: 'check_box'
+    },
+    unchecked: {
+      ios: 'radio_button_unchecked',
+      mat: 'check_box_outline_blank'
+    },
+    indeterminate: {
+      ios: '',
+      mat: 'indeterminate_check_box'
+    }
+  },
+  chip: {
+    close: 'cancel'
+  },
+  collapsible: {
+    icon: 'keyboard_arrow_down'
+  },
+  datetime: {
+    arrowLeft: 'chevron_left',
+    arrowRight: 'chevron_right'
+  },
+  editor: {
+    bold: 'format_bold',
+    italic: 'format_italic',
+    strikethrough: 'strikethrough_s',
+    underline: 'format_underlined',
+    unorderedList: 'format_list_bulleted',
+    orderedList: 'format_list_numbered',
+    subscript: 'vertical_align_bottom',
+    superscript: 'vertical_align_top',
+    hyperlink: 'link',
+    toggleFullscreen: 'fullscreen',
+    quote: 'format_quote',
+    left: 'format_align_left',
+    center: 'format_align_center',
+    right: 'format_align_right',
+    justify: 'format_align_justify',
+    print: 'print',
+    outdent: 'format_indent_decrease',
+    indent: 'format_indent_increase',
+    removeFormat: 'format_clear',
+    formatting: 'text_format',
+    fontSize: 'format_size',
+    align: 'format_align_left',
+    hr: 'remove',
+    undo: 'undo',
+    redo: 'redo',
+    header: 'format_size',
+    code: 'code',
+    size: 'format_size',
+    font: 'font_download'
+  },
+  fab: {
+    icon: 'add',
+    activeIcon: 'close'
+  },
+  input: {
+    showPass: 'visibility',
+    hidePass: 'visibility_off',
+    showNumber: 'keyboard',
+    hideNumber: 'keyboard_hide',
+    clear: 'cancel',
+    dropdown: 'arrow_drop_down'
+  },
+  pagination: {
+    first: 'first_page',
+    prev: 'keyboard_arrow_left',
+    next: 'keyboard_arrow_right',
+    last: 'last_page'
+  },
+  radio: {
+    checked: {
+      ios: 'check',
+      mat: 'radio_button_checked'
+    },
+    unchecked: {
+      ios: 'radio_button_unchecked',
+      mat: 'radio_button_unchecked'
+    }
+  },
+  rating: {
+    icon: 'grade'
+  },
+  stepper: {
+    done: 'check',
+    active: 'edit',
+    error: 'warning'
+  },
+  tabs: {
+    left: 'chevron_left',
+    right: 'chevron_right'
+  },
+  table: {
+    arrowUp: 'arrow_upward',
+    warning: 'warning',
+    prevPage: 'chevron_left',
+    nextPage: 'chevron_right'
+  },
+  tree: {
+    icon: 'play_arrow'
+  },
+  uploader: {
+    done: 'done',
+    clear: 'clear',
+    add: 'add',
+    upload: 'cloud_upload',
+    expand: 'keyboard_arrow_down',
+    file: 'insert_drive_file'
+  }
+}
+
+var icons = {
+  __installed: false,
+  install: function install (ref) {
+    var this$1 = this;
+    var $q = ref.$q;
+    var Vue$$1 = ref.Vue;
+    var iconSet = ref.iconSet;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    this.set = function (iconDef) {
+      if ( iconDef === void 0 ) iconDef = iconMaterial;
+
+      iconDef.set = this$1.set;
+
+      Vue$$1.set($q, 'icon', iconDef);
+      this$1.name = iconDef.name;
+      this$1.def = iconDef;
+    };
+
+    // TODO default ???
+    this.set(iconSet);
+  }
+}
 
 function addBodyClasses () {
   var cls = [
@@ -555,7 +742,7 @@ function addBodyClasses () {
   document.body.classList.add.apply(document.body.classList, cls);
 }
 
-var install = function (_Vue, opts) {
+function install (_Vue, opts) {
   if ( opts === void 0 ) opts = {};
 
   if (this.__installed) {
@@ -572,6 +759,7 @@ var install = function (_Vue, opts) {
   Platform.install({ $q: $q });
   History.install();
   i18n.install({ $q: $q, Vue: _Vue, lang: opts.i18n });
+  icons.install({ $q: $q, Vue: _Vue, iconSet: opts.iconSet });
 
   // inject body classes
   ready(addBodyClasses);
@@ -604,7 +792,7 @@ var install = function (_Vue, opts) {
   }
 
   _Vue.prototype.$q = $q;
-};
+}
 
 var QApp = {
   name: 'q-app',
@@ -617,7 +805,7 @@ var QApp = {
     data.staticClass = "q-app" + (classes ? (" " + classes) : '');
     return h('div', data, ctx.children)
   }
-};
+}
 
 var handlers = [];
 
@@ -651,7 +839,7 @@ var EscapeKey = {
       handlers.pop();
     }
   }
-};
+}
 
 var toString = Object.prototype.toString;
 var hasOwn = Object.prototype.hasOwnProperty;
@@ -875,7 +1063,7 @@ var ModelToggleMixin = {
       this.__hide && this.__hide();
     }
   }
-};
+}
 
 /*
  * Also import the necessary CSS into the app.
@@ -915,7 +1103,7 @@ var QTransition = {
 
     return h(("transition" + (ctx.props.group ? '-group' : '')), data, ctx.children)
   }
-};
+}
 
 var positions = {
   top: 'items-start justify-center with-backdrop',
@@ -1141,7 +1329,7 @@ var QModal = {
       ])
     ])
   }
-};
+}
 
 var QModalLayout = {
   name: 'q-modal-layout',
@@ -1196,7 +1384,7 @@ var QModalLayout = {
       staticClass: 'q-modal-layout column absolute-full'
     }, child)
   }
-};
+}
 
 var QIcon = {
   name: 'q-icon',
@@ -1221,8 +1409,8 @@ var QIcon = {
     if (!icon) {
       name = '';
     }
-    else if (icon.startsWith('fa-')) {
-      name = "fa " + icon;
+    else if (/^fa[s|r|l|b]{0,1} /.test(icon)) {
+      name = icon;
     }
     else if (icon.startsWith('bt-')) {
       name = "bt " + icon;
@@ -1254,7 +1442,7 @@ var QIcon = {
 
     return h('i', data, text ? [text, ctx.children] : [' ', ctx.children])
   }
-};
+}
 
 function textStyle (n) {
   return n === void 0 || n < 2
@@ -1345,9 +1533,10 @@ var QItem = {
     var
       data = ctx.data,
       prop = ctx.props,
+      link = prop.to !== void 0,
       cls = itemClasses(prop);
 
-    if (prop.to !== void 0) {
+    if (link) {
       data.props = prop;
     }
     else {
@@ -1356,9 +1545,9 @@ var QItem = {
 
     data.class = data.class ? [data.class, cls] : cls;
 
-    return h(prop.to ? 'router-link' : prop.tag, data, ctx.children)
+    return h(link ? 'router-link' : prop.tag, data, ctx.children)
   }
-};
+}
 
 var QItemSeparator = {
   name: 'q-item-separator',
@@ -1375,7 +1564,7 @@ var QItemSeparator = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 function text (h, name, val, n) {
   n = parseInt(n, 10);
@@ -1419,7 +1608,7 @@ var QItemMain = {
 
     return h(prop.tag, data, child)
   }
-};
+}
 
 var QItemSide = {
   name: 'q-item-side',
@@ -1445,6 +1634,8 @@ var QItemSide = {
     }
   },
   render: function render (h, ctx) {
+    var obj, obj$1;
+
     var
       data = ctx.data,
       prop = ctx.props,
@@ -1475,7 +1666,9 @@ var QItemSide = {
       child.push(h(QIcon, {
         props: { name: prop.icon },
         staticClass: 'q-item-icon',
-        class: { 'q-item-icon-inverted': prop.inverted }
+        class: ( obj = {
+          'q-item-icon-inverted': prop.inverted
+        }, obj[("bg-" + (prop.color))] = prop.color && prop.inverted, obj)
       }));
     }
     if (prop.avatar) {
@@ -1485,17 +1678,19 @@ var QItemSide = {
       }));
     }
     if (prop.letter) {
-      child.push(h(
-        'div',
-        { staticClass: 'q-item-letter' },
-        prop.letter
+      child.push(h('div', {
+        staticClass: 'q-item-letter',
+        class: ( obj$1 = {
+          'q-item-letter-inverted': prop.inverted
+        }, obj$1[("bg-" + (prop.color))] = prop.color && prop.inverted, obj$1)
+      }, prop.letter
       ));
     }
 
     child.push(ctx.children);
     return h(prop.tag, data, child)
   }
-};
+}
 
 var QItemTile = {
   name: 'q-item-tile',
@@ -1525,17 +1720,24 @@ var QItemTile = {
       prop = ctx.props,
       cls = data.staticClass,
       type = getType(prop),
-      icon = prop.icon || prop.invertedIcon;
+      textColor = prop.color ? (" text-" + (prop.color)) : '',
+      bgColor = prop.color ? (" bg-" + (prop.color)) : '';
 
-    data.staticClass = "q-item-" + type + (prop.color ? (" text-" + (prop.color)) : '') + (cls ? (" " + cls) : '');
+    data.staticClass = "q-item-" + type + (cls ? (" " + cls) : '');
 
-    if (icon) {
-      data.props = { name: icon };
-      if (prop.inverted) {
-        data.staticClass += ' q-item-icon-inverted';
-      }
+    if (prop.icon) {
+      data.props = { name: prop.icon };
+      data.staticClass += prop.inverted
+        ? (" q-item-icon-inverted" + bgColor)
+        : textColor;
+
       return h(QIcon, data, ctx.children)
     }
+
+    data.staticClass += prop.letter && prop.inverted
+      ? (" q-item-letter-inverted" + bgColor)
+      : textColor;
+
     if ((prop.label || prop.sublabel) && prop.lines) {
       if (prop.lines === '1' || prop.lines === 1) {
         data.staticClass += ' ellipsis';
@@ -1545,7 +1747,7 @@ var QItemTile = {
 
     return h(prop.tag, data, ctx.children)
   }
-};
+}
 
 function push (child, h, name, slot, replace, conf) {
   var defaultProps = { props: { right: conf.right } };
@@ -1619,7 +1821,7 @@ var QItemWrapper = {
     ctx.data.props = cfg;
     return h(QItem, ctx.data, child)
   }
-};
+}
 
 var QList = {
   name: 'q-list',
@@ -1663,7 +1865,7 @@ var QList = {
       ctx.children
     )
   }
-};
+}
 
 var QListHeader = {
   name: 'q-list-header',
@@ -1681,7 +1883,7 @@ var QListHeader = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 var QActionSheet = {
   name: 'q-action-sheet',
@@ -1831,7 +2033,7 @@ var QActionSheet = {
       });
     }
   }
-};
+}
 
 var units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
 
@@ -2078,14 +2280,7 @@ var QAjaxBar = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c
     clearTimeout(this.timer);
     restoreAjax();
   }
-};
-
-var typeIcon = {
-  positive: 'check_circle',
-  negative: 'warning',
-  info: 'info',
-  warning: 'priority_high'
-};
+}
 
 function getEvent (e) {
   return e || window.event
@@ -2127,6 +2322,11 @@ function position (e) {
   else if (e.pageX || e.pageY) {
     posx = e.pageX - document.body.scrollLeft - document.documentElement.scrollLeft;
     posy = e.pageY - document.body.scrollTop - document.documentElement.scrollTop;
+  }
+  else {
+    var offset = targetElement(e).getBoundingClientRect();
+    posx = ((offset.right - offset.left) / 2) + offset.left;
+    posy = ((offset.bottom - offset.top) / 2) + offset.top;
   }
 
   return {
@@ -2211,13 +2411,22 @@ function getMouseWheelDistance (e) {
   }
 }
 
+function stopAndPrevent (e) {
+  if (!e) {
+    return
+  }
+  e.preventDefault();
+  e.stopPropagation();
+}
+
 
 var event = Object.freeze({
 	rightClick: rightClick,
 	getEventKey: getEventKey,
 	position: position,
 	targetElement: targetElement,
-	getMouseWheelDistance: getMouseWheelDistance
+	getMouseWheelDistance: getMouseWheelDistance,
+	stopAndPrevent: stopAndPrevent
 });
 
 function showRipple (evt, el, stopPropagation) {
@@ -2311,6 +2520,15 @@ var Ripple = {
     el.removeEventListener('click', ctx.click, false);
     delete el.__qripple;
   }
+}
+
+var sizes = {
+  rectangle: {
+    xs: 8, sm: 11, md: 14, lg: 17, xl: 20
+  },
+  round: {
+    xs: 24, sm: 40, md: 56, lg: 72, xl: 88
+  }
 };
 
 var BtnMixin = {
@@ -2332,16 +2550,21 @@ var BtnMixin = {
     flat: Boolean,
     rounded: Boolean,
     push: Boolean,
-    small: Boolean,
-    big: Boolean,
+    size: String,
     color: String,
     glossy: Boolean,
     compact: Boolean,
     noRipple: Boolean
   },
   computed: {
-    size: function size () {
-      return ("q-btn-" + (this.small ? 'small' : (this.big ? 'big' : 'standard')))
+    style: function style () {
+      var def = sizes[this.round ? 'round' : 'rectangle'];
+
+      return {
+        fontSize: this.size
+          ? (this.size in def ? ((def[this.size]) + "px") : this.size)
+          : ((def.md) + "px")
+      }
     },
     shape: function shape () {
       return ("q-btn-" + (this.round ? 'round' : 'rectangle'))
@@ -2354,7 +2577,7 @@ var BtnMixin = {
     },
     classes: function classes () {
       var
-        cls = [this.shape, this.size],
+        cls = [ this.shape ],
         color = this.toggled ? this.toggleColor : this.color;
 
       if (this.toggled) {
@@ -2391,15 +2614,23 @@ var BtnMixin = {
 
       return cls
     }
+  },
+  methods: {
+    removeFocus: function removeFocus (e) {
+      // if is touch enabled and focus was received from pointer
+      if (this.$q.platform.has.touch && e.detail) {
+        this.$el.blur();
+      }
+    }
   }
-};
+}
 
 var mixin = {
   props: {
     color: String,
     size: {
       type: [Number, String],
-      default: '1rem'
+      default: '1em'
     }
   },
   computed: {
@@ -2409,112 +2640,112 @@ var mixin = {
       }
     }
   }
-};
+}
 
 var DefaultSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"stroke":"currentColor","fill":"currentColor","viewBox":"0 0 64 64"}},[_c('g',{attrs:{"stroke-width":"4","stroke-linecap":"round"}},[_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(180)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(210)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(240)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(270)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(300)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(330)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(0)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(30)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(60)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(90)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(120)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(150)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
   name: 'q-spinner-ios',
   mixins: [mixin]
-};
+}
 
 var audio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 55 80","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"matrix(1 0 0 -1 0 80)"}},[_c('rect',{attrs:{"width":"10","height":"20","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"4.3s","values":"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"15","width":"10","height":"80","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"80;55;33;5;75;23;73;33;12;14;60;80","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","width":"10","height":"50","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1.4s","values":"50;34;78;23;56;23;34;76;80;54;21;50","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"45","width":"10","height":"30","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"30;45;13;80;56;72;45;76;34;23;67;30","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
   name: 'q-spinner-audio',
   mixins: [mixin]
-};
+}
 
 var ball = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 57 57","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"cx":"5","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;5;50;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","values":"5;27;49;5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"27","cy":"5","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","from":"5","to":"5","values":"5;50;50;5","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","from":"27","to":"27","values":"27;49;5;27","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"49","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;50;5;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","from":"49","to":"49","begin":"0s","dur":"2.2s","values":"49;5;27;49","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
   name: 'q-spinner-ball',
   mixins: [mixin]
-};
+}
 
 var bars = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 140","xmlns":"http://www.w3.org/2000/svg"}},[_c('rect',{attrs:{"y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"60","width":"15","height":"140","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"90","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"120","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
   name: 'q-spinner-bars',
   mixins: [mixin]
-};
+}
 
 var circles = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 135","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"-360 67 67","dur":"2.5s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"360 67 67","dur":"8s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
   name: 'q-spinner-circles',
   mixins: [mixin]
-};
+}
 
 var comment = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('path',{attrs:{"d":"M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z","fill":"currentColor"}}),_c('circle',{attrs:{"cx":"30","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;1;1","keyTimes":"0;0.2;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"50","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.2;0.4;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"70","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.4;0.6;1","dur":"1s","repeatCount":"indefinite"}})])])},staticRenderFns: [],
   name: 'q-spinner-comment',
   mixins: [mixin]
-};
+}
 
 var cube = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('g',{attrs:{"transform":"translate(25 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.1s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(25 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.7"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.3s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.2s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)])])},staticRenderFns: [],
   name: 'q-spinner-cube',
   mixins: [mixin]
-};
+}
 
 var dots = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 120 30","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"15","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"60","cy":"15","r":"9","fill-opacity":".3"}},[_c('animate',{attrs:{"attributeName":"r","from":"9","to":"9","begin":"0s","dur":"0.8s","values":"9;15;9","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":".5","to":".5","begin":"0s","dur":"0.8s","values":".5;1;.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"105","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
   name: 'q-spinner-dots',
   mixins: [mixin]
-};
+}
 
 var facebook = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","xmlns":"http://www.w3.org/2000/svg","preserveAspectRatio":"xMidYMid"}},[_c('g',{attrs:{"transform":"translate(20 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(50 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.1s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(80 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.2s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)])])},staticRenderFns: [],
   name: 'q-spinner-facebook',
   mixins: [mixin]
-};
+}
 
 var gears = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(-20,-20)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"90 50 50","to":"0 50 50","dur":"1s","repeatCount":"indefinite"}})],1)]),_c('g',{attrs:{"transform":"translate(20,20) rotate(15 50 50)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"90 50 50","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
   name: 'q-spinner-gears',
   mixins: [mixin]
-};
+}
 
 var grid = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 105 105","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"12.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"52.5","r":"12.5","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"100ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"300ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"600ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"800ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"400ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"700ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"500ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"200ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
   name: 'q-spinner-grid',
   mixins: [mixin]
-};
+}
 
 var hearts = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 140 64","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0.7s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"}})])},staticRenderFns: [],
   name: 'q-spinner-hearts',
   mixins: [mixin]
-};
+}
 
 var hourglass = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',[_c('path',{staticClass:"glass",attrs:{"fill":"none","stroke":"currentColor","stroke-width":"5","stroke-miterlimit":"10","d":"M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z"}}),_c('clipPath',{attrs:{"id":"uil-hourglass-clip1"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"20","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"25","to":"0","dur":"1s","repeatCount":"indefinite","vlaues":"25;0;0","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"20","to":"45","dur":"1s","repeatCount":"indefinite","vlaues":"20;45;45","keyTimes":"0;0.5;1"}})])]),_c('clipPath',{attrs:{"id":"uil-hourglass-clip2"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"55","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"0","to":"25","dur":"1s","repeatCount":"indefinite","vlaues":"0;25;25","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"80","to":"55","dur":"1s","repeatCount":"indefinite","vlaues":"80;55;55","keyTimes":"0;0.5;1"}})])]),_c('path',{staticClass:"sand",attrs:{"d":"M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z","clip-path":"url(#uil-hourglass-clip1)","fill":"currentColor"}}),_c('path',{staticClass:"sand",attrs:{"d":"M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z","clip-path":"url(#uil-hourglass-clip2)","fill":"currentColor"}}),_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"180 50 50","repeatCount":"indefinite","dur":"1s","values":"0 50 50;0 50 50;180 50 50","keyTimes":"0;0.7;1"}})],1)])},staticRenderFns: [],
   name: 'q-spinner-hourglass',
   mixins: [mixin]
-};
+}
 
 var infinity = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('path',{attrs:{"d":"M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z","fill":"none","stroke":"currentColor","stroke-width":"8","stroke-dasharray":"10.691205342610678 10.691205342610678","stroke-dashoffset":"0"}},[_c('animate',{attrs:{"attributeName":"stroke-dashoffset","from":"0","to":"21.382410685221355","begin":"0","dur":"2s","repeatCount":"indefinite","fill":"freeze"}})])])},staticRenderFns: [],
   name: 'q-spinner-infinity',
   mixins: [mixin]
-};
+}
 
 var QSpinner_mat = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner q-spinner-mat",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"25 25 50 50"}},[_c('circle',{staticClass:"path",attrs:{"cx":"50","cy":"50","r":"20","fill":"none","stroke":"currentColor","stroke-width":"3","stroke-miterlimit":"10"}})])},staticRenderFns: [],
   name: 'q-spinner-mat',
   mixins: [mixin]
-};
+}
 
 var oval = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"stroke-opacity":".5","cx":"18","cy":"18","r":"18"}}),_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
   name: 'q-spinner-oval',
   mixins: [mixin]
-};
+}
 
 var pie = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M0 50A50 50 0 0 1 50 0L50 50L0 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"0.8s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 0A50 50 0 0 1 100 50L50 50L50 0","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"1.6s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M100 50A50 50 0 0 1 50 100L50 50L100 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"2.4s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 100A50 50 0 0 1 0 50L50 50L50 100","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"3.2s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
   name: 'q-spinner-pie',
   mixins: [mixin]
-};
+}
 
 var puff = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 44 44","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"0s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"-0.9s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"-0.9s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
   name: 'q-spinner-puff',
   mixins: [mixin]
-};
+}
 
 var radio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"scale(0.55)"}},[_c('circle',{attrs:{"cx":"30","cy":"150","r":"30","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.1","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.2","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})])])])},staticRenderFns: [],
   name: 'q-spinner-radio',
   mixins: [mixin]
-};
+}
 
 var rings = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 45 45","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","transform":"translate(1 1)","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"1.5s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"1.5s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"1.5s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"3s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"3s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"3s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"8"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.5s","values":"6;1;2;3;4;5;6","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
   name: 'q-spinner-rings',
   mixins: [mixin]
-};
+}
 
 var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('defs',[_c('linearGradient',{attrs:{"x1":"8.042%","y1":"0%","x2":"65.682%","y2":"23.865%","id":"a"}},[_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":"0","offset":"0%"}}),_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":".631","offset":"63.146%"}}),_c('stop',{attrs:{"stop-color":"currentColor","offset":"100%"}})],1)],1),_c('g',{attrs:{"transform":"translate(1 1)","fill":"none","fill-rule":"evenodd"}},[_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18","stroke":"url(#a)","stroke-width":"2"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1),_c('circle',{attrs:{"fill":"currentColor","cx":"36","cy":"18","r":"1"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
   name: 'q-spinner-tail',
   mixins: [mixin]
-};
+}
 
 var QSpinner = {
   mixins: [DefaultSpinner],
@@ -2529,11 +2760,13 @@ var QBtn = {
     loader: Boolean,
     percentage: Number,
     darkPercentage: Boolean,
-    waitForRipple: Boolean
+    waitForRipple: Boolean,
+    repeatTimeout: [Number, Function]
   },
   data: function data () {
     return {
-      loading: this.value || false
+      loading: this.value || false,
+      repeated: 0
     }
   },
   watch: {
@@ -2549,20 +2782,24 @@ var QBtn = {
     },
     width: function width () {
       return ((between(this.percentage, 0, 100)) + "%")
+    },
+    hasNoRepeat: function hasNoRepeat () {
+      return this.isDisabled || !this.repeatTimeout || this.loader !== false
     }
   },
   methods: {
     click: function click (e) {
       var this$1 = this;
 
-      this.$el.blur();
+      clearTimeout(this.timer);
 
-      if (this.isDisabled) {
+      if (this.isDisabled || this.repeated) {
+        this.repeated = 0;
         return
       }
 
-      clearTimeout(this.timer);
       var trigger = function () {
+        this$1.removeFocus(e);
         if (this$1.loader !== false || this$1.$slots.loading) {
           this$1.loading = true;
           this$1.$emit('input', true);
@@ -2579,16 +2816,56 @@ var QBtn = {
       else {
         trigger();
       }
+    },
+    startRepeat: function startRepeat (e) {
+      var this$1 = this;
+
+      this.repeated = 0;
+
+      var setTimer = function () {
+        this$1.timer = setTimeout(
+          trigger,
+          typeof this$1.repeatTimeout === 'function'
+            ? this$1.repeatTimeout(this$1.repeated)
+            : this$1.repeatTimeout
+        );
+      };
+      var trigger = function () {
+        if (this$1.hasNoRepeat || this$1.$slots.loading) {
+          return
+        }
+        this$1.repeated += 1;
+        this$1.$emit('click', e);
+        setTimer();
+      };
+
+      setTimer();
+    },
+    endRepeat: function endRepeat () {
+      clearTimeout(this.timer);
     }
   },
   beforeDestroy: function beforeDestroy () {
     clearTimeout(this.timer);
   },
   render: function render (h) {
+    var on = this.hasNoRepeat || this.$slots.loading
+      ? {}
+      : {
+        mousedown: this.startRepeat,
+        touchstart: this.startRepeat,
+        mouseup: this.endRepeat,
+        mouseleave: this.endRepeat,
+        touchend: this.endRepeat
+      };
+
+    on.click = this.click;
+
     return h('button', {
       staticClass: 'q-btn row inline flex-center q-focusable q-hoverable relative-position',
       'class': this.classes,
-      on: { click: this.click },
+      style: this.style,
+      on: on,
       directives: this.hasRipple
         ? [{
           name: 'ripple',
@@ -2596,7 +2873,7 @@ var QBtn = {
         }]
         : null
     }, [
-      h('div', { staticClass: 'desktop-only q-focus-helper' }),
+      h('div', { staticClass: 'q-focus-helper' }),
 
       this.loading && this.hasPercentage
         ? h('div', {
@@ -2637,7 +2914,7 @@ var QBtn = {
       )
     ])
   }
-};
+}
 
 var QBtnToggle = {
   name: 'q-btn-toggle',
@@ -2660,14 +2937,14 @@ var QBtnToggle = {
     click: function click (e) {
       var this$1 = this;
 
-      this.$el.blur();
+      clearTimeout(this.timer);
 
       if (this.isDisabled) {
         return
       }
 
-      clearTimeout(this.timer);
       var trigger = function () {
+        this$1.removeFocus(e);
         var state = !this$1.toggled;
         this$1.$emit('change', state);
         this$1.$emit('click', e, state);
@@ -2685,6 +2962,7 @@ var QBtnToggle = {
     return h('button', {
       staticClass: 'q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position',
       'class': this.classes,
+      style: this.style,
       on: { click: this.click },
       directives: this.hasRipple
         ? [{
@@ -2693,7 +2971,7 @@ var QBtnToggle = {
         }]
         : null
     }, [
-      h('div', { staticClass: 'desktop-only q-focus-helper' }),
+      h('div', { staticClass: 'q-focus-helper' }),
 
       h('span', {
         staticClass: 'q-btn-inner row col flex-center',
@@ -2722,7 +3000,7 @@ var QBtnToggle = {
       ])
     ])
   }
-};
+}
 
 var QBtnGroup = {
   name: 'q-btn-group',
@@ -2744,7 +3022,7 @@ var QBtnGroup = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 function getAnchorPosition (el, offset) {
   var ref = el.getBoundingClientRect();
@@ -3164,7 +3442,7 @@ var QPopover = {
     this.$nextTick(function () {
       this$1.anchorEl = this$1.$el.parentNode;
       this$1.anchorEl.removeChild(this$1.$el);
-      if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+      if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner')) {
         this$1.anchorEl = this$1.anchorEl.parentNode;
       }
       if (this$1.anchorClick) {
@@ -3194,16 +3472,18 @@ var QPopover = {
 
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
-        document.body.addEventListener('click', this$1.__bodyHide, true);
-        document.body.addEventListener('touchstart', this$1.__bodyHide, true);
+        document.body.addEventListener('click', this$1.__bodyHide);
         this$1.showPromise && this$1.showPromiseResolve();
       }, 0);
     },
     __bodyHide: function __bodyHide (evt) {
       if (
-        evt && evt.target &&
-        (this.$el.contains(evt.target) || (this.anchorClick && this.anchorEl.contains(evt.target)))
+        evt && (
+          evt.skipPopup ||
+          (evt.target && (this.$el.contains(evt.target) || this.anchorEl.contains(evt.target)))
+        )
       ) {
+        evt.skipPopup = true;
         return
       }
 
@@ -3212,8 +3492,7 @@ var QPopover = {
     __hide: function __hide (evt) {
       clearTimeout(this.timer);
 
-      document.body.removeEventListener('click', this.__bodyHide, true);
-      document.body.removeEventListener('touchstart', this.__bodyHide, true);
+      document.body.removeEventListener('click', this.__bodyHide);
       this.scrollTarget.removeEventListener('scroll', this.__updatePosition);
       window.removeEventListener('resize', this.__updatePosition);
       EscapeKey.pop();
@@ -3249,7 +3528,7 @@ var QPopover = {
       });
     }
   }
-};
+}
 
 var QBtnDropdown = {
   name: 'q-btn-dropdown',
@@ -3290,7 +3569,7 @@ var QBtnDropdown = {
         'q-icon',
         {
           props: {
-            name: 'arrow_drop_down'
+            name: this.$q.icon.input.dropdown
           },
           staticClass: 'transition-generic',
           'class': {
@@ -3318,8 +3597,7 @@ var QBtnDropdown = {
             flat: this$1.flat,
             rounded: this$1.rounded,
             push: this$1.push,
-            small: this$1.small,
-            big: this$1.big,
+            size: this$1.size,
             color: this$1.color,
             glossy: this$1.glossy,
             compact: this$1.compact,
@@ -3329,6 +3607,7 @@ var QBtnDropdown = {
           staticClass: ("" + (this$1.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple')),
           on: {
             click: function (e) {
+              this$1.split && this$1.hide();
               if (!this$1.disable) {
                 this$1.$emit('click', e);
               }
@@ -3365,8 +3644,7 @@ var QBtnDropdown = {
               flat: this.flat,
               rounded: this.rounded,
               push: this.push,
-              small: this.small,
-              big: this.big,
+              size: this.size,
               color: this.color,
               glossy: this.glossy,
               noRipple: this.noRipple,
@@ -3376,7 +3654,7 @@ var QBtnDropdown = {
             on: {
               click: function () {
                 if (!this$1.disable) {
-                  this$1.show();
+                  this$1.toggle();
                 }
               }
             }
@@ -3388,6 +3666,9 @@ var QBtnDropdown = {
     )
   },
   methods: {
+    toggle: function toggle () {
+      return this.$refs.popover.toggle()
+    },
     show: function show () {
       return this.$refs.popover.show()
     },
@@ -3395,7 +3676,7 @@ var QBtnDropdown = {
       return this.$refs.popover.hide()
     }
   }
-};
+}
 
 var QBtnToggleGroup = {
   name: 'q-btn-toggle-group',
@@ -3425,8 +3706,7 @@ var QBtnToggleGroup = {
     compact: Boolean,
     rounded: Boolean,
     push: Boolean,
-    small: Boolean,
-    big: Boolean,
+    size: String,
     glossy: Boolean,
     noRipple: Boolean,
     waitForRipple: Boolean
@@ -3476,8 +3756,7 @@ var QBtnToggleGroup = {
           rounded: this$1.rounded,
           push: this$1.push,
           glossy: this$1.glossy,
-          small: this$1.small,
-          big: this$1.big,
+          size: this$1.size,
           compact: this$1.compact,
           noRipple: this$1.noRipple,
           waitForRipple: this$1.waitForRipple
@@ -3485,7 +3764,7 @@ var QBtnToggleGroup = {
       }); }
     ))
   }
-};
+}
 
 var QAlert = {
   name: 'q-alert',
@@ -3509,13 +3788,15 @@ var QAlert = {
     computedIcon: function computedIcon () {
       return this.icon
         ? this.icon
-        : typeIcon[this.type || this.color]
+        : this.$q.icon.type[this.type || this.color]
     },
     classes: function classes () {
       return ("bg-" + (this.type || this.color) + " text-" + (this.textColor || 'white'))
     }
   },
   render: function render (h) {
+    var this$1 = this;
+
     var side = [];
 
     if (this.avatar) {
@@ -3556,27 +3837,31 @@ var QAlert = {
               h(QBtn, {
                 props: {
                   flat: true,
-                  compact: true
+                  compact: true,
+                  icon: action.icon,
+                  label: action.closeBtn === true
+                    ? (typeof action.label === 'string' ? action.label : this$1.$q.i18n.label.close)
+                    : action.label
                 },
                 on: {
                   click: function () { return action.handler(); }
                 }
-              }, [ action.label ])
+              })
             ]); }
           ))
           : null
       ])
     ])
   }
-};
+}
 
-var filter = function (terms, ref) {
+function filter (terms, ref) {
   var field = ref.field;
   var list = ref.list;
 
   var token = terms.toLowerCase();
   return list.filter(function (item) { return ('' + item[field]).toLowerCase().startsWith(token); })
-};
+}
 
 function s4 () {
   return Math.floor((1 + Math.random()) * 0x10000)
@@ -3584,14 +3869,9 @@ function s4 () {
     .substring(1)
 }
 
-var uid = function () {
+function uid () {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
     s4() + '-' + s4() + s4() + s4()
-};
-
-function prevent (e) {
-  e.preventDefault();
-  e.stopPropagation();
 }
 
 var QAutocomplete = {
@@ -3658,14 +3938,17 @@ var QAutocomplete = {
     }
   },
   methods: {
+    isWorking: function isWorking () {
+      return this.$refs && this.$refs.popover
+    },
     trigger: function trigger () {
       var this$1 = this;
 
-      if (!this.__input.hasFocus()) {
+      if (!this.__input.hasFocus() || !this.isWorking()) {
         return
       }
-      var terms = this.__input.val;
-      this.width = width(this.inputEl) + 'px';
+
+      var terms = [null, void 0].includes(this.__input.val) ? '' : String(this.__input.val);
       var searchId = uid();
       this.searchId = searchId;
 
@@ -3676,37 +3959,39 @@ var QAutocomplete = {
         return
       }
 
+      this.width = width(this.inputEl) + 'px';
+
       if (this.staticData) {
         this.searchId = '';
         this.results = this.filter(terms, this.staticData);
-        if (this.$q.platform.is.desktop) {
+        var popover = this.$refs.popover;
+        if (this.results.length) {
           this.selectedIndex = 0;
+          if (popover.showing) {
+            popover.reposition();
+          }
+          else {
+            popover.show();
+          }
         }
-        this.$refs.popover.show();
+        else {
+          popover.hide();
+        }
         return
       }
 
-      this.hide();
       this.__input.loading = true;
       this.$emit('search', terms, function (results) {
-        if (this$1.searchId !== searchId) {
+        if (!this$1.isWorking() || this$1.searchId !== searchId) {
           return
         }
 
         this$1.__clearSearch();
 
-        if (!this$1.results || this$1.results === results) {
-          return
-        }
-
         if (Array.isArray(results) && results.length > 0) {
           this$1.results = results;
-          if (this$1.$refs && this$1.$refs.popover) {
-            if (this$1.$q.platform.is.desktop) {
-              this$1.selectedIndex = 0;
-            }
-            this$1.$refs.popover.show();
-          }
+          this$1.selectedIndex = 0;
+          this$1.$refs.popover.show();
           return
         }
 
@@ -3716,7 +4001,15 @@ var QAutocomplete = {
     hide: function hide () {
       this.results = [];
       this.selectedIndex = -1;
-      return this.$refs.popover.hide()
+      return this.isWorking()
+        ? this.$refs.popover.hide()
+        : Promise.resolve()
+    },
+    blurHide: function blurHide () {
+      var this$1 = this;
+
+      this.__clearSearch();
+      setTimeout(function () { return this$1.hide(); }, 300);
     },
     __clearSearch: function __clearSearch () {
       clearTimeout(this.timer);
@@ -3724,8 +4017,15 @@ var QAutocomplete = {
       this.searchId = '';
     },
     setValue: function setValue (result) {
+      var value = this.staticData ? result[this.staticData.field] : result.value;
       var suffix = this.__inputDebounce ? 'Debounce' : '';
-      this[("__input" + suffix)].set(this.staticData ? result[this.staticData.field] : result.value);
+
+      if (this.inputEl && this.__input && !this.__input.hasFocus()) {
+        this.inputEl.focus();
+      }
+
+      this.enterKey = this.__input && value !== this.__input.val;
+      this[("__input" + suffix)].set(value);
 
       this.$emit('selected', result);
       this.__clearSearch();
@@ -3739,8 +4039,7 @@ var QAutocomplete = {
       );
     },
     setCurrentSelection: function setCurrentSelection () {
-      this.enterKey = true;
-      if (this.selectedIndex >= 0) {
+      if (this.selectedIndex >= 0 && this.selectedIndex < this.results.length) {
         this.setValue(this.results[this.selectedIndex]);
       }
     },
@@ -3765,7 +4064,7 @@ var QAutocomplete = {
           break
         case 13: // enter
           this.setCurrentSelection();
-          prevent(e);
+          stopAndPrevent(e);
           break
         case 27: // escape
           this.__clearSearch();
@@ -3773,7 +4072,7 @@ var QAutocomplete = {
       }
     },
     __moveCursor: function __moveCursor (offset$$1, e) {
-      prevent(e);
+      stopAndPrevent(e);
 
       if (!this.$refs.popover.showing) {
         this.trigger();
@@ -3792,7 +4091,8 @@ var QAutocomplete = {
     }
     this.$nextTick(function () {
       this$1.inputEl = this$1.__input.getEl();
-      this$1.inputEl.addEventListener('keyup', this$1.__handleKeypress);
+      this$1.inputEl.addEventListener('keydown', this$1.__handleKeypress);
+      this$1.inputEl.addEventListener('blur', this$1.blurHide);
     });
   },
   beforeDestroy: function beforeDestroy () {
@@ -3803,6 +4103,7 @@ var QAutocomplete = {
     }
     if (this.inputEl) {
       this.inputEl.removeEventListener('keydown', this.__handleKeypress);
+      this.inputEl.removeEventListener('blur', this.blurHide);
       this.hide();
     }
   },
@@ -3824,22 +4125,125 @@ var QAutocomplete = {
       h(QList, {
         props: {
           noBorder: true,
-          link: true,
           separator: this.separator
         },
         style: this.computedWidth
       },
       this.computedResults.map(function (result, index) { return h(QItemWrapper, {
         key: result.id || JSON.stringify(result),
-        'class': { active: this$1.selectedIndex === index },
+        'class': {
+          active: this$1.selectedIndex === index,
+          'cursor-pointer': !result.disable
+        },
         props: { cfg: result },
         on: {
-          click: function () { this$1.setValue(result); }
+          mouseenter: function () { !result.disable && (this$1.selectedIndex = index); },
+          click: function () { !result.disable && this$1.setValue(result); }
         }
       }); }))
     ])
   }
+}
+
+var alignMap = {
+  left: 'start',
+  center: 'center',
+  right: 'end',
+  justify: 'between'
 };
+
+var QBreadcrumbs = {
+  name: 'q-breadcrumbs',
+  props: {
+    color: {
+      type: String,
+      default: 'faded'
+    },
+    activeColor: {
+      type: String,
+      default: 'primary'
+    },
+    separator: {
+      type: String,
+      default: '/'
+    },
+    align: {
+      type: String,
+      default: 'left',
+      validator: function (v) { return ['left', 'center', 'right', 'justify'].includes(v); }
+    }
+  },
+  computed: {
+    computedAlign: function computedAlign () {
+      return alignMap[this.align]
+    }
+  },
+  render: function render (h) {
+    var
+      child = [],
+      length = this.$slots.default.length - 1,
+      separator = this.$slots.separator
+        ? this.$slots.separator
+        : this.separator,
+      color = "text-" + (this.color),
+      active = "text-" + (this.activeColor);
+
+    this.$slots.default.forEach(function (comp, i) {
+      if (comp.componentOptions && comp.componentOptions.tag === 'q-breadcrumb-el') {
+        var middle = i < length;
+
+        child.push(h('div', { staticClass: ((middle ? active : color) + " " + (middle ? 'text-weight-bold' : 'q-breadcrumb-last')) }, [ comp ]));
+        if (middle) {
+          child.push(h('div', { staticClass: ("q-breadcrumb-separator " + color) }, [ separator ]));
+        }
+      }
+      else {
+        child.push(comp);
+      }
+    });
+
+    return h('div', {
+      staticClass: 'q-breadcrumbs flex xs-gutter items-center overflow-hidden',
+      'class': [("text-" + (this.color)), ("justify-" + (this.computedAlign))]
+    }, child)
+  }
+}
+
+var QBreadcrumbEl = {
+  name: 'q-breadcrumb-el',
+  mixins: [{ props: RouterLinkMixin.props }],
+  props: {
+    label: String,
+    icon: String,
+    color: String,
+    noRipple: Boolean
+  },
+  computed: {
+    link: function link () {
+      return this.to !== void 0
+    }
+  },
+  render: function render (h) {
+    return h(this.link ? 'router-link' : 'span', {
+      staticClass: 'q-breadcrumb-el flex inline items-center relative-position',
+      props: this.link
+        ? {
+          to: this.to,
+          exact: this.exact,
+          append: this.append,
+          replace: this.replace
+        }
+        : null
+    },
+    this.label || this.icon
+      ? [
+        this.icon ? h(QIcon, { staticClass: 'q-breacrumb-el-icon q-mr-sm', props: { name: this.icon } }) : null,
+        this.label
+      ]
+      : [ this.$slots.default ]
+    )
+  }
+}
 
 var QCard = {
   name: 'q-card',
@@ -3878,7 +4282,7 @@ var QCard = {
       ctx.children
     )
   }
-};
+}
 
 var QCardTitle = {
   name: 'q-card-title',
@@ -3902,7 +4306,7 @@ var QCardTitle = {
       ]
     )
   }
-};
+}
 
 var QCardMain = {
   name: 'q-card-main',
@@ -3916,7 +4320,7 @@ var QCardMain = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 var QCardActions = {
   name: 'q-card-actions',
@@ -3942,7 +4346,7 @@ var QCardActions = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 var QCardMedia = {
   name: 'q-card-media',
@@ -3975,7 +4379,7 @@ var QCardMedia = {
 
     return h('div', data, child)
   }
-};
+}
 
 var QCardSeparator = {
   name: 'q-card-separator',
@@ -3992,7 +4396,7 @@ var QCardSeparator = {
 
     return h('div', data, ctx.children)
   }
-};
+}
 
 function getDirection (mod) {
   if (Object.keys(mod).length === 0) {
@@ -4184,7 +4588,7 @@ var TouchPan = {
     el.removeEventListener('touchend', ctx.end);
     delete el.__qtouchpan;
   }
-};
+}
 
 function isDate (v) {
   return Object.prototype.toString.call(v) === '[object Date]'
@@ -4395,7 +4799,7 @@ var FullscreenMixin = {
   beforeDestroy: function beforeDestroy () {
     this.exitFullscreen();
   }
-};
+}
 
 var QCarousel = {
   name: 'q-carousel',
@@ -4422,10 +4826,7 @@ var QCarousel = {
     autoplay: [Number, Boolean],
     handleArrowKeys: Boolean,
     quickNav: Boolean,
-    quickNavIcon: {
-      type: String,
-      default: 'lens'
-    }
+    quickNavIcon: String
   },
   provide: function provide () {
     return {
@@ -4705,9 +5106,9 @@ var QCarousel = {
             key: i,
             'class': { inactive: i !== this$1.slide },
             props: {
-              icon: this$1.quickNavIcon,
+              icon: this$1.quickNavIcon || this$1.$q.icon.carousel.quickNav,
               round: true,
-              small: true,
+              size: 'sm',
               flat: true,
               color: this$1.color
             },
@@ -4760,13 +5161,13 @@ var QCarousel = {
       ]),
       this.arrows ? h(QBtn, {
         staticClass: 'q-carousel-left-arrow absolute',
-        props: { color: this.color, icon: 'chevron_left', round: true, small: true, flat: true },
+        props: { color: this.color, icon: this.$q.icon.carousel.left, round: true, size: 'sm', flat: true },
         directives: [{ name: 'show', value: this.canGoToPrevious }],
         on: { click: this.previous }
       }) : null,
       this.arrows ? h(QBtn, {
         staticClass: 'q-carousel-right-arrow absolute',
-        props: { color: this.color, icon: 'chevron_right', round: true, small: true, flat: true },
+        props: { color: this.color, icon: this.$q.icon.carousel.right, round: true, size: 'sm', flat: true },
         directives: [{ name: 'show', value: this.canGoToNext }],
         on: { click: this.next }
       }) : null,
@@ -4796,7 +5197,7 @@ var QCarousel = {
       this.__setArrowKeys(false);
     }
   }
-};
+}
 
 var QCarouselSlide = {
   name: 'q-carousel-slide',
@@ -4836,7 +5237,7 @@ var QCarouselSlide = {
   beforeDestroy: function beforeDestroy () {
     this.carousel.__unregisterSlide();
   }
-};
+}
 
 var QCarouselControl = {
   name: 'q-carousel-control',
@@ -4867,7 +5268,7 @@ var QCarouselControl = {
       'class': this.computedClass
     }, this.$slots.default)
   }
-};
+}
 
 var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?[(_vm.safe)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('p',{staticClass:"q-message-label text-center"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end no-wrap"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_vm._v(" "),_c('div',{staticClass:"column",class:_vm.sizeClass},[(_vm.name)?[(_vm.safe)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_c('div',{staticClass:"q-message-name"},[_vm._v(_vm._s(_vm.name))])]:_vm._e(),_vm._v(" "),_vm._l((_vm.text),function(msg){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)])}),_vm._v(" "),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)]):_vm._e()],2)],2):_vm._e()],2)},staticRenderFns: [],
   name: 'q-chat-message',
@@ -4902,7 +5303,7 @@ var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
       }
     }
   }
-};
+}
 
 var Mixin = {
   props: {
@@ -5009,7 +5410,7 @@ var Mixin = {
       });
     }
   }
-};
+}
 
 var OptionMixin = {
   props: {
@@ -5022,6 +5423,7 @@ var OptionMixin = {
     keepColor: Boolean,
     dark: Boolean,
     disable: Boolean,
+    noFocus: Boolean,
     safe: Boolean
   },
   computed: {
@@ -5036,11 +5438,17 @@ var OptionMixin = {
 
         return ("text-" + color)
       }
+    },
+    focusable: function focusable () {
+      return !this.noFocus && !this.disable
+    },
+    tabindex: function tabindex () {
+      return this.focusable ? 0 : null
     }
   }
-};
+}
 
-var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline q-focusable row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel},attrs:{"tabindex":"0"},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.checkbox.unchecked[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon || _vm.$q.icon.checkbox.indeterminate[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon || _vm.$q.icon.checkbox.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-checkbox',
   mixins: [Mixin, OptionMixin],
   components: {
@@ -5048,18 +5456,9 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   },
   props: {
     indeterminate: Boolean,
-    checkedIcon: {
-      type: String,
-      default: 'check_circle'
-    },
-    uncheckedIcon: {
-      type: String,
-      default: 'radio_button_unchecked'
-    },
-    indeterminateIcon: {
-      type: String,
-      default: ''
-    }
+    checkedIcon: String,
+    uncheckedIcon: String,
+    indeterminateIcon: String
   },
   computed: {
     checkedStyle: function checkedStyle () {
@@ -5068,23 +5467,20 @@ var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         : {transition: 'opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms', opacity: 0, transform: 'scale(0)'}
     },
     indeterminateStyle: function indeterminateStyle () {
-      return this.indeterminate
+      return this.indeterminate && !this.isActive
         ? {transition: 'opacity 0ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 800ms cubic-bezier(0.23, 1, 0.32, 1) 0ms', opacity: 1, transform: 'scale(1)'}
         : {transition: 'opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, transform 0ms cubic-bezier(0.23, 1, 0.32, 1) 450ms', opacity: 0, transform: 'scale(0)'}
     },
     uncheckedStyle: function uncheckedStyle () {
       return this.isActive
         ? {transition: 'opacity 650ms cubic-bezier(0.23, 1, 0.32, 1) 150ms', opacity: 0}
-        : {transition: 'opacity 1000ms cubic-bezier(0.23, 1, 0.32, 1) 200ms', opacity: 1}
+        : {opacity: 1}
     }
   }
-};
+}
 
-var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-chip row no-wrap inline items-center",class:_vm.classes,on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":_vm.__onClick}},[(_vm.icon || _vm.avatar)?_c('div',{staticClass:"q-chip-side chip-left row flex-center",class:{'chip-detail': _vm.detail}},[(_vm.icon)?_c('q-icon',{attrs:{"name":_vm.icon}}):(_vm.avatar)?_c('img',{attrs:{"src":_vm.avatar}}):_vm._e()],1):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-chip-main"},[_vm._t("default")],2),_vm._v(" "),(_vm.iconRight)?_c('q-icon',{staticClass:"on-right",attrs:{"name":_vm.iconRight}}):_vm._e(),_vm._v(" "),(_vm.closable)?_c('div',{staticClass:"q-chip-side chip-right row flex-center"},[(_vm.closable)?_c('q-icon',{staticClass:"cursor-pointer",attrs:{"name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.$emit('hide');}}}):_vm._e()],1):_vm._e()],1)},staticRenderFns: [],
+var QChip = {
   name: 'q-chip',
-  components: {
-    QIcon: QIcon
-  },
   props: {
     small: Boolean,
     tag: Boolean,
@@ -5095,6 +5491,7 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       validator: function (v) { return ['up', 'right', 'down', 'left'].includes(v); }
     },
     color: String,
+    textColor: String,
     icon: String,
     iconRight: String,
     avatar: String,
@@ -5113,7 +5510,10 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       this.pointing && cls.push(("pointing-" + (this.pointing)));
       if (this.color) {
         cls.push(("bg-" + (this.color)));
-        cls.push("text-white");
+        !this.textColor && cls.push("text-white");
+      }
+      if (this.textColor) {
+        cls.push(("text-" + (this.textColor)));
       }
       return cls
     }
@@ -5125,8 +5525,58 @@ var QChip = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
     __onMouseDown: function __onMouseDown (e) {
       this.$emit('focus', e);
     }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h('div', {
+      staticClass: 'q-chip row no-wrap inline items-center',
+      'class': this.classes,
+      on: {
+        mousedown: this.__onMouseDown,
+        touchstart: this.__onMouseDown,
+        click: this.__onClick
+      }
+    }, [
+      this.icon || this.avatar
+        ? h('div', {
+          staticClass: 'q-chip-side chip-left row flex-center',
+          'class': { 'chip-detail': this.detail }
+        }, [
+          this.icon
+            ? h(QIcon, { props: { name: this.icon } })
+            : (this.avatar ? h('img', { domProps: { src: this.avatar } }) : null)
+        ])
+        : null,
+
+      h('div', { staticClass: 'q-chip-main' }, [
+        this.$slots.default
+      ]),
+
+      this.iconRight
+        ? h(QIcon, {
+          props: { name: this.iconRight },
+          staticClass: 'on-right'
+        })
+        : null,
+
+      this.closable
+        ? h('div', { staticClass: 'q-chip-side chip-right row flex-center' }, [
+          h(QIcon, {
+            props: { name: this.$q.icon.chip.close },
+            staticClass: 'cursor-pointer',
+            on: {
+              click: function (e) {
+                e && e.stopPropagation();
+                this$1.$emit('hide');
+              }
+            }
+          })
+        ])
+        : null
+    ])
   }
-};
+}
 
 var marginal = {
   type: Array,
@@ -5155,11 +5605,14 @@ var FrameMixin = {
       type: String,
       default: 'primary'
     },
-    dark: Boolean,
-    light: Boolean,
+    dark: {
+      type: Boolean,
+      default: null
+    },
     before: marginal,
     after: marginal,
     inverted: Boolean,
+    hideUnderline: Boolean,
     align: {
       type: String,
       default: 'left',
@@ -5174,11 +5627,11 @@ var FrameMixin = {
       return ("justify-" + (align[this.align]))
     }
   }
-};
+}
 
 var InputMixin = {
   props: {
-    autofocus: Boolean,
+    autofocus: [Boolean, String],
     name: String,
     maxLength: [Number, String],
     maxHeight: Number,
@@ -5188,7 +5641,8 @@ var InputMixin = {
   data: function data () {
     return {
       focused: false,
-      timer: null
+      timer: null,
+      isNumberError: false
     }
   },
   computed: {
@@ -5227,9 +5681,10 @@ var InputMixin = {
     __onBlur: function __onBlur (e) {
       this.focused = false;
       this.$emit('blur', e);
-      if (JSON.stringify(this.model) !== JSON.stringify(this.value)) {
-        this.$emit('input', this.model);
-        this.$emit('change', this.model);
+      var model = this.isNumber && this.isNumberError ? null : this.model;
+      if (JSON.stringify(model) !== JSON.stringify(this.value)) {
+        this.$emit('input', model);
+        this.$emit('change', model);
       }
     },
     __onKeydown: function __onKeydown (e) {
@@ -5250,15 +5705,18 @@ var InputMixin = {
       var input = this$1.$refs.input;
       if (this$1.autofocus && input) {
         input.focus();
+        if (this$1.autofocus === 'select') {
+          input.select();
+        }
       }
     });
   },
   beforeDestroy: function beforeDestroy () {
     clearTimeout(this.timer);
   }
-};
+}
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.label)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:item.icon,staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
   props: {
@@ -5277,12 +5735,18 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     __field: { default: null }
   },
   computed: {
+    hasStackLabel: function hasStackLabel () {
+      return typeof this.stackLabel === 'string' && this.stackLabel.length > 0
+    },
+    hasLabel: function hasLabel () {
+      return this.hasStackLabel || (typeof this.floatLabel === 'string' && this.floatLabel.length > 0)
+    },
     label: function label () {
-      return this.stackLabel || this.floatLabel
+      return this.hasStackLabel ? this.stackLabel : this.floatLabel
     },
     addonClass: function addonClass () {
       return {
-        'q-if-addon-visible': this.labelIsAbove,
+        'q-if-addon-visible': !this.hasLabel || this.labelIsAbove,
         'self-start': this.topAddons
       }
     },
@@ -5295,13 +5759,14 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         'q-if-disabled': this.disable,
         'q-if-focusable': this.focusable && !this.disable,
         'q-if-inverted': this.inverted,
-        'q-if-dark': this.dark || (this.inverted && !this.light)
+        'q-if-dark': this.dark || (this.inverted && this.dark !== false),
+        'q-if-hide-underline': this.hideUnderline
       }];
 
       var color = this.hasError ? 'negative' : this.hasWarning ? 'warning' : this.color;
       if (this.inverted) {
         cls.push(("bg-" + color));
-        if (!this.light) {
+        if (this.dark !== false) {
           cls.push("text-white");
         }
       }
@@ -5357,9 +5822,9 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       this.field.__unregisterInput();
     }
   }
-};
+}
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable,"color":_vm.color},on:{"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(!_vm.disable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -5440,7 +5905,7 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       this.focus();
     }
   }
-};
+}
 
 function getHeight (el, style$$1) {
   var initial = {
@@ -5523,7 +5988,7 @@ var slideAnimation = {
   leave: function leave (el, done) {
     toggleSlide(el, false, done);
   }
-};
+}
 
 var QSlideTransition = {
   name: 'q-slide-transition',
@@ -5542,7 +6007,7 @@ var QSlideTransition = {
     };
     return h('transition', data, ctx.children)
   }
-};
+}
 
 var eventName = 'q:collapsible:close';
 
@@ -5564,6 +6029,7 @@ var QCollapsible = {
     separator: Boolean,
     insetSeparator: Boolean,
     noRipple: Boolean,
+    collapseIcon: String,
 
     dense: Boolean,
     sparse: Boolean,
@@ -5610,7 +6076,7 @@ var QCollapsible = {
       }
     },
     hasRipple: function hasRipple () {
-      return "ios" === 'mat' && !this.noRipple
+      return "ios" === 'mat' && !this.noRipple && !this.disable
     },
     classes: function classes () {
       return {
@@ -5658,10 +6124,10 @@ var QCollapsible = {
           on: {
             click: this.__toggleIcon
           },
-          props: { icon: 'keyboard_arrow_down' },
+          props: { icon: this.collapseIcon || this.$q.icon.collapsible.icon },
           directives: this.iconToggle && this.hasRipple
-            ? [{ name: 'ripple', value: !this.disable }]
-            : []
+            ? [{ name: 'ripple' }]
+            : null
         })
       ]
     },
@@ -5676,8 +6142,8 @@ var QCollapsible = {
           click: this.__toggleItem
         },
         directives: this.hasRipple && !this.iconToggle
-          ? [{ name: 'ripple', value: !this.disable }]
-          : []
+          ? [{ name: 'ripple' }]
+          : null
       }
     }
   },
@@ -5720,7 +6186,1140 @@ var QCollapsible = {
       ])
     ])
   }
+}
+
+function getPercentage (event, dragging) {
+  return between((position(event).left - dragging.left) / dragging.width, 0, 1)
+}
+
+function notDivides (res, decimals) {
+  var number = decimals
+    ? parseFloat(res.toFixed(decimals))
+    : res;
+
+  return number !== parseInt(number, 10)
+}
+
+function getModel (percentage, min, max, step, decimals) {
+  var
+    model = min + percentage * (max - min),
+    modulo = (model - min) % step;
+
+  model += (Math.abs(modulo) >= step / 2 ? (modulo < 0 ? -1 : 1) * step : 0) - modulo;
+
+  if (decimals) {
+    model = parseFloat(model.toFixed(decimals));
+  }
+
+  return between(model, min, max)
+}
+
+var mixin$1 = {
+  directives: {
+    TouchPan: TouchPan
+  },
+  props: {
+    min: {
+      type: Number,
+      default: 1
+    },
+    max: {
+      type: Number,
+      default: 5
+    },
+    step: {
+      type: Number,
+      default: 1
+    },
+    decimals: {
+      type: Number,
+      default: 0
+    },
+    snap: Boolean,
+    markers: Boolean,
+    label: Boolean,
+    labelAlways: Boolean,
+    square: Boolean,
+    color: String,
+    fillHandleAlways: Boolean,
+    error: Boolean,
+    readonly: Boolean,
+    disable: Boolean
+  },
+  data: function data () {
+    return {
+      clickDisabled: false
+    }
+  },
+  computed: {
+    editable: function editable () {
+      return !this.disable && !this.readonly
+    },
+    classes: function classes () {
+      var cls = {
+        disabled: this.disable,
+        readonly: this.readonly,
+        'label-always': this.labelAlways,
+        'has-error': this.error
+      };
+
+      if (!this.error && this.color) {
+        cls[("text-" + (this.color))] = true;
+      }
+
+      return cls
+    },
+    markersLen: function markersLen () {
+      return (this.max - this.min) / this.step + 1
+    },
+    labelColor: function labelColor () {
+      return this.error
+        ? 'negative'
+        : this.color || 'primary'
+    }
+  },
+  methods: {
+    __pan: function __pan (event) {
+      var this$1 = this;
+
+      if (event.isFinal) {
+        this.clickDisabled = true;
+        this.$nextTick(function () {
+          this$1.clickDisabled = false;
+        });
+        this.__end(event.evt);
+      }
+      else if (event.isFirst) {
+        this.__setActive(event.evt);
+      }
+      else if (this.dragging) {
+        this.__update(event.evt);
+      }
+    },
+    __click: function __click (event) {
+      if (this.clickDisabled) {
+        return
+      }
+      this.__setActive(event);
+      this.__end(event);
+    },
+    __getMarkers: function __getMarkers (h) {
+      var this$1 = this;
+
+      if (!this.markers) {
+        return
+      }
+
+      var markers = [];
+
+      for (var i = 0; i < this.markersLen; i++) {
+        markers.push(h('div', {
+          staticClass: 'q-slider-mark',
+          key: ("marker" + i),
+          style: {
+            left: ((i * 100 * this$1.step / (this$1.max - this$1.min)) + "%")
+          }
+        }));
+      }
+
+      return markers
+    }
+  },
+  created: function created () {
+    this.__validateProps();
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-slider non-selectable',
+      'class': this.classes,
+      on: this.editable ? { click: this.__click } : null,
+      directives: this.editable
+        ? [{
+          name: 'touch-pan',
+          modifiers: { horizontal: true },
+          value: this.__pan
+        }]
+        : null
+    }, [
+      h('div', {
+        ref: 'handle',
+        staticClass: 'q-slider-handle-container'
+      }, [
+        h('div', { staticClass: 'q-slider-track' }),
+        this.__getMarkers(h)
+      ].concat(this.__getContent(h)))
+    ])
+  }
 };
+
+var QSlider = {
+  name: 'q-slider',
+  mixins: [mixin$1],
+  props: {
+    value: {
+      type: Number,
+      required: true
+    },
+    labelValue: String
+  },
+  data: function data () {
+    return {
+      model: this.value,
+      dragging: false,
+      currentPercentage: (this.value - this.min) / (this.max - this.min)
+    }
+  },
+  computed: {
+    percentage: function percentage () {
+      if (this.snap) {
+        return (this.model - this.min) / (this.max - this.min) * 100 + '%'
+      }
+      return 100 * this.currentPercentage + '%'
+    },
+    displayValue: function displayValue () {
+      return this.labelValue !== void 0
+        ? this.labelValue
+        : this.model
+    }
+  },
+  watch: {
+    value: function value (value$1) {
+      if (this.dragging) {
+        return
+      }
+      if (value$1 < this.min) {
+        this.model = this.min;
+      }
+      else if (value$1 > this.max) {
+        this.model = this.max;
+      }
+      else {
+        this.model = value$1;
+      }
+      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
+    },
+    min: function min (value) {
+      if (this.model < value) {
+        this.model = value;
+        return
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    max: function max (value) {
+      if (this.model > value) {
+        this.model = value;
+        return
+      }
+      this.$nextTick(this.__validateProps);
+    },
+    step: function step () {
+      this.$nextTick(this.__validateProps);
+    }
+  },
+  methods: {
+    __setActive: function __setActive (event) {
+      var container = this.$refs.handle;
+
+      this.dragging = {
+        left: container.getBoundingClientRect().left,
+        width: container.offsetWidth
+      };
+      this.__update(event);
+    },
+    __update: function __update (event) {
+      var
+        percentage = getPercentage(event, this.dragging),
+        model = getModel(percentage, this.min, this.max, this.step, this.decimals);
+
+      this.currentPercentage = percentage;
+      if (model !== this.model) {
+        this.$emit('input', model);
+        this.model = model;
+      }
+    },
+    __end: function __end () {
+      this.dragging = false;
+      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
+      if (this.value !== this.model) {
+        this.$emit('change', this.model);
+      }
+    },
+    __validateProps: function __validateProps () {
+      if (this.min >= this.max) {
+        console.error('Range error: min >= max', this.$el, this.min, this.max);
+      }
+      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
+        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step, this.decimals);
+      }
+    },
+    __getContent: function __getContent (h) {
+      return [
+        h('div', {
+          staticClass: 'q-slider-track active-track',
+          style: { width: this.percentage },
+          'class': {
+            'no-transition': this.dragging,
+            'handle-at-minimum': this.model === this.min
+          }
+        }),
+        h('div', {
+          staticClass: 'q-slider-handle',
+          style: {
+            left: this.percentage,
+            borderRadius: this.square ? '0' : '50%'
+          },
+          'class': {
+            dragging: this.dragging,
+            'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
+          }
+        }, [
+          this.label || this.labelAlways
+            ? h(QChip, {
+              staticClass: 'q-slider-label no-pointer-events',
+              'class': { 'label-always': this.labelAlways },
+              props: {
+                pointing: 'down',
+                square: true,
+                color: this.labelColor
+              }
+            }, [ this.displayValue ])
+            : null,
+          null
+        ])
+      ]
+    }
+  }
+}
+
+function throttle (fn, limit) {
+  if ( limit === void 0 ) limit = 250;
+
+  var wait = false;
+
+  return function () {
+    var args = [], len = arguments.length;
+    while ( len-- ) args[ len ] = arguments[ len ];
+
+    if (wait) {
+      return
+    }
+
+    wait = true;
+    fn.apply(this, args);
+    setTimeout(function () {
+      wait = false;
+    }, limit);
+  }
+}
+
+function clone (data) {
+  var s = JSON.stringify(data);
+  return s === void 0 ? s : JSON.parse(JSON.stringify(data))
+}
+
+function rgbToHex (ref) {
+  var r = ref.r;
+  var g = ref.g;
+  var b = ref.b;
+  var a = ref.a;
+
+  var alpha = a !== void 0;
+
+  r = Math.round(r);
+  g = Math.round(g);
+  b = Math.round(b);
+
+  if (
+    r > 255 ||
+    g > 255 ||
+    b > 255 ||
+    (alpha && a > 100)
+  ) {
+    throw new TypeError('Expected 3 numbers below 256 (and optionally one below 100)')
+  }
+
+  a = alpha
+    ? (Math.round(255 * a / 100) | 1 << 8).toString(16).slice(1)
+    : '';
+
+  return '#' + ((b | g << 8 | r << 16) | 1 << 24).toString(16).slice(1) + a
+}
+
+function hexToRgb (hex) {
+  if (typeof hex !== 'string') {
+    throw new TypeError('Expected a string')
+  }
+
+  hex = hex.replace(/^#/, '');
+
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  else if (hex.length === 4) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+  }
+
+  var num = parseInt(hex, 16);
+
+  return hex.length > 6
+    ? {r: num >> 24 & 255, g: num >> 16 & 255, b: num >> 8 & 255, a: Math.round((num & 255) / 2.55)}
+    : {r: num >> 16, g: num >> 8 & 255, b: num & 255}
+}
+
+function hsvToRgb (ref) {
+  var h = ref.h;
+  var s = ref.s;
+  var v = ref.v;
+  var a = ref.a;
+
+  var r, g, b, i, f, p, q, t;
+  s = s / 100;
+  v = v / 100;
+
+  h = h / 360;
+  i = Math.floor(h * 6);
+  f = h * 6 - i;
+  p = v * (1 - s);
+  q = v * (1 - f * s);
+  t = v * (1 - (1 - f) * s);
+
+  switch (i % 6) {
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break
+    case 5:
+      r = v;
+      g = p;
+      b = q;
+      break
+  }
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255),
+    a: a
+  }
+}
+
+function rgbToHsv (ref) {
+  var r = ref.r;
+  var g = ref.g;
+  var b = ref.b;
+  var a = ref.a;
+
+  var
+    max = Math.max(r, g, b), min = Math.min(r, g, b),
+    d = max - min,
+    h,
+    s = (max === 0 ? 0 : d / max),
+    v = max / 255;
+
+  switch (max) {
+    case min:
+      h = 0;
+      break
+    case r:
+      h = (g - b) + d * (g < b ? 6 : 0);
+      h /= 6 * d;
+      break
+    case g:
+      h = (b - r) + d * 2;
+      h /= 6 * d;
+      break
+    case b:
+      h = (r - g) + d * 4;
+      h /= 6 * d;
+      break
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    v: Math.round(v * 100),
+    a: a
+  }
+}
+
+
+var colors = Object.freeze({
+	rgbToHex: rgbToHex,
+	hexToRgb: hexToRgb,
+	hsvToRgb: hsvToRgb,
+	rgbToHsv: rgbToHsv
+});
+
+var QColorPicker = {
+  name: 'q-color-picker',
+  directives: {
+    TouchPan: TouchPan
+  },
+  props: {
+    value: {
+      type: [String, Object],
+      required: true
+    },
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    disable: Boolean,
+    readonly: Boolean
+  },
+  data: function data () {
+    return {
+      view: !this.value || typeof this.value === 'string' ? 'hex' : 'rgb',
+      model: this.__parseModel(this.value)
+    }
+  },
+  watch: {
+    value: {
+      handler: function handler (v) {
+        if (this.avoidModelWatch) {
+          this.avoidModelWatch = false;
+          return
+        }
+        var model = this.__parseModel(v);
+        if (model.hex !== this.model.hex) {
+          this.model = model;
+        }
+      },
+      deep: true
+    }
+  },
+  computed: {
+    isHex: function isHex () {
+      return typeof this.value === 'string'
+    },
+    isRgb: function isRgb () {
+      return !this.isHex
+    },
+    editable: function editable () {
+      return !this.disable && !this.readonly
+    },
+    hasAlpha: function hasAlpha () {
+      return this.isHex
+        ? this.value.length > 7
+        : this.value.a !== void 0
+    },
+    swatchStyle: function swatchStyle () {
+      return {
+        backgroundColor: ("rgba(" + (this.model.r) + "," + (this.model.g) + "," + (this.model.b) + "," + (this.model.a / 100) + ")")
+      }
+    },
+    saturationStyle: function saturationStyle () {
+      return {
+        background: ("hsl(" + (this.model.h) + ",100%,50%)")
+      }
+    },
+    saturationPointerStyle: function saturationPointerStyle () {
+      return {
+        top: ((101 - this.model.v) + "%"),
+        left: ((this.model.s) + "%")
+      }
+    },
+    inputsArray: function inputsArray () {
+      var inp = ['r', 'g', 'b'];
+      if (this.hasAlpha) {
+        inp.push('a');
+      }
+      return inp
+    },
+    rgbColor: function rgbColor () {
+      return ("rgb(" + (this.model.r) + "," + (this.model.g) + "," + (this.model.b) + ")")
+    }
+  },
+  created: function created () {
+    this.__saturationChange = throttle(this.__saturationChange, 20);
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-color',
+      'class': { disabled: this.disable }
+    }, [
+      this.__getSaturation(h),
+      this.__getSliders(h),
+      this.__getInputs(h)
+    ])
+  },
+  methods: {
+    __getSaturation: function __getSaturation (h) {
+      return h('div', {
+        ref: 'saturation',
+        staticClass: 'q-color-saturation non-selectable relative-position overflow-hidden cursor-pointer',
+        style: this.saturationStyle,
+        'class': { readonly: !this.editable },
+        on: this.editable
+          ? { click: this.__saturationClick }
+          : null,
+        directives: this.editable
+          ? [{
+            name: 'touch-pan',
+            value: this.__saturationPan
+          }]
+          : null
+      }, [
+        h('div', { staticClass: 'q-color-saturation-white absolute-full' }),
+        h('div', { staticClass: 'q-color-saturation-black absolute-full' }),
+        h('div', {
+          staticClass: 'absolute',
+          style: this.saturationPointerStyle
+        }, [
+          h('div', { staticClass: 'q-color-saturation-circle' })
+        ])
+      ])
+    },
+    __getSliders: function __getSliders (h) {
+      var this$1 = this;
+
+      return h('div', {
+        staticClass: 'q-color-sliders row items-center'
+      }, [
+        h('div', {
+          staticClass: 'q-color-swatch q-mt-sm q-ml-sm q-mb-sm non-selectable overflow-hidden',
+          style: this.swatchStyle
+        }),
+        h('div', { staticClass: 'col q-pa-sm' }, [
+          h('div', { staticClass: 'q-color-hue non-selectable' }, [
+            h(QSlider, {
+              props: {
+                value: this.model.h,
+                color: 'white',
+                min: 0,
+                max: 360,
+                fillHandleAlways: true,
+                readonly: !this.editable
+              },
+              on: {
+                input: this.__onHueChange
+              }
+            })
+          ]),
+          this.hasAlpha
+            ? h('div', { staticClass: 'q-color-alpha non-selectable' }, [
+              h(QSlider, {
+                props: {
+                  value: this.model.a,
+                  color: 'white',
+                  min: 0,
+                  max: 100,
+                  fillHandleAlways: true,
+                  readonly: !this.editable
+                },
+                on: {
+                  input: function (value) {
+                    this$1.__onPropChange({ target: { value: value } }, 'a', 100);
+                  }
+                }
+              })
+            ])
+            : null
+        ])
+      ])
+    },
+    __getNumericInputs: function __getNumericInputs (h) {
+      var this$1 = this;
+
+      return this.inputsArray.map(function (type) {
+        var max = type === 'a' ? 100 : 255;
+        return h('div', { staticClass: 'col q-color-padding' }, [
+          h('input', {
+            attrs: {
+              type: 'number',
+              min: 0,
+              max: max,
+              readonly: !this$1.editable
+            },
+            staticClass: 'full-width text-center q-color-number',
+            domProps: {
+              value: Math.round(this$1.model[type])
+            },
+            on: {
+              input: function (evt) {
+                this$1.__onPropChange(evt, type, max);
+              }
+            }
+          }),
+          h('div', { staticClass: 'q-color-label text-center uppercase' }, [
+            type
+          ])
+        ])
+      })
+    },
+    __getInputs: function __getInputs (h) {
+      var inputs = this.view === 'hex'
+        ? [
+          h('div', { staticClass: 'col' }, [
+            h('input', {
+              domProps: { value: this.model.hex },
+              attrs: { readonly: !this.editable },
+              on: { input: this.__onHexChange },
+              staticClass: 'full-width text-center uppercase'
+            }),
+            h('div', { staticClass: 'q-color-label text-center' }, [
+              ("HEX" + (this.hasAlpha ? ' / A' : ''))
+            ])
+          ])
+        ]
+        : this.__getNumericInputs(h);
+
+      return h('div', {
+        staticClass: 'q-color-inputs row items-center q-px-sm q-pb-sm'
+      }, [
+        h('div', { staticClass: 'col q-mr-sm row no-wrap' }, inputs),
+        h('div', [
+          h(QBtn, {
+            props: {
+              flat: true,
+              color: 'grey-7'
+            },
+            on: {
+              click: this.__nextInputView
+            },
+            staticClass: 'q-pa-none'
+          }, [
+            h('svg', {
+              attrs: {
+                viewBox: '0 0 24 24'
+              },
+              style: {width: '24px', height: '24px'}
+            }, [
+              h('path', {
+                attrs: {
+                  fill: 'currentColor',
+                  d: 'M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z'
+                }
+              })
+            ])
+          ])
+        ])
+      ])
+    },
+
+    __onSaturationChange: function __onSaturationChange (left, top) {
+      var
+        panel = this.$refs.saturation,
+        width = panel.clientWidth,
+        height = panel.clientHeight,
+        rect = panel.getBoundingClientRect(),
+        x = Math.min(width, Math.max(0, left - rect.left)),
+        y = Math.min(height, Math.max(0, top - rect.top)),
+        s = Math.round(100 * x / width),
+        v = Math.round(100 * Math.max(0, Math.min(1, -(y / height) + 1))),
+        rgb = hsvToRgb({
+          h: this.model.h,
+          s: s,
+          v: v,
+          a: this.hasAlpha ? this.model.a : void 0
+        });
+
+      this.model.s = s;
+      this.model.v = v;
+      this.__update(rgb, rgbToHex(rgb));
+    },
+    __onHueChange: function __onHueChange (h) {
+      h = Math.round(h);
+      var val = hsvToRgb({
+        h: h,
+        s: this.model.s,
+        v: this.model.v,
+        a: this.hasAlpha ? this.model.a : void 0
+      });
+
+      this.model.h = h;
+      this.__update(val, rgbToHex(val));
+    },
+    __onPropChange: function __onPropChange (evt, type, max) {
+      var val = Number(evt.target.value);
+      if (isNaN(val)) {
+        return
+      }
+
+      val = Math.floor(val);
+      var rgb = {
+        r: type === 'r' ? val : this.model.r,
+        g: type === 'g' ? val : this.model.g,
+        b: type === 'b' ? val : this.model.b,
+        a: this.hasAlpha
+          ? (type === 'a' ? val : this.model.a)
+          : void 0
+      };
+      if (type !== 'a') {
+        var hsv = rgbToHsv(rgb);
+        this.model.h = hsv.h;
+        this.model.s = hsv.s;
+        this.model.v = hsv.v;
+      }
+      this.__update(rgb, rgbToHex(rgb));
+    },
+    __onHexChange: function __onHexChange (evt) {
+      var
+        hex = evt.target.value,
+        rgb = hexToRgb(hex),
+        hsv = rgbToHsv(rgb);
+
+      this.model.h = hsv.h;
+      this.model.s = hsv.s;
+      this.model.v = hsv.v;
+      this.__update(rgb, hex);
+    },
+    __update: function __update (rgb, hex, change) {
+      // update internally
+      this.model.hex = hex;
+      this.model.r = rgb.r;
+      this.model.g = rgb.g;
+      this.model.b = rgb.b;
+      if (this.hasAlpha) {
+        this.model.a = rgb.a;
+      }
+
+      // avoid recomputing
+      this.avoidModelWatch = true;
+
+      // emit new value
+      this.$emit(
+        change ? 'change' : 'input',
+        this.isHex ? hex : rgb
+      );
+    },
+    __nextInputView: function __nextInputView () {
+      this.view = this.view === 'hex' ? 'rgba' : 'hex';
+    },
+    __parseModel: function __parseModel (v) {
+      var model;
+      if (typeof v === 'string') {
+        model = hexToRgb(v);
+        model.hex = v;
+      }
+      else {
+        model = clone(v);
+        model.hex = rgbToHex(v);
+      }
+      return extend({ a: 100 }, model, rgbToHsv(model))
+    },
+
+    __saturationPan: function __saturationPan (evt) {
+      if (evt.isFinal) {
+        this.__dragStop(evt);
+      }
+      else if (evt.isFirst) {
+        this.__dragStart(evt);
+      }
+      else {
+        this.__dragMove(evt);
+      }
+    },
+    __dragStart: function __dragStart (event) {
+      stopAndPrevent(event.evt);
+
+      this.saturationDragging = true;
+      this.__saturationChange(event);
+    },
+    __dragMove: function __dragMove (event) {
+      if (!this.saturationDragging) {
+        return
+      }
+      stopAndPrevent(event.evt);
+
+      this.__saturationChange(event);
+    },
+    __dragStop: function __dragStop (event) {
+      stopAndPrevent(event.evt);
+      this.saturationDragging = false;
+    },
+    __saturationChange: function __saturationChange (evt) {
+      this.__onSaturationChange(
+        evt.position.left,
+        evt.position.top
+      );
+    },
+    __saturationClick: function __saturationClick (evt) {
+      this.__onSaturationChange(
+        evt.pageX - window.pageXOffset,
+        evt.pageY - window.pageYOffset
+      );
+    }
+  }
+}
+
+var contentCss = {
+    maxHeight: '80vh',
+    height: 'auto',
+    boxShadow: 'none',
+    backgroundColor: '#e4e4e4'
+  };
+
+var QColor = {
+  name: 'q-color',
+  mixins: [FrameMixin],
+  props: {
+    value: {
+      required: true
+    },
+    color: {
+      type: String,
+      default: 'primary'
+    },
+    defaultSelection: {
+      type: [String, Object],
+      default: '#000000'
+    },
+    displayValue: String,
+    placeholder: String,
+    noClear: Boolean,
+    clearLabel: String,
+    okLabel: String,
+    cancelLabel: String
+  },
+  data: function data () {
+    var data = this.isPopover() ? {} : {
+      transition: 'q-modal-bottom'
+    };
+    data.focused = false;
+    data.model = this.defaultSelection;
+    return data
+  },
+  watch: {
+    value: function value () {
+      this.$nextTick(this.__setModel);
+    }
+  },
+  computed: {
+    usingPopover: function usingPopover () {
+      return this.isPopover()
+    },
+    actualValue: function actualValue () {
+      if (this.displayValue) {
+        return this.displayValue
+      }
+      if (!this.value) {
+        return this.placeholder || ''
+      }
+
+      if (this.value) {
+        return typeof this.value === 'string'
+          ? this.value
+          : ("rgb" + (this.value.a !== void 0 ? 'a' : '') + "(" + (this.value.r) + "," + (this.value.g) + "," + (this.value.b) + (this.value.a !== void 0 ? ("," + (this.value.a / 100)) : '') + ")")
+      }
+    }
+  },
+  methods: {
+    isPopover: function isPopover () {
+      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    },
+    toggle: function toggle () {
+      this[this.$refs.popup.showing ? 'hide' : 'show']();
+    },
+    show: function show () {
+      if (!this.disable) {
+        this.__setModel();
+        return this.$refs.popup.show()
+      }
+    },
+    hide: function hide () {
+      this.focused = false;
+      return this.$refs.popup.hide()
+    },
+    clear: function clear () {
+      if (this.value) {
+        this.$emit('input', null);
+        this.$emit('change', null);
+      }
+      this.$refs.popup.hide();
+    },
+
+    __onFocus: function __onFocus () {
+      this.focused = true;
+      this.$emit('focus');
+    },
+    __onBlur: function __onBlur (e) {
+      var this$1 = this;
+
+      this.__onHide();
+      setTimeout(function () {
+        var el = document.activeElement;
+        if (el !== document.body && !this$1.$refs.popup.$el.contains(el)) {
+          this$1.hide();
+        }
+      }, 1);
+    },
+    __onHide: function __onHide () {
+      this.focused = false;
+      this.$emit('blur');
+    },
+    __setModel: function __setModel () {
+      this.model = this.value
+        ? clone(this.value)
+        : this.defaultSelection;
+    },
+    __update: function __update () {
+      this.$emit('input', this.model);
+      this.$emit('change', this.model);
+    },
+
+    __getPicker: function __getPicker (h, modal) {
+      var this$1 = this;
+
+      var child = [
+        h(QColorPicker, {
+          staticClass: ("no-border" + (modal ? ' full-width' : '')),
+          props: extend({
+            color: this.color,
+            value: this.model
+          }, this.$attrs),
+          on: {
+            input: function (v) {
+              this$1.model = v;
+              if (this$1.usingPopover) {
+                this$1.__update();
+              }
+            }
+          }
+        })
+      ];
+
+      if (modal) {
+        child['unshift'](h('div', {
+          staticClass: 'modal-buttons modal-buttons-top row full-width'
+        }, [
+          !this.noClear && this.model
+            ? h(QBtn, {
+              props: {
+                color: this.color,
+                flat: true,
+                label: this.clearLabel || this.$q.i18n.label.clear,
+                waitForRipple: true,
+                compact: true
+              },
+              on: { click: this.clear }
+            })
+            : null,
+          h('div', { staticClass: 'col' }),
+          h(QBtn, {
+            props: {
+              color: this.color,
+              flat: true,
+              label: this.cancelLabel || this.$q.i18n.label.cancel,
+              waitForRipple: true,
+              compact: true
+            },
+            on: { click: this.hide }
+          }),
+          h(QBtn, {
+            props: {
+              color: this.color,
+              flat: true,
+              label: this.okLabel || this.$q.i18n.label.set,
+              waitForRipple: true,
+              compact: true
+            },
+            on: {
+              click: function () {
+                this$1.hide();
+                this$1.__update();
+              }
+            }
+          })
+        ]));
+      }
+
+      return child
+    }
+  },
+  render: function render (h) {
+    return h(QInputFrame, {
+      props: {
+        prefix: this.prefix,
+        suffix: this.suffix,
+        stackLabel: this.stackLabel,
+        floatLabel: this.floatLabel,
+        error: this.error,
+        warning: this.warning,
+        disable: this.disable,
+        inverted: this.inverted,
+        dark: this.dark,
+        hideUnderline: this.hideUnderline,
+        before: this.before,
+        after: this.after,
+        color: this.color,
+
+        focused: this.focused,
+        focusable: true,
+        length: this.actualValue.length
+      },
+      nativeOn: {
+        click: this.toggle,
+        focus: this.__onFocus,
+        blur: this.__onBlur
+      }
+    }, [
+      h('div', {
+        staticClass: 'col row items-center q-input-target',
+        'class': this.alignClass,
+        domProps: {
+          innerHTML: this.actualValue
+        }
+      }),
+
+      this.usingPopover
+        ? h(QPopover, {
+          ref: 'popup',
+          props: {
+            offset: [0, 10],
+            disable: this.disable,
+            anchorClick: false,
+            maxHeight: '100vh'
+          },
+          on: {
+            show: this.__onFocus,
+            hide: this.__onHide
+          }
+        }, this.__getPicker(h))
+        : h(QModal, {
+          ref: 'popup',
+          staticClass: 'with-backdrop',
+          props: {
+            contentCss: contentCss,
+            minimized: "ios" === 'mat',
+            position: 'bottom',
+            transition: this.transition
+          },
+          on: {
+            show: this.__onFocus,
+            hide: this.__onHide
+          }
+        }, this.__getPicker(h, true)),
+
+      h('q-icon', {
+        slot: 'after',
+        props: { name: this.$q.icon.input.dropdown },
+        staticClass: 'q-if-control'
+      })
+    ])
+  }
+}
 
 var ContextMenuDesktop = {
   name: 'q-context-menu',
@@ -5755,8 +7354,7 @@ var ContextMenuDesktop = {
         return
       }
       this.hide();
-      evt.preventDefault();
-      evt.stopPropagation();
+      stopAndPrevent(evt);
       /*
         Opening with a timeout for
         Firefox workaround
@@ -5769,11 +7367,13 @@ var ContextMenuDesktop = {
   mounted: function mounted () {
     this.target = this.$refs.popover.$el.parentNode;
     this.target.addEventListener('contextmenu', this.__show);
+    this.target.addEventListener('click', this.hide);
   },
   beforeDestroy: function beforeDestroy () {
     this.target.removeEventListener('contexmenu', this.__show);
+    this.target.removeEventListener('click', this.hide);
   }
-};
+}
 
 var ContextMenuMobile = {
   name: 'q-context-menu',
@@ -5795,8 +7395,7 @@ var ContextMenuMobile = {
 
       this.target.classList.add('non-selectable');
       this.touchTimer = setTimeout(function () {
-        evt.preventDefault();
-        evt.stopPropagation();
+        stopAndPrevent(evt);
         setTimeout(function () {
           this$1.__cleanup();
           this$1.__show();
@@ -5841,7 +7440,7 @@ var ContextMenuMobile = {
       this$1.target.removeEventListener(evt, this$1.__cleanup);
     });
   }
-};
+}
 
 var QContextMenu = {
   name: 'q-context-menu',
@@ -5853,7 +7452,7 @@ var QContextMenu = {
       ctx.children
     )
   }
-};
+}
 
 var modelValidator = function (v) {
   var type = typeof v;
@@ -5880,7 +7479,6 @@ var inline = {
     type: String,
     default: 'primary'
   },
-  light: Boolean,
   min: {
     validator: modelValidator,
     default: null
@@ -5894,6 +7492,10 @@ var inline = {
     type: [Boolean, Number],
     default: 0,
     validator: function (v) { return [true, false, 0].includes(v); }
+  },
+  defaultView: {
+    type: String,
+    validator: function (v) { return ['year', 'month', 'day', 'hour', 'minute'].includes(v); }
   }
 };
 
@@ -6576,10 +8178,10 @@ var DateMixin = {
       }
     }
   }
-};
+}
 
-var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_vm._v(" "),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center",on:{"touchstart":function($event){$event.stopPropagation();$event.preventDefault();}}},[(_vm.typeHasDate)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMonth),expression:"__dragMonth",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-month"},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragDate),expression:"__dragDate",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-day"},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(index + _vm.dayMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragYear),expression:"__dragYear",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-year"},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])}))])]:_vm._e(),_vm._v(" "),(_vm.typeHasTime)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragHour),expression:"__dragHour",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-hour"},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.hourMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMinute),expression:"__dragMinute",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-minute"},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.__pad(n + _vm.minuteMin - 1))+" ")])}))])]:_vm._e()],2),_vm._v(" "),_c('div',{staticClass:"q-datetime-mask"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-highlight"})])],2)},staticRenderFns: [],
-  name: 'q-inline-datetime',
+var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_vm._v(" "),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center",on:{"touchstart":function($event){$event.stopPropagation();$event.preventDefault();}}},[(_vm.typeHasDate)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMonth),expression:"__dragMonth",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-month"},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{key:("mi" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragDate),expression:"__dragDate",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-day"},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{key:("di" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(index + _vm.dayMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragYear),expression:"__dragYear",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-year"},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{key:("yi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])}))])]:_vm._e(),_vm._v(" "),(_vm.typeHasTime)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragHour),expression:"__dragHour",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-hour"},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.hourMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMinute),expression:"__dragMinute",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-minute"},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{key:("ni" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.__pad(n + _vm.minuteMin - 1))+" ")])}))])]:_vm._e()],2),_vm._v(" "),_c('div',{staticClass:"q-datetime-mask"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-highlight"})])],2)},staticRenderFns: [],
+  name: 'q-datetime-picker',
   mixins: [DateMixin],
   directives: {
     TouchPan: TouchPan
@@ -6704,10 +8306,13 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
       }
     },
 
+    setView: function setView () {},
+
     /* helpers */
     __pad: function __pad (unit, filler) {
       return (unit < 10 ? filler || '0' : '') + unit
     },
+    __scrollView: function __scrollView () {},
     __updateAllPositions: function __updateAllPositions () {
       var this$1 = this;
 
@@ -6768,8 +8373,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
         return
       }
 
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
 
       this[type + 'DragOffset'] = 0;
       this.dragging = type;
@@ -6782,8 +8386,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
         return
       }
 
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
 
       var offset$$1 = (this.__dragPosition - position(ev).top) / 36;
       this[type + 'DragOffset'] = offset$$1;
@@ -6795,8 +8398,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
       if (this.dragging !== type || !this.editable) {
         return
       }
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
       this.dragging = false;
 
       var
@@ -6817,7 +8419,7 @@ var QInlineDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement
   mounted: function mounted () {
     this.$nextTick(this.__updateAllPositions);
   }
-};
+}
 
 var contentCSS = {
     maxHeight: '80vh',
@@ -6826,14 +8428,14 @@ var contentCSS = {
     backgroundColor: '#e4e4e4'
   };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.ok},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",class:_vm.classNames,attrs:{"transition":_vm.transition,"position-classes":_vm.position,"content-css":_vm.contentCSS},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-inline-datetime',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.color,"light":_vm.light},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.ok},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],1)},staticRenderFns: [],
+var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.toggle($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-datetime-picker',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.dark === false ? null : _vm.color,"default-view":_vm.defaultView},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.okLabel || _vm.$q.i18n.label.set},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",attrs:{"transition":_vm.transition,"minimized":_vm.minimized,"position":_vm.position,"content-css":_vm.contentCSS},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-datetime-picker',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.set},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],1)},staticRenderFns: [],
   name: 'q-datetime',
   mixins: [FrameMixin],
   components: {
     QInputFrame: QInputFrame,
     QPopover: QPopover,
     QModal: QModal,
-    QInlineDatetime: QInlineDatetime,
+    QDatetimePicker: QDatetimePicker,
     QBtn: QBtn
   },
   props: extend(
@@ -6847,9 +8449,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
   data: function data () {
     var data = this.usingPopover ? {} : {
       contentCSS: contentCSS,
-      position: 'items-end justify-center',
-      transition: 'q-modal-bottom',
-      classNames: ''
+      minimized: "ios" === 'mat',
+      position: 'bottom',
+      transition: 'q-modal-bottom'
     };
     data.model = this.value;
     data.focused = false;
@@ -6886,6 +8488,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     }
   },
   methods: {
+    toggle: function toggle () {
+      this[this.$refs.popup.showing ? 'hide' : 'show']();
+    },
     show: function show () {
       if (!this.disable) {
         this.__setModel();
@@ -6905,6 +8510,15 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
 
     __onFocus: function __onFocus () {
+      if (this.defaultView) {
+        var target = this.$refs.target;
+        if (target.view !== this.defaultView) {
+          target.setView(this.defaultView);
+        }
+        else {
+          target.__scrollView();
+        }
+      }
       this.focused = true;
       this.$emit('focus');
     },
@@ -6934,9 +8548,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       }
     }
   }
-};
+}
 
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range no-wrap",class:_vm.classes},[_c('q-datetime',{staticClass:"col q-datetime-range-left",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.$set(_vm.value, "from", $$v);},expression:"value.from"}}),_vm._v(" "),_c('q-datetime',{staticClass:"col q-datetime-range-right",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabelTo,"stack-label":_vm.stackLabelTo,"placeholder":_vm.placeholderTo,"disable":_vm.disable,"error":_vm.error,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.$set(_vm.value, "to", $$v);},expression:"value.to"}})],1)},staticRenderFns: [],
+var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range no-wrap",class:_vm.classes},[_c('q-datetime',{staticClass:"col q-datetime-range-left",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"default-view":_vm.defaultView,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"warning":_vm.warning,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.$set(_vm.value, "from", $$v);},expression:"value.from"}}),_vm._v(" "),_c('q-datetime',{staticClass:"col q-datetime-range-right",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"default-view":_vm.defaultView,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabelTo,"stack-label":_vm.stackLabelTo,"placeholder":_vm.placeholderTo,"disable":_vm.disable,"error":_vm.error,"warning":_vm.warning,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.$set(_vm.value, "to", $$v);},expression:"value.to"}})],1)},staticRenderFns: [],
   name: 'q-datetime-range',
   mixins: [FrameMixin],
   components: {
@@ -6976,67 +8590,81 @@ var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;
       });
     }
   }
-};
+}
 
 var inputTypes = [
   'text', 'textarea', 'email',
   'tel', 'file', 'number',
   'password', 'url', 'time', 'date'
-];
+]
 
-function getSize (el) {
-  return {
-    width: el.offsetWidth,
-    height: el.offsetHeight
-  }
-}
-
-var QResizeObservable = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"absolute-full overflow-hidden invisible",staticStyle:{"z-index":"-1"}},[_c('div',{ref:"expand",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{ref:"expandChild",staticClass:"absolute-top-left transition-0",staticStyle:{"width":"100000px","height":"100000px"}})]),_vm._v(" "),_c('div',{ref:"shrink",staticClass:"absolute-full overflow-hidden invisible",on:{"scroll":_vm.onResize}},[_c('div',{staticClass:"absolute-top-left transition-0",staticStyle:{"width":"200%","height":"200%"}})])])},staticRenderFns: [],
+var QResizeObservable = {
   name: 'q-resize-observable',
   methods: {
     onResize: function onResize () {
-      var size = getSize(this.$el.parentNode);
+      var size = {
+        width: this.$el.offsetWidth,
+        height: this.$el.offsetHeight
+      };
 
       if (size.width === this.size.width && size.height === this.size.height) {
         return
       }
 
       if (!this.timer) {
-        this.timer = window.requestAnimationFrame(this.emit);
+        this.timer = setTimeout(this.emit, 32);
       }
 
       this.size = size;
     },
     emit: function emit () {
       this.timer = null;
-      this.reset();
       this.$emit('resize', this.size);
-    },
-    reset: function reset () {
-      var ref = this.$refs;
-      if (ref.expand) {
-        ref.expand.scrollLeft = 100000;
-        ref.expand.scrollTop = 100000;
-      }
-      if (ref.shrink) {
-        ref.shrink.scrollLeft = 100000;
-        ref.shrink.scrollTop = 100000;
-      }
     }
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'absolute-full overflow-hidden invisible',
+      style: 'z-index: -1;'
+    })
   },
   mounted: function mounted () {
     var this$1 = this;
 
-    this.$nextTick(function () {
-      this$1.size = {};
-      this$1.onResize();
-    });
+    var
+      object = document.createElement('object'),
+      onIE = this.$q.platform.is.ie;
+
+    this.size = {
+      width: this.$el.offsetWidth,
+      height: this.$el.offsetHeight
+    };
+    this.emit();
+
+    this.object = object;
+    object.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
+    object.onload = function () {
+      object.contentDocument.defaultView.addEventListener('resize', this$1.onResize);
+    };
+    object.type = 'text/html';
+    if (onIE) {
+      this.$el.appendChild(object);
+    }
+    object.data = 'about:blank';
+    if (!onIE) {
+      this.$el.appendChild(object);
+    }
   },
   beforeDestroy: function beforeDestroy () {
-    window.cancelAnimationFrame(this.timer);
-    this.$emit('resize', {width: 0, height: 0});
+    clearTimeout(this.timer);
+    if (this.object && this.object.onload) {
+      if (!this.$q.platform.is.ie && this.object.contentDocument) {
+        this.object.contentDocument.defaultView.removeEventListener('resize', this.onResize);
+      }
+      delete this.object.onload;
+    }
   }
-};
+}
 
 var QScrollObservable = {
   name: 'q-scroll-observable',
@@ -7088,7 +8716,7 @@ var QScrollObservable = {
   beforeDestroy: function beforeDestroy () {
     this.target.removeEventListener('scroll', this.trigger);
   }
-};
+}
 
 var QWindowResizeObservable = {
   name: 'q-window-resize-observable',
@@ -7113,9 +8741,9 @@ var QWindowResizeObservable = {
   beforeDestroy: function beforeDestroy () {
     window.removeEventListener('resize', this.trigger);
   }
-};
+}
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',{ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.minRows},domProps:{"value":_vm.model}}),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"rows":_vm.minRows},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.attributes,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"pattern":_vm.pattern,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"min":_vm.min,"max":_vm.max,"step":_vm.inputStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.attributes,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showPass ? 'visibility' : 'visibility_off'},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isNumber && !_vm.noNumberToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.showNumber ? 'keyboard' : 'keyboard_hide'},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.toggleNumber},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.togglePass},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isNumber && !_vm.noNumberToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.toggleNumber},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},on:{"mousedown":_vm.__clearTimer,"touchstart":_vm.__clearTimer,"click":_vm.clear},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -7135,14 +8763,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     noPassToggle: Boolean,
     noNumberToggle: Boolean,
     readonly: Boolean,
-    attributes: Object,
 
-    min: Number,
-    max: Number,
-    step: {
-      type: Number,
-      default: 1
-    },
     maxDecimals: Number,
     upperCase: Boolean
   },
@@ -7177,6 +8798,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   watch: {
     value: function value (v) {
       this.model = v;
+      this.isNumberError = false;
     }
   },
   provide: function provide () {
@@ -7199,22 +8821,16 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     pattern: function pattern () {
       if (this.isNumber) {
-        return '[0-9]*'
-      }
-    },
-    inputStep: function inputStep () {
-      if (this.isNumber) {
-        return this.step
+        return this.$attrs.pattern || '[0-9]*'
       }
     },
     inputType: function inputType () {
-      return this.isPassword
-        ? (this.showPass ? 'text' : 'password')
-        : (
-          this.isNumber
-            ? (this.showNumber ? 'number' : 'text')
-            : this.type
-        )
+      if (this.isPassword) {
+        return this.showPass ? 'text' : 'password'
+      }
+      return this.isNumber
+        ? (this.showNumber ? 'number' : 'text')
+        : this.type
     },
     length: function length () {
       return this.model !== null && this.model !== undefined
@@ -7257,10 +8873,11 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       if (this.isNumber) {
         val = parseFloat(val);
         if (isNaN(val)) {
-          // Number.isInteger(this.maxDecimals)
-          val = null;
+          this.isNumberError = true;
+          return
         }
-        else if (Number.isInteger(this.maxDecimals)) {
+        this.isNumberError = false;
+        if (Number.isInteger(this.maxDecimals)) {
           val = parseFloat(val.toFixed(this.maxDecimals));
         }
       }
@@ -7294,9 +8911,9 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.watcher();
     }
   }
-};
+}
 
-var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline q-focusable row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel},attrs:{"tabindex":"0"},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.radio.unchecked[_vm.$q.theme]}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon || _vm.$q.icon.radio.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-radio',
   mixins: [OptionMixin],
   components: {
@@ -7309,14 +8926,8 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     val: {
       required: true
     },
-    checkedIcon: {
-      type: String,
-      default: 'check'
-    },
-    uncheckedIcon: {
-      type: String,
-      default: 'radio_button_unchecked'
-    }
+    checkedIcon: String,
+    uncheckedIcon: String
   },
   computed: {
     model: {
@@ -7358,7 +8969,7 @@ var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.$emit('change', val);
     }
   }
-};
+}
 
 function getDirection$1 (mod) {
   if (Object.keys(mod).length === 0) {
@@ -7509,9 +9120,9 @@ var TouchSwipe = {
     el.removeEventListener('touchend', ctx.end);
     delete el.__qtouchswipe;
   }
-};
+}
 
-var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline q-focusable row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel},attrs:{"tabindex":"0"},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-toggle',
   components: {
     QIcon: QIcon
@@ -7548,11 +9159,7 @@ var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       }
     }
   }
-};
-
-var clone = function (data) {
-  return JSON.parse(JSON.stringify(data))
-};
+}
 
 var QOptionGroup = {
   name: 'q-option-group',
@@ -7677,7 +9284,7 @@ var QOptionGroup = {
       )
     )
   }
-};
+}
 
 var QDialog = {
   name: 'q-dialog',
@@ -7913,7 +9520,7 @@ var QDialog = {
       }
     }
   }
-};
+}
 
 var QTooltip = {
   name: 'q-tooltip',
@@ -8063,7 +9670,7 @@ var QTooltip = {
       this.anchorEl.removeEventListener('blur', this.__delayHide);
     }
   }
-};
+}
 
 function run (e, btn, vm) {
   if (btn.handler) {
@@ -8228,7 +9835,7 @@ function getToolbar (h, vm) {
   }
 }
 
-function getFonts (defaultFont, defaultFontLabel, fonts) {
+function getFonts (defaultFont, defaultFontLabel, defaultFontIcon, fonts) {
   if ( fonts === void 0 ) fonts = {};
 
   var aliases = Object.keys(fonts);
@@ -8240,7 +9847,7 @@ function getFonts (defaultFont, defaultFontLabel, fonts) {
     default_font: {
       cmd: 'fontName',
       param: defaultFont,
-      icon: 'font_download',
+      icon: defaultFontIcon,
       tip: defaultFontLabel
     }
   };
@@ -8250,7 +9857,7 @@ function getFonts (defaultFont, defaultFontLabel, fonts) {
     def[alias] = {
       cmd: 'fontName',
       param: name,
-      icon: 'font_download',
+      icon: defaultFontIcon,
       tip: name,
       htmlTip: ("<font face=\"" + name + "\">" + name + "</font>")
     };
@@ -8558,60 +10165,73 @@ var QEditor = {
         outline: this.outline,
         flat: this.flat,
         push: this.push,
-        small: true,
+        size: 'sm',
         compact: true
       }
     },
     buttonDef: function buttonDef () {
-      var e = this.$q.i18n.editor;
+      var
+        e = this.$q.i18n.editor,
+        i = this.$q.icon.editor;
 
       return {
-        bold: {cmd: 'bold', icon: 'format_bold', tip: e.bold, key: 66},
-        italic: {cmd: 'italic', icon: 'format_italic', tip: e.italic, key: 73},
-        strike: {cmd: 'strikeThrough', icon: 'strikethrough_s', tip: e.strikethrough, key: 83},
-        underline: {cmd: 'underline', icon: 'format_underlined', tip: e.underline, key: 85},
-        unordered: {cmd: 'insertUnorderedList', icon: 'format_list_bulleted', tip: e.unorderedList},
-        ordered: {cmd: 'insertOrderedList', icon: 'format_list_numbered', tip: e.orderedList},
-        subscript: {cmd: 'subscript', icon: 'vertical_align_bottom', tip: e.subscript, htmlTip: 'x<subscript>2</subscript>'},
-        superscript: {cmd: 'superscript', icon: 'vertical_align_top', tip: e.superscript, htmlTip: 'x<superscript>2</superscript>'},
-        link: {cmd: 'link', icon: 'link', tip: e.hyperlink, key: 76},
-        fullscreen: {cmd: 'fullscreen', icon: 'fullscreen', tip: e.toggleFullscreen, key: 70},
+        bold: {cmd: 'bold', icon: i.bold, tip: e.bold, key: 66},
+        italic: {cmd: 'italic', icon: i.italic, tip: e.italic, key: 73},
+        strike: {cmd: 'strikeThrough', icon: i.strikethrough, tip: e.strikethrough, key: 83},
+        underline: {cmd: 'underline', icon: i.underline, tip: e.underline, key: 85},
+        unordered: {cmd: 'insertUnorderedList', icon: i.unorderedList, tip: e.unorderedList},
+        ordered: {cmd: 'insertOrderedList', icon: i.orderedList, tip: e.orderedList},
+        subscript: {cmd: 'subscript', icon: i.subscript, tip: e.subscript, htmlTip: 'x<subscript>2</subscript>'},
+        superscript: {cmd: 'superscript', icon: i.superscript, tip: e.superscript, htmlTip: 'x<superscript>2</superscript>'},
+        link: {cmd: 'link', icon: i.hyperlink, tip: e.hyperlink, key: 76},
+        fullscreen: {cmd: 'fullscreen', icon: i.toggleFullscreen, tip: e.toggleFullscreen, key: 70},
 
-        quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: 'format_quote', tip: e.quote, key: 81},
-        left: {cmd: 'justifyLeft', icon: 'format_align_left', tip: e.left},
-        center: {cmd: 'justifyCenter', icon: 'format_align_center', tip: e.center},
-        right: {cmd: 'justifyRight', icon: 'format_align_right', tip: e.right},
-        justify: {cmd: 'justifyFull', icon: 'format_align_justify', tip: e.justify},
+        quote: {cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: i.quote, tip: e.quote, key: 81},
+        left: {cmd: 'justifyLeft', icon: i.left, tip: e.left},
+        center: {cmd: 'justifyCenter', icon: i.center, tip: e.center},
+        right: {cmd: 'justifyRight', icon: i.right, tip: e.right},
+        justify: {cmd: 'justifyFull', icon: i.justify, tip: e.justify},
 
-        print: {type: 'no-state', cmd: 'print', icon: 'print', tip: e.print, key: 80},
-        outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: 'format_indent_decrease', tip: e.outdent},
-        indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: 'format_indent_increase', tip: e.indent},
-        removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: 'format_clear', tip: e.removeFormat},
-        hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: 'remove', tip: e.hr},
-        undo: {type: 'no-state', cmd: 'undo', icon: 'undo', tip: e.undo, key: 90},
-        redo: {type: 'no-state', cmd: 'redo', icon: 'redo', tip: e.redo, key: 89},
+        print: {type: 'no-state', cmd: 'print', icon: i.print, tip: e.print, key: 80},
+        outdent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('outdent'); }, cmd: 'outdent', icon: i.outdent, tip: e.outdent},
+        indent: {type: 'no-state', disable: function (vm) { return vm.caret && !vm.caret.can('indent'); }, cmd: 'indent', icon: i.indent, tip: e.indent},
+        removeFormat: {type: 'no-state', cmd: 'removeFormat', icon: i.removeFormat, tip: e.removeFormat},
+        hr: {type: 'no-state', cmd: 'insertHorizontalRule', icon: i.hr, tip: e.hr},
+        undo: {type: 'no-state', cmd: 'undo', icon: i.undo, tip: e.undo, key: 90},
+        redo: {type: 'no-state', cmd: 'redo', icon: i.redo, tip: e.redo, key: 89},
 
-        h1: {cmd: 'formatBlock', param: 'H1', icon: 'format_size', tip: e.header1, htmlTip: ("<h1>" + (e.header1) + "</h1>")},
-        h2: {cmd: 'formatBlock', param: 'H2', icon: 'format_size', tip: e.header2, htmlTip: ("<h2>" + (e.header2) + "</h2>")},
-        h3: {cmd: 'formatBlock', param: 'H3', icon: 'format_size', tip: e.header3, htmlTip: ("<h3>" + (e.header3) + "</h3>")},
-        h4: {cmd: 'formatBlock', param: 'H4', icon: 'format_size', tip: e.header4, htmlTip: ("<h4>" + (e.header4) + "</h4>")},
-        h5: {cmd: 'formatBlock', param: 'H5', icon: 'format_size', tip: e.header5, htmlTip: ("<h5>" + (e.header5) + "</h5>")},
-        h6: {cmd: 'formatBlock', param: 'H6', icon: 'format_size', tip: e.header6, htmlTip: ("<h6>" + (e.header6) + "</h6>")},
-        p: {cmd: 'formatBlock', param: 'DIV', icon: 'format_size', tip: e.paragraph},
-        code: {cmd: 'formatBlock', param: 'PRE', icon: 'code', tip: ("<code>" + (e.code) + "</code>")},
+        h1: {cmd: 'formatBlock', param: 'H1', icon: i.header, tip: e.header1, htmlTip: ("<h1>" + (e.header1) + "</h1>")},
+        h2: {cmd: 'formatBlock', param: 'H2', icon: i.header, tip: e.header2, htmlTip: ("<h2>" + (e.header2) + "</h2>")},
+        h3: {cmd: 'formatBlock', param: 'H3', icon: i.header, tip: e.header3, htmlTip: ("<h3>" + (e.header3) + "</h3>")},
+        h4: {cmd: 'formatBlock', param: 'H4', icon: i.header, tip: e.header4, htmlTip: ("<h4>" + (e.header4) + "</h4>")},
+        h5: {cmd: 'formatBlock', param: 'H5', icon: i.header, tip: e.header5, htmlTip: ("<h5>" + (e.header5) + "</h5>")},
+        h6: {cmd: 'formatBlock', param: 'H6', icon: i.header, tip: e.header6, htmlTip: ("<h6>" + (e.header6) + "</h6>")},
+        p: {cmd: 'formatBlock', param: 'DIV', icon: i.header, tip: e.paragraph},
+        code: {cmd: 'formatBlock', param: 'PRE', icon: i.code, tip: ("<code>" + (e.code) + "</code>")},
 
-        'size-1': {cmd: 'fontSize', param: '1', icon: 'filter_1', tip: e.size1, htmlTip: ("<font size=\"1\">" + (e.size1) + "</font>")},
-        'size-2': {cmd: 'fontSize', param: '2', icon: 'filter_2', tip: e.size2, htmlTip: ("<font size=\"2\">" + (e.size2) + "</font>")},
-        'size-3': {cmd: 'fontSize', param: '3', icon: 'filter_3', tip: e.size3, htmlTip: ("<font size=\"3\">" + (e.size3) + "</font>")},
-        'size-4': {cmd: 'fontSize', param: '4', icon: 'filter_4', tip: e.size4, htmlTip: ("<font size=\"4\">" + (e.size4) + "</font>")},
-        'size-5': {cmd: 'fontSize', param: '5', icon: 'filter_5', tip: e.size5, htmlTip: ("<font size=\"5\">" + (e.size5) + "</font>")},
-        'size-6': {cmd: 'fontSize', param: '6', icon: 'filter_6', tip: e.size6, htmlTip: ("<font size=\"6\">" + (e.size6) + "</font>")},
-        'size-7': {cmd: 'fontSize', param: '7', icon: 'filter_7', tip: e.size7, htmlTip: ("<font size=\"7\">" + (e.size7) + "</font>")}
+        'size-1': {cmd: 'fontSize', param: '1', icon: i.size, tip: e.size1, htmlTip: ("<font size=\"1\">" + (e.size1) + "</font>")},
+        'size-2': {cmd: 'fontSize', param: '2', icon: i.size, tip: e.size2, htmlTip: ("<font size=\"2\">" + (e.size2) + "</font>")},
+        'size-3': {cmd: 'fontSize', param: '3', icon: i.size, tip: e.size3, htmlTip: ("<font size=\"3\">" + (e.size3) + "</font>")},
+        'size-4': {cmd: 'fontSize', param: '4', icon: i.size, tip: e.size4, htmlTip: ("<font size=\"4\">" + (e.size4) + "</font>")},
+        'size-5': {cmd: 'fontSize', param: '5', icon: i.size, tip: e.size5, htmlTip: ("<font size=\"5\">" + (e.size5) + "</font>")},
+        'size-6': {cmd: 'fontSize', param: '6', icon: i.size, tip: e.size6, htmlTip: ("<font size=\"6\">" + (e.size6) + "</font>")},
+        'size-7': {cmd: 'fontSize', param: '7', icon: i.size, tip: e.size7, htmlTip: ("<font size=\"7\">" + (e.size7) + "</font>")}
       }
     },
     buttons: function buttons () {
       var def = this.definitions || this.fonts
-        ? extend(true, {}, this.buttonDef, this.definitions || {}, getFonts(this.defaultFont, this.$q.i18n.editor.defaultFont, this.fonts))
+        ? extend(
+          true,
+          {},
+          this.buttonDef,
+          this.definitions || {},
+          getFonts(
+            this.defaultFont,
+            this.$q.i18n.editor.defaultFont,
+            this.$q.icon.editor.font,
+            this.fonts
+          )
+        )
         : this.buttonDef;
 
       return this.toolbar.map(
@@ -8704,8 +10324,7 @@ var QEditor = {
       if (target !== void 0) {
         var cmd = target.cmd;
         var param = target.param;
-        e.preventDefault();
-        e.stopPropagation();
+        stopAndPrevent(e);
         this.runCmd(cmd, param, false);
       }
     },
@@ -8807,7 +10426,7 @@ var QEditor = {
       ]
     )
   }
-};
+}
 
 var FabMixin = {
   props: {
@@ -8817,29 +10436,19 @@ var FabMixin = {
     color: String,
     glossy: Boolean
   }
-};
+}
 
-var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-fab z-fab row inline justify-center",class:{'q-fab-opened': _vm.showing}},[_c('q-btn',{class:{glossy: _vm.glossy},attrs:{"round":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color},on:{"click":_vm.toggle}},[_vm._t("tooltip"),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.icon}}),_vm._v(" "),_c('q-icon',{staticClass:"q-fab-active-icon absolute-full row flex-center full-width full-height",attrs:{"name":_vm.activeIcon}})],2),_vm._v(" "),_c('div',{staticClass:"q-fab-actions flex no-wrap inline items-center",class:("q-fab-" + (_vm.direction))},[_vm._t("default")],2)],1)},staticRenderFns: [],
+var QFab = {
   name: 'q-fab',
   mixins: [FabMixin, ModelToggleMixin],
-  components: {
-    QBtn: QBtn,
-    QIcon: QIcon
-  },
   provide: function provide () {
     return {
       __qFabClose: this.hide
     }
   },
   props: {
-    icon: {
-      type: String,
-      default: 'add'
-    },
-    activeIcon: {
-      type: String,
-      default: 'close'
-    },
+    icon: String,
+    activeIcon: String,
     direction: {
       type: String,
       default: 'right'
@@ -8854,15 +10463,51 @@ var QFab = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm
     if (this.value) {
       this.show();
     }
-  }
-};
+  },
+  render: function render (h) {
+    return h('div', {
+      staticClass: 'q-fab z-fab row inline justify-center',
+      'class': {
+        'q-fab-opened': this.showing
+      }
+    }, [
+      h(QBtn, {
+        props: {
+          round: true,
+          outline: this.outline,
+          push: this.push,
+          flat: this.flat,
+          color: this.color,
+          glossy: this.glossy
+        },
+        on: {
+          click: this.toggle
+        }
+      }, [
+        this.$slots.tooltip,
+        h(QIcon, {
+          staticClass: 'q-fab-icon absolute-full row flex-center full-width full-height',
+          props: { name: this.icon || this.$q.icon.fab.icon }
+        }),
+        h(QIcon, {
+          staticClass: 'q-fab-active-icon absolute-full row flex-center full-width full-height',
+          props: { name: this.activeIcon || this.$q.icon.fab.activeIcon }
+        })
+      ]),
 
-var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-btn',{attrs:{"round":"","small":"","outline":_vm.outline,"push":_vm.push,"flat":_vm.flat,"color":_vm.color,"glossy":_vm.glossy,"icon":_vm.icon},on:{"click":_vm.click}},[_vm._t("default")],2)},staticRenderFns: [],
+      h('div', {
+        staticClass: 'q-fab-actions flex no-wrap inline items-center',
+        'class': ("q-fab-" + (this.direction))
+      }, [
+        this.$slots.default
+      ])
+    ])
+  }
+}
+
+var QFabAction = {
   name: 'q-fab-action',
   mixins: [FabMixin],
-  components: {
-    QBtn: QBtn
-  },
   inject: {
     __qFabClose: {
       default: function default$1 () {
@@ -8884,8 +10529,27 @@ var QFabAction = {render: function(){var _vm=this;var _h=_vm.$createElement;var 
         this$1.$emit('click', e);
       });
     }
+  },
+  render: function render (h) {
+    return h(QBtn, {
+      props: {
+        round: true,
+        size: 'sm',
+        outline: this.outline,
+        push: this.push,
+        flat: this.flat,
+        color: this.color,
+        glossy: this.glossy,
+        icon: this.icon
+      },
+      on: {
+        click: this.click
+      }
+    }, [
+      this.$slots.default
+    ])
   }
-};
+}
 
 var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-field row no-wrap items-start",class:{ 'q-field-floating': _vm.childHasLabel, 'q-field-no-label': !this.label && !this.$slots.label, 'q-field-with-error': _vm.hasError, 'q-field-with-warning': _vm.hasWarning, 'q-field-dark': _vm.isDark }},[(_vm.icon)?_c('q-icon',{staticClass:"q-field-icon q-field-margin",attrs:{"name":_vm.icon}}):(_vm.insetIcon)?_c('div',{staticClass:"q-field-icon"}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"row col"},[(_vm.hasLabel)?_c('div',{staticClass:"q-field-label col-xs-12 q-field-margin",class:("col-sm-" + (_vm.labelWidth))},[_c('div',{staticClass:"q-field-label-inner row items-center"},[(_vm.label)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("label")],2)]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-field-content col-xs-12 col-sm"},[_vm._t("default"),_vm._v(" "),(_vm.hasBottom)?_c('div',{staticClass:"q-field-bottom row no-wrap",class:{'q-field-no-input': _vm.hasNoInput}},[(_vm.hasError && _vm.errorLabel)?_c('div',{staticClass:"q-field-error col",domProps:{"innerHTML":_vm._s(_vm.errorLabel)}}):(_vm.hasWarning && _vm.warningLabel)?_c('div',{staticClass:"q-field-warning col",domProps:{"innerHTML":_vm._s(_vm.warningLabel)}}):(_vm.helper)?_c('div',{staticClass:"q-field-helper col",domProps:{"innerHTML":_vm._s(_vm.helper)}}):_c('div',{staticClass:"col"}),_vm._v(" "),(_vm.counter)?_c('div',{staticClass:"q-field-counter col-auto"},[_vm._v(_vm._s(_vm.counter))]):_vm._e()]):_vm._e()],2)])],1)},staticRenderFns: [],
   name: 'q-field',
@@ -8975,19 +10639,22 @@ var QField = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       this.input = {};
     }
   }
-};
+}
 
-var QFieldReset = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_vm._t("default")],2)},staticRenderFns: [],
+var QFieldReset = {
   name: 'q-field-reset',
-  data: function data () {
-    return {}
-  },
+  functional: true,
   provide: function provide () {
     return {
       __field: undefined
     }
+  },
+  render: function render (h, ctx) {
+    return h('div', [
+      ctx.children
+    ])
   }
-};
+}
 
 var QInfiniteScroll = {
   name: 'q-infinite-scroll',
@@ -9092,7 +10759,7 @@ var QInfiniteScroll = {
       ])
     ])
   }
-};
+}
 
 var QInnerLoading = {
   name: 'q-inner-loading',
@@ -9123,9 +10790,9 @@ var QInnerLoading = {
       })
     ])
   }
-};
+}
 
-var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-knob non-selectable",class:_vm.classes,style:({width: _vm.size, height: _vm.size})},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan",value:(_vm.__pan),expression:"__pan"}],on:{"click":function($event){_vm.__onInput($event, undefined, true);}}},[_c('svg',{attrs:{"viewBox":"0 0 100 100"}},[_c('path',{class:("text-" + (_vm.trackColor)),attrs:{"d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth,"fill-opacity":"0"}}),_vm._v(" "),_c('path',{style:(_vm.svgStyle),attrs:{"stroke-linecap":"round","fill-opacity":"0","d":"M 50,50 m 0,-47\n           a 47,47 0 1 1 0,94\n           a 47,47 0 1 1 0,-94","stroke":"currentColor","stroke-width":_vm.lineWidth}})]),_vm._v(" "),_c('div',{staticClass:"q-knob-label row flex-center content-center"},[(!_vm.$slots.default)?_c('span',[_vm._v(_vm._s(_vm.model))]):_vm._t("default")],2)])])},staticRenderFns: [],
+var QKnob = {
   name: 'q-knob',
   directives: {
     TouchPan: TouchPan
@@ -9228,8 +10895,7 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       if (!this.editable) {
         return
       }
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
 
       this.centerPosition = this.__getCenter();
 
@@ -9240,16 +10906,14 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
       if (!this.dragging || !this.editable) {
         return
       }
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
       this.__onInput(ev, this.centerPosition);
     },
     __dragStop: function __dragStop (ev) {
       if (!this.editable) {
         return
       }
-      ev.stopPropagation();
-      ev.preventDefault();
+      stopAndPrevent(ev);
       this.dragging = false;
       this.__onInput(ev, this.centerPosition, true);
     },
@@ -9300,8 +10964,60 @@ var QKnob = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_v
         left: knobOffset.left + width(this.$el) / 2
       }
     }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h('div', {
+      staticClass: 'q-knob non-selectable',
+      'class': this.classes,
+      style: {
+        width: this.size,
+        height: this.size
+      }
+    }, [
+      h('div', {
+        on: {
+          click: function (e) { return this$1.__onInput(e, undefined, true); }
+        },
+        directives: [{
+          name: 'touch-pan',
+          value: this.__pan
+        }]
+      }, [
+        h('svg', { attrs: { viewBox: '0 0 100 100' } }, [
+          h('path', {
+            attrs: {
+              d: 'M 50,50 m 0,-47 a 47,47 0 1 1 0,94 a 47,47 0 1 1 0,-94',
+              'fill-opacity': '0',
+              stroke: 'currentColor',
+              'stroke-width': this.lineWidth
+            },
+            'class': ("text-" + (this.trackColor))
+          }),
+          h('path', {
+            attrs: {
+              d: 'M 50,50 m 0,-47 a 47,47 0 1 1 0,94 a 47,47 0 1 1 0,-94',
+              'fill-opacity': '0',
+              stroke: 'currentColor',
+              'stroke-linecap': 'round',
+              'stroke-width': this.lineWidth
+            },
+            style: this.svgStyle
+          })
+        ]),
+
+        h('div', {
+          staticClass: 'q-knob-label row flex-center content-center'
+        }, [
+          this.$slots.default
+            ? this.$slots.default
+            : h('span', [ this.model ])
+        ])
+      ])
+    ])
   }
-};
+}
 
 var QLayout = {
   name: 'q-layout',
@@ -9413,7 +11129,7 @@ var QLayout = {
       }
     }
   }
-};
+}
 
 var bodyClassBelow = 'with-layout-drawer-opened';
 var bodyClassAbove = 'with-layout-drawer-opened-above';
@@ -9766,7 +11482,9 @@ var QLayoutDrawer = {
 
       this.mobileOpened = false;
       this.percentage = 0;
-      document.body.classList.remove(bodyClassAbove, bodyClassBelow);
+
+      document.body.classList.remove(bodyClassAbove);
+      document.body.classList.remove(bodyClassBelow);
 
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
@@ -9791,7 +11509,7 @@ var QLayoutDrawer = {
       }
     }
   }
-};
+}
 
 var QLayoutFooter = {
   name: 'q-layout-footer',
@@ -9926,7 +11644,7 @@ var QLayoutFooter = {
       );
     }
   }
-};
+}
 
 var QLayoutHeader = {
   name: 'q-layout-header',
@@ -10050,7 +11768,7 @@ var QLayoutHeader = {
       }
     }
   }
-};
+}
 
 var QPage = {
   name: 'q-page',
@@ -10090,7 +11808,7 @@ var QPage = {
       this.$slots.default
     ])
   }
-};
+}
 
 var QPageContainer = {
   name: 'q-page-container',
@@ -10132,7 +11850,7 @@ var QPageContainer = {
       this.$slots.default
     ])
   }
-};
+}
 
 var QPageSticky = {
   name: 'q-page-sticky',
@@ -10239,14 +11957,10 @@ var QPageSticky = {
       this.$slots.default
     ])
   }
-};
+}
 
-var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-pagination",class:{disabled: _vm.disable}},[_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"first_page"},on:{"click":function($event){_vm.set(_vm.min);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.min,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_left"},on:{"click":function($event){_vm.setByOffset(-1);}}}),_vm._v(" "),_c('q-input',{ref:"input",staticClass:"inline",style:({width: ((_vm.inputPlaceholder.length) + "rem")}),attrs:{"type":"number","min":_vm.min,"max":_vm.max,"color":_vm.color,"placeholder":_vm.inputPlaceholder,"disable":_vm.disable},on:{"keyup":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }_vm.__update($event);},"blur":_vm.__update},model:{value:(_vm.newPage),callback:function ($$v) {_vm.newPage=$$v;},expression:"newPage"}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"keyboard_arrow_right"},on:{"click":function($event){_vm.setByOffset(1);}}}),_vm._v(" "),_c('q-btn',{attrs:{"disable":_vm.value === _vm.max,"color":_vm.color,"flat":"","small":"","icon":"last_page"},on:{"click":function($event){_vm.set(_vm.max);}}})],1)},staticRenderFns: [],
+var QPagination = {
   name: 'q-pagination',
-  components: {
-    QBtn: QBtn,
-    QInput: QInput
-  },
   props: {
     value: {
       type: Number,
@@ -10264,34 +11978,47 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       type: String,
       default: 'primary'
     },
-    disable: Boolean
+    disable: Boolean,
+    input: Boolean,
+    boundaryLinks: {
+      type: Boolean,
+      default: null
+    },
+    boundaryNumbers: {
+      type: Boolean,
+      default: null
+    },
+    directionLinks: {
+      type: Boolean,
+      default: null
+    },
+    ellipses: {
+      type: Boolean,
+      default: null
+    },
+    maxPages: {
+      type: Number,
+      default: 0,
+      validator: function (v) {
+        if (v < 0) {
+          console.error('maxPages should not be negative');
+          return false
+        }
+        return true
+      }
+    }
   },
   data: function data () {
     return {
-      newPage: ''
+      newPage: null
     }
   },
-  methods: {
-    set: function set (value) {
-      if (!this.disable) {
-        this.model = value;
-      }
+  watch: {
+    min: function min (value) {
+      this.model = this.value;
     },
-    setByOffset: function setByOffset (offset) {
-      if (!this.disable) {
-        this.model = this.value + offset;
-      }
-    },
-    __normalize: function __normalize (value) {
-      return between(parseInt(value, 10), 1, this.max)
-    },
-    __update: function __update () {
-      var parsed = parseInt(this.newPage, 10);
-      if (parsed) {
-        this.model = parsed;
-      }
-
-      this.newPage = '';
+    max: function max (value) {
+      this.model = this.value;
     }
   },
   computed: {
@@ -10300,23 +12027,273 @@ var QPagination = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         return this.value
       },
       set: function set (value) {
-        if (!value) {
+        if (this.disable || !value || isNaN(value)) {
           return
         }
-        if (value < this.min || value > this.max) {
-          return
-        }
-        if (this.value !== value) {
-          this.$emit('input', value);
-          this.$emit('change', value);
+        var model = between(parseInt(value, 10), this.min, this.max);
+        if (this.value !== model) {
+          this.$emit('input', model);
+          this.$emit('change', model);
         }
       }
     },
     inputPlaceholder: function inputPlaceholder () {
-      return this.value + ' / ' + this.max
+      return this.model + ' / ' + this.max
+    },
+    __boundaryLinks: function __boundaryLinks () {
+      return this.__getBool(this.boundaryLinks, this.input)
+    },
+    __boundaryNumbers: function __boundaryNumbers () {
+      return this.__getBool(this.boundaryNumbers, !this.input)
+    },
+    __directionLinks: function __directionLinks () {
+      return this.__getBool(this.directionLinks, this.input)
+    },
+    __ellipses: function __ellipses () {
+      return this.__getBool(this.ellipses, !this.input)
     }
+  },
+  methods: {
+    set: function set (value) {
+      this.model = value;
+    },
+    setByOffset: function setByOffset (offset) {
+      this.model = this.model + offset;
+    },
+    __update: function __update () {
+      this.model = this.newPage;
+      this.newPage = null;
+    },
+    __getRepeatEasing: function __getRepeatEasing (from, step, to) {
+      if ( from === void 0 ) from = 300;
+      if ( step === void 0 ) step = 10;
+      if ( to === void 0 ) to = 100;
+
+      return function (cnt) { return cnt ? Math.max(to, from - cnt * cnt * step) : 100; }
+    },
+    __getBool: function __getBool (val, otherwise) {
+      return [true, false].includes(val)
+        ? val
+        : otherwise
+    },
+    __getBtn: function __getBtn (h, props) {
+      return h(QBtn, extend(true, {
+        props: {
+          color: this.color,
+          flat: true,
+          compact: true
+        }
+      }, props))
+    }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    var
+      contentStart = [],
+      contentEnd = [],
+      contentMiddle = [];
+
+    if (this.__boundaryLinks) {
+      contentStart.push(this.__getBtn(h, {
+        key: 'bls',
+        props: {
+          disable: this.disable || this.value <= this.min,
+          icon: this.$q.icon.pagination.first,
+          size: 'sm'
+        },
+        on: {
+          click: function () { return this$1.set(this$1.min); }
+        }
+      }));
+      contentEnd.unshift(this.__getBtn(h, {
+        key: 'ble',
+        props: {
+          disable: this.disable || this.value >= this.max,
+          icon: this.$q.icon.pagination.last,
+          size: 'sm'
+        },
+        on: {
+          click: function () { return this$1.set(this$1.max); }
+        }
+      }));
+    }
+
+    if (this.__directionLinks) {
+      contentStart.push(this.__getBtn(h, {
+        key: 'bdp',
+        props: {
+          disable: this.disable || this.value <= this.min,
+          icon: this.$q.icon.pagination.prev,
+          repeatTimeout: this.__getRepeatEasing(),
+          size: 'sm'
+        },
+        on: {
+          click: function () { return this$1.setByOffset(-1); }
+        }
+      }));
+      contentEnd.unshift(this.__getBtn(h, {
+        key: 'bdn',
+        props: {
+          disable: this.disable || this.value >= this.max,
+          icon: this.$q.icon.pagination.next,
+          repeatTimeout: this.__getRepeatEasing(),
+          size: 'sm'
+        },
+        on: {
+          click: function () { return this$1.setByOffset(1); }
+        }
+      }));
+    }
+
+    if (this.input) {
+      contentMiddle.push(h(QInput, {
+        staticClass: 'inline no-margin no-padding',
+        style: {
+          width: ((this.inputPlaceholder.length) + "rem")
+        },
+        props: {
+          type: 'number',
+          value: this.newPage,
+          noNumberToggle: true,
+          min: this.min,
+          max: this.max,
+          color: this.color,
+          placeholder: this.inputPlaceholder,
+          disable: this.disable,
+          hideUnderline: true
+        },
+        on: {
+          input: function (value) { return (this$1.newPage = value); },
+          keyup: function (event) { return (event.keyCode === 13 && this$1.__update()); },
+          blur: function () { return this$1.__update(); }
+        }
+      }));
+    }
+    else { // is type select
+      var
+        maxPages = Math.max(
+          this.maxPages,
+          1 + (this.__ellipses ? 2 : 0) + (this.__boundaryNumbers ? 2 : 0)
+        ),
+        pgFrom = this.min,
+        pgTo = this.max,
+        ellipsesStart = false,
+        ellipsesEnd = false,
+        boundaryStart = false,
+        boundaryEnd = false;
+
+      if (this.maxPages && maxPages < (this.max - this.min + 1)) {
+        maxPages = 1 + Math.floor(maxPages / 2) * 2;
+        pgFrom = Math.max(this.min, Math.min(this.max - maxPages + 1, this.value - Math.floor(maxPages / 2)));
+        pgTo = Math.min(this.max, pgFrom + maxPages - 1);
+        if (this.__boundaryNumbers && pgFrom > this.min) {
+          boundaryStart = true;
+          pgFrom += 1;
+        }
+        if (this.__ellipses && pgFrom > (this.min + (this.__boundaryNumbers ? 1 : 0))) {
+          ellipsesStart = true;
+          pgFrom += 1;
+        }
+        if (this.__boundaryNumbers && pgTo < this.max) {
+          boundaryEnd = true;
+          pgTo -= 1;
+        }
+        if (this.__ellipses && pgTo < (this.max - (this.__boundaryNumbers ? 1 : 0))) {
+          ellipsesEnd = true;
+          pgTo -= 1;
+        }
+      }
+      var style = {
+        minWidth: ((Math.max(1.5, String(this.max).length)) + "em")
+      };
+      if (boundaryStart) {
+        contentStart.push(this.__getBtn(h, {
+          key: 'bns',
+          style: style,
+          props: {
+            disable: this.disable || this.value <= this.min,
+            label: this.min
+          },
+          on: {
+            click: function () { return this$1.set(this$1.min); }
+          }
+        }));
+      }
+      if (boundaryEnd) {
+        contentEnd.unshift(this.__getBtn(h, {
+          key: 'bne',
+          style: style,
+          props: {
+            disable: this.disable || this.value >= this.max,
+            label: this.max
+          },
+          on: {
+            click: function () { return this$1.set(this$1.max); }
+          }
+        }));
+      }
+      if (ellipsesStart) {
+        contentStart.push(this.__getBtn(h, {
+          key: 'bes',
+          style: style,
+          props: {
+            disable: this.disable,
+            label: '…',
+            repeatTimeout: this.__getRepeatEasing()
+          },
+          on: {
+            click: function () { return this$1.set(pgFrom - 1); }
+          }
+        }));
+      }
+      if (ellipsesEnd) {
+        contentEnd.unshift(this.__getBtn(h, {
+          key: 'bee',
+          style: style,
+          props: {
+            disable: this.disable,
+            label: '…',
+            repeatTimeout: this.__getRepeatEasing()
+          },
+          on: {
+            click: function () { return this$1.set(pgTo + 1); }
+          }
+        }));
+      }
+      var loop = function ( i ) {
+        contentMiddle.push(this$1.__getBtn(h, {
+          key: (i + "." + (i === this$1.value)),
+          style: style,
+          props: {
+            disable: this$1.disable,
+            flat: i !== this$1.value,
+            label: i,
+            noRipple: true
+          },
+          on: {
+            click: function () { return this$1.set(i); }
+          }
+        }));
+      };
+
+      for (var i = pgFrom; i <= pgTo; i++) loop( i );
+    }
+
+    return h('div', {
+      staticClass: 'q-pagination',
+      'class': { disabled: this.disable }
+    }, [
+      contentStart,
+
+      h('div', { staticClass: 'row wrap justify-center' }, [
+        contentMiddle
+      ]),
+
+      contentEnd
+    ])
   }
-};
+}
 
 var QParallax = {
   name: 'q-parallax',
@@ -10447,7 +12424,7 @@ var QParallax = {
     window.removeEventListener('resize', this.resizeHandler);
     this.scrollTarget.removeEventListener('scroll', this.__updatePos);
   }
-};
+}
 
 function width$1 (val) {
   return { width: (val + "%") }
@@ -10527,7 +12504,7 @@ var QProgress = {
       })
     ])
   }
-};
+}
 
 var QPullToRefresh = {
   name: 'q-pull-to-refresh',
@@ -10546,10 +12523,7 @@ var QPullToRefresh = {
     pullMessage: String,
     releaseMessage: String,
     refreshMessage: String,
-    refreshIcon: {
-      type: String,
-      default: 'refresh'
-    },
+    refreshIcon: String,
     inline: Boolean,
     disable: Boolean
   },
@@ -10679,7 +12653,7 @@ var QPullToRefresh = {
         h('div', { staticClass: 'pull-to-refresh-message row flex-center' }, [
           h(QIcon, {
             'class': { 'rotate-180': this.state === 'pulled' },
-            props: { name: 'arrow_downward' },
+            props: { name: this.$q.icon.pullToRefresh.arrow },
             directives: [{
               name: 'show',
               value: this.state !== 'refreshing'
@@ -10687,7 +12661,7 @@ var QPullToRefresh = {
           }),
           h(QIcon, {
             staticClass: 'animate-spin',
-            props: { name: this.refreshIcon },
+            props: { name: this.refreshIcon || this.$q.icon.pullToRefresh.refresh },
             directives: [{
               name: 'show',
               value: this.state === 'refreshing'
@@ -10699,123 +12673,7 @@ var QPullToRefresh = {
       ])
     ])
   }
-};
-
-function getPercentage (event, dragging) {
-  return between((position(event).left - dragging.left) / dragging.width, 0, 1)
 }
-
-function notDivides (res, decimals) {
-  var number = decimals
-    ? parseFloat(res.toFixed(decimals))
-    : res;
-
-  return number !== parseInt(number, 10)
-}
-
-function getModel (percentage, min, max, step, decimals) {
-  var
-    model = min + percentage * (max - min),
-    modulo = (model - min) % step;
-
-  model += (Math.abs(modulo) >= step / 2 ? (modulo < 0 ? -1 : 1) * step : 0) - modulo;
-
-  if (decimals) {
-    model = parseFloat(model.toFixed(decimals));
-  }
-
-  return between(model, min, max)
-}
-
-var mixin$1 = {
-  components: {
-    QChip: QChip
-  },
-  props: {
-    min: {
-      type: Number,
-      default: 1
-    },
-    max: {
-      type: Number,
-      default: 5
-    },
-    step: {
-      type: Number,
-      default: 1
-    },
-    decimals: {
-      type: Number,
-      default: 0
-    },
-    snap: Boolean,
-    markers: Boolean,
-    label: Boolean,
-    labelAlways: Boolean,
-    square: Boolean,
-    color: String,
-    fillHandleAlways: Boolean,
-    error: Boolean,
-    disable: Boolean
-  },
-  computed: {
-    data: function data () {
-      return {
-        clickDisabled: false
-      }
-    },
-    classes: function classes () {
-      var cls = {
-        disabled: this.disable,
-        'label-always': this.labelAlways,
-        'has-error': this.error
-      };
-
-      if (!this.error && this.color) {
-        cls[("text-" + (this.color))] = true;
-      }
-
-      return cls
-    },
-    labelColor: function labelColor () {
-      return this.error
-        ? 'negative'
-        : this.color || 'primary'
-    }
-  },
-  methods: {
-    __pan: function __pan (event) {
-      var this$1 = this;
-
-      if (this.disable) {
-        return
-      }
-      if (event.isFinal) {
-        this.clickDisabled = true;
-        this.$nextTick(function () {
-          this$1.clickDisabled = false;
-        });
-        this.__end(event.evt);
-      }
-      else if (event.isFirst) {
-        this.__setActive(event.evt);
-      }
-      else if (this.dragging) {
-        this.__update(event.evt);
-      }
-    },
-    __click: function __click (event) {
-      if (this.disable || this.clickDisabled) {
-        return
-      }
-      this.__setActive(event);
-      this.__end(event);
-    }
-  },
-  created: function created () {
-    this.__validateProps();
-  }
-};
 
 var dragType = {
   MIN: 0,
@@ -10823,11 +12681,8 @@ var dragType = {
   MAX: 2
 };
 
-var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),(_vm.markers)?_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return _c('div',{key:n,staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{dragging: _vm.dragging, 'track-draggable': _vm.dragRange || _vm.dragOnlyRange},style:({left: ((_vm.percentageMin * 100) + "%"), width: _vm.activeTrackWidth})}),_vm._v(" "),_c('div',{ref:"handleMin",staticClass:"q-slider-handle q-slider-handle-min",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.model.min === _vm.min},style:({left: ((_vm.percentageMin * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.leftTooltipColor}},[_vm._v(" "+_vm._s(_vm.leftDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1),_vm._v(" "),_c('div',{staticClass:"q-slider-handle q-slider-handle-max",class:{dragging: _vm.dragging, 'handle-at-maximum': _vm.model.max === _vm.max},style:({left: ((_vm.percentageMax * 100) + "%"), borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.rightTooltipColor}},[_vm._v(" "+_vm._s(_vm.rightDisplayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
+var QRange = {
   name: 'q-range',
-  directives: {
-    TouchPan: TouchPan
-  },
   mixins: [mixin$1],
   props: {
     value: {
@@ -11073,17 +12928,64 @@ var QRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       else if (notDivides((this.model.max - this.min) / this.step, this.decimals)) {
         console.error('Range error: step must be a divisor of initial value.max - min', this.model.max, this.max, this.step);
       }
+    },
+
+    __getHandle: function __getHandle (h, lower, upper, edge, percentage, color, label) {
+      return h('div', {
+        ref: ("handle" + upper),
+        staticClass: ("q-slider-handle q-slider-handle-" + lower),
+        style: {
+          left: ((percentage * 100) + "%"),
+          borderRadius: this.square ? '0' : '50%'
+        },
+        'class': [
+          edge ? 'handle-at-minimum' : null,
+          { dragging: this.dragging }
+        ]
+      }, [
+        this.label || this.labelAlways
+          ? h(QChip, {
+            props: {
+              pointing: 'down',
+              square: true,
+              color: color
+            },
+            staticClass: 'q-slider-label no-pointer-events',
+            'class': { 'label-always': this.labelAlways }
+          }, [ label ])
+          : null,
+        null
+      ])
+    },
+    __getContent: function __getContent (h) {
+      return [
+        h('div', {
+          staticClass: 'q-slider-track active-track',
+          style: {
+            left: ((this.percentageMin * 100) + "%"),
+            width: this.activeTrackWidth
+          },
+          'class': {
+            dragging: this.dragging,
+            'track-draggable': this.dragRange || this.dragOnlyRange
+          }
+        }),
+
+        this.__getHandle(
+          h, 'min', 'Min', !this.fillHandleAlways && this.model.min === this.min, this.percentageMin,
+          this.leftTooltipColor, this.leftDisplayValue
+        ),
+        this.__getHandle(
+          h, 'max', 'Max', false, this.percentageMax,
+          this.rightTooltipColor, this.rightDisplayValue
+        )
+      ]
     }
   }
-};
+}
 
-var QRating = {render: function(){
-var obj;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-rating row inline items-center no-wrap",class:( obj = { disabled: _vm.disable, editable: _vm.editable }, obj[("text-" + (_vm.color))] = _vm.color, obj),style:(_vm.size ? ("font-size: " + (_vm.size)) : '')},_vm._l((_vm.max),function(index){return _c('q-icon',{key:index,class:{ active: (!_vm.mouseModel && _vm.model >= index) || (_vm.mouseModel && _vm.mouseModel >= index), exselected: _vm.mouseModel && _vm.model >= index && _vm.mouseModel < index, hovered: _vm.mouseModel === index },attrs:{"name":_vm.icon},on:{"click":function($event){_vm.set(index);},"mouseover":function($event){_vm.__setHoverValue(index);},"mouseout":function($event){_vm.mouseModel = 0;}}})}))},staticRenderFns: [],
+var QRating = {
   name: 'q-rating',
-  components: {
-    QIcon: QIcon
-  },
   props: {
     value: {
       type: Number,
@@ -11094,10 +12996,7 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
       type: Number,
       default: 5
     },
-    icon: {
-      type: String,
-      default: 'grade'
-    },
+    icon: String,
     color: String,
     size: String,
     readonly: Boolean,
@@ -11122,6 +13021,15 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
     },
     editable: function editable () {
       return !this.readonly && !this.disable
+    },
+    classes: function classes () {
+      var cls = [];
+
+      this.disable && cls.push('disabled');
+      this.editable && cls.push('editable');
+      this.color && cls.push(("text-" + (this.color)));
+
+      return cls
     }
   },
   methods: {
@@ -11136,15 +13044,41 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
         this.mouseModel = value;
       }
     }
-  }
-};
-
-var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.$q.platform.is.desktop)?_c('div',{staticClass:"q-scrollarea relative-position",on:{"mouseenter":function($event){_vm.hover = true;},"mouseleave":function($event){_vm.hover = false;}}},[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical.nomouse",value:(_vm.__panContainer),expression:"__panContainer",modifiers:{"vertical":true,"nomouse":true}}],ref:"target",staticClass:"scroll relative-position overflow-hidden full-height full-width",on:{"wheel":_vm.__mouseWheel,"mousewheel":_vm.__mouseWheel,"DOMMouseScroll":_vm.__mouseWheel}},[_c('div',{staticClass:"absolute full-width",style:(_vm.mainStyle)},[_vm._t("default"),_vm._v(" "),_c('q-resize-observable',{staticClass:"resize-obs",on:{"resize":_vm.__updateScrollHeight}})],2),_vm._v(" "),_c('q-scroll-observable',{staticClass:"scroll-obs",on:{"scroll":_vm.__updateScroll}})],1),_vm._v(" "),_c('q-resize-observable',{staticClass:"main-resize-obs",on:{"resize":_vm.__updateContainer}}),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__panThumb),expression:"__panThumb",modifiers:{"vertical":true}}],staticClass:"q-scrollarea-thumb absolute-right",class:{'invisible-thumb': _vm.thumbHidden},style:(_vm.style)})],1):_c('div',{staticClass:"q-scroll-area scroll relative-position",style:(_vm.contentStyle)},[_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-scroll-area',
-  components: {
-    QResizeObservable: QResizeObservable,
-    QScrollObservable: QScrollObservable
   },
+  render: function render (h) {
+    var this$1 = this;
+
+    var child = [];
+
+    var loop = function ( i ) {
+      child.push(h(QIcon, {
+        key: i,
+        props: { name: this$1.icon || this$1.$q.icon.rating.icon },
+        'class': {
+          active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
+          exselected: this$1.mouseModel && this$1.model >= i && this$1.mouseModel < i,
+          hovered: this$1.mouseModel === i
+        },
+        on: {
+          click: function () { return this$1.set(i); },
+          mouseover: function () { return this$1.__setHoverValue(i); },
+          mouseout: function () { this$1.mouseModel = 0; }
+        }
+      }));
+    };
+
+    for (var i = 1; i <= this.max; i++) loop( i );
+
+    return h('div', {
+      staticClass: 'q-rating row inline items-center no-wrap',
+      'class': this.classes,
+      style: this.size ? ("font-size: " + (this.size)) : ''
+    }, child)
+  }
+}
+
+var QScrollArea = {
+  name: 'q-scroll-area',
   directives: {
     TouchPan: TouchPan
   },
@@ -11293,19 +13227,79 @@ var QScrollArea = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         this$1.timer = null;
       }, this.delay);
     }
-  }
-};
+  },
+  render: function render (h) {
+    var this$1 = this;
 
-var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input',{ref:"input",staticClass:"q-search",attrs:{"type":_vm.type,"autofocus":_vm.autofocus,"placeholder":_vm.placeholder || _vm.$q.i18n.label.search,"disable":_vm.disable,"error":_vm.error,"align":_vm.align,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"prefix":_vm.prefix,"suffix":_vm.suffix,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"max-length":_vm.maxLength,"color":_vm.color,"before":_vm.controlBefore,"after":_vm.controlAfter},on:{"focus":_vm.__onFocus,"blur":_vm.__onBlur,"keyup":_vm.__onKeyup,"keydown":_vm.__onKeydown,"click":_vm.__onClick},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_vm._t("default")],2)},staticRenderFns: [],
+    if (!this.$q.platform.is.desktop) {
+      return h('div', {
+        ref: 'target',
+        staticClass: 'q-scroll-area scroll relative-position',
+        style: this.contentStyle
+      }, [
+        this.$slots.default
+      ])
+    }
+
+    return h('div', {
+      staticClass: 'q-scrollarea relative-position',
+      on: {
+        mouseenter: function () { this$1.hover = true; },
+        mouseleave: function () { this$1.hover = false; }
+      }
+    }, [
+      h('div', {
+        ref: 'target',
+        staticClass: 'scroll relative-position overflow-hidden full-height full-width',
+        on: {
+          wheel: this.__mouseWheel,
+          mousewheel: this.__mouseWheel,
+          DOMMouseScroll: this.__mouseWheel
+        },
+        directives: [{
+          name: 'touch-pan',
+          modifiers: { vertical: true, nomouse: true },
+          value: this.__panContainer
+        }]
+      }, [
+        h('div', {
+          staticClass: 'absolute full-width',
+          style: this.mainStyle
+        }, [
+          this.$slots.default,
+          h(QResizeObservable, {
+            staticClass: 'resize-obs',
+            on: { resize: this.__updateScrollHeight }
+          })
+        ]),
+        h(QScrollObservable, {
+          staticClass: 'scroll-obs',
+          on: { scroll: this.__updateScroll }
+        })
+      ]),
+
+      h(QResizeObservable, {
+        staticClass: 'main-resize-obs',
+        on: { resize: this.__updateContainer }
+      }),
+
+      h('div', {
+        staticClass: 'q-scrollarea-thumb absolute-right',
+        style: this.style,
+        'class': { 'invisible-thumb': this.thumbHidden },
+        directives: [{
+          name: 'touch-pan',
+          modifiers: { vertical: true },
+          value: this.__panThumb
+        }]
+      })
+    ])
+  }
+}
+
+var QSearch = {
   name: 'q-search',
   mixins: [FrameMixin, InputMixin],
-  components: {
-    QIcon: QIcon,
-    QInput: QInput
-  },
-  directives: {
-    Ripple: Ripple
-  },
   props: {
     value: { required: true },
     type: String,
@@ -11313,10 +13307,7 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       type: Number,
       default: 300
     },
-    icon: {
-      type: String,
-      default: 'search'
-    },
+    icon: String,
     placeholder: String
   },
   data: function data () {
@@ -11367,11 +13358,14 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         : this.debounce
     },
     controlBefore: function controlBefore () {
-      return this.before || [{icon: this.icon, handler: this.focus}]
+      return this.before || [{
+        icon: this.icon || this.$q.icon.search.icon,
+        handler: this.focus
+      }]
     },
     controlAfter: function controlAfter () {
       return this.after || [{
-        icon: this.inverted ? 'clear' : 'cancel',
+        icon: this.$q.icon.search[("clear" + (this.inverted ? 'Inverted' : ''))],
         content: true,
         handler: this.clear
       }]
@@ -11381,8 +13375,47 @@ var QSearch = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     clear: function clear () {
       this.$refs.input.clear();
     }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    return h(QInput, {
+      ref: 'input',
+      staticClass: 'q-search',
+      props: {
+        value: this.model,
+        type: this.type,
+        autofocus: this.autofocus,
+        placeholder: this.placeholder || this.$q.i18n.label.search,
+        disable: this.disable,
+        error: this.error,
+        warning: this.warning,
+        align: this.align,
+        floatLabel: this.floatLabel,
+        stackLabel: this.stackLabel,
+        prefix: this.prefix,
+        suffix: this.suffix,
+        inverted: this.inverted,
+        dark: this.dark,
+        hideUnderline: this.hideUnderline,
+        maxLength: this.maxLength,
+        color: this.color,
+        before: this.controlBefore,
+        after: this.controlAfter
+      },
+      on: {
+        input: function (v) { this$1.model = v; },
+        focus: this.__onFocus,
+        blur: this.__onBlur,
+        keyup: this.__onKeyup,
+        keydown: this.__onKeydown,
+        click: this.__onClick
+      }
+    }, [
+      this.$slots.default
+    ])
   }
-};
+}
 
 var SelectMixin = {
   components: {
@@ -11484,17 +13517,17 @@ var SelectMixin = {
       this.__emit(this.multiple ? [] : null);
     }
   }
-};
+}
 
 function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.show($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.togglePopup($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -11551,6 +13584,9 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
     }
   },
   methods: {
+    togglePopup: function togglePopup () {
+      this[this.$refs.popover.showing ? 'hide' : 'show']();
+    },
     show: function show () {
       if (this.disable) {
         return Promise.reject(new Error())
@@ -11605,13 +13641,13 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       this.hide();
     }
   }
-};
+}
 
-var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"light":_vm.light,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
+var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.frameColor || _vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.pick($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(ref){
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"arrow_drop_down"},slot:"after"})],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],2)},staticRenderFns: [],
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
@@ -11655,14 +13691,14 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         },
         cancel: this.cancelLabel || true,
         ok: this.okLabel || true
-      }).catch(function () {
-        this$1.dialog = null;
       }).then(function (data) {
         this$1.dialog = null;
         if (JSON.stringify(this$1.value) !== JSON.stringify(data)) {
           this$1.$emit('input', data);
           this$1.$emit('change', data);
         }
+      }).catch(function () {
+        this$1.dialog = null;
       });
     },
     hide: function hide () {
@@ -11680,113 +13716,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       this.$emit('blur');
     }
   }
-};
-
-var QSlider = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.horizontal",value:(_vm.__pan),expression:"__pan",modifiers:{"horizontal":true}}],staticClass:"q-slider non-selectable",class:_vm.classes,on:{"click":_vm.__click}},[_c('div',{ref:"handle",staticClass:"q-slider-handle-container"},[_c('div',{staticClass:"q-slider-track"}),_vm._v(" "),(_vm.markers)?_vm._l((((_vm.max - _vm.min) / _vm.step + 1)),function(n){return _c('div',{key:n,staticClass:"q-slider-mark",style:({left: (n - 1) * 100 * _vm.step / (_vm.max - _vm.min) + '%'})})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-slider-track active-track",class:{'no-transition': _vm.dragging, 'handle-at-minimum': _vm.model === _vm.min},style:({width: _vm.percentage})}),_vm._v(" "),_c('div',{staticClass:"q-slider-handle",class:{dragging: _vm.dragging, 'handle-at-minimum': !_vm.fillHandleAlways && _vm.model === _vm.min},style:({left: _vm.percentage, borderRadius: _vm.square ? '0' : '50%'})},[(_vm.label || _vm.labelAlways)?_c('q-chip',{staticClass:"q-slider-label no-pointer-events",class:{'label-always': _vm.labelAlways},attrs:{"pointing":"down","square":"","color":_vm.labelColor}},[_vm._v(" "+_vm._s(_vm.displayValue)+" ")]):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"q-slider-ring"}):_vm._e()],1)],2)])},staticRenderFns: [],
-  name: 'q-slider',
-  directives: {
-    TouchPan: TouchPan
-  },
-  mixins: [mixin$1],
-  props: {
-    value: {
-      type: Number,
-      required: true
-    },
-    labelValue: String
-  },
-  data: function data () {
-    return {
-      model: this.value,
-      dragging: false,
-      currentPercentage: (this.value - this.min) / (this.max - this.min)
-    }
-  },
-  computed: {
-    percentage: function percentage () {
-      if (this.snap) {
-        return (this.model - this.min) / (this.max - this.min) * 100 + '%'
-      }
-      return 100 * this.currentPercentage + '%'
-    },
-    displayValue: function displayValue () {
-      return this.labelValue !== void 0
-        ? this.labelValue
-        : this.model
-    }
-  },
-  watch: {
-    value: function value (value$1) {
-      if (this.dragging) {
-        return
-      }
-      if (value$1 < this.min) {
-        this.model = this.min;
-      }
-      else if (value$1 > this.max) {
-        this.model = this.max;
-      }
-      else {
-        this.model = value$1;
-      }
-      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
-    },
-    min: function min (value) {
-      if (this.model < value) {
-        this.model = value;
-        return
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    max: function max (value) {
-      if (this.model > value) {
-        this.model = value;
-        return
-      }
-      this.$nextTick(this.__validateProps);
-    },
-    step: function step () {
-      this.$nextTick(this.__validateProps);
-    }
-  },
-  methods: {
-    __setActive: function __setActive (event) {
-      var container = this.$refs.handle;
-
-      this.dragging = {
-        left: container.getBoundingClientRect().left,
-        width: container.offsetWidth
-      };
-      this.__update(event);
-    },
-    __update: function __update (event) {
-      var
-        percentage = getPercentage(event, this.dragging),
-        model = getModel(percentage, this.min, this.max, this.step, this.decimals);
-
-      this.currentPercentage = percentage;
-      if (model !== this.model) {
-        this.$emit('input', model);
-        this.model = model;
-      }
-    },
-    __end: function __end () {
-      this.dragging = false;
-      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
-      if (this.value !== this.model) {
-        this.$emit('change', this.model);
-      }
-    },
-    __validateProps: function __validateProps () {
-      if (this.min >= this.max) {
-        console.error('Range error: min >= max', this.$el, this.min, this.max);
-      }
-      else if (notDivides((this.max - this.min) / this.step, this.decimals)) {
-        console.error('Range error: step must be a divisor of max - min', this.min, this.max, this.step, this.decimals);
-      }
-    }
-  }
-};
+}
 
 var StepTab = {
   name: 'q-step-header',
@@ -11829,13 +13759,7 @@ var StepTab = {
       on: {
         click: this.__select
       },
-      directives: [{
-        name: 'ripple',
-        modifiers: {
-          mat: true
-        },
-        value: this.vm.done
-      }]
+      directives: null
     }, [
       h('div', { staticClass: 'q-stepper-dot row flex-center q-stepper-line relative-position' }, [
         h('span', { staticClass: 'row flex-center' }, [ icon ])
@@ -11850,7 +13774,7 @@ var StepTab = {
         : null
     ])
   }
-};
+}
 
 var QStep = {
   name: 'q-step',
@@ -11899,13 +13823,13 @@ var QStep = {
       var data = this.__stepper;
 
       if (this.active) {
-        return this.activeIcon || data.activeIcon
+        return this.activeIcon || data.activeIcon || this.$q.icon.stepper.active
       }
       if (this.error) {
-        return this.errorIcon || data.errorIcon
+        return this.errorIcon || data.errorIcon || this.$q.icon.stepper.error
       }
       if (this.done && !this.disable) {
-        return this.doneIcon || data.doneIcon
+        return this.doneIcon || data.doneIcon || this.$q.icon.stepper.done
       }
 
       return this.icon
@@ -11968,7 +13892,7 @@ var QStep = {
       ])
     ])
   }
-};
+}
 
 var QStepper = {
   name: 'q-stepper',
@@ -11981,18 +13905,9 @@ var QStepper = {
     vertical: Boolean,
     alternativeLabels: Boolean,
     contractable: Boolean,
-    doneIcon: {
-      type: [String, Boolean],
-      default: 'check'
-    },
-    activeIcon: {
-      type: [String, Boolean],
-      default: 'edit'
-    },
-    errorIcon: {
-      type: [String, Boolean],
-      default: 'warning'
-    }
+    doneIcon: Boolean,
+    activeIcon: Boolean,
+    errorIcon: Boolean
   },
   data: function data () {
     return {
@@ -12140,7 +14055,7 @@ var QStepper = {
       this.$slots.default
     ])
   }
-};
+}
 
 var QStepperNavigation = {
   name: 'q-stepper-navigation',
@@ -12160,7 +14075,7 @@ var QStepperNavigation = {
 
     return h('div', data, child)
   }
-};
+}
 
 var TabMixin = {
   directives: {
@@ -12265,7 +14180,7 @@ var TabMixin = {
       return child
     }
   }
-};
+}
 
 var QRouteTab = {
   name: 'q-route-tab',
@@ -12313,15 +14228,10 @@ var QRouteTab = {
       },
       staticClass: 'q-tab column flex-center relative-position',
       'class': this.classes,
-      directives: [{
-        name: 'ripple',
-        modifiers: {
-          mat: true
-        }
-      }]
+      directives: null
     }, this.__getTabContent(h))
   }
-};
+}
 
 var QTab = {
   name: 'q-tab',
@@ -12349,15 +14259,10 @@ var QTab = {
       on: {
         click: this.select
       },
-      directives: [{
-        name: 'ripple',
-        modifiers: {
-          mat: true
-        }
-      }]
+      directives: null
     }, this.__getTabContent(h))
   }
-};
+}
 
 var QTabPane = {
   name: 'q-tab-pane',
@@ -12401,14 +14306,14 @@ var QTabPane = {
       }
     }
   }
-};
+}
 
 var scrollNavigationSpeed = 5;
 var debounceDelay = 50; // in ms
 
 var QTabs = {render: function(){
 var obj;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{staticClass:"column full-width no-wrap",style:(_vm.tabStyle)},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj.glossy = _vm.glossy, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj)},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_left"}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":"chevron_right"}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes column scroll"},[_vm._t("default")],2)])])},staticRenderFns: [],
+var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{staticClass:"column full-width no-wrap",style:(_vm.tabStyle)},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj.glossy = _vm.glossy, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj)},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.left}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.right}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes column scroll"},[_vm._t("default")],2)])])},staticRenderFns: [],
   name: 'q-tabs',
   provide: function provide () {
     return {
@@ -12679,6 +14584,9 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
     var this$1 = this;
 
     this.$nextTick(function () {
+      if (!this$1.$refs.scroller) {
+        return
+      }
       this$1.$refs.scroller.addEventListener('scroll', this$1.__updateScrollIndicator);
       window.addEventListener('resize', this$1.__redraw);
 
@@ -12698,7 +14606,7 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
     this.__redraw.cancel();
     this.__updateScrollIndicator.cancel();
   }
-};
+}
 
 var Top = {
   methods: {
@@ -12751,7 +14659,7 @@ var Top = {
       }, child)
     }
   }
-};
+}
 
 var QTh = {
   name: 'q-th',
@@ -12802,7 +14710,7 @@ var QTh = {
 
       child[action](
         h(QIcon, {
-          props: { name: 'arrow_upward' },
+          props: { name: ctx.parent.$q.icon.table.arrowUp },
           staticClass: col.__iconClass
         })
       );
@@ -12810,7 +14718,7 @@ var QTh = {
 
     return h('th', data, ctx.children)
   }
-};
+}
 
 var TableHeader = {
   methods: {
@@ -12922,7 +14830,7 @@ var TableHeader = {
       return data
     }
   }
-};
+}
 
 var TableBody = {
   methods: {
@@ -13038,7 +14946,7 @@ var TableBody = {
       return col.format ? col.format(val) : val
     }
   }
-};
+}
 
 var Bottom = {
   methods: {
@@ -13049,7 +14957,7 @@ var Bottom = {
           : (this.loader ? this.loaderLabel || this.$q.i18n.table.loader : this.noDataLabel || this.$q.i18n.table.noData);
 
         return h('div', { staticClass: 'q-table-bottom row items-center q-table-nodata' }, [
-          h(QIcon, {props: {name: 'warning'}}),
+          h(QIcon, {props: { name: this.$q.icon.table.warning }}),
           message
         ])
       }
@@ -13076,12 +14984,12 @@ var Bottom = {
             ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRows)(this.rowsSelectedNumber)
             : ''
         ]),
-        h('div', [
+        h('div', { staticClass: 'flex items-center' }, [
           h('span', { style: {marginRight: '32px'} }, [
             this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
-            staticClass: 'inline',
+            staticClass: 'inline q-pb-none',
             style: {
               margin: '0 15px',
               minWidth: '50px'
@@ -13090,7 +14998,8 @@ var Bottom = {
               color: this.color,
               value: rowsPerPage,
               options: this.computedRowsPerPageOptions,
-              dark: this.dark
+              dark: this.dark,
+              hideUnderline: true
             },
             on: {
               input: function (rowsPerPage) {
@@ -13110,8 +15019,8 @@ var Bottom = {
             props: {
               color: this.color,
               round: true,
-              icon: 'chevron_left',
-              small: true,
+              icon: this.$q.icon.table.prevPage,
+              size: 'sm',
               flat: true,
               disable: page === 1
             },
@@ -13125,8 +15034,8 @@ var Bottom = {
             props: {
               color: this.color,
               round: true,
-              icon: 'chevron_right',
-              small: true,
+              icon: this.$q.icon.table.nextPage,
+              size: 'sm',
               flat: true,
               disable: this.lastRowIndex === 0 || page * rowsPerPage >= this.computedRowsNumber
             },
@@ -13140,7 +15049,7 @@ var Bottom = {
       ]
     }
   }
-};
+}
 
 function sortDate (a, b) {
   return (new Date(a)) - (new Date(b))
@@ -13228,7 +15137,7 @@ var Sort = {
       this.setPagination({ sortBy: sortBy, descending: descending, page: 1 });
     }
   }
-};
+}
 
 var Filter = {
   props: {
@@ -13248,7 +15157,7 @@ var Filter = {
   },
   computed: {
     hasFilter: function hasFilter () {
-      return this.filter !== void 0
+      return this.filter !== void 0 && this.filter.length > 0
     }
   },
   watch: {
@@ -13260,7 +15169,7 @@ var Filter = {
       });
     }
   }
-};
+}
 
 var Pagination = {
   props: {
@@ -13327,7 +15236,7 @@ var Pagination = {
   created: function created () {
     this.$emit('update:pagination', Object.assign({}, this.computedPagination));
   }
-};
+}
 
 var RowSelection = {
   props: {
@@ -13395,7 +15304,7 @@ var RowSelection = {
       }
     }
   }
-};
+}
 
 var ColumnSelection = {
   props: {
@@ -13429,7 +15338,7 @@ var ColumnSelection = {
       return names
     }
   }
-};
+}
 
 var Expand = {
   data: function data () {
@@ -13437,7 +15346,7 @@ var Expand = {
       rowsExpanded: {}
     }
   }
-};
+}
 
 var QTable = {
   name: 'q-table',
@@ -13496,7 +15405,10 @@ var QTable = {
   },
   computed: {
     computedRows: function computedRows () {
-      var rows = this.data.slice();
+      var rows = this.data.slice().map(function (row, i) {
+        row.__index = i;
+        return row
+      });
 
       if (rows.length === 0) {
         return []
@@ -13510,7 +15422,7 @@ var QTable = {
       var descending = ref.descending;
       var rowsPerPage = ref.rowsPerPage;
 
-      if (this.hasFilter && this.filter) {
+      if (this.hasFilter) {
         rows = this.filterMethod(rows, this.filter, this.computedCols, this.getCellValue);
       }
 
@@ -13573,7 +15485,7 @@ var QTable = {
       });
     }
   }
-};
+}
 
 var QTr = {
   name: 'q-tr',
@@ -13595,7 +15507,7 @@ var QTr = {
 
     return h('tr', data, ctx.children)
   }
-};
+}
 
 var QTd = {
   name: 'q-td',
@@ -13636,7 +15548,7 @@ var QTd = {
 
     return h('td', data, ctx.children)
   }
-};
+}
 
 var QTableColumns = {
   name: 'q-table-columns',
@@ -13668,11 +15580,12 @@ var QTableColumns = {
         value: this.value,
         options: this.computedOptions,
         displayValue: this.label || this.$q.i18n.table.columns,
-        color: this.color
+        color: this.color,
+        hideUnderline: true
       }
     })
   }
-};
+}
 
 var QTimeline = {
   name: 'q-timeline',
@@ -13696,7 +15609,7 @@ var QTimeline = {
       this.$slots.default
     ])
   }
-};
+}
 
 var QTimelineEntry = {
   name: 'q-timeline-entry',
@@ -13768,7 +15681,7 @@ var QTimelineEntry = {
       ])
     ])
   }
-};
+}
 
 var QToolbar = {
   name: 'q-toolbar',
@@ -13799,7 +15712,7 @@ var QToolbar = {
       ctx.children
     )
   }
-};
+}
 
 var QToolbarTitle = {
   name: 'q-toolbar-title',
@@ -13818,77 +15731,616 @@ var QToolbarTitle = {
 
     return h('div', data, children)
   }
-};
+}
 
-var QTreeItem = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('li',{staticClass:"q-tree-item"},[_c('div',{staticClass:"row inline items-center",class:{'q-tree-link': _vm.hasHandler || _vm.isExpandable}},[_c('div',{directives:[{name:"ripple",rawName:"v-ripple.mat",value:(_vm.hasHandler || _vm.isExpandable),expression:"hasHandler || isExpandable",modifiers:{"mat":true}}],staticClass:"q-tree-label relative-position row items-center",on:{"click":_vm.tap}},[(_vm.item.icon)?_c('q-icon',{staticClass:"on-left",attrs:{"name":_vm.item.icon}}):_vm._e(),_vm._v(" "),(_vm.item.safe)?_c('span',{domProps:{"innerHTML":_vm._s(_vm.item.title)}}):_c('span',[_vm._v(_vm._s(_vm.item.title))])],1),_vm._v(" "),(_vm.isExpandable)?_c('span',{staticClass:"on-right",domProps:{"innerHTML":_vm._s(_vm.item.expanded ? _vm.contractHtml : _vm.expandHtml)},on:{"click":_vm.toggle}}):_vm._e()]),_vm._v(" "),_c('q-slide-transition',[_c('ul',{directives:[{name:"show",rawName:"v-show",value:(_vm.isExpandable && _vm.item.expanded),expression:"isExpandable && item.expanded"}]},_vm._l((_vm.item.children),function(item){return _c('q-tree-item',{key:item.id || item.title,attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])],1)},staticRenderFns: [],
-  name: 'q-tree-item',
-  components: {
-    QIcon: QIcon,
-    QSlideTransition: QSlideTransition
-  },
+var QTree = {
+  name: 'q-tree',
   directives: {
     Ripple: Ripple
   },
-  props: ['model', 'contractHtml', 'expandHtml'],
+  props: {
+    nodes: Array,
+    nodeKey: {
+      type: String,
+      default: 'id'
+    },
+
+    color: {
+      type: String,
+      default: 'grey'
+    },
+    controlColor: String,
+    textColor: String,
+    dark: Boolean,
+
+    icon: String,
+
+    tickStrategy: {
+      type: String,
+      validator: function (v) { return ['none', 'strict', 'leaf', 'leaf-filtered'].includes(v); }
+    },
+    ticked: Array, // sync
+    expanded: Array, // sync
+    selected: {}, // sync
+
+    defaultExpandAll: Boolean,
+    accordion: Boolean,
+
+    filter: String,
+    filterMethod: {
+      type: Function,
+      default: function default$1 (node, filter) {
+        return node.label && node.label.indexOf(filter) > -1
+      }
+    },
+
+    noNodesLabel: String,
+    noResultsLabel: String
+  },
+  computed: {
+    hasRipple: function hasRipple () {
+      return "ios" === 'mat' && !this.noRipple
+    },
+    classes: function classes () {
+      return [
+        ("text-" + (this.color)),
+        { 'q-tree-dark': this.dark }
+      ]
+    },
+    hasSelection: function hasSelection () {
+      return this.selected !== void 0
+    },
+    computedIcon: function computedIcon () {
+      return this.icon || this.$q.icon.tree.icon
+    },
+    computedControlColor: function computedControlColor () {
+      return this.controlColor || this.color
+    },
+    contentClass: function contentClass () {
+      return ("text-" + (this.textColor || (this.dark ? 'white' : 'black')))
+    },
+    meta: function meta () {
+      var this$1 = this;
+
+      var meta = {};
+
+      var travel = function (node, parent) {
+        var tickStrategy = node.tickStrategy || (parent ? parent.tickStrategy : this$1.tickStrategy);
+        var
+          key = node[this$1.nodeKey],
+          isParent = node.children && node.children.length > 0,
+          isLeaf = !isParent,
+          selectable = !node.disabled && this$1.hasSelection && node.selectable !== false,
+          expandable = !node.disabled && node.expandable !== false,
+          hasTicking = tickStrategy !== 'none',
+          strictTicking = tickStrategy === 'strict',
+          leafFilteredTicking = tickStrategy === 'leaf-filtered',
+          leafTicking = tickStrategy === 'leaf' || tickStrategy === 'leaf-filtered';
+
+        var tickable = !node.disabled && node.tickable !== false;
+        if (leafTicking && tickable && parent && !parent.tickable) {
+          tickable = false;
+        }
+
+        var lazy = node.lazy;
+        if (lazy && this$1.lazy[key]) {
+          lazy = this$1.lazy[key];
+        }
+
+        var m = {
+          key: key,
+          parent: parent,
+          isParent: isParent,
+          isLeaf: isLeaf,
+          lazy: lazy,
+          disabled: node.disabled,
+          link: selectable || (expandable && (isParent || lazy === true)),
+          children: [],
+          matchesFilter: this$1.filter ? this$1.filterMethod(node, this$1.filter) : true,
+
+          selected: key === this$1.selected && selectable,
+          selectable: selectable,
+          expanded: isParent ? this$1.innerExpanded.includes(key) : false,
+          expandable: expandable,
+          noTick: node.noTick || (!strictTicking && lazy && lazy !== 'loaded'),
+          tickable: tickable,
+          tickStrategy: tickStrategy,
+          hasTicking: hasTicking,
+          strictTicking: strictTicking,
+          leafFilteredTicking: leafFilteredTicking,
+          leafTicking: leafTicking,
+          ticked: strictTicking
+            ? this$1.innerTicked.includes(key)
+            : (isLeaf ? this$1.innerTicked.includes(key) : false)
+        };
+
+        meta[key] = m;
+
+        if (isParent) {
+          m.children = node.children.map(function (n) { return travel(n, m); });
+
+          if (this$1.filter) {
+            if (!m.matchesFilter) {
+              m.matchesFilter = m.children.some(function (n) { return n.matchesFilter; });
+            }
+            if (
+              m.matchesFilter &&
+              !m.noTick &&
+              !m.disabled &&
+              m.tickable &&
+              leafFilteredTicking &&
+              m.children.every(function (n) { return !n.matchesFilter || n.noTick || !n.tickable; })
+            ) {
+              m.tickable = false;
+            }
+          }
+
+          if (m.matchesFilter) {
+            if (!m.noTick && !strictTicking && m.children.every(function (n) { return n.noTick; })) {
+              m.noTick = true;
+            }
+
+            if (leafTicking) {
+              m.ticked = false;
+              m.indeterminate = m.children.some(function (node) { return node.indeterminate; });
+
+              if (!m.indeterminate) {
+                var sel = m.children
+                  .reduce(function (acc, meta) { return meta.ticked ? acc + 1 : acc; }, 0);
+
+                if (sel === m.children.length) {
+                  m.ticked = true;
+                }
+                else if (sel > 0) {
+                  m.indeterminate = true;
+                }
+              }
+            }
+          }
+        }
+
+        return m
+      };
+
+      this.nodes.forEach(function (node) { return travel(node, null); });
+      return meta
+    }
+  },
   data: function data () {
     return {
-      item: extend({
-        expanded: false,
-        children: []
-      }, this.model)
+      lazy: {},
+      innerTicked: this.ticked || [],
+      innerExpanded: this.expanded || []
     }
   },
   watch: {
-    model: function model (value) {
-      this.item = extend({
-        expanded: false,
-        children: []
-      }, value);
+    ticked: function ticked (val) {
+      this.innerTicked = val;
+    },
+    expanded: function expanded (val) {
+      this.innerExpanded = val;
     }
   },
   methods: {
-    tap: function tap () {
-      if (this.hasHandler) {
-        return this.item.handler(this.model)
-      }
-      this.toggle();
-    },
-    toggle: function toggle () {
-      this.item.expanded = !this.item.expanded;
-    }
-  },
-  computed: {
-    isExpandable: function isExpandable () {
-      return this.item.children && this.item.children.length > 0
-    },
-    hasHandler: function hasHandler () {
-      return typeof this.item.handler === 'function'
-    }
-  }
-};
+    getNodeByKey: function getNodeByKey (key) {
+      var this$1 = this;
 
-var QTree = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tree"},[_c('ul',_vm._l((_vm.model),function(item){return _c('q-tree-item',{key:item.id || item.title,attrs:{"model":item,"contract-html":_vm.contractHtml,"expand-html":_vm.expandHtml}})}))])},staticRenderFns: [],
-  name: 'q-tree',
-  components: {
-    QTreeItem: QTreeItem
+      var reduce = [].reduce;
+
+      var find = function (result, node) {
+        if (result || !node) {
+          return result
+        }
+        if (Array.isArray(node)) {
+          return reduce.call(Object(node), find, result)
+        }
+        if (node[this$1.nodeKey] === key) {
+          return node
+        }
+        if (node.children) {
+          return find(null, node.children)
+        }
+      };
+
+      return find(null, this.nodes)
+    },
+    getTickedNodes: function getTickedNodes () {
+      var this$1 = this;
+
+      return this.innerTicked.map(function (key) { return this$1.getNodeByKey(key); })
+    },
+    getExpandedNodes: function getExpandedNodes () {
+      var this$1 = this;
+
+      return this.innerExpanded.map(function (key) { return this$1.getNodeByKey(key); })
+    },
+    isExpanded: function isExpanded (key) {
+      return key && this.meta[key]
+        ? this.meta[key].expanded
+        : false
+    },
+    collapseAll: function collapseAll () {
+      if (this.expanded !== void 0) {
+        this.$emit('update:expanded', []);
+      }
+      else {
+        this.innerExpanded = [];
+      }
+    },
+    expandAll: function expandAll () {
+      var this$1 = this;
+
+      var
+        expanded = this.innerExpanded,
+        travel = function (node) {
+          if (node.children && node.children.length > 0) {
+            if (node.expandable !== false && node.disabled !== true) {
+              expanded.push(node[this$1.nodeKey]);
+              node.children.forEach(travel);
+            }
+          }
+        };
+
+      this.nodes.forEach(travel);
+
+      if (this.expanded !== void 0) {
+        this.$emit('update:expanded', expanded);
+      }
+      else {
+        this.innerExpanded = expanded;
+      }
+    },
+    setExpanded: function setExpanded (key, state, node, meta) {
+      var this$1 = this;
+      if ( node === void 0 ) node = this.getNodeByKey(key);
+      if ( meta === void 0 ) meta = this.meta[key];
+
+      if (meta.lazy && meta.lazy !== 'loaded') {
+        if (meta.lazy === 'loading') {
+          return
+        }
+
+        this.$set(this.lazy, key, 'loading');
+        this.$emit('lazy-load', {
+          node: node,
+          key: key,
+          done: function (children) {
+            this$1.lazy[key] = 'loaded';
+            if (children) {
+              node.children = children;
+            }
+            this$1.$nextTick(function () {
+              var m = this$1.meta[key];
+              if (m && m.isParent) {
+                this$1.__setExpanded(key, true);
+              }
+            });
+          },
+          fail: function () {
+            this$1.$delete(this$1.lazy, key);
+          }
+        });
+      }
+      else if (meta.isParent && meta.expandable) {
+        this.__setExpanded(key, state);
+      }
+    },
+    __setExpanded: function __setExpanded (key, state) {
+      var this$1 = this;
+
+      var target = this.innerExpanded;
+      var emit = this.expanded !== void 0;
+
+      if (emit) {
+        target = target.slice();
+      }
+
+      if (state) {
+        if (this.accordion) {
+          if (this.meta[key]) {
+            var collapse = [];
+            if (this.meta[key].parent) {
+              this.meta[key].parent.children.forEach(function (m) {
+                if (m.key !== key && m.expandable) {
+                  collapse.push(m.key);
+                }
+              });
+            }
+            else {
+              this.nodes.forEach(function (node) {
+                var k = node[this$1.nodeKey];
+                if (k !== key) {
+                  collapse.push(k);
+                }
+              });
+            }
+            if (collapse.length > 0) {
+              target = target.filter(function (k) { return !collapse.includes(k); });
+            }
+          }
+        }
+
+        target = target.concat([ key ])
+          .filter(function (key, index, self) { return self.indexOf(key) === index; });
+      }
+      else {
+        target = target.filter(function (k) { return k !== key; });
+      }
+
+      if (emit) {
+        this.$emit("update:expanded", target);
+      }
+    },
+    isTicked: function isTicked (key) {
+      return key && this.meta[key]
+        ? this.meta[key].ticked
+        : false
+    },
+    setTicked: function setTicked (keys, state) {
+      var target = this.innerTicked;
+      var emit = this.ticked !== void 0;
+
+      if (emit) {
+        target = target.slice();
+      }
+
+      if (state) {
+        target = target.concat(keys)
+          .filter(function (key, index, self) { return self.indexOf(key) === index; });
+      }
+      else {
+        target = target.filter(function (k) { return !keys.includes(k); });
+      }
+
+      if (emit) {
+        this.$emit("update:ticked", target);
+      }
+    },
+    __getSlotScope: function __getSlotScope (node, meta, key) {
+      var this$1 = this;
+
+      var scope = { tree: this, node: node, key: key, color: this.color, dark: this.dark };
+
+      Object.defineProperty(scope, 'expanded', {
+        get: function () { return meta.expanded },
+        set: function (val) { val !== meta.expanded && this$1.setExpanded(key, val); }
+      });
+      Object.defineProperty(scope, 'ticked', {
+        get: function () { return meta.ticked },
+        set: function (val) { val !== meta.ticked && this$1.setTicked([ key ], val); }
+      });
+
+      return scope
+    },
+    __getChildren: function __getChildren (nodes, limitChildren) {
+      var this$1 = this;
+
+      if (limitChildren) {
+        var i = limitChildren === true ? 2 : limitChildren;
+        return this.filter
+          ? nodes.filter(function (n) {
+            var meta = this$1.meta[n[this$1.nodeKey]];
+            if (!meta.expanded) {
+              return (--i >= 0) && meta.matchesFilter
+            }
+            return meta.matchesFilter
+          })
+          : nodes.filter(function (n) {
+            var meta = this$1.meta[n[this$1.nodeKey]];
+            if (!meta.expanded) {
+              return --i >= 0
+            }
+            return true
+          })
+      }
+      return this.filter
+        ? nodes.filter(function (n) { return this$1.meta[n[this$1.nodeKey]].matchesFilter; })
+        : nodes
+    },
+    __getChildrenNodes: function __getChildrenNodes (h, nodes) {
+      var this$1 = this;
+
+      return nodes.map(function (child) { return this$1.__getNode(h, child); })
+    },
+    __getNodeMedia: function __getNodeMedia (h, node) {
+      if (node.icon) {
+        return h(QIcon, {
+          staticClass: "q-tree-icon q-mr-sm",
+          props: { name: node.icon }
+        })
+      }
+      if (node.img || node.avatar) {
+        return h('img', {
+          staticClass: "q-tree-img q-mr-sm",
+          'class': { avatar: node.avatar },
+          domProps: { src: node.img || node.avatar }
+        })
+      }
+    },
+    __getNode: function __getNode (h, node) {
+      var this$1 = this;
+
+      var
+        key = node[this.nodeKey],
+        meta = this.meta[key],
+        header = node.header
+          ? this.$scopedSlots[("header-" + (node.header))] || this.$scopedSlots['default-header']
+          : this.$scopedSlots['default-header'];
+
+      var children = meta.isParent
+        ? this.__getChildren(node.children, !meta.expanded)
+        : [];
+
+      var isParent = children.length > 0;
+
+      var childrenNodes = isParent
+        ? this.__getChildrenNodes(h, children)
+        : [];
+
+      var
+        body = node.body
+          ? this.$scopedSlots[("body-" + (node.body))] || this.$scopedSlots['default-body']
+          : this.$scopedSlots['default-body'],
+        slotScope = header || body
+          ? this.__getSlotScope(node, meta, key)
+          : null;
+
+      if (body) {
+        body = h('div', {
+          staticClass: 'q-tree-node-body relative-position',
+          'class': { 'q-tree-node-body-with-children': isParent }
+        }, [
+          h('div', { 'class': this.contentClass }, [
+            body(slotScope)
+          ])
+        ]);
+      }
+
+      return h('div', {
+        key: key,
+        staticClass: 'q-tree-node'
+      }, [
+        h('div', {
+          staticClass: 'q-tree-node-header relative-position row no-wrap items-center',
+          'class': {
+            'q-tree-node-link': meta.link,
+            'q-tree-node-selected': meta.selected,
+            disabled: meta.disabled
+          },
+          on: { click: function () { this$1.__onClick(node, meta); } },
+          directives: null
+        }, [
+          meta.lazy === 'loading'
+            ? h(QSpinner, {
+              staticClass: 'q-tree-node-header-media q-mr-xs',
+              props: { color: this.computedControlColor }
+            })
+            : (
+              isParent || (meta.lazy && meta.lazy !== 'loaded')
+                ? h(QIcon, {
+                  staticClass: 'q-tree-arrow q-mr-xs transition-generic',
+                  'class': { 'rotate-90': meta.expanded },
+                  props: { name: this.computedIcon },
+                  on: this.hasSelection
+                    ? { click: function (e) { this$1.__onExpandClick(node, meta, e); } }
+                    : undefined
+                })
+                : null
+            ),
+
+          h('span', { 'staticClass': 'row no-wrap items-center', 'class': this.contentClass }, [
+            meta.hasTicking && !meta.noTick
+              ? h(QCheckbox, {
+                staticClass: 'q-mr-xs',
+                props: {
+                  value: meta.ticked,
+                  color: this.computedControlColor,
+                  dark: this.dark,
+                  keepColor: true,
+                  indeterminate: meta.indeterminate,
+                  disable: !meta.tickable
+                },
+                on: {
+                  input: function (v) {
+                    this$1.__onTickedClick(node, meta, v);
+                  }
+                }
+              })
+              : null,
+            header
+              ? header(slotScope)
+              : [
+                this.__getNodeMedia(h, node),
+                h('span', node.label)
+              ]
+          ])
+        ]),
+
+        isParent
+          ? h(QSlideTransition, [
+            h('div', {
+              directives: [{ name: 'show', value: meta.expanded }],
+              staticClass: 'q-tree-node-collapsible',
+              'class': ("text-" + (this.color))
+            }, [
+              body,
+              h('div', {
+                staticClass: 'q-tree-children',
+                'class': { disabled: meta.disabled }
+              }, childrenNodes)
+            ])
+          ])
+          : body
+      ])
+    },
+    __onClick: function __onClick (node, meta) {
+      if (this.hasSelection) {
+        meta.selectable && this.$emit('update:selected', meta.key);
+      }
+      else {
+        this.__onExpandClick(node, meta);
+      }
+
+      if (typeof node.handler === 'function') {
+        node.handler(node);
+      }
+    },
+    __onExpandClick: function __onExpandClick (node, meta, e) {
+      if (e !== void 0) {
+        e.stopPropagation();
+      }
+      this.setExpanded(meta.key, !meta.expanded, node, meta);
+    },
+    __onTickedClick: function __onTickedClick (node, meta, state) {
+      if (meta.indeterminate && state) {
+        state = false;
+      }
+      if (meta.strictTicking) {
+        this.setTicked([ meta.key ], state);
+      }
+      else if (meta.leafTicking) {
+        var keys = [];
+        var travel = function (meta) {
+          if (meta.isParent) {
+            if (!state && !meta.noTick && meta.tickable) {
+              keys.push(meta.key);
+            }
+            if (meta.leafTicking) {
+              meta.children.forEach(travel);
+            }
+          }
+          else if (!meta.noTick && meta.tickable && (!meta.leafFilteredTicking || meta.matchesFilter)) {
+            keys.push(meta.key);
+          }
+        };
+        travel(meta);
+        this.setTicked(keys, state);
+      }
+    }
   },
-  props: {
-    model: {
-      type: Array,
-      required: true
-    },
-    contractHtml: {
-      type: String,
-      required: true,
-      default: '<i class="material-icons">remove_circle</i>'
-    },
-    expandHtml: {
-      type: String,
-      required: true,
-      default: '<i class="material-icons">add_circle</i>'
+  render: function render (h) {
+    var children = this.__getChildrenNodes(h, this.__getChildren(this.nodes));
+
+    return h(
+      'div', {
+        staticClass: 'q-tree relative-position',
+        'class': this.classes
+      },
+      children.length === 0
+        ? (
+          this.filter
+            ? this.noResultsLabel || this.$q.i18n.tree.noResults
+            : this.noNodesLabel || this.$q.i18n.tree.noNodes
+        )
+        : children
+    )
+  },
+  created: function created () {
+    if (this.defaultExpandAll) {
+      this.expandAll();
     }
   }
-};
+}
 
 function initFile (file) {
   file.__doneUploading = false;
@@ -13897,7 +16349,7 @@ function initFile (file) {
   file.__progress = 0;
 }
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragOver($event);}}},[_c('q-input-frame',{ref:"input",staticClass:"no-margin",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"disable":_vm.disable,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"inverted":_vm.inverted,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col row items-center q-input-target",domProps:{"innerHTML":_vm._s(_vm.label)}}),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"clear"},on:{"click":_vm.abort},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":"add","disabled":_vm.addDisabled},on:{"click":_vm.__pick},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cloud_upload","disabled":_vm.queueLength === 0},on:{"click":_vm.upload},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":"keyboard_arrow_down"},on:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('div',{staticClass:"q-uploader-files scroll",style:(_vm.filesStyle)},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name,staticClass:"q-uploader-file"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : 'grey',"percentage":file.__progress}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":"insert_drive_file","color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":file.__doneUploading ? 'done' : 'clear',"color":_vm.color},on:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))])]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragLeave($event);},"drop":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDrop($event);}}}):_vm._e()],1)},staticRenderFns: [],
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragOver($event);}}},[_c('q-input-frame',{ref:"input",staticClass:"no-margin",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col row items-center q-input-target",domProps:{"innerHTML":_vm._s(_vm.label)}}),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.clear},on:{"click":_vm.abort},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},on:{"click":_vm.__pick},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},on:{"click":_vm.upload},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},on:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('div',{staticClass:"q-uploader-files scroll",style:(_vm.filesStyle)},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name,staticClass:"q-uploader-file"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : 'grey',"percentage":file.__progress}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},on:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))])]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragLeave($event);},"drop":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDrop($event);}}}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-uploader',
   mixins: [FrameMixin],
   components: {
@@ -14169,6 +16621,11 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         });
       })
     },
+    pick: function pick () {
+      if (!this.addDisabled) {
+        this.$refs.file.click();
+      }
+    },
     upload: function upload () {
       var this$1 = this;
 
@@ -14212,7 +16669,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.$emit('reset');
     }
   }
-};
+}
 
 var QVideo = {
   name: 'q-video',
@@ -14240,7 +16697,7 @@ var QVideo = {
 
     return h('div', data, [ h('iframe', iframeData) ])
   }
-};
+}
 
 
 
@@ -14250,6 +16707,8 @@ var components = Object.freeze({
 	QAjaxBar: QAjaxBar,
 	QAlert: QAlert,
 	QAutocomplete: QAutocomplete,
+	QBreadcrumbs: QBreadcrumbs,
+	QBreadcrumbEl: QBreadcrumbEl,
 	QBtn: QBtn,
 	QBtnGroup: QBtnGroup,
 	QBtnToggle: QBtnToggle,
@@ -14269,10 +16728,12 @@ var components = Object.freeze({
 	QChip: QChip,
 	QChipsInput: QChipsInput,
 	QCollapsible: QCollapsible,
+	QColor: QColor,
+	QColorPicker: QColorPicker,
 	QContextMenu: QContextMenu,
 	QDatetime: QDatetime,
 	QDatetimeRange: QDatetimeRange,
-	QInlineDatetime: QInlineDatetime,
+	QDatetimePicker: QDatetimePicker,
 	QDialog: QDialog,
 	QEditor: QEditor,
 	QFab: QFab,
@@ -14447,7 +16908,7 @@ var backToTop = {
     el.removeEventListener('click', ctx.goToTop);
     delete el.__qbacktotop;
   }
-};
+}
 
 var goBack = {
   name: 'go-back',
@@ -14480,7 +16941,7 @@ var goBack = {
     el.removeEventListener('click', el.__qgoback.goBack);
     delete el.__qgoback;
   }
-};
+}
 
 function updateBinding$1 (el, selector) {
   var
@@ -14528,7 +16989,7 @@ var move = {
     }
     delete el.__qmove;
   }
-};
+}
 
 function updateBinding$2 (el, binding) {
   var ctx = el.__qscrollfire;
@@ -14587,7 +17048,7 @@ var scrollFire = {
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
     delete el.__qscrollfire;
   }
-};
+}
 
 function updateBinding$3 (el, binding) {
   var ctx = el.__qscroll;
@@ -14629,7 +17090,7 @@ var scroll$1 = {
     ctx.scrollTarget.removeEventListener('scroll', ctx.scroll);
     delete el.__qscroll;
   }
-};
+}
 
 function updateBinding$4 (el, binding) {
   var ctx = el.__qtouchhold;
@@ -14704,7 +17165,7 @@ var touchHold = {
     document.removeEventListener('mouseup', ctx.mouseAbort);
     delete el.__qtouchhold;
   }
-};
+}
 
 
 
@@ -14720,7 +17181,7 @@ var directives = Object.freeze({
 	TouchSwipe: TouchSwipe
 });
 
-var modalFn = function (Component, Vue$$1) {
+function modalFn (Component, Vue$$1) {
   return function (props) {
     var node = document.createElement('div');
     document.body.appendChild(node);
@@ -14751,7 +17212,7 @@ var modalFn = function (Component, Vue$$1) {
       });
     })
   }
-};
+}
 
 var actionSheet = {
   __installed: false,
@@ -14764,55 +17225,7 @@ var actionSheet = {
 
     $q.actionSheet = modalFn(QActionSheet, Vue$$1);
   }
-};
-
-/*
- * Credits go to sindresorhus
- */
-
-function rgbToHex (red, green, blue) {
-  if (typeof red === 'string') {
-    var res = red.match(/\b\d{1,3}\b/g).map(Number);
-    red = res[0];
-    green = res[1];
-    blue = res[2];
-  }
-
-  if (
-    typeof red !== 'number' ||
-    typeof green !== 'number' ||
-    typeof blue !== 'number' ||
-    red > 255 ||
-    green > 255 ||
-    blue > 255
-  ) {
-    throw new TypeError('Expected three numbers below 256')
-  }
-
-  return ((blue | green << 8 | red << 16) | 1 << 24).toString(16).slice(1)
 }
-
-function hexToRgb (hex) {
-  if (typeof hex !== 'string') {
-    throw new TypeError('Expected a string')
-  }
-
-  hex = hex.replace(/^#/, '');
-
-  if (hex.length === 3) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-  }
-
-  var num = parseInt(hex, 16);
-
-  return [num >> 16, num >> 8 & 255, num & 255]
-}
-
-
-var colors = Object.freeze({
-	rgbToHex: rgbToHex,
-	hexToRgb: hexToRgb
-});
 
 function getPrimaryHex () {
   var tempDiv = document.createElement('div');
@@ -14860,7 +17273,7 @@ var addressbarColor = {
       setColor(hexColor || getPrimaryHex());
     });
   }
-};
+}
 
 var appFullscreen = {
   isCapable: null,
@@ -14935,7 +17348,7 @@ var appFullscreen = {
     Vue$$1.util.defineReactive({}, 'isActive', this);
     $q.fullscreen = this;
   }
-};
+}
 
 var appVisibility = {
   isVisible: null,
@@ -14975,7 +17388,7 @@ var appVisibility = {
       document.addEventListener(evt, update, false);
     }
   }
-};
+}
 
 function encode (string) {
   return encodeURIComponent(string)
@@ -15084,7 +17497,7 @@ var cookies = {
 
     $q.cookies = this;
   }
-};
+}
 
 var dialog = {
   __installed: false,
@@ -15097,7 +17510,7 @@ var dialog = {
 
     $q.dialog = modalFn(QDialog, Vue$$1);
   }
-};
+}
 
 var vm;
 var timeout;
@@ -15252,7 +17665,6 @@ var notify = {
           if (typeof notif === 'string') {
             notif = {
               message: notif,
-              timeout: 5000,
               position: 'bottom'
             };
           }
@@ -15268,18 +17680,46 @@ var notify = {
 
           notif.__uid = uid();
 
-          var action = notif.position.indexOf('top') > -1 ? 'unshift' : 'push';
-          this.notifs[notif.position][action](notif);
+          if (notif.timeout === void 0) {
+            notif.timeout = 5000;
+          }
 
           var close = function () {
             this$1.remove(notif);
           };
+
+          if (notif.actions) {
+            notif.actions = clone(notif.actions).map(function (action) {
+              var handler = action.handler;
+              action.handler = function () {
+                close();
+                if (typeof handler === 'function') {
+                  handler();
+                }
+              };
+              return action
+            });
+          }
+
+          if (notif.closeBtn) {
+            var btn = [{
+              closeBtn: true,
+              label: notif.closeBtn,
+              handler: close
+            }];
+            notif.actions = notif.actions
+              ? notif.actions.concat(btn)
+              : btn;
+          }
 
           if (notif.timeout) {
             notif.__timeout = setTimeout(function () {
               close();
             }, notif.timeout + /* show duration */ 1000);
           }
+
+          var action = notif.position.indexOf('top') > -1 ? 'unshift' : 'push';
+          this.notifs[notif.position][action](notif);
 
           return close
         },
@@ -15327,7 +17767,7 @@ var notify = {
     this.__vm.$mount(node);
     $q.notify = this.create.bind(this);
   }
-};
+}
 
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
@@ -15396,93 +17836,63 @@ function decode$1 (value) {
   }
 }
 
-function generateFunctions (fn) {
+function getEmptyStorage () {
+  var fn = function () { return null; };
+
   return {
-    local: fn('local'),
-    session: fn('session')
+    has: fn,
+    get: {
+      length: fn,
+      item: fn,
+      index: fn,
+      all: fn
+    },
+    set: fn,
+    remove: fn,
+    clear: fn,
+    isEmpty: fn
   }
 }
 
-var hasStorageItem = generateFunctions(
-    function (type) { return function (key) { return window[type + 'Storage'].getItem(key) !== null; }; }
-  );
-var getStorageLength = generateFunctions(
-    function (type) { return function () { return window[type + 'Storage'].length; }; }
-  );
-var getStorageItem = generateFunctions(function (type) {
-    var
-      hasFn = hasStorageItem[type],
-      storage = window[type + 'Storage'];
+function getStorage (type) {
+  var
+    webStorage = window[type + 'Storage'],
+    get = function (key) {
+      var item = webStorage.getItem(key);
+      return item
+        ? decode$1(item)
+        : null
+    };
 
-    return function (key) {
-      if (hasFn(key)) {
-        return decode$1(storage.getItem(key))
+  return {
+    has: function (key) { return webStorage.getItem(key) !== null; },
+    get: {
+      length: function () { return webStorage.length; },
+      item: get,
+      index: function (index) {
+        if (index < webStorage.length) {
+          return get(webStorage.key(index))
+        }
+      },
+      all: function () {
+        var result = {}, key, len = webStorage.length;
+
+        for (var i = 0; i < len; i++) {
+          key = webStorage.key(i);
+          result[key] = get(key);
+        }
+
+        return result
       }
-      return null
-    }
-  });
-var getStorageAtIndex = generateFunctions(function (type) {
-    var
-      lengthFn = getStorageLength[type],
-      getItemFn = getStorageItem[type],
-      storage = window[type + 'Storage'];
-
-    return function (index) {
-      if (index < lengthFn()) {
-        return getItemFn(storage.key(index))
-      }
-    }
-  });
-var getAllStorageItems = generateFunctions(function (type) {
-    var
-      lengthFn = getStorageLength[type],
-      storage = window[type + 'Storage'],
-      getItemFn = getStorageItem[type];
-
-    return function () {
-      var
-        result = {},
-        key,
-        length = lengthFn();
-
-      for (var i = 0; i < length; i++) {
-        key = storage.key(i);
-        result[key] = getItemFn(key);
-      }
-
-      return result
-    }
-  });
-var setStorageItem = generateFunctions(function (type) {
-    var storage = window[type + 'Storage'];
-    return function (key, value) { storage.setItem(key, encode$1(value)); }
-  });
-var removeStorageItem = generateFunctions(function (type) {
-    var storage = window[type + 'Storage'];
-    return function (key) { storage.removeItem(key); }
-  });
-var clearStorage = generateFunctions(function (type) {
-    var storage = window[type + 'Storage'];
-    return function () { storage.clear(); }
-  });
-var storageIsEmpty = generateFunctions(function (type) {
-    var getLengthFn = getStorageLength[type];
-    return function () { return getLengthFn() === 0; }
-  });
+    },
+    set: function (key, value) { webStorage.setItem(key, encode$1(value)); },
+    remove: function (key) { webStorage.removeItem(key); },
+    clear: function () { webStorage.clear(); },
+    isEmpty: function () { return webStorage.length === 0; }
+  }
+}
 
 var LocalStorage = {
-  has: hasStorageItem.local,
-  get: {
-    length: getStorageLength.local,
-    item: getStorageItem.local,
-    index: getStorageAtIndex.local,
-    all: getAllStorageItems.local
-  },
-  set: setStorageItem.local,
-  remove: removeStorageItem.local,
-  clear: clearStorage.local,
-  isEmpty: storageIsEmpty.local,
-
   __installed: false,
   install: function install (ref) {
     var $q = ref.$q;
@@ -15490,23 +17900,18 @@ var LocalStorage = {
     if (this.__installed) { return }
     this.__installed = true;
 
-    $q.localStorage = LocalStorage;
+    if ($q.platform.has.webStorage) {
+      var storage = getStorage('session');
+      $q.localStorage = storage;
+      extend(true, this, storage);
+    }
+    else {
+      $q.localStorage = getEmptyStorage();
+    }
   }
 };
 
 var SessionStorage = {
-  has: hasStorageItem.session,
-  get: {
-    length: getStorageLength.session,
-    item: getStorageItem.session,
-    index: getStorageAtIndex.session,
-    all: getAllStorageItems.session
-  },
-  set: setStorageItem.session,
-  remove: removeStorageItem.session,
-  clear: clearStorage.session,
-  isEmpty: storageIsEmpty.session,
-
   __installed: false,
   install: function install (ref) {
     var $q = ref.$q;
@@ -15514,7 +17919,14 @@ var SessionStorage = {
     if (this.__installed) { return }
     this.__installed = true;
 
-    $q.sessionStorage = SessionStorage;
+    if ($q.platform.has.webStorage) {
+      var storage = getStorage('session');
+      $q.sessionStorage = storage;
+      extend(true, this, storage);
+    }
+    else {
+      $q.sessionStorage = getEmptyStorage();
+    }
   }
 };
 
@@ -15534,7 +17946,7 @@ var plugins = Object.freeze({
 	SessionStorage: SessionStorage
 });
 
-var openUrl = function (url, reject) {
+function openUrl (url, reject) {
   if (Platform.is.cordova && navigator && navigator.app) {
     return navigator.app.loadUrl(url, {
       openExternal: true
@@ -15550,28 +17962,7 @@ var openUrl = function (url, reject) {
   else {
     reject();
   }
-};
-
-var throttle = function (fn, limit) {
-  if ( limit === void 0 ) limit = 250;
-
-  var wait = false;
-
-  return function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    if (wait) {
-      return
-    }
-
-    wait = true;
-    fn.apply(this, args);
-    setTimeout(function () {
-      wait = false;
-    }, limit);
-  }
-};
+}
 
 function noop () {}
 
@@ -15609,10 +18000,11 @@ var index_umd = {
   theme: "ios",
 
   i18n: i18n,
+  icons: icons,
   components: components,
   directives: directives,
   utils: utils
-};
+}
 
 return index_umd;
 
