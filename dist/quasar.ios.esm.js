@@ -17751,7 +17751,7 @@ var LocalStorage = {
     this.__installed = true;
 
     if ($q.platform.has.webStorage) {
-      var storage = getStorage('session');
+      var storage = getStorage('local');
       $q.localStorage = storage;
       extend(true, this, storage);
     }
