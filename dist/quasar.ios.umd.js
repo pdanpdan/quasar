@@ -2604,7 +2604,13 @@ var BtnMixin = {
         cls.push('q-btn-push');
       }
 
-      this.isDisabled && cls.push('disabled');
+      if (this.isDisabled) {
+        cls.push('disabled');
+      }
+      else {
+        cls.push('q-focusable q-hoverable');
+      }
+
       this.noCaps && cls.push('q-btn-no-uppercase');
       this.rounded && cls.push('q-btn-rounded');
       this.glossy && cls.push('glossy');
@@ -2869,7 +2875,7 @@ var QBtn = {
     on.click = this.click;
 
     return h('button', {
-      staticClass: 'q-btn row inline flex-center q-focusable q-hoverable relative-position',
+      staticClass: 'q-btn row inline flex-center relative-position',
       'class': this.classes,
       style: this.style,
       on: on,
@@ -2967,7 +2973,7 @@ var QBtnToggle = {
   },
   render: function render (h) {
     return h('button', {
-      staticClass: 'q-btn q-btn-toggle row inline flex-center q-focusable q-hoverable relative-position',
+      staticClass: 'q-btn q-btn-toggle row inline flex-center relative-position',
       'class': this.classes,
       style: this.style,
       on: { click: this.click },
@@ -7217,7 +7223,7 @@ var QColor = {
     __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
-      if (this.usingPopover) {
+      if (this.usingPopover && this.$refs.popup.showing) {
         this.__update(true);
       }
     },
@@ -10095,7 +10101,11 @@ function getLinkEditor (h, vm) {
             noCaps: true
           },
           on: {
-            click: updateLink
+            click: function () {
+              vm.caret.restore();
+              document.execCommand('unlink');
+              vm.editLinkUrl = null;
+            }
           }
         }),
         h(QBtn, {
@@ -10315,7 +10325,7 @@ Caret.prototype.apply = function apply (cmd, param, done) {
   else if (cmd === 'link') {
     var link = this.getParentAttribute('href');
     if (!link) {
-      var selection = this.selection;
+      var selection = this.selectWord(this.selection);
       var url = selection ? selection.toString() : '';
       if (!url.length) {
         return
@@ -10338,6 +10348,28 @@ Caret.prototype.apply = function apply (cmd, param, done) {
 
   document.execCommand(cmd, false, param);
   done();
+};
+
+Caret.prototype.selectWord = function selectWord (sel) {
+  if (sel.isCollapsed) {
+    // Detect if selection is backwards
+    var range = document.createRange();
+    range.setStart(sel.anchorNode, sel.anchorOffset);
+    range.setEnd(sel.focusNode, sel.focusOffset);
+    var direction = range.collapsed ? ['backward', 'forward'] : ['forward', 'backward'];
+    range.detach();
+
+    // modify() works on the focus of the selection
+    var endNode = sel.focusNode,
+      endOffset = sel.focusOffset;
+    sel.collapse(sel.anchorNode, sel.anchorOffset);
+    sel.modify('move', direction[0], 'character');
+    sel.modify('move', direction[1], 'word');
+    sel.extend(endNode, endOffset);
+    sel.modify('extend', direction[1], 'character');
+    sel.modify('extend', direction[0], 'word');
+  }
+  return sel
 };
 
 Object.defineProperties( Caret.prototype, prototypeAccessors );
