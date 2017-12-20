@@ -2529,7 +2529,7 @@ var Ripple = {
 
 var sizes = {
   rectangle: {
-    xs: 8, sm: 11, md: 14, lg: 17, xl: 20
+    xs: 8, sm: 12, md: 16, lg: 20, xl: 24
   },
   round: {
     xs: 24, sm: 40, md: 56, lg: 72, xl: 88
@@ -10430,6 +10430,19 @@ var QEditor = {
   render: function render (h) {
     var this$1 = this;
 
+    var toolbars = [];
+    if (!this.readonly) {
+      var toolbarConfig = {
+        staticClass: ("q-editor-toolbar q-editor-toolbar-padding overflow-auto row no-wrap bg-" + (this.toolbarColor)),
+        'class': {
+          'q-editor-toolbar-separator': !this.outline && !this.push
+        }
+      };
+      toolbars.push(h('div', toolbarConfig, getToolbar(h, this)));
+      if (this.editLinkUrl !== null) {
+        toolbars.push(h('div', toolbarConfig, getLinkEditor(h, this)));
+      }
+    }
     return h(
       'div',
       { staticClass: 'q-editor' },
@@ -10448,16 +10461,7 @@ var QEditor = {
             }
           },
           [
-            this.readonly ? '' : h(
-              'div',
-              {
-                staticClass: ("q-editor-toolbar q-editor-toolbar-padding overflow-auto row no-wrap bg-" + (this.toolbarColor)),
-                'class': {
-                  'q-editor-toolbar-separator': !this.outline && !this.push
-                }
-              },
-              getToolbar(h, this)
-            ),
+            !toolbars.length ? '' : h('div', toolbars),
             h(
               'div',
               {
@@ -10480,16 +10484,6 @@ var QEditor = {
                   }
                 }
               }
-            ),
-            this.readonly || this.editLinkUrl === null ? '' : h(
-              'div',
-              {
-                staticClass: ("q-editor-toolbar q-editor-toolbar-padding overflow-auto row no-wrap bg-" + (this.toolbarColor)),
-                'class': {
-                  'q-editor-toolbar-separator': !this.outline && !this.push
-                }
-              },
-              getLinkEditor(h, this)
             )
           ]
         )
@@ -17767,6 +17761,12 @@ var notify = {
 
           var index = this.notifs[notif.position].indexOf(notif);
           if (index !== -1) {
+            var ref = this.$refs[("notif_" + (notif.__uid))];
+            if (ref && ref.$el) {
+              var el = ref.$el;
+              el.style.left = (el.offsetLeft) + "px";
+              el.style.width = getComputedStyle(el).width;
+            }
             this.notifs[notif.position].splice(index, 1);
             if (typeof notif.onDismiss === 'function') {
               notif.onDismiss();
@@ -17794,6 +17794,7 @@ var notify = {
             }
           }, this$1.notifs[pos].map(function (notif) {
             return h(QAlert, {
+              ref: ("notif_" + (notif.__uid)),
               key: notif.__uid,
               staticClass: 'q-notification',
               props: notif
