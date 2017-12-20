@@ -1935,8 +1935,8 @@ var QActionSheet = {
             props: {
               link: true
             },
-            domProps: {
-              tabindex: '0'
+            attrs: {
+              tabindex: 0
             },
             on: {
               click: this.__onCancel,
@@ -1996,7 +1996,9 @@ var QActionSheet = {
             ? 'q-actionsheet-grid-item cursor-pointer relative-position column inline flex-center'
             : null,
           'class': action.classes,
-          domProps: { tabindex: '0' },
+          attrs: {
+            tabindex: 0
+          },
           on: {
             click: function () { return this$1.__onOk(action); },
             keydown: function (e) { return this$1.__onOk(action); }
@@ -3737,6 +3739,9 @@ var QBtnToggleGroup = {
     this.options.map(
       function (opt, i) { return h(QBtnToggle, {
         key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
+        attrs: {
+          tabindex: opt.tabindex || 0
+        },
         on: { change: function () { return this$1.set(opt.value, opt); } },
         props: {
           toggled: this$1.val[i],
@@ -5266,7 +5271,7 @@ var QCarouselControl = {
   }
 }
 
-var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end no-wrap"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_vm._v(" "),_c('div',{class:_vm.sizeClass},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._v(" "),_vm._l((_vm.text),function(msg){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()])])}),_vm._v(" "),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()],2)]):_vm._e()],2)],2):_vm._e()])},staticRenderFns: [],
+var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?[(_vm.safe)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('p',{staticClass:"q-message-label text-center"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end no-wrap"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_vm._v(" "),_c('div',{staticClass:"column",class:_vm.sizeClass},[(_vm.name)?[(_vm.safe)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_c('div',{staticClass:"q-message-name"},[_vm._v(_vm._s(_vm.name))])]:_vm._e(),_vm._v(" "),_vm._l((_vm.text),function(msg){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)])}),_vm._v(" "),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)]):_vm._e()],2)],2):_vm._e()],2)},staticRenderFns: [],
   name: 'q-chat-message',
   props: {
     sent: Boolean,
@@ -5279,7 +5284,8 @@ var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     avatar: String,
     text: Array,
     stamp: String,
-    size: String
+    size: String,
+    safe: Boolean
   },
   computed: {
     textClass: function textClass () {
@@ -5418,7 +5424,8 @@ var OptionMixin = {
     keepColor: Boolean,
     dark: Boolean,
     disable: Boolean,
-    noFocus: Boolean
+    noFocus: Boolean,
+    safe: Boolean
   },
   computed: {
     innerClasses: function innerClasses () {
@@ -5437,12 +5444,12 @@ var OptionMixin = {
       return !this.noFocus && !this.disable
     },
     tabindex: function tabindex () {
-      return this.focusable ? 0 : null
+      return this.focusable ? 0 : -1
     }
   }
 }
 
-var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.checkbox.unchecked[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon || _vm.$q.icon.checkbox.indeterminate[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon || _vm.$q.icon.checkbox.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.checkbox.unchecked[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon || _vm.$q.icon.checkbox.indeterminate[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon || _vm.$q.icon.checkbox.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-checkbox',
   mixins: [Mixin, OptionMixin],
   components: {
@@ -5710,7 +5717,7 @@ var InputMixin = {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : null},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},on:{"mousedown":_vm.__onMouseDown,"touchstart":_vm.__onMouseDown,"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
   mixins: [FrameMixin],
   props: {
@@ -7138,11 +7145,6 @@ var QColor = {
     data.model = this.defaultSelection;
     return data
   },
-  watch: {
-    value: function value () {
-      this.$nextTick(this.__setModel);
-    }
-  },
   computed: {
     usingPopover: function usingPopover () {
       return this.isPopover()
@@ -7551,11 +7553,14 @@ var inline = {
 
 var input = {
   format: String,
-  noClear: Boolean,
   placeholder: String,
-  clearLabel: String,
+  clearable: Boolean,
   okLabel: String,
-  cancelLabel: String
+  cancelLabel: String,
+  defaultSelection: [String, Number, Date],
+  displayValue: String,
+  disable: Boolean,
+  readonly: Boolean
 };
 
 /* eslint no-fallthrough: 0 */
@@ -8471,45 +8476,34 @@ var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement
   }
 }
 
-var contentCSS = {
+var contentCss$1 = {
     maxHeight: '80vh',
     height: 'auto',
     boxShadow: 'none',
     backgroundColor: '#e4e4e4'
   };
 
-var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-datetime-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.actualValue.length},nativeOn:{"click":function($event){_vm.toggle($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);}}},[_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(_vm.usingPopover)?_c('q-popover',{ref:"popup",attrs:{"offset":[0, 10],"disable":_vm.disable,"anchor-click":false,"max-height":"100vh"},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-datetime-picker',{ref:"target",staticClass:"no-border",attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"color":_vm.dark === false ? null : _vm.color,"default-view":_vm.defaultView},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"row q-datetime-controls modal-buttons-top"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","label":_vm.okLabel || _vm.$q.i18n.label.set},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1):_c('q-modal',{ref:"popup",staticClass:"with-backdrop",attrs:{"transition":_vm.transition,"minimized":_vm.minimized,"position":_vm.position,"content-css":_vm.contentCSS},on:{"show":_vm.__onFocus,"hide":_vm.__onHide}},[_c('q-datetime-picker',{ref:"target",staticClass:"no-border",class:{'full-width': _vm.$q.theme === 'ios'},attrs:{"default-selection":_vm.defaultSelection,"type":_vm.type,"min":_vm.min,"max":_vm.max,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView,"color":_vm.color},model:{value:(_vm.model),callback:function ($$v) {_vm.model=$$v;},expression:"model"}},[_c('div',{staticClass:"modal-buttons modal-buttons-top row full-width"},[(!_vm.noClear && _vm.model)?_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.clearLabel || _vm.$q.i18n.label.clear},on:{"click":_vm.clear}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"col"}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.cancelLabel || _vm.$q.i18n.label.cancel},on:{"click":_vm.hide}}),_vm._v(" "),_c('q-btn',{attrs:{"color":_vm.color,"flat":"","wait-for-ripple":"","label":_vm.okLabel || _vm.$q.i18n.label.set},on:{"click":function($event){_vm.hide(), _vm.__update();}}})],1)])],1),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],1)},staticRenderFns: [],
+var QDatetime = {
   name: 'q-datetime',
   mixins: [FrameMixin],
-  components: {
-    QInputFrame: QInputFrame,
-    QPopover: QPopover,
-    QModal: QModal,
-    QDatetimePicker: QDatetimePicker,
-    QBtn: QBtn
-  },
   props: extend(
-    {
-      defaultSelection: [String, Number, Date],
-      displayValue: String
-    },
     input,
     inline
   ),
   data: function data () {
-    var data = this.usingPopover ? {} : {
-      contentCSS: contentCSS,
-      minimized: "ios" === 'mat',
-      position: 'bottom',
+    var data = this.isPopover() ? {} : {
       transition: 'q-modal-bottom'
     };
-    data.model = this.value;
     data.focused = false;
+    data.model = this.defaultSelection;
     return data
   },
   computed: {
     usingPopover: function usingPopover () {
       return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    },
+    editable: function editable () {
+      return !this.disable && !this.readonly
     },
     actualValue: function actualValue () {
       if (this.displayValue) {
@@ -8538,6 +8532,9 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     }
   },
   methods: {
+    isPopover: function isPopover () {
+      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    },
     toggle: function toggle () {
       this[this.$refs.popup.showing ? 'hide' : 'show']();
     },
@@ -8551,12 +8548,10 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.focused = false;
       return this.$refs.popup.hide()
     },
-    clear: function clear () {
-      if (this.value !== '') {
-        this.$emit('input', '');
-        this.$emit('change', '');
-      }
-      this.$refs.popup.hide();
+    clear: function clear (evt) {
+      stopAndPrevent(evt);
+      this.$emit('input', '');
+      this.$emit('change', '');
     },
 
     __onFocus: function __onFocus () {
@@ -8569,6 +8564,7 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           target.__scrollView();
         }
       }
+      this.__setModel(this.value);
       this.focused = true;
       this.$emit('focus');
     },
@@ -8586,17 +8582,178 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
+      if (this.usingPopover) {
+        this.__update(true);
+      }
     },
-    __setModel: function __setModel () {
-      this.model = this.value;
+    __setModel: function __setModel (val) {
+      if ( val === void 0 ) val = this.value;
+
+      this.model = val
+        ? clone(val)
+        : this.defaultSelection;
     },
-    __update: function __update () {
+    __update: function __update (change) {
       var val = this.model || this.$refs.target.model;
-      if (!isSameDate(this.value, val)) {
-        this.$emit('input', val);
+      this.$emit('input', val);
+      if (change) {
         this.$emit('change', val);
       }
+    },
+
+    __getPicker: function __getPicker (h, modal) {
+      var this$1 = this;
+
+      return [
+        h(QDatetimePicker, {
+          ref: 'target',
+          staticClass: "no-border",
+          props: {
+            type: this.type,
+            min: this.min,
+            max: this.max,
+            format24h: this.format24h,
+            firstDayOfWeek: this.firstDayOfWeek,
+            defaultView: this.defaultView,
+            color: this.dark === false ? null : this.color,
+            value: this.model,
+            disable: this.disable,
+            readonly: this.readonly
+          },
+          on: {
+            input: function (v) {
+              this$1.model = v;
+              if (this$1.usingPopover) {
+                this$1.__update();
+              }
+            },
+            change: function (v) {
+              this$1.model = v;
+            },
+            canClose: function () {
+              if (this$1.usingPopover) {
+                this$1.hide();
+              }
+            }
+          }
+        }, [
+          modal
+            ? h('div', {
+              staticClass: 'modal-buttons modal-buttons-top row full-width'
+            }, [
+              h('div', { staticClass: 'col' }),
+              h(QBtn, {
+                props: {
+                  color: this.color,
+                  flat: true,
+                  label: this.cancelLabel || this.$q.i18n.label.cancel,
+                  waitForRipple: true,
+                  compact: true
+                },
+                on: { click: this.hide }
+              }),
+              this.editable
+                ? h(QBtn, {
+                  props: {
+                    color: this.color,
+                    flat: true,
+                    label: this.okLabel || this.$q.i18n.label.set,
+                    waitForRipple: true,
+                    compact: true
+                  },
+                  on: {
+                    click: function () {
+                      this$1.hide();
+                      this$1.__update(true);
+                    }
+                  }
+                })
+                : null
+            ])
+            : null
+        ])
+      ]
     }
+  },
+  render: function render (h) {
+    return h(QInputFrame, {
+      props: {
+        prefix: this.prefix,
+        suffix: this.suffix,
+        stackLabel: this.stackLabel,
+        floatLabel: this.floatLabel,
+        error: this.error,
+        warning: this.warning,
+        disable: this.disable,
+        inverted: this.inverted,
+        dark: this.dark,
+        hideUnderline: this.hideUnderline,
+        before: this.before,
+        after: this.after,
+        color: this.color,
+
+        focused: this.focused,
+        focusable: true,
+        length: this.actualValue.length
+      },
+      nativeOn: {
+        click: this.toggle,
+        focus: this.__onFocus,
+        blur: this.__onBlur
+      }
+    }, [
+      h('div', {
+        staticClass: 'col row items-center q-input-target',
+        'class': this.alignClass,
+        domProps: {
+          innerHTML: this.actualValue
+        }
+      }),
+
+      this.usingPopover
+        ? h(QPopover, {
+          ref: 'popup',
+          props: {
+            offset: [0, 10],
+            disable: this.disable,
+            anchorClick: false,
+            maxHeight: '100vh'
+          },
+          on: {
+            show: this.__onFocus,
+            hide: this.__onHide
+          }
+        }, this.__getPicker(h))
+        : h(QModal, {
+          ref: 'popup',
+          staticClass: 'with-backdrop',
+          props: {
+            contentCss: contentCss$1,
+            minimized: "ios" === 'mat',
+            position: 'bottom',
+            transition: this.transition
+          },
+          on: {
+            show: this.__onFocus,
+            hide: this.__onHide
+          }
+        }, this.__getPicker(h, true)),
+
+      this.editable && this.clearable && this.actualValue.length
+        ? h('q-icon', {
+          slot: 'after',
+          props: { name: this.$q.icon.input.clear },
+          on: { click: this.clear },
+          staticClass: 'q-if-control'
+        })
+        : null,
+
+      h('q-icon', {
+        slot: 'after',
+        props: { name: this.$q.icon.input.dropdown },
+        staticClass: 'q-if-control'
+      })
+    ])
   }
 }
 
@@ -8921,7 +9078,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 }
 
-var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.radio.unchecked[_vm.$q.theme]}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon || _vm.$q.icon.radio.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.radio.unchecked[_vm.$q.theme]}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon || _vm.$q.icon.radio.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-radio',
   mixins: [OptionMixin],
   components: {
@@ -9130,7 +9287,7 @@ var TouchSwipe = {
   }
 }
 
-var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-toggle',
   components: {
     QIcon: QIcon
@@ -9877,9 +10034,17 @@ function getFonts (defaultFont, defaultFontLabel, defaultFontIcon, fonts) {
 function getLinkEditor (h, vm) {
   if (vm.caret) {
     var link = vm.editLinkUrl;
+    var updateLink = function () {
+      vm.caret.restore();
+      if (link !== vm.editLinkUrl) {
+        document.execCommand('createLink', false, link === '' ? ' ' : link);
+      }
+      vm.editLinkUrl = null;
+    };
 
     return [
       h(QInput, {
+        key: 'qedt_btm_input',
         staticClass: 'q-ma-none q-pa-none col',
         props: {
           value: link,
@@ -9889,15 +10054,30 @@ function getLinkEditor (h, vm) {
           floatLabel: vm.$q.i18n.editor.url
         },
         on: {
-          input: function (val) { return (link = val); }
+          input: function (val) { return (link = val); },
+          keyup: function (event) {
+            switch (event.keyCode) {
+              case 13: // enter
+                return updateLink()
+              case 27: // escape
+                vm.caret.restore();
+                vm.editLinkUrl = null;
+                break
+            }
+          }
         }
       }),
       h(QBtnGroup, {
+        key: 'qedt_btm_grp',
         props: {
           flat: true
         }
       }, [
         h(QBtn, {
+          key: 'qedt_btm_rem',
+          attrs: {
+            tabindex: -1
+          },
           props: {
             color: 'negative',
             label: vm.$q.i18n.label.remove,
@@ -9907,14 +10087,11 @@ function getLinkEditor (h, vm) {
             noCaps: true
           },
           on: {
-            click: function () {
-              vm.caret.restore();
-              document.execCommand('unlink');
-              vm.editLinkUrl = null;
-            }
+            click: updateLink
           }
         }),
         h(QBtn, {
+          key: 'qedt_btm_upd',
           props: {
             color: 'primary',
             label: vm.$q.i18n.label.update,
@@ -9924,10 +10101,7 @@ function getLinkEditor (h, vm) {
             noCaps: true
           },
           on: {
-            click: function () {
-              vm.caret.restore();
-              document.execCommand('createLink', false, link);
-            }
+            click: updateLink
           }
         })
       ])
@@ -10365,9 +10539,9 @@ var QEditor = {
     },
     onKeydown: function onKeydown (e) {
       var key = getEventKey(e);
-      this.refreshToolbar();
 
       if (!e.ctrlKey) {
+        this.refreshToolbar();
         return
       }
 
@@ -10430,9 +10604,9 @@ var QEditor = {
           'q-editor-toolbar-separator': !this.outline && !this.push
         }
       };
-      toolbars.push(h('div', toolbarConfig, getToolbar(h, this)));
+      toolbars.push(h('div', extend({key: 'qedt_top'}, toolbarConfig), getToolbar(h, this)));
       if (this.editLinkUrl !== null) {
-        toolbars.push(h('div', toolbarConfig, getLinkEditor(h, this)));
+        toolbars.push(h('div', extend({key: 'qedt_btm'}, toolbarConfig), getLinkEditor(h, this)));
       }
     }
     return h(
@@ -13492,7 +13666,8 @@ var SelectMixin = {
     },
     frameColor: String,
     displayValue: String,
-    clearable: Boolean
+    clearable: Boolean,
+    safe: Boolean
   },
   data: function data () {
     return {
@@ -13580,7 +13755,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -13698,7 +13873,7 @@ var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;v
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],2)},staticRenderFns: [],
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
