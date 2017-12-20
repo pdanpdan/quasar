@@ -2286,7 +2286,7 @@ body.with-modal {
   max-height: 480px;
 }
 .modal-buttons {
-  padding: 8px 8px 12px 24px;
+  padding: 8px;
   -webkit-box-pack: end;
       -ms-flex-pack: end;
           justify-content: flex-end;

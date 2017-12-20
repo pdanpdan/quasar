@@ -597,7 +597,7 @@ var iconMaterial = {
       mat: 'check_box_outline_blank'
     },
     indeterminate: {
-      ios: '',
+      ios: 'remove_circle_outline',
       mat: 'indeterminate_check_box'
     }
   },
@@ -666,7 +666,7 @@ var iconMaterial = {
       mat: 'radio_button_checked'
     },
     unchecked: {
-      ios: 'radio_button_unchecked',
+      ios: '',
       mat: 'radio_button_unchecked'
     }
   },
@@ -1409,7 +1409,12 @@ var QIcon = {
     if (!icon) {
       name = '';
     }
+    else if (icon.startsWith('fa-')) {
+      // Fontawesome 4
+      name = "fa " + icon;
+    }
     else if (/^fa[s|r|l|b]{0,1} /.test(icon)) {
+      // Fontawesome 5
       name = icon;
     }
     else if (icon.startsWith('bt-')) {
@@ -5684,8 +5689,8 @@ var InputMixin = {
       var model = this.isNumber && this.isNumberError ? null : this.model;
       if (JSON.stringify(model) !== JSON.stringify(this.value)) {
         this.$emit('input', model);
-        this.$emit('change', model);
       }
+      this.$emit('change', model);
     },
     __onKeydown: function __onKeydown (e) {
       this.$emit('keydown', e);
@@ -5889,6 +5894,7 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     __handleKey: function __handleKey (e) {
       // ENTER key
       if (e.which === 13 || e.keyCode === 13) {
+        e.preventDefault();
         this.add();
       }
       // Backspace key
@@ -6440,9 +6446,7 @@ var QSlider = {
     __end: function __end () {
       this.dragging = false;
       this.currentPercentage = (this.model - this.min) / (this.max - this.min);
-      if (this.value !== this.model) {
-        this.$emit('change', this.model);
-      }
+      this.$emit('change', this.model);
     },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
@@ -6691,7 +6695,13 @@ var QColorPicker = {
   data: function data () {
     return {
       view: !this.value || typeof this.value === 'string' ? 'hex' : 'rgb',
-      model: this.__parseModel(this.value)
+      model: this.__parseModel(this.value),
+      inputError: {
+        hex: false,
+        r: false,
+        g: false,
+        b: false
+      }
     }
   },
   watch: {
@@ -6813,7 +6823,8 @@ var QColorPicker = {
                 readonly: !this.editable
               },
               on: {
-                input: this.__onHueChange
+                input: this.__onHueChange,
+                change: function (val) { this$1.__onHueChange(val, true); }
               }
             })
           ]),
@@ -6830,7 +6841,10 @@ var QColorPicker = {
                 },
                 on: {
                   input: function (value) {
-                    this$1.__onPropChange({ target: { value: value } }, 'a', 100);
+                    this$1.__onNumericChange({ target: { value: value } }, 'a', 100);
+                  },
+                  change: function (value) {
+                    this$1.__onNumericChange({ target: { value: value } }, 'a', 100, true);
                   }
                 }
               })
@@ -6858,7 +6872,10 @@ var QColorPicker = {
             },
             on: {
               input: function (evt) {
-                this$1.__onPropChange(evt, type, max);
+                this$1.__onNumericChange(evt, type, max);
+              },
+              blur: function (evt) {
+                this$1.__onNumericChange(evt, type, max, true);
               }
             }
           }),
@@ -6869,13 +6886,18 @@ var QColorPicker = {
       })
     },
     __getInputs: function __getInputs (h) {
+      var this$1 = this;
+
       var inputs = this.view === 'hex'
         ? [
           h('div', { staticClass: 'col' }, [
             h('input', {
               domProps: { value: this.model.hex },
               attrs: { readonly: !this.editable },
-              on: { input: this.__onHexChange },
+              on: {
+                input: this.__onHexChange,
+                blur: function (evt) { console.log('blur'); this$1.__onHexChange(evt, true); }
+              },
               staticClass: 'full-width text-center uppercase'
             }),
             h('div', { staticClass: 'q-color-label text-center' }, [
@@ -6918,7 +6940,7 @@ var QColorPicker = {
       ])
     },
 
-    __onSaturationChange: function __onSaturationChange (left, top) {
+    __onSaturationChange: function __onSaturationChange (left, top, change) {
       var
         panel = this.$refs.saturation,
         width = panel.clientWidth,
@@ -6937,9 +6959,9 @@ var QColorPicker = {
 
       this.model.s = s;
       this.model.v = v;
-      this.__update(rgb, rgbToHex(rgb));
+      this.__update(rgb, rgbToHex(rgb), change);
     },
-    __onHueChange: function __onHueChange (h) {
+    __onHueChange: function __onHueChange (h, change) {
       h = Math.round(h);
       var val = hsvToRgb({
         h: h,
@@ -6949,15 +6971,22 @@ var QColorPicker = {
       });
 
       this.model.h = h;
-      this.__update(val, rgbToHex(val));
+      this.__update(val, rgbToHex(val), change);
     },
-    __onPropChange: function __onPropChange (evt, type, max) {
+    __onNumericChange: function __onNumericChange (evt, type, max, change) {
       var val = Number(evt.target.value);
       if (isNaN(val)) {
         return
       }
 
       val = Math.floor(val);
+      if (val < 0 || val > max) {
+        if (change) {
+          this.$forceUpdate();
+        }
+        return
+      }
+
       var rgb = {
         r: type === 'r' ? val : this.model.r,
         g: type === 'g' ? val : this.model.g,
@@ -6972,18 +7001,29 @@ var QColorPicker = {
         this.model.s = hsv.s;
         this.model.v = hsv.v;
       }
-      this.__update(rgb, rgbToHex(rgb));
+      this.__update(rgb, rgbToHex(rgb), change);
     },
-    __onHexChange: function __onHexChange (evt) {
+    __onHexChange: function __onHexChange (evt, change) {
       var
         hex = evt.target.value,
+        len = hex.length,
+        edges = this.hasAlpha ? [5, 9] : [4, 7];
+
+      if (len !== edges[0] && len !== edges[1]) {
+        if (change) {
+          this.$forceUpdate();
+        }
+        return
+      }
+
+      var
         rgb = hexToRgb(hex),
         hsv = rgbToHsv(rgb);
 
       this.model.h = hsv.h;
       this.model.s = hsv.s;
       this.model.v = hsv.v;
-      this.__update(rgb, hex);
+      this.__update(rgb, hex, change);
     },
     __update: function __update (rgb, hex, change) {
       // update internally
@@ -6999,10 +7039,12 @@ var QColorPicker = {
       this.avoidModelWatch = true;
 
       // emit new value
-      this.$emit(
-        change ? 'change' : 'input',
-        this.isHex ? hex : rgb
-      );
+      var val = this.isHex ? hex : rgb;
+
+      this.$emit('input', val);
+      if (change) {
+        this.$emit('change', val);
+      }
     },
     __nextInputView: function __nextInputView () {
       this.view = this.view === 'hex' ? 'rgba' : 'hex';
@@ -7048,6 +7090,11 @@ var QColorPicker = {
     __dragStop: function __dragStop (event) {
       stopAndPrevent(event.evt);
       this.saturationDragging = false;
+      this.__onSaturationChange(
+        event.position.left,
+        event.position.top,
+        true
+      );
     },
     __saturationChange: function __saturationChange (evt) {
       this.__onSaturationChange(
@@ -7088,10 +7135,11 @@ var QColor = {
     },
     displayValue: String,
     placeholder: String,
-    noClear: Boolean,
-    clearLabel: String,
+    clearable: Boolean,
     okLabel: String,
-    cancelLabel: String
+    cancelLabel: String,
+    disable: Boolean,
+    readonly: Boolean
   },
   data: function data () {
     var data = this.isPopover() ? {} : {
@@ -7109,6 +7157,9 @@ var QColor = {
   computed: {
     usingPopover: function usingPopover () {
       return this.isPopover()
+    },
+    editable: function editable () {
+      return !this.disable && !this.readonly
     },
     actualValue: function actualValue () {
       if (this.displayValue) {
@@ -7142,15 +7193,14 @@ var QColor = {
       this.focused = false;
       return this.$refs.popup.hide()
     },
-    clear: function clear () {
-      if (this.value) {
-        this.$emit('input', null);
-        this.$emit('change', null);
-      }
-      this.$refs.popup.hide();
+    clear: function clear (evt) {
+      stopAndPrevent(evt);
+      this.$emit('input', null);
+      this.$emit('change', null);
     },
 
     __onFocus: function __onFocus () {
+      this.__setModel(this.value);
       this.focused = true;
       this.$emit('focus');
     },
@@ -7168,15 +7218,22 @@ var QColor = {
     __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
+      if (this.usingPopover) {
+        this.__update(true);
+      }
     },
-    __setModel: function __setModel () {
-      this.model = this.value
-        ? clone(this.value)
+    __setModel: function __setModel (val) {
+      if ( val === void 0 ) val = this.value;
+
+      this.model = val
+        ? clone(val)
         : this.defaultSelection;
     },
-    __update: function __update () {
+    __update: function __update (change) {
       this.$emit('input', this.model);
-      this.$emit('change', this.model);
+      if (change) {
+        this.$emit('change', this.model);
+      }
     },
 
     __getPicker: function __getPicker (h, modal) {
@@ -7187,7 +7244,9 @@ var QColor = {
           staticClass: ("no-border" + (modal ? ' full-width' : '')),
           props: extend({
             color: this.color,
-            value: this.model
+            value: this.model,
+            disable: this.disable,
+            readonly: this.readonly
           }, this.$attrs),
           on: {
             input: function (v) {
@@ -7195,6 +7254,9 @@ var QColor = {
               if (this$1.usingPopover) {
                 this$1.__update();
               }
+            },
+            change: function (v) {
+              this$1.model = v;
             }
           }
         })
@@ -7204,18 +7266,6 @@ var QColor = {
         child['unshift'](h('div', {
           staticClass: 'modal-buttons modal-buttons-top row full-width'
         }, [
-          !this.noClear && this.model
-            ? h(QBtn, {
-              props: {
-                color: this.color,
-                flat: true,
-                label: this.clearLabel || this.$q.i18n.label.clear,
-                waitForRipple: true,
-                compact: true
-              },
-              on: { click: this.clear }
-            })
-            : null,
           h('div', { staticClass: 'col' }),
           h(QBtn, {
             props: {
@@ -7227,21 +7277,23 @@ var QColor = {
             },
             on: { click: this.hide }
           }),
-          h(QBtn, {
-            props: {
-              color: this.color,
-              flat: true,
-              label: this.okLabel || this.$q.i18n.label.set,
-              waitForRipple: true,
-              compact: true
-            },
-            on: {
-              click: function () {
-                this$1.hide();
-                this$1.__update();
+          this.editable
+            ? h(QBtn, {
+              props: {
+                color: this.color,
+                flat: true,
+                label: this.okLabel || this.$q.i18n.label.set,
+                waitForRipple: true,
+                compact: true
+              },
+              on: {
+                click: function () {
+                  this$1.hide();
+                  this$1.__update(true);
+                }
               }
-            }
-          })
+            })
+            : null
         ]));
       }
 
@@ -7311,6 +7363,15 @@ var QColor = {
             hide: this.__onHide
           }
         }, this.__getPicker(h, true)),
+
+      this.editable && this.clearable && this.actualValue.length
+        ? h('q-icon', {
+          slot: 'after',
+          props: { name: this.$q.icon.input.clear },
+          on: { click: this.clear },
+          staticClass: 'q-if-control'
+        })
+        : null,
 
       h('q-icon', {
         slot: 'after',
@@ -8546,48 +8607,6 @@ var QDatetime = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
         this.$emit('input', val);
         this.$emit('change', val);
       }
-    }
-  }
-}
-
-var QDatetimeRange = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime-range no-wrap",class:_vm.classes},[_c('q-datetime',{staticClass:"col q-datetime-range-left",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultFrom,"type":_vm.type,"min":_vm.min,"max":_vm.value.to || _vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabel,"stack-label":_vm.stackLabel,"placeholder":_vm.placeholder,"disable":_vm.disable,"error":_vm.error,"warning":_vm.warning,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView},on:{"change":_vm.__onChange},model:{value:(_vm.value.from),callback:function ($$v) {_vm.$set(_vm.value, "from", $$v);},expression:"value.from"}}),_vm._v(" "),_c('q-datetime',{staticClass:"col q-datetime-range-right",class:_vm.className,style:(_vm.css),attrs:{"default-selection":_vm.defaultTo,"type":_vm.type,"min":_vm.value.from || _vm.min,"max":_vm.max,"format":_vm.format,"no-clear":_vm.noClear,"clear-label":_vm.clearLabel,"ok-label":_vm.okLabel,"cancel-label":_vm.cancelLabel,"float-label":_vm.floatLabelTo,"stack-label":_vm.stackLabelTo,"placeholder":_vm.placeholderTo,"disable":_vm.disable,"error":_vm.error,"warning":_vm.warning,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"format24h":_vm.format24h,"first-day-of-week":_vm.firstDayOfWeek,"default-view":_vm.defaultView},on:{"change":_vm.__onChange},model:{value:(_vm.value.to),callback:function ($$v) {_vm.$set(_vm.value, "to", $$v);},expression:"value.to"}})],1)},staticRenderFns: [],
-  name: 'q-datetime-range',
-  mixins: [FrameMixin],
-  components: {
-    QDatetime: QDatetime
-  },
-  props: extend(
-    input,
-    inline,
-    {
-      value: {
-        type: Object,
-        validator: function (val) { return 'from' in val && 'to' in val; },
-        required: true
-      },
-      className: [String, Object],
-      css: [String, Object],
-      defaultFrom: [String, Number, Date],
-      defaultTo: [String, Number, Date],
-      vertical: Boolean,
-      floatLabelTo: String,
-      stackLabelTo: String,
-      placeholderTo: String
-    }
-  ),
-  computed: {
-    classes: function classes () {
-      return this.vertical ? null : 'row'
-    }
-  },
-  methods: {
-    __onChange: function __onChange () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.$emit('input', this$1.value);
-        this$1.$emit('change', this$1.value);
-      });
     }
   }
 }
@@ -9866,6 +9885,67 @@ function getFonts (defaultFont, defaultFontLabel, defaultFontIcon, fonts) {
   return def
 }
 
+function getLinkEditor (h, vm) {
+  if (vm.caret) {
+    var link = vm.editLinkUrl;
+
+    return [
+      h(QInput, {
+        staticClass: 'q-ma-none q-pa-none col',
+        props: {
+          value: link,
+          color: 'dark',
+          autofocus: true,
+          hideUnderline: true,
+          floatLabel: vm.$q.i18n.editor.url
+        },
+        on: {
+          input: function (val) { return (link = val); }
+        }
+      }),
+      h(QBtnGroup, {
+        props: {
+          flat: true
+        }
+      }, [
+        h(QBtn, {
+          props: {
+            color: 'negative',
+            label: vm.$q.i18n.label.remove,
+            size: 'sm',
+            flat: true,
+            compact: true,
+            noCaps: true
+          },
+          on: {
+            click: function () {
+              vm.caret.restore();
+              document.execCommand('unlink');
+              vm.editLinkUrl = null;
+            }
+          }
+        }),
+        h(QBtn, {
+          props: {
+            color: 'primary',
+            label: vm.$q.i18n.label.update,
+            size: 'sm',
+            flat: true,
+            compact: true,
+            noCaps: true
+          },
+          on: {
+            click: function () {
+              vm.caret.restore();
+              document.execCommand('createLink', false, link);
+            }
+          }
+        })
+      ])
+    ]
+  }
+}
+
 function getBlockElement (el, parent) {
   if (parent && el === parent) {
     return null
@@ -9898,6 +9978,8 @@ function isChildOf (el, parent) {
   }
   return false
 }
+
+var urlRegex = /^https?:\/\//;
 
 var Caret = function Caret (el, vm) {
   this.el = el;
@@ -10043,7 +10125,6 @@ Caret.prototype.can = function can (name) {
 };
 
 Caret.prototype.apply = function apply (cmd, param, done) {
-    var this$1 = this;
     if ( done === void 0 ) done = function () {};
 
   if (cmd === 'formatBlock') {
@@ -10062,40 +10143,20 @@ Caret.prototype.apply = function apply (cmd, param, done) {
   }
   else if (cmd === 'link') {
     var link = this.getParentAttribute('href');
-    if (link && this.range) {
-      this.range.selectNodeContents(this.parent);
+    if (!link) {
+      var selection = this.selection;
+      var url = selection ? selection.toString() : '';
+      if (!url.length) {
+        return
+      }
+      this.vm.editLinkUrl = urlRegex.test(url) ? url : ("https://" + url);
+      document.execCommand('createLink', false, this.vm.editLinkUrl);
     }
+    else {
+      this.vm.editLinkUrl = link;
+    }
+    this.range.selectNodeContents(this.parent);
     this.save();
-    // TODO
-    this.$q.dialog({
-      title: 'Link',
-      message: this.selection ? this.selection.toString() : null,
-      prompt: {
-        type: 'text',
-        label: 'URL',
-        model: link || 'http://'
-      },
-      buttons: [
-        {
-          label: link ? 'Remove' : 'Cancel',
-          handler: function () {
-            if (link) {
-              this$1.restore();
-              document.execCommand('unlink');
-              done();
-            }
-          }
-        },
-        {
-          label: link ? 'Update' : 'Create',
-          handler: function (data) {
-            this$1.restore();
-            document.execCommand('createLink', false, data.url);
-            done();
-          }
-        }
-      ]
-    });
     return
   }
   else if (cmd === 'fullscreen') {
@@ -10292,7 +10353,8 @@ var QEditor = {
   },
   data: function data () {
     return {
-      editWatcher: true
+      editWatcher: true,
+      editLinkUrl: null
     }
   },
   watch: {
@@ -10344,6 +10406,7 @@ var QEditor = {
       var this$1 = this;
 
       setTimeout(function () {
+        this$1.editLinkUrl = null;
         this$1.$forceUpdate();
       }, 1);
     },
@@ -10420,6 +10483,16 @@ var QEditor = {
                   }
                 }
               }
+            ),
+            this.readonly || this.editLinkUrl === null ? '' : h(
+              'div',
+              {
+                staticClass: ("q-editor-toolbar q-editor-toolbar-padding overflow-auto row no-wrap bg-" + (this.toolbarColor)),
+                'class': {
+                  'q-editor-toolbar-separator': !this.outline && !this.push
+                }
+              },
+              getLinkEditor(h, this)
             )
           ]
         )
@@ -10953,7 +11026,7 @@ var QKnob = {
         this.model = val;
         this.$emit('input', val);
       }
-      if (emitChange && this.value !== val) {
+      if (emitChange) {
         this.$emit('change', val);
       }
     },
@@ -12033,8 +12106,8 @@ var QPagination = {
         var model = between(parseInt(value, 10), this.min, this.max);
         if (this.value !== model) {
           this.$emit('input', model);
-          this.$emit('change', model);
         }
+        this.$emit('change', model);
       }
     },
     inputPlaceholder: function inputPlaceholder () {
@@ -12901,9 +12974,7 @@ var QRange = {
       this.dragging = false;
       this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
       this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
-      if (this.model.min !== this.value.min || this.model.max !== this.value.max) {
-        this.$emit('change', this.model);
-      }
+      this.$emit('change', this.model);
     },
     __updateInput: function __updateInput (ref) {
       var min = ref.min; if ( min === void 0 ) min = this.model.min;
@@ -13015,8 +13086,8 @@ var QRating = {
       set: function set (val) {
         if (this.value !== val) {
           this.$emit('input', val);
-          this.$emit('change', val);
         }
+        this.$emit('change', val);
       }
     },
     editable: function editable () {
@@ -13510,8 +13581,8 @@ var SelectMixin = {
     __emit: function __emit (val) {
       if (this.value !== val) {
         this.$emit('input', val);
-        this.$emit('change', val);
       }
+      this.$emit('change', val);
     },
     clear: function clear () {
       this.__emit(this.multiple ? [] : null);
@@ -13629,9 +13700,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
       this.focused = false;
       this.$emit('blur');
       this.terms = '';
-      if (JSON.stringify(this.model) !== JSON.stringify(this.value)) {
-        this.$emit('change', this.model);
-      }
+      this.$emit('change', this.model);
     },
     __singleSelect: function __singleSelect (val, disable) {
       if (disable) {
@@ -16112,35 +16181,14 @@ var QTree = {
 
       return scope
     },
-    __getChildren: function __getChildren (nodes, limitChildren) {
+    __getChildren: function __getChildren (h, nodes) {
       var this$1 = this;
 
-      if (limitChildren) {
-        var i = limitChildren === true ? 2 : limitChildren;
-        return this.filter
-          ? nodes.filter(function (n) {
-            var meta = this$1.meta[n[this$1.nodeKey]];
-            if (!meta.expanded) {
-              return (--i >= 0) && meta.matchesFilter
-            }
-            return meta.matchesFilter
-          })
-          : nodes.filter(function (n) {
-            var meta = this$1.meta[n[this$1.nodeKey]];
-            if (!meta.expanded) {
-              return --i >= 0
-            }
-            return true
-          })
-      }
-      return this.filter
-        ? nodes.filter(function (n) { return this$1.meta[n[this$1.nodeKey]].matchesFilter; })
-        : nodes
-    },
-    __getChildrenNodes: function __getChildrenNodes (h, nodes) {
-      var this$1 = this;
-
-      return nodes.map(function (child) { return this$1.__getNode(h, child); })
+      return (
+        this.filter
+          ? nodes.filter(function (n) { return this$1.meta[n[this$1.nodeKey]].matchesFilter; })
+          : nodes
+      ).map(function (child) { return this$1.__getNode(h, child); })
     },
     __getNodeMedia: function __getNodeMedia (h, node) {
       if (node.icon) {
@@ -16168,14 +16216,10 @@ var QTree = {
           : this.$scopedSlots['default-header'];
 
       var children = meta.isParent
-        ? this.__getChildren(node.children, !meta.expanded)
+        ? this.__getChildren(h, node.children)
         : [];
 
       var isParent = children.length > 0;
-
-      var childrenNodes = isParent
-        ? this.__getChildrenNodes(h, children)
-        : [];
 
       var
         body = node.body
@@ -16267,7 +16311,7 @@ var QTree = {
               h('div', {
                 staticClass: 'q-tree-children',
                 'class': { disabled: meta.disabled }
-              }, childrenNodes)
+              }, children)
             ])
           ])
           : body
@@ -16319,7 +16363,7 @@ var QTree = {
     }
   },
   render: function render (h) {
-    var children = this.__getChildrenNodes(h, this.__getChildren(this.nodes));
+    var children = this.__getChildren(h, this.nodes);
 
     return h(
       'div', {
@@ -16732,7 +16776,6 @@ var components = Object.freeze({
 	QColorPicker: QColorPicker,
 	QContextMenu: QContextMenu,
 	QDatetime: QDatetime,
-	QDatetimeRange: QDatetimeRange,
 	QDatetimePicker: QDatetimePicker,
 	QDialog: QDialog,
 	QEditor: QEditor,
