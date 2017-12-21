@@ -6060,14 +6060,15 @@ var QCollapsible = {
     label: String,
     sublabel: String,
     labelLines: [String, Number],
-    sublabelLines: [String, Number]
+    sublabelLines: [String, Number],
+
+    headerStyle: [Array, String, Object],
+    headerClass: [Array, String, Object]
   },
   computed: {
     cfg: function cfg () {
       return {
         link: !this.iconToggle,
-        headerStyle: [Array, String, Object],
-        headerClass: [Array, String, Object],
 
         dark: this.dark,
         dense: this.dense,
