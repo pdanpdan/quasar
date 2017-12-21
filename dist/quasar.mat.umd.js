@@ -10340,24 +10340,28 @@ Caret.prototype.apply = function apply (cmd, param, done) {
 };
 
 Caret.prototype.selectWord = function selectWord (sel) {
-  if (sel.isCollapsed) {
-    // Detect if selection is backwards
-    var range = document.createRange();
-    range.setStart(sel.anchorNode, sel.anchorOffset);
-    range.setEnd(sel.focusNode, sel.focusOffset);
-    var direction = range.collapsed ? ['backward', 'forward'] : ['forward', 'backward'];
-    range.detach();
-
-    // modify() works on the focus of the selection
-    var endNode = sel.focusNode,
-      endOffset = sel.focusOffset;
-    sel.collapse(sel.anchorNode, sel.anchorOffset);
-    sel.modify('move', direction[0], 'character');
-    sel.modify('move', direction[1], 'word');
-    sel.extend(endNode, endOffset);
-    sel.modify('extend', direction[1], 'character');
-    sel.modify('extend', direction[0], 'word');
+  if (!sel.isCollapsed) {
+    return sel
   }
+
+  // Detect if selection is backwards
+  var range = document.createRange();
+  range.setStart(sel.anchorNode, sel.anchorOffset);
+  range.setEnd(sel.focusNode, sel.focusOffset);
+  var direction = range.collapsed ? ['backward', 'forward'] : ['forward', 'backward'];
+  range.detach();
+
+  // modify() works on the focus of the selection
+  var
+    endNode = sel.focusNode,
+    endOffset = sel.focusOffset;
+  sel.collapse(sel.anchorNode, sel.anchorOffset);
+  sel.modify('move', direction[0], 'character');
+  sel.modify('move', direction[1], 'word');
+  sel.extend(endNode, endOffset);
+  sel.modify('extend', direction[1], 'character');
+  sel.modify('extend', direction[0], 'word');
+
   return sel
 };
 
@@ -15769,7 +15773,7 @@ var QTr = {
       prop = ctx.props.props;
 
     if (!prop || prop.header) {
-      return h('tr', ctx.data, ctx.children)
+      return h('tr', data, ctx.children)
     }
 
     data.staticClass = "" + (prop.__trClass) + (cls ? (" " + cls) : '');
