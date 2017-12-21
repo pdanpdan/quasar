@@ -4716,7 +4716,7 @@ var FullscreenMixin = {
   },
   watch: {
     $route: function $route () {
-      this.__exitFullscreen();
+      this.exitFullscreen();
     }
   },
   methods: {
@@ -5235,7 +5235,7 @@ var QCarouselControl = {
   }
 }
 
-var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?[(_vm.safe)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('p',{staticClass:"q-message-label text-center"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end no-wrap"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_vm._v(" "),_c('div',{staticClass:"column",class:_vm.sizeClass},[(_vm.name)?[(_vm.safe)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_c('div',{staticClass:"q-message-name"},[_vm._v(_vm._s(_vm.name))])]:_vm._e(),_vm._v(" "),_vm._l((_vm.text),function(msg){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)])}),_vm._v(" "),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?[(_vm.safe)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_c('div',{staticClass:"q-message-stamp"},[_vm._v(_vm._s(_vm.stamp))])]:_vm._e()],2)]):_vm._e()],2)],2):_vm._e()],2)},staticRenderFns: [],
+var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.avatar)?_c('div',{staticClass:"q-message-container row items-end no-wrap"},[_vm._t("avatar",[_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}})]),_vm._v(" "),_c('div',{class:_vm.sizeClass},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._v(" "),_vm._l((_vm.text),function(msg){return _c('div',{key:msg,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()])])}),_vm._v(" "),(!_vm.text || !_vm.text.length)?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()],2)]):_vm._e()],2)],2):_vm._e()])},staticRenderFns: [],
   name: 'q-chat-message',
   props: {
     sent: Boolean,
@@ -5248,8 +5248,7 @@ var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
     avatar: String,
     text: Array,
     stamp: String,
-    size: String,
-    safe: Boolean
+    size: String
   },
   computed: {
     textClass: function textClass () {
@@ -5388,8 +5387,7 @@ var OptionMixin = {
     keepColor: Boolean,
     dark: Boolean,
     disable: Boolean,
-    noFocus: Boolean,
-    safe: Boolean
+    noFocus: Boolean
   },
   computed: {
     innerClasses: function innerClasses () {
@@ -5413,7 +5411,7 @@ var OptionMixin = {
   }
 }
 
-var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.checkbox.unchecked[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon || _vm.$q.icon.checkbox.indeterminate[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon || _vm.$q.icon.checkbox.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QCheckbox = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-checkbox q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer",style:(_vm.uncheckedStyle),attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.checkbox.unchecked[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.indeterminateStyle),attrs:{"name":_vm.indeterminateIcon || _vm.$q.icon.checkbox.indeterminate[_vm.$q.theme]}}),_vm._v(" "),_c('q-icon',{staticClass:"q-checkbox-icon cursor-pointer absolute-full",style:(_vm.checkedStyle),attrs:{"name":_vm.checkedIcon || _vm.$q.icon.checkbox.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-checkbox',
   mixins: [Mixin, OptionMixin],
   components: {
@@ -9077,7 +9075,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
   }
 }
 
-var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.radio.unchecked[_vm.$q.theme]}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon || _vm.$q.icon.radio.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QRadio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-radio q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.select($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.select(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"radio","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":_vm._q(_vm.model,_vm.val)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){_vm.model=_vm.val;},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('q-icon',{staticClass:"q-radio-unchecked absolute-full cursor-pointer",attrs:{"name":_vm.uncheckedIcon || _vm.$q.icon.radio.unchecked[_vm.$q.theme]}}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-radio-checked cursor-pointer absolute-full",attrs:{"name":_vm.checkedIcon || _vm.$q.icon.radio.checked[_vm.$q.theme]}}),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-radio',
   mixins: [OptionMixin],
   components: {
@@ -9286,7 +9284,7 @@ var TouchSwipe = {
   }
 }
 
-var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?[(_vm.safe)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_c('span',{staticClass:"q-option-label"},[_vm._v(_vm._s(_vm.label))])]:_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QToggle = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{directives:[{name:"touch-swipe",rawName:"v-touch-swipe.horizontal",value:(_vm.__swipe),expression:"__swipe",modifiers:{"horizontal":true}}],staticClass:"q-toggle q-option cursor-pointer no-outline row inline no-wrap items-center",class:{disabled: _vm.disable, reverse: _vm.leftLabel, 'q-focusable': _vm.focusable},attrs:{"tabindex":_vm.tabindex},on:{"click":function($event){$event.stopPropagation();$event.preventDefault();_vm.toggle($event);},"focus":function($event){_vm.$emit('focus');},"blur":function($event){_vm.$emit('blur');},"keydown":function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"space",32,$event.key)&&_vm._k($event.keyCode,"enter",13,$event.key)){ return null; }$event.preventDefault();_vm.toggle(false);}}},[_c('div',{staticClass:"q-option-inner relative-position",class:_vm.innerClasses},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.model),expression:"model"}],attrs:{"type":"checkbox","disabled":_vm.disable},domProps:{"value":_vm.val,"checked":Array.isArray(_vm.model)?_vm._i(_vm.model,_vm.val)>-1:(_vm.model)},on:{"click":function($event){$event.stopPropagation();},"change":[function($event){var $$a=_vm.model,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=_vm.val,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.model=$$a.concat([$$v]));}else{$$i>-1&&(_vm.model=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.model=$$c;}},_vm.__change]}}),_vm._v(" "),_c('div',{staticClass:"q-focus-helper"}),_vm._v(" "),_c('div',{staticClass:"q-toggle-base",class:_vm.baseClass}),_vm._v(" "),_c('div',{staticClass:"q-toggle-handle row flex-center"},[(_vm.currentIcon)?_c('q-icon',{staticClass:"q-toggle-icon",attrs:{"name":_vm.currentIcon,"color":_vm.iconColor}}):_vm._e(),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{ref:"ripple",staticClass:"q-radial-ripple"}):_vm._e()],1)]),_vm._v(" "),(_vm.label)?_c('span',{staticClass:"q-option-label",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-toggle',
   components: {
     QIcon: QIcon
@@ -9361,7 +9359,7 @@ var QOptionGroup = {
     },
     model: {
       get: function get () {
-        return clone(this.value)
+        return Array.isArray(this.value) ? this.value.slice() : this.value
       },
       set: function set (value) {
         this.$emit('input', value);
@@ -12954,7 +12952,7 @@ var QRange = {
   },
   data: function data () {
     return {
-      model: clone(this.value),
+      model: extend({}, this.value),
       dragging: false,
       currentMinPercentage: (this.value.min - this.min) / (this.max - this.min),
       currentMaxPercentage: (this.value.max - this.min) / (this.max - this.min)
@@ -13689,19 +13687,22 @@ var SelectMixin = {
     },
     frameColor: String,
     displayValue: String,
-    clearable: Boolean,
-    safe: Boolean
+    clearable: Boolean
   },
   data: function data () {
     return {
-      model: clone(this.value),
+      model: this.multiple && Array.isArray(this.value)
+        ? this.value.slice()
+        : this.value,
       terms: '',
       focused: false
     }
   },
   watch: {
     value: function value (val) {
-      this.model = clone(val);
+      this.model = this.multiple && Array.isArray(val)
+        ? val.slice()
+        : val;
     }
   },
   computed: {
@@ -13778,7 +13779,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"no-margin",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},on:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":_vm.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},on:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":_vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [SelectMixin],
   components: {
@@ -13812,11 +13813,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
     visibleOptions: function visibleOptions () {
       var this$1 = this;
 
-      var opts = clone(this.options).map(function (opt, index) {
-        opt.index = index;
-        opt.value = this$1.options[index].value;
-        return opt
-      });
+      var opts = this.options.map(function (opt, index) { return extend({}, opt, { index: index }); });
       if (this.filter && this.terms.length) {
         var lowerTerms = this.terms.toLowerCase();
         opts = opts.filter(function (opt) { return this$1.filterFn(lowerTerms, opt); });
@@ -13896,7 +13893,7 @@ var QDialogSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;v
 var label = ref.label;
 var value = ref.value;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):[(_vm.safe)?_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass},[_vm._v(_vm._s(_vm.actualValue))])],_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],2)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.color},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},on:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"})],1)},staticRenderFns: [],
   name: 'q-dialog-select',
   mixins: [SelectMixin],
   props: {
@@ -13935,7 +13932,9 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         color: this.color,
         options: {
           type: this.type,
-          model: clone(this.value),
+          model: this.multiple && Array.isArray(this.value)
+            ? this.value.slice()
+            : this.value,
           items: this.options
         },
         cancel: this.cancelLabel || true,
