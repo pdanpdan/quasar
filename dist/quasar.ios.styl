@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0
+ * Quasar Framework v0.15.0-alpha.3
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */$space-base   ?= 16px
@@ -573,8 +573,10 @@ $breadcrumb-secondary ?= lighten($breadcrumb-primary, 10%)
 $breadcrumb-hover     ?= $tertiary
 $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
 $button-border-radius         ?= $generic-border-radius
-$button-padding               ?= 0 16px
+$button-padding               ?= 4px 16px
+$button-dense-padding         ?= 6px
 $button-transition            ?= .12s ease-in
+$button-font-size             ?= 14px
 $button-rounded-border-radius ?= 28px
 $button-push-border-radius    ?= 7px
 $card-faded-color          ?= rgba(0, 0, 0, .4)
@@ -613,8 +615,10 @@ $item-base-color                   ?= $grey-5
 $item-highlight-color              ?= alpha($item-base-color, 50%)
 $item-stripe-color                 ?= alpha($item-base-color, 65%)
 $item-active-color                 ?= alpha($item-base-color, 40%)
-$item-primary-color                ?= rgba(0, 0, 0, .54)
+$item-primary-color                ?= currentColor
+$item-primary-opacity              ?= .54
 $item-secondary-color              ?= $item-primary-color
+$item-secondary-opacity            ?= $item-primary-opacity
 $item-label-color                  ?= $grey-7
 $item-content-secondary-text-color ?= $grey-7
 $item-separator-color              ?= rgb(224, 224, 224)
@@ -905,16 +909,17 @@ input[type='search']::-webkit-search-decoration
   cursor pointer
   -webkit-appearance button
   padding $button-padding
+  font-size $button-font-size
   text-decoration none
   color inherit
   background transparent
   transition $button-transition
-  min-height (100 / 38)em
+  min-height 2.572em
   .q-icon
-    font-size (68 / 38)em
+    font-size 1.4em
   .q-spinner
-    height (68 / 38)em
-    width (68 / 38)em
+    height 1.4em
+    width 1.4em
   &.disabled
     opacity .7 !important
   &.full-width
@@ -942,19 +947,28 @@ input[type='search']::-webkit-search-decoration
   border-radius 50%
   padding 0
   min-height 0
-  height 1em
-  width 1em
-  .q-icon
-    font-size .54em
-  .q-spinner
-    height .54em
-    width .54em
-.q-btn-compact
-  padding 2px 6px
+  height 3em
+  width 3em
+.q-btn-dense
+  padding $button-dense-padding
+  min-height 0
+  &.q-btn-round
+    padding 0
+    height 2.4em
+    width 2.4em
   .on-left
     margin-right 6px
   .on-right
     margin-left 6px
+.q-btn-fab, .q-btn-fab-mini
+  .q-icon
+    font-size 24px
+.q-btn-fab
+  height 56px
+  width 56px
+.q-btn-fab-mini
+  height 40px
+  width 40px
 .q-btn-dropdown-simple .q-btn-dropdown-arrow
   width 10px
   font-size 24px
@@ -1074,8 +1088,7 @@ input[type='search']::-webkit-search-decoration
 .q-carousel-right-arrow
   top 50%
   transform translateY(-50%)
-  .q-icon
-    font-size 42px !important
+  background $carousel-quick-nav-background
 .q-carousel-left-arrow
   left 5px
 .q-carousel-right-arrow
@@ -1267,12 +1280,13 @@ $checkbox-size = 21px
     background rgba(0, 0, 0, .1)
     opacity .8
     padding 0 5px
+    border-radius inherit
     border-top-right-radius 0
     border-bottom-right-radius 0
   &.small
     min-height $chip-small-height
     .q-chip-main
-      padding 4px 0 4px
+      padding 4px 0
       line-height initial
     .q-chip-side
       height $chip-small-height
@@ -1927,9 +1941,17 @@ body
   display flex
   flex-direction column
   align-items flex-end
+  .q-item-icon, .q-item-letter, .q-item-stamp
+    opacity $item-secondary-opacity
+  .q-item-letter-inverted, .q-item-icon-inverted
+    opacity 1
 .q-item-side
   color $item-primary-color
   min-width $item-primary-size
+  .q-item-icon, .q-item-letter, .q-item-stamp
+    opacity $item-primary-opacity
+  .q-item-letter-inverted, .q-item-icon-inverted
+    opacity 1
 .q-item-avatar, .q-item-avatar img
   width $item-primary-size
   height $item-primary-size
@@ -2357,17 +2379,16 @@ $radio-size = 21px
   width $radio-size
   min-width $radio-size
   font-size $radio-size
-  transition all .45s cubic-bezier(.23, 1, .32, 1)
+  transition transform .45s cubic-bezier(.23, 1, .32, 1)
   opacity 1
 .q-radio-unchecked
-  transform scale(1)
+  opacity 1
 .q-radio-checked
   transform-origin 50% 50% 0
   transform scale(0)
 .q-radio .q-option-inner.active
   .q-radio-unchecked
     opacity 0
-    transform scale(0)
   .q-radio-checked
     transform scale(1)
 .q-rating
@@ -2811,6 +2832,7 @@ body.mobile .q-tabs-scroller
   border-radius $table-border-radius
   box-shadow $table-box-shadow
   position relative
+  background white
 .q-table-top
   min-height 64px
   padding 4px 24px
@@ -3149,13 +3171,6 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   width 100%
   color $toolbar-color
   background $toolbar-background
-  > .q-btn
-    margin 0 .2rem
-    padding .2rem
-    &:first-child
-      margin-left 0
-    &:last-child
-      margin-right 0
 .q-toolbar-inverted
   color $toolbar-background
   background transparent
