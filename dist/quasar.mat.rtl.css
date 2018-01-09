@@ -1700,7 +1700,6 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-control {
   cursor: pointer;
-  margin-right: 4px;
   color: rgba(0,0,0,0.54);
   font-size: 24px;
 }

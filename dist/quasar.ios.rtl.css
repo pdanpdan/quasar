@@ -1407,7 +1407,6 @@ body.desktop .q-datetime-col-wrapper {
 }
 .q-if-control {
   cursor: pointer;
-  margin-right: 4px;
   color: rgba(0,0,0,0.54);
   font-size: 24px;
 }
