@@ -1,9 +1,9 @@
 /*!
- * Quasar Framework v0.15.0-alpha.4
+ * Quasar Framework v0.15.0-alpha.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
-var version = "0.15.0-alpha.4";
+var version = "0.15.0-alpha.5";
 
 function offset (el) {
   if (el === window) {
@@ -14915,17 +14915,13 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
 var Top = {
   methods: {
     getTop: function getTop (h) {
-      if (this.noTop) {
-        return
-      }
-
       var
         top = this.$scopedSlots.top,
         topLeft = this.$scopedSlots['top-left'],
         topRight = this.$scopedSlots['top-right'],
         topSelection = this.$scopedSlots['top-selection'],
         hasSelection = this.selection && topSelection && this.rowsSelectedNumber > 0,
-        cls = 'q-table-top relative-position row no-wrap items-center',
+        staticClass = 'q-table-top relative-position row no-wrap items-center',
         child = [],
         props = {
           hasSelection: hasSelection,
@@ -14934,7 +14930,7 @@ var Top = {
         };
 
       if (top) {
-        return h('div', { staticClass: cls }, [ top(props) ])
+        return h('div', { staticClass: staticClass }, [ top(props) ])
       }
 
       if (hasSelection) {
@@ -14958,9 +14954,7 @@ var Top = {
         return
       }
 
-      return h('div', {
-        staticClass: ("" + cls + (hasSelection ? (" text-" + (this.color) + " q-table-top-selection") : ''))
-      }, child)
+      return h('div', { staticClass: staticClass }, child)
     }
   }
 }
@@ -15020,7 +15014,7 @@ var QTh = {
 var TableHeader = {
   methods: {
     getTableHeader: function getTableHeader (h) {
-      if (this.noHeader) {
+      if (this.hideHeader) {
         return
       }
 
@@ -15107,7 +15101,7 @@ var TableHeader = {
 
       if (this.multipleSelection) {
         Object.defineProperty(data, 'selected', {
-          get: function () { return this$1.allRowsSelected; },
+          get: function () { return this$1.someRowsSelected ? 'some' : this$1.allRowsSelected; },
           set: function (val) {
             if (this$1.someRowsSelected) {
               val = false;
@@ -15258,7 +15252,7 @@ var Bottom = {
         ])
       }
 
-      if (this.noBottom) {
+      if (this.hidePagination) {
         return
       }
 
@@ -15675,9 +15669,8 @@ var QTable = {
     columns: Array,
     loader: Boolean,
     title: String,
-    noTop: Boolean,
-    noHeader: Boolean,
-    noBottom: Boolean,
+    hideHeader: Boolean,
+    hidePagination: Boolean,
     dark: Boolean,
     separator: {
       type: String,

@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-alpha.4
+ * Quasar Framework v0.15.0-alpha.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3017,9 +3017,6 @@ body.mobile .q-tabs-scroller {
   -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
-.q-table-top-selection:before {
-  background: currentColor;
-}
 .q-table-separator {
   min-width: 8px;
 }
@@ -3048,7 +3045,7 @@ body.mobile .q-tabs-scroller {
   max-width: 100%;
 }
 .q-table-bottom {
-  min-height: 56px;
+  min-height: 44px;
   padding: 0 14px 0 24px;
   font-size: 12px;
 }
