@@ -25820,20 +25820,25 @@ var notify = {
         }
       },
       methods: {
-        add: function add (notif) {
+        add: function add (config) {
           var this$1 = this;
 
-          if (!notif) {
+          if (!config) {
             console.error('Notify: parameter required');
             return false
           }
-          if (typeof notif === 'string') {
+          var notif;
+          if (typeof config === 'string') {
             notif = {
-              message: notif,
+              message: config,
               position: 'bottom'
             };
           }
-          else if (notif.position) {
+          else {
+            notif = clone(config);
+          }
+
+          if (notif.position) {
             if (!positionList.includes(notif.position)) {
               console.error(("Notify: wrong position: " + (notif.position)));
               return false
@@ -25854,14 +25859,16 @@ var notify = {
           };
 
           if (notif.actions) {
-            notif.actions = notif.actions.map(function (action) {
-              var handler = action.handler;
-              action.handler = function () {
-                close();
-                if (typeof handler === 'function') {
+            notif.actions = config.actions.map(function (item) {
+              var
+                handler = item.handler,
+                action = clone(item);
+              action.handler = typeof handler === 'function'
+                ? function () {
                   handler();
+                  close();
                 }
-              };
+                : function () { return close(); };
               return action
             });
           }
