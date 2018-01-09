@@ -1,9 +1,9 @@
 /*!
- * Quasar Framework v0.15.0-alpha.3
+ * Quasar Framework v0.15.0-alpha.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
-var version = "0.15.0-alpha.3";
+var version = "0.15.0-alpha.4";
 
 function offset (el) {
   if (el === window) {
@@ -9067,7 +9067,6 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       default: 'text',
       validator: function (t) { return inputTypes.includes(t); }
     },
-    minRows: Number,
     clearable: Boolean,
     noPassToggle: Boolean,
     noNumberToggle: Boolean,
@@ -11466,7 +11465,9 @@ var QLayoutDrawer = {
       type: String,
       validator: function (v) { return ['default', 'desktop', 'mobile'].includes(v); },
       default: 'default'
-    }
+    },
+    contentStyle: Object,
+    contentClass: [String, Object, Array]
   },
   data: function data () {
     var
@@ -11645,10 +11646,10 @@ var QLayoutDrawer = {
       return css$$1
     },
     computedStyle: function computedStyle () {
-      return this.mobileView ? this.belowStyle : this.aboveStyle
+      return [this.contentStyle, this.mobileView ? this.belowStyle : this.aboveStyle]
     },
     computedClass: function computedClass () {
-      return this.mobileView ? this.belowClass : this.aboveClass
+      return [this.contentClass, this.mobileView ? this.belowClass : this.aboveClass]
     }
   },
   render: function render (h) {
@@ -11681,6 +11682,8 @@ var QLayoutDrawer = {
         staticClass: ("q-layout-drawer q-layout-drawer-" + (this.side) + " scroll q-layout-transition"),
         'class': this.computedClass,
         style: this.computedStyle,
+        attrs: this.$attrs,
+        listeners: this.$listeners,
         directives: this.mobileView ? [{
           name: 'touch-pan',
           modifiers: { horizontal: true },
@@ -17791,7 +17794,7 @@ var notify = {
           };
 
           if (notif.actions) {
-            notif.actions = clone(notif.actions).map(function (action) {
+            notif.actions = notif.actions.map(function (action) {
               var handler = action.handler;
               action.handler = function () {
                 close();
