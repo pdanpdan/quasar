@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-alpha.5
+ * Quasar Framework v0.15.0-alpha.6
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -7929,7 +7929,7 @@ Vue$3.nextTick(function () {
   }
 }, 0);
 
-var version = "0.15.0-alpha.5";
+var version = "0.15.0-alpha.6";
 
 function offset (el) {
   if (el === window) {
@@ -11682,7 +11682,7 @@ var QAlert = {
         ]),
         this.actions && this.actions.length
           ? h('div', {
-            staticClass: 'q-alert-actions col-auto xs-gutter flex-center'
+            staticClass: 'q-alert-actions col-auto gutter-xs flex-center'
           },
           this.actions.map(function (action) { return h('div', [
               h(QBtn, {
@@ -12054,7 +12054,7 @@ var QBreadcrumbs = {
     });
 
     return h('div', {
-      staticClass: 'q-breadcrumbs flex xs-gutter items-center overflow-hidden',
+      staticClass: 'q-breadcrumbs flex gutter-xs items-center overflow-hidden',
       'class': [("text-" + (this.color)), ("justify-" + (this.computedAlign))]
     }, child)
   }
@@ -22843,6 +22843,21 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
 }
 
 var Top = {
+  computed: {
+    marginalsProps: function marginalsProps () {
+      return {
+        pagination: this.computedPagination,
+        pagesNumber: this.pagesNumber,
+        isFirstPage: this.isFirstPage,
+        isLastPage: this.isLastPage,
+        prevPage: this.prevPage,
+        nextPage: this.nextPage,
+
+        inFullscreen: this.inFullscreen,
+        toggleFullscreen: this.toggleFullscreen
+      }
+    }
+  },
   methods: {
     getTop: function getTop (h) {
       var
@@ -22852,23 +22867,18 @@ var Top = {
         topSelection = this.$scopedSlots['top-selection'],
         hasSelection = this.selection && topSelection && this.rowsSelectedNumber > 0,
         staticClass = 'q-table-top relative-position row no-wrap items-center',
-        child = [],
-        props = {
-          hasSelection: hasSelection,
-          inFullscreen: this.inFullscreen,
-          toggleFullscreen: this.toggleFullscreen
-        };
+        child = [];
 
       if (top) {
-        return h('div', { staticClass: staticClass }, [ top(props) ])
+        return h('div', { staticClass: staticClass }, [ top(this.marginalsProps) ])
       }
 
       if (hasSelection) {
-        child.push(topSelection(props));
+        child.push(topSelection(this.marginalsProps));
       }
       else {
         if (topLeft) {
-          child.push(topLeft(props));
+          child.push(topLeft(this.marginalsProps));
         }
         else if (this.title) {
           child.push(h('div', { staticClass: 'q-table-title' }, this.title));
@@ -22877,7 +22887,7 @@ var Top = {
 
       if (topRight) {
         child.push(h('div', { staticClass: 'q-table-separator col' }));
-        child.push(topRight(props));
+        child.push(topRight(this.marginalsProps));
       }
 
       if (child.length === 0) {
@@ -23182,21 +23192,23 @@ var Bottom = {
         ])
       }
 
-      if (this.hidePagination) {
+      if (this.hideBottom) {
         return
       }
 
+      var bottom = this.$scopedSlots.bottom;
+
       return h('div', { staticClass: 'q-table-bottom row items-center' },
-        this.getPaginationRow(h)
+        bottom ? [ bottom(this.marginalsProps) ] : this.getPaginationRow(h)
       )
     },
     getPaginationRow: function getPaginationRow (h) {
       var this$1 = this;
 
       var ref = this.computedPagination;
-      var page = ref.page;
       var rowsPerPage = ref.rowsPerPage;
-      var paginationLabel = this.paginationLabel || this.$q.i18n.table.pagination;
+      var paginationLabel = this.paginationLabel || this.$q.i18n.table.pagination,
+        paginationSlot = this.$scopedSlots.pagination;
 
       return [
         h('div', { staticClass: 'col' }, [
@@ -23205,13 +23217,12 @@ var Bottom = {
             : ''
         ]),
         h('div', { staticClass: 'flex items-center' }, [
-          h('span', { style: {marginRight: '32px'} }, [
+          h('span', { staticClass: 'q-mr-lg' }, [
             this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
-            staticClass: 'inline q-pb-none',
+            staticClass: 'inline q-pb-none q-my-none q-ml-none q-mr-lg',
             style: {
-              margin: '0 15px',
               minWidth: '50px'
             },
             props: {
@@ -23230,41 +23241,37 @@ var Bottom = {
               }
             }
           }),
-          h('span', { style: {margin: '0 32px'} }, [
-            rowsPerPage
-              ? paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
-              : paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
-          ]),
-          h(QBtn, {
-            props: {
-              color: this.color,
-              round: true,
-              icon: this.$q.icon.table.prevPage,
-              dense: true,
-              flat: true,
-              disable: page === 1
-            },
-            on: {
-              click: function () {
-                this$1.setPagination({ page: page - 1 });
-              }
-            }
-          }),
-          h(QBtn, {
-            props: {
-              color: this.color,
-              round: true,
-              icon: this.$q.icon.table.nextPage,
-              dense: true,
-              flat: true,
-              disable: this.lastRowIndex === 0 || page * rowsPerPage >= this.computedRowsNumber
-            },
-            on: {
-              click: function () {
-                this$1.setPagination({ page: page + 1 });
-              }
-            }
-          })
+          paginationSlot
+            ? paginationSlot(this.marginalsProps)
+            : [
+              h('span', { staticClass: 'q-mr-lg' }, [
+                rowsPerPage
+                  ? paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
+                  : paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
+              ]),
+              h(QBtn, {
+                props: {
+                  color: this.color,
+                  round: true,
+                  icon: this.$q.icon.table.prevPage,
+                  dense: true,
+                  flat: true,
+                  disable: this.isFirstPage
+                },
+                on: { click: this.prevPage }
+              }),
+              h(QBtn, {
+                props: {
+                  color: this.color,
+                  round: true,
+                  icon: this.$q.icon.table.nextPage,
+                  dense: true,
+                  flat: true,
+                  disable: this.isLastPage
+                },
+                on: { click: this.nextPage }
+              })
+            ]
         ])
       ]
     }
@@ -23425,6 +23432,24 @@ var Pagination = {
       var rowsPerPage = ref.rowsPerPage;
       return page * rowsPerPage
     },
+    isFirstPage: function isFirstPage () {
+      var ref = this.computedPagination;
+      var page = ref.page;
+      return page <= 1
+    },
+    pagesNumber: function pagesNumber () {
+      var ref = this.computedPagination;
+      var rowsPerPage = ref.rowsPerPage;
+      return Math.ceil(this.computedRowsNumber / rowsPerPage)
+    },
+    isLastPage: function isLastPage () {
+      if (this.lastRowIndex === 0) {
+        return true
+      }
+      var ref = this.computedPagination;
+      var page = ref.page;
+      return page >= this.pagesNumber
+    },
     computedRowsPerPageOptions: function computedRowsPerPageOptions () {
       var this$1 = this;
 
@@ -23450,6 +23475,21 @@ var Pagination = {
       }
       else {
         this.innerPagination = newPagination;
+      }
+    },
+    prevPage: function prevPage () {
+      var ref = this.computedPagination;
+      var page = ref.page;
+      if (page > 1) {
+        this.setPagination({page: page - 1});
+      }
+    },
+    nextPage: function nextPage () {
+      var ref = this.computedPagination;
+      var page = ref.page;
+      var rowsPerPage = ref.rowsPerPage;
+      if (this.lastRowIndex > 0 && page * rowsPerPage < this.computedRowsNumber) {
+        this.setPagination({page: page + 1});
       }
     }
   },
@@ -23600,7 +23640,7 @@ var QTable = {
     loader: Boolean,
     title: String,
     hideHeader: Boolean,
-    hidePagination: Boolean,
+    hideBottom: Boolean,
     dark: Boolean,
     separator: {
       type: String,

@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-alpha.5
+ * Quasar Framework v0.15.0-alpha.6
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3342,7 +3342,7 @@ body.mobile .q-tabs-scroller {
   max-width: 100%;
 }
 .q-table-bottom {
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 14px 0 24px;
   font-size: 12px;
 }
@@ -6660,47 +6660,113 @@ img.avatar {
 .offset-12 {
   margin-left: 100%;
 }
-.xs-gutter {
-  margin: -8px 0 0 -8px;
+.gutter-none {
+  margin: 0 0 0 0;
 }
-.xs-gutter > div {
-  padding: 8px 0 0 8px;
+.gutter-none > div {
+  padding: 0 0 0 0;
 }
-.sm-gutter {
-  margin: -16px 0 0 -16px;
-}
-.sm-gutter > div {
-  padding: 16px 0 0 16px;
-}
-.md-gutter {
-  margin: -32px 0 0 -32px;
-}
-.md-gutter > div {
-  padding: 32px 0 0 32px;
-}
-.lg-gutter {
-  margin: -48px 0 0 -48px;
-}
-.lg-gutter > div {
-  padding: 48px 0 0 48px;
-}
-.xl-gutter {
-  margin: -64px 0 0 -64px;
-}
-.xl-gutter > div {
-  padding: 64px 0 0 64px;
-}
-.no-horiz-gutter {
+.gutter-x-none {
   margin-left: 0;
 }
-.no-horiz-gutter > div {
+.gutter-x-none > div {
   padding-left: 0;
 }
-.no-vert-gutter {
+.gutter-y-none {
   margin-top: 0;
 }
-.no-vert-gutter > div {
+.gutter-y-none > div {
   padding-top: 0;
+}
+.gutter-xs {
+  margin: -8px 0 0 -8px;
+}
+.gutter-xs > div {
+  padding: 8px 0 0 8px;
+}
+.gutter-x-xs {
+  margin-left: -8px;
+}
+.gutter-x-xs > div {
+  padding-left: 8px;
+}
+.gutter-y-xs {
+  margin-top: -8px;
+}
+.gutter-y-xs > div {
+  padding-top: 8px;
+}
+.gutter-sm {
+  margin: -16px 0 0 -16px;
+}
+.gutter-sm > div {
+  padding: 16px 0 0 16px;
+}
+.gutter-x-sm {
+  margin-left: -16px;
+}
+.gutter-x-sm > div {
+  padding-left: 16px;
+}
+.gutter-y-sm {
+  margin-top: -16px;
+}
+.gutter-y-sm > div {
+  padding-top: 16px;
+}
+.gutter-md {
+  margin: -32px 0 0 -32px;
+}
+.gutter-md > div {
+  padding: 32px 0 0 32px;
+}
+.gutter-x-md {
+  margin-left: -32px;
+}
+.gutter-x-md > div {
+  padding-left: 32px;
+}
+.gutter-y-md {
+  margin-top: -32px;
+}
+.gutter-y-md > div {
+  padding-top: 32px;
+}
+.gutter-lg {
+  margin: -48px 0 0 -48px;
+}
+.gutter-lg > div {
+  padding: 48px 0 0 48px;
+}
+.gutter-x-lg {
+  margin-left: -48px;
+}
+.gutter-x-lg > div {
+  padding-left: 48px;
+}
+.gutter-y-lg {
+  margin-top: -48px;
+}
+.gutter-y-lg > div {
+  padding-top: 48px;
+}
+.gutter-xl {
+  margin: -64px 0 0 -64px;
+}
+.gutter-xl > div {
+  padding: 64px 0 0 64px;
+}
+.gutter-x-xl {
+  margin-left: -64px;
+}
+.gutter-x-xl > div {
+  padding-left: 64px;
+}
+.gutter-y-xl {
+  margin-top: -64px;
+}
+.gutter-y-xl > div {
+  padding-top: 64px;
 }
 @media (min-width: 0) {
   .col-xs {

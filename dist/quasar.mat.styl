@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-alpha.5
+ * Quasar Framework v0.15.0-alpha.6
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */$space-base   ?= 16px
@@ -44,6 +44,7 @@ $flex-gutter-xl ?= 64px
 $body-background ?= white
 $body-color      ?= #0c0c0c
 $flex-gutter = {
+  none: 0,
   xs: $flex-gutter-xs,
   sm: $flex-gutter-sm,
   md: $flex-gutter-md,
@@ -2973,7 +2974,7 @@ body.mobile .q-tabs-scroller
 .q-table-middle
   max-width 100%
 .q-table-bottom
-  min-height 44px
+  min-height 48px
   padding 0 14px 0 24px
   font-size 12px
 .q-table-sort-icon
@@ -4737,18 +4738,18 @@ for $i in (1..$flex-cols)
   .offset-{$i}
     margin-left (round($i / $flex-cols * 100, 4))%
 for $name, $size in $flex-gutter
-  .{$name}-gutter
+  .gutter-{$name}
     margin (- $size) 0 0 (- $size)
     > div
       padding $size 0 0 $size
-.no-horiz-gutter
-  margin-left 0
-  > div
-    padding-left 0
-.no-vert-gutter
-  margin-top 0
-  > div
-    padding-top 0
+  .gutter-x-{$name}
+    margin-left (- $size)
+    > div
+      padding-left $size
+  .gutter-y-{$name}
+    margin-top (- $size)
+    > div
+      padding-top $size
 for $name, $size in $sizes
   @media (min-width $size)
     .col-{$name}
