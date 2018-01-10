@@ -10389,7 +10389,12 @@ var BtnMixin = {
     textColor: String,
     glossy: Boolean,
     dense: Boolean,
-    noRipple: Boolean
+    noRipple: Boolean,
+    justify: {
+      type: String,
+      default: 'center',
+      validator: function (v) { return ['start', 'end', 'center', 'between', 'around'].includes(v); }
+    }
   },
   computed: {
     style: function style () {
@@ -10462,6 +10467,13 @@ var BtnMixin = {
       });
 
       return cls
+    },
+    innerClasses: function innerClasses () {
+      var classes = [("justify-" + (this.justify))];
+      if (this.noWrap) {
+        classes.push('no-wrap', 'text-no-wrap');
+      }
+      return classes
     }
   },
   methods: {
@@ -10733,11 +10745,8 @@ var QBtn = {
         : null,
 
       h('div', {
-        staticClass: 'q-btn-inner row col flex-center',
-        'class': {
-          'no-wrap': this.noWrap,
-          'text-no-wrap': this.noWrap
-        }
+        staticClass: 'q-btn-inner row col items-center',
+        'class': this.innerClasses
       },
       this.loading
         ? [ this.$slots.loading || h(QSpinner) ]
@@ -10823,11 +10832,8 @@ var QBtnToggle = {
       h('div', { staticClass: 'q-focus-helper' }),
 
       h('div', {
-        staticClass: 'q-btn-inner row col flex-center',
-        'class': {
-          'no-wrap': this.noWrap,
-          'text-no-wrap': this.noWrap
-        }
+        staticClass: 'q-btn-inner row col items-center',
+        'class': this.innerClasses
       }, [
         this.icon
           ? h('q-icon', {
@@ -11686,10 +11692,12 @@ var QAlert = {
           },
           this.actions.map(function (action) { return h('div', [
               h(QBtn, {
+                staticClass: 'full-width',
                 props: {
                   flat: true,
                   dense: true,
                   icon: action.icon,
+                  justify: 'start',
                   label: action.closeBtn === true
                     ? (typeof action.label === 'string' ? action.label : this$1.$q.i18n.label.close)
                     : action.label
