@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-alpha.6
+ * Quasar Framework v0.15.0-beta.2
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */$space-base   ?= 16px
@@ -1639,7 +1639,7 @@ body.desktop .q-datetime-col-wrapper
     color $warning
   .q-field-no-input
     border-top 1px solid $warning
-@media (max-width $breakpoint-xs-max)
+qfield-vertical()
   .q-field-label + .q-field-content
     padding-top 8px
   .q-field-floating.q-field-no-label
@@ -1647,12 +1647,22 @@ body.desktop .q-datetime-col-wrapper
       margin-top 12px
   .q-field-no-label .q-field-label
     display none
-@media (min-width $breakpoint-sm-min)
+qfield-horizontal()
   .q-field-floating
     .q-field-margin
       margin-top 12px
   .q-field-label + .q-field-content
     padding-top 0
+.q-field-vertical
+  qfield-vertical()
+.q-field-horizontal
+  qfield-horizontal()
+@media (max-width $breakpoint-xs-max)
+  .q-field-responsive
+    qfield-vertical()
+@media (min-width $breakpoint-sm-min)
+  .q-field-responsive
+    qfield-horizontal()
 .q-icon
   line-height 1
   letter-spacing normal
@@ -3203,7 +3213,7 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   margin 0
   list-style-type none
   position relative
-  padding 0 0 3px 2px
+  padding 0 0 3px 22px
   &:after
     content ''
     position absolute
@@ -3220,8 +3230,8 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   position absolute
   top -3px
   bottom 50%
-  width 15px
-  left -15px
+  width 35px
+  left -35px
   border-left 1px solid currentColor
   border-bottom 1px solid currentColor
 .q-tree-children
@@ -3230,18 +3240,23 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
     pointer-events none
 .q-tree-node-body
   padding 5px 0 8px 5px
-.q-tree-node-body-with-children
-  padding 5px 0 8px 30px
-  &:after
-    content ''
-    position absolute
-    top 0
-    width 1px
-    height 100%
-    right auto
-    left 12px
-    border-left 1px solid currentColor
-    bottom 50px
+.q-tree-node-parent
+  padding-left 2px
+  > .q-tree-node-header:before
+    width 15px
+    left -15px
+  > .q-tree-node-collapsible > .q-tree-node-body
+    padding 5px 0 8px 27px
+    &:after
+      content ''
+      position absolute
+      top 0
+      width 1px
+      height 100%
+      right auto
+      left 12px
+      border-left 1px solid currentColor
+      bottom 50px
 .q-tree-node-link
   cursor pointer
 .q-tree-node-selected

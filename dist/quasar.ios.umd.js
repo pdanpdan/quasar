@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-alpha.6
+ * Quasar Framework v0.15.0-beta.2
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -7929,7 +7929,7 @@ Vue$3.nextTick(function () {
   }
 }, 0);
 
-var version = "0.15.0-alpha.6";
+var version = "0.15.0-beta.2";
 
 function offset (el) {
   if (el === window) {
@@ -8712,15 +8712,6 @@ function install (_Vue, opts) {
   _Vue.prototype.$q = $q;
 }
 
-var QApp = {
-  name: 'q-app',
-  render: function render (h) {
-    return h('div', { staticClass: 'q-app' }, [
-      this.$slots.default
-    ])
-  }
-}
-
 var handlers = [];
 
 var EscapeKey = {
@@ -9127,7 +9118,6 @@ var QModal = {
         var body = document.body;
 
         body.classList.remove('with-modal');
-        body.style.paddingRight = this.bodyPadding;
       }
     }
   },
@@ -13453,7 +13443,7 @@ var OptionMixin = {
     }
   },
   methods: {
-    __update: function __update (val, change) {
+    __update: function __update (val) {
       var ref = this.$refs.ripple;
       if (ref) {
         ref.classList.add('active');
@@ -13463,9 +13453,7 @@ var OptionMixin = {
       }
 
       this.$emit('input', val);
-      if (change) {
-        this.$emit('change', val);
-      }
+      this.$emit('change', val);
     },
     __onKeydown: function __onKeydown (evt) {
       var key = getEventKey(evt);
@@ -16853,22 +16841,15 @@ var QResizeObservable = {
   methods: {
     onResize: function onResize () {
       var size = {
-        width: this.$el.offsetWidth,
-        height: this.$el.offsetHeight
+        width: this.parent.offsetWidth,
+        height: this.parent.offsetHeight
       };
 
       if (size.width === this.size.width && size.height === this.size.height) {
         return
       }
 
-      if (!this.timer) {
-        this.timer = setTimeout(this.emit, 32);
-      }
-
       this.size = size;
-    },
-    emit: function emit () {
-      this.timer = null;
       this.$emit('resize', this.size);
     }
   },
@@ -16885,11 +16866,10 @@ var QResizeObservable = {
       object = document.createElement('object'),
       onIE = this.$q.platform.is.ie;
 
-    this.size = {
-      width: this.$el.offsetWidth,
-      height: this.$el.offsetHeight
-    };
-    this.emit();
+    this.parent = this.$el.parentNode;
+    this.size = { width: -1, height: -1 };
+    this.onResize = debounce(this.onResize, 100);
+    this.onResize();
 
     this.object = object;
     object.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
@@ -16906,7 +16886,6 @@ var QResizeObservable = {
     }
   },
   beforeDestroy: function beforeDestroy () {
-    clearTimeout(this.timer);
     if (this.object && this.object.onload) {
       if (!this.$q.platform.is.ie && this.object.contentDocument) {
         this.object.contentDocument.defaultView.removeEventListener('resize', this.onResize);
@@ -18740,18 +18719,9 @@ var QFabAction = {
 var QField = {
   name: 'q-field',
   props: {
-    labelWidth: {
-      type: Number,
-      default: 5,
-      validator: function validator (val) {
-        return val >= 1 && val < 12
-      }
-    },
     inset: {
       type: String,
-      validator: function validator (val) {
-        return ['icon', 'label', 'full'].includes(val)
-      }
+      validator: function (v) { return ['icon', 'label', 'full'].includes(v); }
     },
     label: String,
     count: {
@@ -18764,7 +18734,19 @@ var QField = {
     warningLabel: String,
     helper: String,
     icon: String,
-    dark: Boolean
+    dark: Boolean,
+    orientation: {
+      type: String,
+      validator: function (v) { return ['vertical', 'horizontal'].includes(v); }
+    },
+    labelWidth: {
+      type: [Number, String],
+      default: 5,
+      validator: function validator (val) {
+        var v = parseInt(val, 10);
+        return v > 0 && v < 13
+      }
+    }
   },
   data: function data () {
     return {
@@ -18809,12 +18791,34 @@ var QField = {
     },
     classes: function classes () {
       return {
+        'q-field-responsive': !this.isVertical && !this.isHorizontal,
+        'q-field-vertical': this.isVertical,
+        'q-field-horizontal': this.isHorizontal,
         'q-field-floating': this.childHasLabel,
         'q-field-no-label': !this.label && !this.$slots.label,
         'q-field-with-error': this.hasError,
         'q-field-with-warning': this.hasWarning,
         'q-field-dark': this.isDark
       }
+    },
+    computedLabelWidth: function computedLabelWidth () {
+      return parseInt(this.labelWidth, 10)
+    },
+    isVertical: function isVertical () {
+      return this.orientation === 'vertical' || this.computedLabelWidth === 12
+    },
+    isHorizontal: function isHorizontal () {
+      return this.orientation === 'horizontal'
+    },
+    labelClasses: function labelClasses () {
+      return this.isVertical
+        ? "col-12"
+        : (this.isHorizontal ? ("col-" + (this.labelWidth)) : ("col-xs-12 col-sm-" + (this.labelWidth)))
+    },
+    inputClasses: function inputClasses () {
+      return this.isVertical
+        ? "col-xs-12"
+        : (this.isHorizontal ? 'col' : 'col-xs-12 col-sm')
     }
   },
   provide: function provide () {
@@ -18858,8 +18862,8 @@ var QField = {
       h('div', { staticClass: 'row col' }, [
         this.hasLabel
           ? h('div', {
-            staticClass: 'q-field-label col-xs-12 q-field-margin',
-            'class': ("col-sm-" + (this.labelWidth))
+            staticClass: 'q-field-label q-field-margin',
+            'class': this.labelClasses
           }, [
             h('div', { staticClass: 'q-field-label-inner row items-center' }, [
               this.label,
@@ -18868,7 +18872,10 @@ var QField = {
           ])
           : null,
 
-        h('div', { staticClass: 'q-field-content col-xs-12 col-sm' }, [
+        h('div', {
+          staticClass: 'q-field-content',
+          'class': this.inputClasses
+        }, [
           this.$slots.default,
           this.hasBottom
             ? h('div', {
@@ -24385,7 +24392,7 @@ var QTree = {
         ? this.__getChildren(h, node.children)
         : [];
 
-      var isParent = children.length > 0;
+      var isParent = children.length > 0 || (meta.lazy && meta.lazy !== 'loaded');
 
       var
         body = node.body
@@ -24396,10 +24403,7 @@ var QTree = {
           : null;
 
       if (body) {
-        body = h('div', {
-          staticClass: 'q-tree-node-body relative-position',
-          'class': { 'q-tree-node-body-with-children': isParent }
-        }, [
+        body = h('div', { staticClass: 'q-tree-node-body relative-position' }, [
           h('div', { 'class': this.contentClass }, [
             body(slotScope)
           ])
@@ -24408,7 +24412,8 @@ var QTree = {
 
       return h('div', {
         key: key,
-        staticClass: 'q-tree-node'
+        staticClass: 'q-tree-node',
+        'class': { 'q-tree-node-parent': isParent }
       }, [
         h('div', {
           staticClass: 'q-tree-node-header relative-position row no-wrap items-center',
@@ -24426,7 +24431,7 @@ var QTree = {
               props: { color: this.computedControlColor }
             })
             : (
-              isParent || (meta.lazy && meta.lazy !== 'loaded')
+              isParent
                 ? h(QIcon, {
                   staticClass: 'q-tree-arrow q-mr-xs transition-generic',
                   'class': { 'rotate-90': meta.expanded },
@@ -24484,7 +24489,9 @@ var QTree = {
     },
     __onClick: function __onClick (node, meta) {
       if (this.hasSelection) {
-        meta.selectable && this.$emit('update:selected', meta.key);
+        if (meta.selectable) {
+          this.$emit('update:selected', meta.key !== this.selected ? meta.key : null);
+        }
       }
       else {
         this.__onExpandClick(node, meta);
@@ -24911,7 +24918,6 @@ var QVideo = {
 
 
 var components = Object.freeze({
-	QApp: QApp,
 	QActionSheet: QActionSheet,
 	QAjaxBar: QAjaxBar,
 	QAlert: QAlert,
@@ -25745,7 +25751,7 @@ var Loading = {
     props$1.spinnerColor = spinnerColor;
     props$1.messageColor = messageColor;
 
-    if (customClass && typeof customClass === 'string') {
+    if (typeof customClass === 'string') {
       props$1.customClass = customClass.trim();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-alpha.6
+ * Quasar Framework v0.15.0-beta.2
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1254,22 +1254,37 @@ body.desktop .q-datetime-col-wrapper {
 .q-field-with-warning .q-field-no-input {
   border-top: 1px solid #f2c037;
 }
+.q-field-vertical .q-field-label + .q-field-content {
+  padding-top: 8px;
+}
+.q-field-vertical .q-field-floating.q-field-no-label .q-field-margin {
+  margin-top: 12px;
+}
+.q-field-vertical .q-field-no-label .q-field-label {
+  display: none;
+}
+.q-field-horizontal .q-field-floating .q-field-margin {
+  margin-top: 12px;
+}
+.q-field-horizontal .q-field-label + .q-field-content {
+  padding-top: 0;
+}
 @media (max-width: 575px) {
-  .q-field-label + .q-field-content {
+  .q-field-responsive .q-field-label + .q-field-content {
     padding-top: 8px;
   }
-  .q-field-floating.q-field-no-label .q-field-margin {
+  .q-field-responsive .q-field-floating.q-field-no-label .q-field-margin {
     margin-top: 12px;
   }
-  .q-field-no-label .q-field-label {
+  .q-field-responsive .q-field-no-label .q-field-label {
     display: none;
   }
 }
 @media (min-width: 576px) {
-  .q-field-floating .q-field-margin {
+  .q-field-responsive .q-field-floating .q-field-margin {
     margin-top: 12px;
   }
-  .q-field-label + .q-field-content {
+  .q-field-responsive .q-field-label + .q-field-content {
     padding-top: 0;
   }
 }
@@ -3512,7 +3527,7 @@ body.mobile .q-tabs-scroller {
   margin: 0;
   list-style-type: none;
   position: relative;
-  padding: 0 2px 3px 0;
+  padding: 0 22px 3px 0;
 }
 .q-tree-node:after {
   content: '';
@@ -3532,8 +3547,8 @@ body.mobile .q-tabs-scroller {
   position: absolute;
   top: -3px;
   bottom: 50%;
-  width: 15px;
-  right: -15px;
+  width: 35px;
+  right: -35px;
   border-right: 1px solid currentColor;
   border-bottom: 1px solid currentColor;
 }
@@ -3546,10 +3561,17 @@ body.mobile .q-tabs-scroller {
 .q-tree-node-body {
   padding: 5px 5px 8px 0;
 }
-.q-tree-node-body-with-children {
-  padding: 5px 30px 8px 0;
+.q-tree-node-parent {
+  padding-right: 2px;
 }
-.q-tree-node-body-with-children:after {
+.q-tree-node-parent > .q-tree-node-header:before {
+  width: 15px;
+  right: -15px;
+}
+.q-tree-node-parent > .q-tree-node-collapsible > .q-tree-node-body {
+  padding: 5px 27px 8px 0;
+}
+.q-tree-node-parent > .q-tree-node-collapsible > .q-tree-node-body:after {
   content: '';
   position: absolute;
   top: 0;
