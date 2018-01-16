@@ -1,13 +1,8 @@
 /*!
- * Quasar Framework v0.15.0-beta.2
+ * Quasar Framework v0.15.0-beta.6
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(factory());
-}(this, (function () { 'use strict';
 
 /*!
  * ES6-Promise-Shim v0.1.1
@@ -632,5 +627,3 @@ if (!Array.prototype.findIndex) {
     }
   });
 }
-
-})));

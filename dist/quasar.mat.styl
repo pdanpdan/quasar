@@ -1,8 +1,9 @@
 /*!
- * Quasar Framework v0.15.0-beta.2
+ * Quasar Framework v0.15.0-beta.6
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
- */$space-base   ?= 16px
+ */
+$space-base   ?= 16px
 $space-x-base ?= $space-base
 $space-y-base ?= $space-base
 $spaces = {
@@ -574,7 +575,7 @@ $breadcrumb-hover     ?= $tertiary
 $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
 $button-border-radius         ?= $generic-border-radius
 $button-padding               ?= 4px 16px
-$button-dense-padding         ?= 6px
+$button-dense-padding         ?= 4px
 $button-transition            ?= .12s ease-in
 $button-font-size             ?= 14px
 $button-font-weight           ?= 500
@@ -647,8 +648,8 @@ $editor-border-color            ?= #ccc
 $editor-border                  ?= 1px solid $editor-border-color
 $editor-content-padding         ?= 10px
 $editor-content-min-height      ?= 10em
-$editor-toolbar-padding         ?= 5px
-$editor-hr-color                ?= #ccc
+$editor-toolbar-padding         ?= 4px
+$editor-hr-color                ?= $editor-border-color
 $editor-button-gutter           ?= 5px
 $fab-margin    ?= 5px
 $field-icon-size        ?= 28px
@@ -892,7 +893,6 @@ input[type='search']::-webkit-search-decoration
   outline 0
   border 0
   vertical-align middle
-  vertical-align -webkit-baseline-middle
   cursor pointer
   -webkit-appearance button
   padding $button-padding
@@ -912,10 +912,23 @@ input[type='search']::-webkit-search-decoration
     width 1.4em
   &.disabled
     opacity .7 !important
-  &:not([disabled]):active
-    box-shadow $shadow-8
   &.full-width
     border-radius 0 !important
+    
+  &:active:not(.disabled):not(.q-btn-flat):not(.q-btn-outline):not(.q-btn-push):after
+    
+    
+    
+    
+    content ''
+    position absolute
+    top 0
+    right 0
+    bottom 0
+    left 0
+    box-shadow $shadow-8
+    border-radius inherit
+    z-index -1
 .q-btn-progress
   transition all .3s
   height 100%
@@ -927,7 +940,7 @@ input[type='search']::-webkit-search-decoration
 .q-btn-rectangle
   border-radius $button-border-radius
 .q-btn-flat, .q-btn-outline
-  box-shadow none !important
+  box-shadow none
 .q-btn-outline
   border 1px solid currentColor
   background transparent !important
@@ -947,11 +960,10 @@ input[type='search']::-webkit-search-decoration
   min-height 0
   height 3em
   width 3em
-  &:active
-    box-shadow $shadow-8
+  box-shadow none
 .q-btn-dense
-  padding $button-dense-padding
-  min-height 0
+  padding .285em
+  min-height 2em
   &.q-btn-round
     padding 0
     height 2.4em
@@ -969,20 +981,17 @@ input[type='search']::-webkit-search-decoration
 .q-btn-fab-mini
   height 40px
   width 40px
-.q-btn-dropdown-simple .q-btn-dropdown-arrow
-  width 10px
-  font-size 24px
 .q-btn-dropdown-split .q-btn-dropdown-arrow
   padding 0 4px
   border-left 1px solid rgba(255, 255, 255, .3)
 .q-btn-group
   border-radius $button-border-radius
   box-shadow $button-shadow
-  vertical-align text-bottom
+  vertical-align middle
   > .q-btn-group
     box-shadow none
   .q-btn
-    box-shadow none !important
+    box-shadow none
   .q-btn:not(:last-child)
     border-top-right-radius 0
     border-bottom-right-radius 0
@@ -991,9 +1000,14 @@ input[type='search']::-webkit-search-decoration
     border-bottom-left-radius 0
 .q-btn-group-push
   border-radius $button-push-border-radius
-  .q-btn-push:active:not(.disabled)
-    border-bottom 0 solid transparent
-    transform translateY(0)
+  .q-btn-push
+    .q-btn-inner
+      transition $button-transition
+    &:active:not(.disabled)
+      border-bottom-color rgba(0, 0, 0, .15)
+      transform translateY(0)
+      .q-btn-inner
+        transform translateY(3px)
 .q-btn-group-rounded
   border-radius $button-rounded-border-radius
 .q-btn-group-flat, .q-btn-group-outline
@@ -1190,6 +1204,8 @@ $checkbox-size = 21px
   vertical-align middle
   color $chip-color
   background $chip-background
+  &:focus
+    box-shadow $shadow-2
   .q-icon
     font-size $chip-icon-size
     line-height 1
@@ -1609,20 +1625,24 @@ for $pos in 0..23
   border $editor-border
   &.disabled
     border-style dashed
+  &.fullscreen
+    border 0 !important
 .q-editor-content
   outline 0
   padding $editor-content-padding
   min-height $editor-content-min-height
+  background white
   hr
     border 0
     outline 0
-    margin 24px 8px
+    margin 1px
     height 1px
     background $editor-hr-color
 .q-editor-toolbar-padding
   padding $editor-toolbar-padding
 .q-editor-toolbar
   border-bottom $editor-border
+  background $grey-4
   .q-btn-group
     box-shadow none
   .q-btn-group + .q-btn-group
@@ -1639,6 +1659,8 @@ for $pos in 0..23
       height 100%
       width 1px
       background $editor-border-color
+.q-editor-input input
+  color inherit
 .q-fab
   position relative
   vertical-align middle
@@ -1790,6 +1812,7 @@ qfield-horizontal()
   margin-bottom 8px
   padding-bottom 8px
   color $primary
+  outline 0
   /* Remove browser controller for input type="number" */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button 
