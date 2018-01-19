@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.6
+ * Quasar Framework v0.15.0-beta.7
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -617,10 +617,7 @@ $item-base-color                   ?= $grey-5
 $item-highlight-color              ?= alpha($item-base-color, 50%)
 $item-stripe-color                 ?= alpha($item-base-color, 65%)
 $item-active-color                 ?= alpha($item-base-color, 40%)
-$item-primary-color                ?= currentColor
-$item-primary-opacity              ?= .54
-$item-secondary-color              ?= $item-primary-color
-$item-secondary-opacity            ?= $item-primary-opacity
+$item-side-color                   ?= #737373
 $item-label-color                  ?= $grey-7
 $item-content-secondary-text-color ?= $grey-7
 $item-separator-color              ?= rgb(224, 224, 224)
@@ -887,9 +884,6 @@ input[type='search']::-webkit-search-decoration
 .q-breadcrumb-last a
   pointer-events none
 .q-btn
-  display inline-flex
-  align-items center
-  justify-content center
   outline 0
   border 0
   vertical-align middle
@@ -908,13 +902,12 @@ input[type='search']::-webkit-search-decoration
   .q-icon
     font-size 1.4em
   .q-spinner
-    height 1.4em
-    width 1.4em
+    height 1.39em
+    width 1.39em
   &.disabled
     opacity .7 !important
   &.full-width
     border-radius 0 !important
-    
   &:active:not(.disabled):not(.q-btn-flat):not(.q-btn-outline):not(.q-btn-push):after
     
     
@@ -1335,12 +1328,6 @@ $checkbox-size = 21px
   border 1px solid $grey-4
   display inline-block
   width 240px
-.q-color-number
-  -moz-appearance textfield
-.q-color-number::-webkit-outer-spin-button,
-.q-color-number::-webkit-inner-spin-button
-  -webkit-appearance none
-  margin 0
 .q-color-saturation
   width 100%
   height 123px
@@ -1813,10 +1800,6 @@ qfield-horizontal()
   padding-bottom 8px
   color $primary
   outline 0
-  /* Remove browser controller for input type="number" */
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button 
-    -webkit-appearance none
   &:not(.q-if-hide-underline):not(.q-if-inverted)
     &:before, &:after
       content ''
@@ -1922,9 +1905,6 @@ qfield-horizontal()
 @-webkit-keyframes autofill
   to
     background transparent
-.q-input-target::-webkit-outer-spin-button,
-.q-input-target::-webkit-inner-spin-button
-  -webkit-appearance none
 .q-input-target, .q-input-shadow
   border 0
   outline 0
@@ -1944,6 +1924,8 @@ qfield-horizontal()
     display none
     width 0
     height 0
+  &:invalid
+    box-shadow inherit
 input.q-input-target
   height 18px
   outline 0
@@ -2065,37 +2047,24 @@ body
   line-height $item-stamp-font-size
   white-space nowrap
   margin .3rem 0
+.q-item-side
+  color $item-side-color
+  min-width $item-primary-size
 .q-item-side-right
   text-align right
-  color $item-secondary-color
-  display flex
-  flex-direction column
-  align-items flex-end
-  .q-item-icon, .q-item-letter, .q-item-stamp
-    opacity $item-secondary-opacity
-  .q-item-letter-inverted, .q-item-icon-inverted
-    opacity 1
-.q-item-side
-  color $item-primary-color
-  min-width $item-primary-size
-  .q-item-icon, .q-item-letter, .q-item-stamp
-    opacity $item-primary-opacity
-  .q-item-letter-inverted, .q-item-icon-inverted
-    opacity 1
 .q-item-avatar, .q-item-avatar img
   width $item-primary-size
   height $item-primary-size
   border-radius 50%
 .q-item-letter, .q-item-icon
   font-size $item-icon-size
-  width 100%
-  text-align center
 .q-item-letter-inverted, .q-item-icon-inverted
   border-radius 50%
   color white
-  background $primary
+  background $item-side-color
 .q-item-letter-inverted
-  padding 4px 0 5px
+  padding 5px 0
+  text-align center
 .q-item-icon-inverted
   font-size $item-inverted-icon-size
   padding 9px
@@ -2162,8 +2131,6 @@ body
 .q-list
   border 1px solid $item-separator-color
   padding ($item-padding / 2) 0
-  & + .q-list
-    margin-top 32px
 .q-item-separator-component
   margin ($item-padding / 2) 0
   height 1px
@@ -2373,7 +2340,6 @@ maximized-modal()
   display inline-flex
   input
     text-align center
-    -moz-appearance textfield
   .q-btn
     padding 0 5px !important
     &.disabled
@@ -3310,7 +3276,7 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
   color $toolbar-background
   background transparent
 .q-toolbar-title
-  flex 1
+  flex 1 1 auto
   min-width 1px
   max-width 100%
   font-size $toolbar-title-font-size
@@ -4668,8 +4634,8 @@ for $z in 1..24
   box-shadow $inset-shadow !important
 .z-marginals
   z-index $z-marginals
-.z-alert
-  z-index $z-alert
+.z-notify
+  z-index $z-notify
 .z-fullscreen
   z-index $z-fullscreen
 .row, .column, .flex
@@ -4845,6 +4811,12 @@ for $name, $size in $sizes
     opacity .5
 body.with-mixin-fullscreen
   overflow hidden !important
+.q-no-input-spinner
+  -moz-appearance textfield
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button
+    -webkit-appearance none
+    margin 0
 @keyframes q-highlight
   0%
     background $lime-6
@@ -5181,7 +5153,7 @@ for $heading, $value in $h-tags
       line-height: $value.line-height
     if $value.letter-spacing
       letter-spacing: $value.letter-spacing
-    @media screen and (max-width $breakpoints-sm-max)
+    @media screen and (max-width $breakpoint-sm)
       font-size: ($value.size * .6)
 for $heading, $value in $headings
   .q-{$heading}-opacity

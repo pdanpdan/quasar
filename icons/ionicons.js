@@ -48,6 +48,9 @@ export default {
   chip: {
     close: 'ion-ios-close'
   },
+  chipsInput: {
+    add: 'ion-android-send'
+  },
   collapsible: {
     icon: 'ion-chevron-down'
   },
@@ -55,7 +58,7 @@ export default {
     arrowLeft: 'ion-chevron-left',
     arrowRight: 'ion-chevron-right'
   },
-  editor: { // TODO
+  editor: { // TODO (requires Material icons for some as Ionicons simply does not have everything needed)
     bold: 'format_bold',
     italic: 'format_italic',
     strikethrough: 'strikethrough_s',

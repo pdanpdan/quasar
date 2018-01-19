@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.6
+ * Quasar Framework v0.15.0-beta.7
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.0-beta.6";
+var version = "0.15.0-beta.7";
 
 function offset (el) {
   if (el === window) {
@@ -604,6 +604,9 @@ var iconMaterial = {
   },
   chip: {
     close: 'cancel'
+  },
+  chipsInput: {
+    add: 'send'
   },
   collapsible: {
     icon: 'keyboard_arrow_down'
@@ -1376,18 +1379,6 @@ function textStyle (n) {
     : {overflow: 'hidden', display: '-webkit-box', '-webkit-box-orient': 'vertical', '-webkit-line-clamp': n}
 }
 
-var list = ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'];
-
-function getType (prop) {
-  var len = list.length;
-  for (var i = 0; i < len; i++) {
-    if (prop[list[i]]) {
-      return list[i]
-    }
-  }
-  return ''
-}
-
 function itemClasses (prop) {
   return {
     'q-item': true,
@@ -1493,9 +1484,8 @@ function text (h, name, val, n) {
   n = parseInt(n, 10);
   return h('div', {
     staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
-    style: textStyle(n),
-    domProps: { innerHTML: val }
-  })
+    style: textStyle(n)
+  }, [ val ])
 }
 
 var QItemMain = {
@@ -1531,78 +1521,84 @@ var QItemSide = {
     right: Boolean,
 
     icon: String,
-    inverted: Boolean,
-
-    avatar: String,
     letter: {
       type: String,
       validator: function (v) { return v.length === 1; }
     },
+    inverted: Boolean, // for icon and letter only
+
+    avatar: String,
     image: String,
     stamp: String,
 
     color: String,
-    tag: {
-      type: String,
-      default: 'div'
-    }
+    textColor: String // only for inverted icon/letter
   },
   computed: {
-    classes: function classes () {
-      return [
-        ("q-item-side-" + (this.right ? 'right' : 'left')),
-        ("" + (this.color ? ("text-" + (this.color)) : '')),
-        this.image ? 'q-item-image' : ''
-      ]
-    },
-    subClasses: function subClasses () {
-      var obj;
+    type: function type () {
+      var this$1 = this;
 
-      return ( obj = {
-        'q-item-letter-inverted': this.inverted
-      }, obj[("bg-" + (this.color))] = this.color && this.inverted, obj)
+      return ['icon', 'image', 'avatar', 'letter', 'stamp'].find(function (type) { return this$1[type]; })
+    },
+    classes: function classes () {
+      var cls = [ ("q-item-side-" + (this.right ? 'right' : 'left')) ];
+
+      if (this.color && (!this.icon && !this.letter)) {
+        cls.push(("text-" + (this.color)));
+      }
+
+      return cls
+    },
+    typeClasses: function typeClasses () {
+      var cls = [ ("q-item-" + (this.type)) ];
+
+      if (this.color) {
+        if (this.inverted && (this.icon || this.letter)) {
+          cls.push(("bg-" + (this.color)));
+        }
+        else if (!this.textColor) {
+          cls.push(("text-" + (this.color)));
+        }
+      }
+      this.textColor && cls.push(("text-" + (this.textColor)));
+
+      if (this.inverted) {
+        this.icon && cls.push('q-item-icon-inverted');
+        this.letter && cls.push('q-item-letter-inverted');
+      }
+
+      return cls
+    },
+    imagePath: function imagePath () {
+      return this.image || this.avatar
     }
   },
   render: function render (h) {
-    var data = {
-      staticClass: 'q-item-side q-item-section',
-      'class': this.classes
-    };
+    var child;
 
-    if (this.image) {
-      data.attrs = { src: this.image };
-      return h('img', data)
+    if (this.type) {
+      if (this.icon) {
+        child = h(QIcon, {
+          'class': this.typeClasses,
+          props: { name: this.icon }
+        }, [ this.$slots.default ]);
+      }
+      else if (this.imagePath) {
+        child = h('img', {
+          'class': this.typeClasses,
+          attrs: { src: this.imagePath }
+        });
+      }
+      else {
+        child = h('div', { 'class': this.typeClasses }, [ this.stamp || this.letter ]);
+      }
     }
 
-    return h(this.tag, data, [
-      this.stamp
-        ? h('div', { staticClass: 'q-item-stamp' }, [
-          this.stamp
-        ])
-        : null,
-
-      this.icon
-        ? h(QIcon, {
-          props: { name: this.icon },
-          staticClass: 'q-item-icon',
-          'class': this.subClasses
-        })
-        : null,
-
-      this.avatar
-        ? h('img', {
-          staticClass: 'q-item-avatar',
-          attrs: { src: this.avatar }
-        })
-        : null,
-
-      this.letter
-        ? h('div', {
-          staticClass: 'q-item-letter',
-          'class': this.subClasses
-        }, [ this.letter ])
-        : null,
-
+    return h('div', {
+      staticClass: 'q-item-side q-item-section',
+      'class': this.classes
+    }, [
+      child,
       this.$slots.default
     ])
   }
@@ -1612,11 +1608,11 @@ var QItemTile = {
   name: 'q-item-tile',
   props: {
     icon: String,
-    inverted: Boolean,
+    letter: Boolean,
+    inverted: Boolean, // for icon and letter only
 
     image: Boolean,
     avatar: Boolean,
-    letter: Boolean,
     stamp: Boolean,
 
     label: Boolean,
@@ -1624,44 +1620,59 @@ var QItemTile = {
     lines: [Number, String],
 
     color: String,
-    tag: {
-      type: String,
-      default: 'div'
+    textColor: String // only for inverted icon/letter
+  },
+  computed: {
+    hasLines: function hasLines () {
+      return (this.label || this.sublabel) && this.lines
+    },
+    type: function type () {
+      var this$1 = this;
+
+      return ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'].find(function (type) { return this$1[type]; })
+    },
+    classes: function classes () {
+      var cls = [];
+
+      if (this.color) {
+        if (this.inverted) {
+          cls.push(("bg-" + (this.color)));
+        }
+        else if (!this.textColor) {
+          cls.push(("text-" + (this.color)));
+        }
+      }
+      this.textColor && cls.push(("text-" + (this.textColor)));
+      this.type && cls.push(("q-item-" + (this.type)));
+
+      if (this.inverted) {
+        this.icon && cls.push('q-item-icon-inverted');
+        this.letter && cls.push('q-item-letter-inverted');
+      }
+
+      if (this.hasLines && (this.lines === '1' || this.lines === 1)) {
+        cls.push('ellipsis');
+      }
+
+      return cls
+    },
+    style: function style () {
+      if (this.hasLines) {
+        return textStyle(this.lines)
+      }
     }
   },
   render: function render (h) {
-    var
-      textColor = this.color ? (" text-" + (this.color)) : '',
-      bgColor = this.color ? (" bg-" + (this.color)) : '',
-      data = {
-        'class': ['q-item-' + getType(this.$props)]
-      };
+    var data = {
+      'class': this.classes,
+      style: this.style
+    };
 
     if (this.icon) {
       data.props = { name: this.icon };
-      data['class'].push(
-        this.inverted
-          ? ("q-item-icon-inverted" + bgColor)
-          : textColor
-      );
-
-      return h(QIcon, data, [ this.$slots.default ])
     }
 
-    data['class'].push(
-      this.letter && this.inverted
-        ? ("q-item-letter-inverted" + bgColor)
-        : textColor
-    );
-
-    if ((this.label || this.sublabel) && this.lines) {
-      if (this.lines === '1' || this.lines === 1) {
-        data['class'].push('ellipsis');
-      }
-      data.style = textStyle(this.lines);
-    }
-
-    return h(this.tag, data, [ this.$slots.default ])
+    return h(this.icon ? QIcon : 'div', data, [ this.$slots.default ])
   }
 }
 
@@ -2797,7 +2808,7 @@ var QBtn = {
     on.click = this.click;
 
     return h('button', {
-      staticClass: 'q-btn row inline flex-center relative-position',
+      staticClass: 'q-btn inline relative-position',
       'class': this.classes,
       style: this.style,
       attrs: { tabindex: this.isDisabled ? -1 : this.tabindex || 0 },
@@ -3398,6 +3409,7 @@ var QBtnDropdown = {
         {
           ref: 'popover',
           props: {
+            value: this.value,
             disable: this.disable,
             fit: true,
             anchorClick: !this.split,
@@ -4031,17 +4043,17 @@ var QBreadcrumbs = {
     }
   },
   computed: {
-    computedAlign: function computedAlign () {
-      return alignMap[this.align]
+    classes: function classes () {
+      return [("text-" + (this.color)), ("justify-" + (alignMap[this.align]))]
     }
   },
   render: function render (h) {
+    var this$1 = this;
+
     var
       child = [],
       length = this.$slots.default.length - 1,
-      separator = this.$slots.separator
-        ? this.$slots.separator
-        : this.separator,
+      separator = this.$scopedSlots.separator || (function () { return this$1.separator; }),
       color = "text-" + (this.color),
       active = "text-" + (this.activeColor);
 
@@ -4049,9 +4061,12 @@ var QBreadcrumbs = {
       if (comp.componentOptions && comp.componentOptions.tag === 'q-breadcrumb-el') {
         var middle = i < length;
 
-        child.push(h('div', { staticClass: ((middle ? active : color) + " " + (middle ? 'text-weight-bold' : 'q-breadcrumb-last')) }, [ comp ]));
+        child.push(h('div', {
+          'class': [ middle ? active : color, middle ? 'text-weight-bold' : 'q-breadcrumb-last' ]
+        }, [ comp ]));
+
         if (middle) {
-          child.push(h('div', { staticClass: ("q-breadcrumb-separator " + color) }, [ separator ]));
+          child.push(h('div', { staticClass: "q-breadcrumb-separator", 'class': color }, [ separator() ]));
         }
       }
       else {
@@ -4061,7 +4076,7 @@ var QBreadcrumbs = {
 
     return h('div', {
       staticClass: 'q-breadcrumbs flex gutter-xs items-center overflow-hidden',
-      'class': [("text-" + (this.color)), ("justify-" + (this.computedAlign))]
+      'class': this.classes
     }, child)
   }
 }
@@ -5767,7 +5782,11 @@ var InputMixin = {
 
       this.focused = false;
       this.$emit('blur', e);
-      var value = this.isNumber && this.isNumberError ? null : this.model;
+      var isNumberError = this.isNumber && this.isNumberError;
+      var value = isNumberError ? null : this.model;
+      if (isNumberError) {
+        this.$emit('input', value);
+      }
       this.$nextTick(function () {
         if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
           this$1.$emit('change', value);
@@ -5911,7 +5930,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 }
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.color,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){_vm.__onInputBlur($event);},"focus":function($event){_vm.__clearTimer($event);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":"send"},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.inverted ? _vm.frameColor || _vm.color : _vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.color,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){_vm.__onInputBlur($event);},"focus":function($event){_vm.__clearTimer($event);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"max-length":_vm.maxLength},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKey,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}})],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -5924,7 +5943,8 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       required: true
     },
     frameColor: String,
-    readonly: Boolean
+    readonly: Boolean,
+    addIcon: String
   },
   data: function data () {
     return {
@@ -5947,6 +5967,9 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       return this.model
         ? this.model.length
         : 0
+    },
+    computedAddIcon: function computedAddIcon () {
+      return this.addIcon || this.$q.icon.chipsInput.add
     }
   },
   methods: {
@@ -6271,6 +6294,23 @@ var QCollapsible = {
         ])
       ])
     ])
+  }
+}
+
+var DisplayModeMixin = {
+  props: {
+    popover: Boolean,
+    modal: Boolean
+  },
+  computed: {
+    isPopover: function isPopover () {
+      // Explicit popover / modal choice
+      if (this.popover) { return true }
+      if (this.modal) { return false }
+
+      // Automatically determine the default popover or modal behavior
+      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
+    }
   }
 }
 
@@ -6945,7 +6985,7 @@ var QColorPicker = {
               max: max,
               readonly: !this$1.editable
             },
-            staticClass: 'full-width text-center q-color-number',
+            staticClass: 'full-width text-center q-no-input-spinner',
             domProps: {
               value: Math.round(this$1.model[type])
             },
@@ -7209,7 +7249,7 @@ var contentCss = {
 
 var QColor = {
   name: 'q-color',
-  mixins: [FrameMixin],
+  mixins: [FrameMixin, DisplayModeMixin],
   props: {
     value: {
       required: true
@@ -7231,7 +7271,7 @@ var QColor = {
     readonly: Boolean
   },
   data: function data () {
-    var data = this.isPopover() ? {} : {
+    var data = this.isPopover ? {} : {
       transition: 'q-modal'
     };
     data.focused = false;
@@ -7239,9 +7279,6 @@ var QColor = {
     return data
   },
   computed: {
-    usingPopover: function usingPopover () {
-      return this.isPopover()
-    },
     actualValue: function actualValue () {
       if (this.displayValue) {
         return this.displayValue
@@ -7258,9 +7295,6 @@ var QColor = {
     }
   },
   methods: {
-    isPopover: function isPopover () {
-      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
-    },
     toggle: function toggle () {
       this[this.$refs.popup.showing ? 'hide' : 'show']();
     },
@@ -7311,13 +7345,13 @@ var QColor = {
     __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
-      if (this.usingPopover && !this.$refs.popup.showing) {
+      if (this.isPopover && !this.$refs.popup.showing) {
         this.__update(true);
       }
     },
     __setModel: function __setModel (val, forceUpdate) {
       this.model = clone(val || this.defaultSelection);
-      if (forceUpdate || (this.usingPopover && this.$refs.popup.showing)) {
+      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
         this.__update();
       }
     },
@@ -7426,7 +7460,7 @@ var QColor = {
         }
       }),
 
-      this.usingPopover
+      this.isPopover
         ? h(QPopover, {
           ref: 'popup',
           props: {
@@ -8228,7 +8262,7 @@ var DateMixin = {
   computed: {
     model: {
       get: function get () {
-        var date = this.value === 0 || this.value
+        var date = isValid(this.value)
           ? new Date(this.value)
           : (this.defaultSelection ? new Date(this.defaultSelection) : startOfDate(new Date(), 'day'));
 
@@ -8634,28 +8668,25 @@ var contentCss$1 = {
 
 var QDatetime = {
   name: 'q-datetime',
-  mixins: [FrameMixin],
+  mixins: [FrameMixin, DisplayModeMixin],
   props: extend(
     input,
     inline
   ),
   data: function data () {
-    var data = this.isPopover() ? {} : {
+    var data = this.isPopover ? {} : {
       transition: 'q-modal'
     };
     data.focused = false;
-    data.model = clone(this.value === 0 || this.value ? this.value : this.defaultSelection);
+    data.model = clone(isValid(this.value) ? this.value : this.defaultSelection);
     return data
   },
   computed: {
-    usingPopover: function usingPopover () {
-      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
-    },
     actualValue: function actualValue () {
       if (this.displayValue) {
         return this.displayValue
       }
-      if (this.value !== 0 && !this.value) {
+      if (!isValid(this.value)) {
         return this.placeholder || ''
       }
 
@@ -8678,9 +8709,6 @@ var QDatetime = {
     }
   },
   methods: {
-    isPopover: function isPopover () {
-      return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
-    },
     toggle: function toggle () {
       this[this.$refs.popup.showing ? 'hide' : 'show']();
     },
@@ -8740,13 +8768,13 @@ var QDatetime = {
     __onHide: function __onHide () {
       this.focused = false;
       this.$emit('blur');
-      if (this.usingPopover && !this.$refs.popup.showing) {
+      if (this.isPopover && !this.$refs.popup.showing) {
         this.__update(true);
       }
     },
     __setModel: function __setModel (val, forceUpdate) {
-      this.model = clone(val === 0 || val ? val : this.defaultSelection);
-      if (forceUpdate || (this.usingPopover && this.$refs.popup.showing)) {
+      this.model = clone(isValid(val) ? val : this.defaultSelection);
+      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
         this.__update();
       }
     },
@@ -8785,7 +8813,7 @@ var QDatetime = {
           on: {
             input: function (v) { return this$1.$nextTick(function () { return this$1.__setModel(v); }); },
             canClose: function () {
-              if (this$1.usingPopover) {
+              if (this$1.isPopover) {
                 this$1.hide();
               }
             }
@@ -8865,7 +8893,7 @@ var QDatetime = {
         }
       }),
 
-      this.usingPopover
+      this.isPopover
         ? h(QPopover, {
           ref: 'popup',
           props: {
@@ -9054,7 +9082,7 @@ var QWindowResizeObservable = {
   }
 }
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isNumber && !_vm.noNumberToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:[("text-" + (_vm.align))],attrs:{"name":_vm.name,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"maxlength":_vm.maxLength,"step":_vm.actualStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isNumber && !_vm.noNumberToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -9075,6 +9103,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     readonly: Boolean,
 
     maxDecimals: Number,
+    step: Number,
     upperCase: Boolean
   },
   data: function data () {
@@ -9146,6 +9175,9 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       return this.model !== null && this.model !== undefined
         ? ('' + this.model).length
         : 0
+    },
+    actualStep: function actualStep () {
+      return this.step || (this.maxDecimals ? Math.pow( 10, -this.maxDecimals ) : 'any')
     }
   },
   methods: {
@@ -9169,15 +9201,19 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     __setModel: function __setModel (val) {
       clearTimeout(this.timer);
       this.focus();
-      this.__set(val || (this.isNumber ? null : ''));
+      this.__set(val || (this.isNumber ? null : ''), true);
     },
-    __set: function __set (e) {
+    __set: function __set (e, force) {
       var val = e && e.target ? e.target.value : e;
 
       if (this.isNumber) {
+        var forcedValue = val;
         val = parseFloat(val);
         if (isNaN(val)) {
           this.isNumberError = true;
+          if (force) {
+            this.$emit('input', forcedValue);
+          }
           return
         }
         this.isNumberError = false;
@@ -11525,7 +11561,9 @@ var QLayoutDrawer = {
       default: 'default'
     },
     contentStyle: Object,
-    contentClass: [String, Object, Array]
+    contentClass: [String, Object, Array],
+    noSwipeOpen: Boolean,
+    noSwipeClose: Boolean
   },
   data: function data () {
     var
@@ -11714,14 +11752,16 @@ var QLayoutDrawer = {
     var child = [];
 
     if (this.mobileView) {
-      child.push(h('div', {
-        staticClass: ("q-layout-drawer-opener fixed-" + (this.side)),
-        directives: [{
-          name: 'touch-pan',
-          modifiers: { horizontal: true },
-          value: this.__openByTouch
-        }]
-      }));
+      if (!this.noSwipeOpen) {
+        child.push(h('div', {
+          staticClass: ("q-layout-drawer-opener fixed-" + (this.side)),
+          directives: [{
+            name: 'touch-pan',
+            modifiers: { horizontal: true },
+            value: this.__openByTouch
+          }]
+        }));
+      }
       child.push(h('div', {
         staticClass: 'fullscreen q-layout-backdrop',
         'class': this.backdropClass,
@@ -11742,7 +11782,7 @@ var QLayoutDrawer = {
         style: this.computedStyle,
         attrs: this.$attrs,
         listeners: this.$listeners,
-        directives: this.mobileView ? [{
+        directives: this.mobileView && !this.noSwipeClose ? [{
           name: 'touch-pan',
           modifiers: { horizontal: true },
           value: this.__closeByTouch
@@ -14031,7 +14071,7 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
 }
 
 var StepTab = {
-  name: 'q-step-header',
+  name: 'q-step-tab',
   components: {
     QIcon: QIcon
   },
@@ -15908,6 +15948,8 @@ var QTableColumns = {
     }
   },
   render: function render (h) {
+    var this$1 = this;
+
     return h(QSelect, {
       props: {
         multiple: true,
@@ -15917,6 +15959,10 @@ var QTableColumns = {
         displayValue: this.label || this.$q.i18n.table.columns,
         color: this.color,
         hideUnderline: true
+      },
+      on: {
+        input: function (v) { this$1.$emit('input', v); },
+        change: function (v) { this$1.$emit('change', v); }
       }
     })
   }
