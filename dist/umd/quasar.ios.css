@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-beta.7
+ * Quasar Framework v0.15.0-beta.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -214,13 +214,13 @@ input[type='search']::-webkit-search-decoration {
   font-size: 12px;
 }
 .q-breadcrumbs .q-icon,
-.q-breadcrumbs .q-breadcrumb-separator {
+.q-breadcrumbs .q-breadcrumbs-separator {
   font-size: 150%;
 }
-.q-breadcrumb-el {
+.q-breadcrumbs-el {
   color: inherit !important;
 }
-.q-breadcrumb-last a {
+.q-breadcrumbs-last a {
   pointer-events: none;
 }
 .q-btn {
@@ -247,9 +247,6 @@ input[type='search']::-webkit-search-decoration {
 }
 .q-btn.disabled {
   opacity: 0.7 !important;
-}
-.q-btn.full-width {
-  border-radius: 0 !important;
 }
 .q-btn-progress {
   -webkit-transition: all 0.3s;
@@ -456,7 +453,6 @@ input[type='search']::-webkit-search-decoration {
   -webkit-box-flex: 0;
       -ms-flex: 0 0 100%;
           flex: 0 0 100%;
-  min-height: 200px;
   margin: 0;
   padding: 18px;
 }
@@ -633,9 +629,8 @@ input[type='search']::-webkit-search-decoration {
   color: #000;
   background: #eee;
 }
-.q-chip:focus {
-  -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-          box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+.q-chip:focus .q-chip-close {
+  opacity: 0.8;
 }
 .q-chip .q-icon {
   font-size: 24px;
@@ -1196,6 +1191,9 @@ body.desktop .q-datetime-col-wrapper {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
+.q-field .q-if.q-if-inverted:not(.q-if-has-label) {
+  margin-top: -8px !important;
+}
 .q-field-icon {
   width: 28px;
   height: 28px;
@@ -1255,13 +1253,13 @@ body.desktop .q-datetime-col-wrapper {
 .q-field-vertical .q-field-label + .q-field-content {
   padding-top: 8px;
 }
-.q-field-vertical .q-field-floating.q-field-no-label .q-field-margin {
+.q-field-vertical.q-field-floating.q-field-no-label .q-field-margin {
   margin-top: 12px;
 }
-.q-field-vertical .q-field-no-label .q-field-label {
+.q-field-vertical.q-field-no-label .q-field-label {
   display: none;
 }
-.q-field-horizontal .q-field-floating .q-field-margin {
+.q-field-horizontal.q-field-floating .q-field-margin {
   margin-top: 12px;
 }
 .q-field-horizontal .q-field-label + .q-field-content {
@@ -1271,15 +1269,15 @@ body.desktop .q-datetime-col-wrapper {
   .q-field-responsive .q-field-label + .q-field-content {
     padding-top: 8px;
   }
-  .q-field-responsive .q-field-floating.q-field-no-label .q-field-margin {
+  .q-field-responsive.q-field-floating.q-field-no-label .q-field-margin {
     margin-top: 12px;
   }
-  .q-field-responsive .q-field-no-label .q-field-label {
+  .q-field-responsive.q-field-no-label .q-field-label {
     display: none;
   }
 }
 @media (min-width: 576px) {
-  .q-field-responsive .q-field-floating .q-field-margin {
+  .q-field-responsive.q-field-floating .q-field-margin {
     margin-top: 12px;
   }
   .q-field-responsive .q-field-label + .q-field-content {
@@ -1295,7 +1293,7 @@ body.desktop .q-datetime-col-wrapper {
   direction: ltr;
 }
 .q-icon,
-.material-icons {
+.q-icon.material-icons {
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -1418,6 +1416,9 @@ body.desktop .q-datetime-col-wrapper {
   cursor: pointer;
   color: rgba(0,0,0,0.54);
   font-size: 24px;
+}
+.q-if-control.q-icon {
+  cursor: pointer;
 }
 .q-if-control:hover {
   opacity: 0.7;
@@ -1723,6 +1724,9 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
 }
 .q-item-side {
   color: #737373;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
   min-width: 38px;
 }
 .q-item-side-right {
@@ -1971,20 +1975,16 @@ body.with-modal {
 }
 .modal-header {
   text-align: center;
-  padding: 20px 16px 7px;
+  padding: 20px 16px 10px;
   font-size: 1.3rem;
   font-weight: 500;
 }
 .modal-body {
-  padding: 0 16px 21px;
-}
-.modal-slim-body {
-  padding: 0 16px 16px 16px;
-}
-.modal-body,
-.modal-slim-body {
-  text-align: left;
+  padding: 10px 16px 21px;
   color: #000;
+}
+.modal-message {
+  text-align: center;
 }
 .small-modal-scroll,
 .modal-scroll,
@@ -3204,6 +3204,10 @@ body.mobile .q-tabs-scroller {
 .q-timeline h6 {
   line-height: inherit;
 }
+.q-timeline-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 .q-timeline-subtitle {
   font-size: 12px;
   margin-bottom: 8px;
@@ -3449,8 +3453,8 @@ body.mobile .q-tabs-scroller {
 }
 .q-toolbar-title {
   -webkit-box-flex: 1;
-      -ms-flex: 1 1 auto;
-          flex: 1 1 auto;
+      -ms-flex: 1;
+          flex: 1;
   min-width: 1px;
   max-width: 100%;
   -webkit-box-align: center;
@@ -7397,11 +7401,9 @@ body.with-mixin-fullscreen {
   -webkit-transform: scale(1, -1);
           transform: scale(1, -1);
 }
-.pull-left,
 .float-left {
   float: left;
 }
-.pull-right,
 .float-right {
   float: right;
 }
@@ -7891,7 +7893,6 @@ a:hover {
 h1 {
   font-size: 112px;
   font-weight: 300;
-  margin: 0 0 16px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
@@ -7903,7 +7904,6 @@ h1 {
 h2 {
   font-size: 56px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 1.35;
   letter-spacing: -0.02em;
 }
@@ -7915,7 +7915,6 @@ h2 {
 h3 {
   font-size: 45px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 48px;
   letter-spacing: normal;
 }
@@ -7927,7 +7926,6 @@ h3 {
 h4 {
   font-size: 34px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 40px;
   letter-spacing: normal;
 }
@@ -7939,7 +7937,6 @@ h4 {
 h5 {
   font-size: 24px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 32px;
   letter-spacing: normal;
 }
@@ -7951,7 +7948,6 @@ h5 {
 h6 {
   font-size: 20px;
   font-weight: 500;
-  margin: 0 0 16px;
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -7966,7 +7962,6 @@ h6 {
 .q-display-4 {
   font-size: 112px;
   font-weight: 300;
-  margin: 0 0 16px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
@@ -7976,7 +7971,6 @@ h6 {
 .q-display-3 {
   font-size: 56px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 1.35;
   letter-spacing: -0.02em;
 }
@@ -7986,7 +7980,6 @@ h6 {
 .q-display-2 {
   font-size: 45px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 48px;
   letter-spacing: normal;
 }
@@ -7996,7 +7989,6 @@ h6 {
 .q-display-1 {
   font-size: 34px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 40px;
   letter-spacing: normal;
 }
@@ -8006,7 +7998,6 @@ h6 {
 .q-headline {
   font-size: 24px;
   font-weight: 400;
-  margin: 0 0 16px;
   line-height: 32px;
   letter-spacing: normal;
 }
@@ -8016,7 +8007,6 @@ h6 {
 .q-title {
   font-size: 20px;
   font-weight: 500;
-  margin: 0 0 16px;
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -8026,7 +8016,6 @@ h6 {
 .q-subheading {
   font-size: 16px;
   font-weight: 400;
-  margin: 0 0 16px;
 }
 .q-body-2-opacity {
   opacity: 0.87;
@@ -8034,7 +8023,6 @@ h6 {
 .q-body-2 {
   font-size: 14px;
   font-weight: 500;
-  margin: 0 0 16px;
 }
 .q-body-1-opacity {
   opacity: 0.87;
@@ -8042,7 +8030,6 @@ h6 {
 .q-body-1 {
   font-size: 14px;
   font-weight: 400;
-  margin: 0 0 16px;
 }
 .q-caption-opacity {
   opacity: 0.54;
@@ -8050,10 +8037,16 @@ h6 {
 .q-caption {
   font-size: 12px;
   font-weight: 400;
-  margin: 0 0 16px;
 }
 p {
   margin: 0 0 16px;
+}
+.caption {
+  color: #424242;
+  letter-spacing: 0;
+  line-height: 24px;
+  padding: 0;
+  font-weight: 300;
 }
 .uppercase {
   text-transform: uppercase;

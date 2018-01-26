@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.7
+ * Quasar Framework v0.15.0-beta.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -588,7 +588,6 @@ $card-overlay-color        ?= rgba(0, 0, 0, .47)
 $card-shadow               ?= $shadow-2
 $card-dark-faded-color     ?= rgba(255, 255, 255, .6)
 $card-dark-separator-color ?= rgba(255, 255, 255, .2)
-$carousel-min-height                        ?= 200px
 $carousel-padding                           ?= 18px
 $carousel-quick-nav-icon-font-size          ?= 18px
 $carousel-quick-nav-icon-inactive-font-size ?= 14px
@@ -687,14 +686,12 @@ $modal-max-width         ?= 1000px
 $modal-height            ?= 80vh
 $modal-max-height        ?= 1000px
 $modal-header-font-size  ?= 1.6rem
-$modal-header-padding    ?= 24px 24px 20px 24px
+$modal-header-padding    ?= 24px 24px 10px 24px
 $modal-header-text-align ?= left
-$modal-body-text-align   ?= left
 $modal-body-color        ?= rgba(0, 0, 0, .5)
-$modal-body-padding      ?= 5px 24px 24px 24px
-$modal-slim-body-padding ?= 0 24px
+$modal-body-padding      ?= 10px 24px
 $modal-scroll-size       ?= 240px
-$modal-buttons-padding   ?= 8px
+$modal-buttons-padding   ?= 22px 8px 8px
 $label-offset ?= 8px
 $paralax-text-shadow ?= 0 0 5px white
 $popover-background   ?= white
@@ -877,11 +874,11 @@ input[type='search']::-webkit-search-decoration
 .q-alert-detail
   font-size 12px
 .q-breadcrumbs
-  .q-icon, .q-breadcrumb-separator
+  .q-icon, .q-breadcrumbs-separator
     font-size 150%
-.q-breadcrumb-el
+.q-breadcrumbs-el
   color inherit !important
-.q-breadcrumb-last a
+.q-breadcrumbs-last a
   pointer-events none
 .q-btn
   outline 0
@@ -906,22 +903,25 @@ input[type='search']::-webkit-search-decoration
     width 1.39em
   &.disabled
     opacity .7 !important
-  &.full-width
-    border-radius 0 !important
-  &:active:not(.disabled):not(.q-btn-flat):not(.q-btn-outline):not(.q-btn-push):after
-    
-    
-    
-    
-    content ''
-    position absolute
-    top 0
-    right 0
-    bottom 0
-    left 0
-    box-shadow $shadow-8
-    border-radius inherit
-    z-index -1
+  &:not(.disabled):not(.q-btn-flat):not(.q-btn-outline):not(.q-btn-push)
+    &:after
+      
+      
+      
+      
+      content ''
+      position absolute
+      top 0
+      right 0
+      bottom 0
+      left 0
+      border-radius inherit
+      z-index -1
+      transition $button-transition
+    &:active:after
+      
+      
+      box-shadow $shadow-8
 .q-btn-progress
   transition all .3s
   height 100%
@@ -949,11 +949,11 @@ input[type='search']::-webkit-search-decoration
 .q-btn-round
   border-radius 50%
   padding 0
-  box-shadow $button-shadow
   min-height 0
   height 3em
   width 3em
-  box-shadow none
+  &:not(.q-btn-flat):not(.q-btn-outline)
+    box-shadow $button-shadow
 .q-btn-dense
   padding .285em
   min-height 2em
@@ -1083,7 +1083,6 @@ input[type='search']::-webkit-search-decoration
   height 100%
 .q-carousel-slide
   flex 0 0 100%
-  min-height $carousel-min-height
   margin 0
   padding $carousel-padding
 .q-carousel-track
@@ -1197,8 +1196,8 @@ $checkbox-size = 21px
   vertical-align middle
   color $chip-color
   background $chip-background
-  &:focus
-    box-shadow $shadow-2
+  &:focus .q-chip-close
+    opacity .8
   .q-icon
     font-size $chip-icon-size
     line-height 1
@@ -1710,6 +1709,8 @@ for $pos in 0..23
   .q-if
     margin-top 0 !important
     margin-bottom 0 !important
+    &.q-if-inverted:not(.q-if-has-label)
+      margin-top -8px !important
 .q-field-icon
   width $field-icon-size
   height $field-icon-size
@@ -1752,13 +1753,13 @@ for $pos in 0..23
 qfield-vertical()
   .q-field-label + .q-field-content
     padding-top 8px
-  .q-field-floating.q-field-no-label
+  &.q-field-floating.q-field-no-label
     .q-field-margin
       margin-top 12px
-  .q-field-no-label .q-field-label
+  &.q-field-no-label .q-field-label
     display none
 qfield-horizontal()
-  .q-field-floating
+  &.q-field-floating
     .q-field-margin
       margin-top 12px
   .q-field-label + .q-field-content
@@ -1780,7 +1781,7 @@ qfield-horizontal()
   white-space nowrap
   word-wrap normal
   direction ltr
-.q-icon, .material-icons
+.q-icon, .q-icon.material-icons
   user-select none
   cursor inherit
   display inline-flex
@@ -1856,6 +1857,8 @@ qfield-horizontal()
   cursor pointer
   color rgba(0, 0, 0, .54)
   font-size 24px
+  &.q-icon
+    cursor pointer
   &:hover
     opacity .7
 .q-if-control-before
@@ -2049,6 +2052,7 @@ body
   margin .3rem 0
 .q-item-side
   color $item-side-color
+  flex 0 0 auto
   min-width $item-primary-size
 .q-item-side-right
   text-align right
@@ -2219,10 +2223,6 @@ maximized-modal()
   font-weight 500
 .modal-body
   padding $modal-body-padding
-.modal-slim-body
-  padding $modal-slim-body-padding
-.modal-body, .modal-slim-body
-  text-align $modal-body-text-align
   color $modal-body-color
 .small-modal-scroll, .modal-scroll, .big-modal-scroll
   overflow auto
@@ -3093,6 +3093,9 @@ body.mobile .q-tabs-scroller
   list-style none
   h6
     line-height inherit
+.q-timeline-title
+  margin-top 0
+  margin-bottom 16px
 .q-timeline-subtitle
   font-size 12px
   margin-bottom 8px
@@ -3276,7 +3279,7 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
   color $toolbar-background
   background transparent
 .q-toolbar-title
-  flex 1 1 auto
+  flex 1
   min-width 1px
   max-width 100%
   font-size $toolbar-title-font-size
@@ -4933,9 +4936,9 @@ body.with-mixin-fullscreen
   transform scale(-1, 1)
 .flip-vertical
   transform scale(1, -1)
-.pull-left, .float-left
+.float-left
   float left
-.pull-right, .float-right
+.float-right
   float right
 .relative-position
   position relative
@@ -5148,7 +5151,6 @@ for $heading, $value in $h-tags
   {$heading}
     font-size: $value.size
     font-weight: $value.weight
-    margin: 0 0 $spaces.md.y
     if $value.line-height
       line-height: $value.line-height
     if $value.letter-spacing
@@ -5161,13 +5163,18 @@ for $heading, $value in $headings
   .q-{$heading}
     font-size: $value.size
     font-weight: $value.weight
-    margin: 0 0 $spaces.md.y
     if $value.line-height
       line-height: $value.line-height
     if $value.letter-spacing
       letter-spacing: $value.letter-spacing
 p
   margin: 0 0 $spaces.md.y
+.caption
+  color $grey-9
+  letter-spacing 0
+  line-height 24px
+  padding 0
+  font-weight 300
 .uppercase
   text-transform uppercase
 .lowercase
