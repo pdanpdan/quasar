@@ -4447,7 +4447,7 @@ var TouchPan = {
   name: 'touch-pan',
   bind: function bind (el, binding) {
     var
-      mouse = !binding.modifiers.nomouse,
+      mouse = !binding.modifiers.noMouse,
       stopPropagation = binding.modifiers.stop,
       preventDefault = binding.modifiers.prevent,
       evtOpts = preventDefault || binding.modifiers.mightPrevent ? null : listenOpts.passive;
@@ -5323,7 +5323,7 @@ function getDirection$1 (mod) {
 var TouchSwipe = {
   name: 'touch-swipe',
   bind: function bind (el, binding) {
-    var mouse = !binding.modifiers.nomouse;
+    var mouse = !binding.modifiers.noMouse;
 
     var ctx = {
       handler: binding.value,
@@ -5648,7 +5648,9 @@ var OptionMixin = {
       this.label
         ? h('span', {
           staticClass: 'q-option-label',
-          'class': ("text-" + (this.dark ? 'light' : 'dark')),
+          'class': {
+            'text-light': this.dark
+          },
           domProps: { innerHTML: this.label }
         })
         : null,
@@ -13906,7 +13908,7 @@ var QScrollArea = {
           name: 'touch-pan',
           modifiers: {
             vertical: true,
-            nomouse: true,
+            noMouse: true,
             mightPrevent: true
           },
           value: this.__panContainer
@@ -17705,7 +17707,7 @@ var touchHold = {
   name: 'touch-hold',
   bind: function bind (el, binding) {
     var
-      mouse = !binding.modifiers.nomouse,
+      mouse = !binding.modifiers.noMouse,
       stopPropagation = binding.modifiers.stop,
       preventDefault = binding.modifiers.prevent;
 
