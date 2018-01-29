@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-beta.10
+ * Quasar Framework v0.15.0-beta.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -400,7 +400,6 @@ input[type='search']::-webkit-search-decoration {
   border-radius: 2px;
   -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
           box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-  margin: 8px;
   vertical-align: top;
 }
 .q-card > div:first-child {
@@ -1486,17 +1485,6 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
   right: 0;
   left: 0;
 }
-.q-field {
-  margin-top: 16px;
-  margin-bottom: 8px;
-}
-.q-field .q-if {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-.q-field .q-if.q-if-inverted:not(.q-if-has-label) {
-  margin-top: -8px !important;
-}
 .q-field-icon {
   width: 28px;
   height: 28px;
@@ -1633,11 +1621,11 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 .q-if {
   min-height: 32px;
-  margin-top: 16px;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
   color: #027be3;
   outline: 0;
+}
+.q-if:not(.q-if-hide-underline) {
+  padding-bottom: 8px;
 }
 .q-if:not(.q-if-hide-underline):not(.q-if-inverted):before,
 .q-if:not(.q-if-hide-underline):not(.q-if-inverted):after {
@@ -2658,10 +2646,6 @@ body.with-modal {
 }
 .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
-  -webkit-box-flex: 1;
-      -ms-flex: 1 1 auto;
-          flex: 1 1 auto;
-  margin: 0;
 }
 .q-slider-track,
 .q-slider-mark {
@@ -2801,6 +2785,9 @@ body.with-modal {
 }
 .q-slider.has-error {
   color: #db2828;
+}
+.q-slider.has-warning {
+  color: #f2c037;
 }
 .q-spinner {
   vertical-align: middle;
@@ -3298,7 +3285,7 @@ body.mobile .q-tabs-scroller {
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
 .q-table-separator {
-  min-width: 8px;
+  min-width: 8px !important;
 }
 .q-table-nodata .q-icon {
   font-size: 200%;
@@ -3500,7 +3487,6 @@ body.mobile .q-tabs-scroller {
   background: rgba(255,255,255,0.1);
 }
 .q-timeline {
-  margin: 0;
   padding: 0;
   width: 100%;
   list-style: none;

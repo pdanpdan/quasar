@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.10
+ * Quasar Framework v0.15.0-beta.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1013,9 +1013,8 @@ input[type='search']::-webkit-search-decoration
   .q-btn:not(:last-child)
     border-right 0
 .q-card
-  border-radius 2px
+  border-radius $generic-border-radius
   box-shadow $card-shadow
-  margin 8px
   vertical-align top
   > div:first-child
     border-top-left-radius inherit
@@ -1703,14 +1702,6 @@ for $pos in 0..23
   top 120%
   left 0
   right 0
-.q-field
-  margin-top 16px
-  margin-bottom 8px
-  .q-if
-    margin-top 0 !important
-    margin-bottom 0 !important
-    &.q-if-inverted:not(.q-if-has-label)
-      margin-top -8px !important
 .q-field-icon
   width $field-icon-size
   height $field-icon-size
@@ -1796,11 +1787,10 @@ qfield-horizontal()
   transition $input-frame-transition
 .q-if
   min-height 32px
-  margin-top 16px
-  margin-bottom 8px
-  padding-bottom 8px
   color $primary
   outline 0
+  &:not(.q-if-hide-underline)
+    padding-bottom 8px
   &:not(.q-if-hide-underline):not(.q-if-inverted)
     &:before, &:after
       content ''
@@ -2503,8 +2493,6 @@ $radio-size = 21px
     opacity 0 !important
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
-  flex 1 1 auto
-  margin 0
 $slider-height              = 28px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px
@@ -2609,6 +2597,8 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     height 85px
   &.has-error
     color $negative
+  &.has-warning
+    color $warning
 .q-spinner
   vertical-align middle
 .q-spinner-mat
@@ -2953,7 +2943,7 @@ body.mobile .q-tabs-scroller
     opacity .2
     transition $table-transition
 .q-table-separator
-  min-width 8px
+  min-width 8px !important
 .q-table-nodata .q-icon
   font-size 200%
   padding-right 15px
@@ -3087,7 +3077,6 @@ body.mobile .q-tabs-scroller
     &:hover
       background $table-dark-hover-background
 .q-timeline
-  margin 0
   padding 0
   width 100%
   list-style none
