@@ -620,6 +620,14 @@ $item-side-color                   ?= #737373
 $item-label-color                  ?= $grey-7
 $item-content-secondary-text-color ?= $grey-7
 $item-separator-color              ?= rgb(224, 224, 224)
+$item-base-dark-color                   ?= $grey-7
+$item-highlight-dark-color              ?= alpha($item-base-dark-color, 30%)
+$item-stripe-dark-color                 ?= alpha($item-base-dark-color, 45%)
+$item-active-dark-color                 ?= alpha($item-base-dark-color, 20%)
+$item-side-dark-color                   ?= #bbb
+$item-label-dark-color                  ?= rgba(255,255,255,0.64)
+$item-content-secondary-text-dark-color ?= $grey-5
+$item-separator-dark-color              ?= rgba(255,255,255,0.32)
 $item-min-height                   ?= 40px
 $item-padding                      ?= 16px
 $item-gutter                       ?= 10px
@@ -2031,6 +2039,37 @@ body
   padding-left $item-padding
 .q-list-header-inset
   padding-left ($item-padding + $item-gutter + $item-primary-size)
+.q-list-dark, .q-item-dark
+  .q-item-side
+    color $item-side-dark-color
+  .q-item-letter-inverted, .q-item-icon-inverted
+    color black
+    background $item-side-dark-color
+  .q-item-label > span, .q-item-sublabel
+    color $item-content-secondary-text-dark-color
+  .q-item
+    color white
+    &.active, &.router-link-active, &:focus
+      background $item-active-dark-color
+.q-list-dark
+  border 1px solid $item-separator-dark-color
+  &.q-list-separator > .q-item-division + .q-item-division, .q-item-division + .q-item-separator
+    border-top 1px solid $item-separator-dark-color
+  &.q-list-inset-separator > .q-item-division + .q-item-division, .q-item-division + .q-item-inset-separator
+    &:after
+      background $item-separator-dark-color
+  &.q-list-striped > .q-item:nth-child(even)
+    background-color $item-stripe-dark-color
+  &.q-list-striped-odd > .q-item:nth-child(odd)
+    background-color $item-stripe-dark-color
+  .q-item-separator-component
+    background-color $item-separator-dark-color
+  .q-list-header
+    color $item-label-dark-color
+  &.q-list-highlight > .q-item, .q-item-highlight,
+  &.q-list-link > .q-item, .q-item-link
+    &:hover
+      background $item-highlight-dark-color
 body.with-loading
   overflow hidden
 .q-loading
@@ -2908,21 +2947,25 @@ body.mobile .q-tabs-scroller
     border-left 0
   td:last-child
     border-right 0
-@media (max-width $breakpoint-sm-max)
+table-dense()
   .q-table-top
-    min-height 54px
+    min-height 48px
   .q-table-top, .q-table-bottom
-    padding-left 10px
-    padding-right 10px
+    padding-left 8px
+    padding-right 8px
   .q-table-bottom
-    min-height 47px
+    min-height 42px
   .q-table-sort-icon
     font-size 110%
   .q-table
     th, td
-      padding 5px 8px
+      padding 4px 8px
     thead tr, tbody td
-      height 42px
+      height 28px
+.q-table-dense
+  table-dense()
+@media (max-width $breakpoint-sm-max)
+  table-dense()
 .q-table-bottom 
   color $table-header-color
   border-top 1px solid $table-border-color
@@ -3258,6 +3301,9 @@ body.desktop
     padding 0
     &:after, > .q-tree-node-header:before
       display none
+  
+  > .q-tree-node-child > .q-tree-node-header
+    padding-left 24px
 .q-uploader-expanded .q-if
   border-bottom-left-radius 0
   border-bottom-right-radius 0
@@ -3271,9 +3317,10 @@ body.desktop
   display none
 .q-uploader-files
   border 1px solid $grey-4
-  border-top 0
   font-size 14px
   max-height 500px
+.q-uploader-files-no-border .q-uploader-files
+  border-top 0 !important
 .q-uploader-file:not(:last-child)
   border-bottom 1px solid $grey-4
 .q-uploader-progress-bg, .q-uploader-progress-text
@@ -3292,6 +3339,12 @@ body.desktop
   background rgba(255, 255, 255, .6)
   &.inverted
     background rgba(0, 0, 0, .3)
+.q-uploader-dark
+  .q-uploader-files
+    color white
+    border 1px solid $field-dark-label-color
+  .q-uploader-file:not(:last-child)
+    border-bottom 1px solid $field-dark-label-color
 img
   &.responsive
     max-width 100%
