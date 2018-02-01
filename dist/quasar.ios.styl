@@ -162,6 +162,8 @@ $white     ?= #fff
 $light     ?= #bdbdbd
 $dark      ?= #424242
 $faded     ?= #777
+$form-light ?= #a7a7a7
+$form-dark  ?= #979797
 $link-color          ?= lighten($primary, 25%)
 $link-color-active   ?= $primary
 $dimmed-background       ?= rgba(0, 0, 0, .4)
@@ -1408,6 +1410,8 @@ $checkbox-size = 21px
     border 1px solid $light
   .q-color-inputs
     color $light
+.q-datetime-dark
+  background $dark
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime
@@ -1627,7 +1631,7 @@ body.desktop .q-datetime-col-wrapper
 .q-field-bottom
   font-size 12px
   padding-top 8px
-  color rgba(0, 0, 0, .46)
+  color $form-dark
 .q-field-no-input
   margin-top 8px
   border-top 1px solid rgba(0, 0, 0, .12)
@@ -1636,7 +1640,7 @@ body.desktop .q-datetime-col-wrapper
   padding-left 8px
 .q-field-dark
   .q-field-label, .q-field-icon, .q-field-counter, .q-field-bottom
-    color $field-dark-label-color
+    color $form-light
   .q-field-no-input
     border-top 1px solid $field-label-color
 .q-field-with-error
@@ -1695,7 +1699,6 @@ qfield-horizontal()
   transition $input-frame-transition
 .q-if
   min-height 32px
-  color $primary
   outline 0
   &:not(.q-if-hide-underline)
     padding-bottom 8px
@@ -1710,14 +1713,14 @@ qfield-horizontal()
     background currentColor
   &:before
     height 1px
-    color rgba(0, 0, 0, .12)
+    color $light
     transform scaleY(1)
   &:after
     width 0
     height 2px
     color currentColor
   &:hover:before
-    color rgba(0, 0, 0, .36)
+    color black
   .group
     margin -5px
 .q-if-focusable
@@ -1731,7 +1734,6 @@ qfield-horizontal()
     min-height 34px !important
     padding-top 15px
 .q-if-label
-  color rgba(0, 0, 0, .46)
   pointer-events none
   user-select none
   top 15px
@@ -1743,7 +1745,6 @@ qfield-horizontal()
   transform scale(.75) translate(0, -22px)
 .q-if-addon
   pointer-events none
-  color rgba(0, 0, 0, .46)
   opacity 0
 .q-if-addon-left
   padding-right 1px
@@ -1753,7 +1754,6 @@ qfield-horizontal()
   opacity 1
 .q-if-control
   cursor pointer
-  color rgba(0, 0, 0, .54)
   font-size 24px
   &.q-icon
     cursor pointer
@@ -1762,16 +1762,8 @@ qfield-horizontal()
 .q-if-control-before
   margin-left 0
   margin-right 4px
-.q-if-dark
-  &:before, .q-if-label, .q-if-control
-    color rgba(255, 255, 255, .7)
-  &:hover:before, .q-if-addon
-    color rgba(255, 255, 255, .9)
-.q-if-focused
-  &:after
-    width 100%
-  .q-if-label
-    color currentColor
+.q-if-label, .q-if-addon, .q-if-control
+  color $form-dark
 .q-if-inverted
   min-height 38px
   border-radius 2px
@@ -1779,19 +1771,34 @@ qfield-horizontal()
   padding-left 8px
   padding-right 8px
   box-shadow $shadow-1
+  .q-input-target
+    color inherit
+  .q-if-label, .q-if-addon,  .q-if-control
+    color #ddd
 .q-if-dark
-  .q-if-control
+  &:hover:before
     color white
+  &:not(.q-if-inverted-light)
+    .q-input-target
+      color white
+.q-if-inverted-light
+  .q-if-label, .q-if-addon,  .q-if-control
+    color #656565
+.q-if-focused
+  &:after
+    width 100%
+  .q-if-label, .q-if-addon, .q-if-control
+    color currentColor !important
 .q-if-error
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label, .q-if-addon
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label
     color $negative
   &:hover:before
-    color lighten($negative, 26%)
+    color lighten($negative, 46%)
 .q-if-warning
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label, .q-if-addon
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label
     color $warning
   &:hover:before
-    color lighten($warning, 26%)
+    color lighten($warning, 46%)
 .q-if-disabled
   cursor not-allowed !important
   .q-if-label, .q-if-control
@@ -1810,7 +1817,6 @@ qfield-horizontal()
   border 0
   outline 0
   padding 0
-  color black
   background transparent
   min-height 18px
   font-size inherit
@@ -1832,14 +1838,33 @@ input.q-input-target
   outline 0
 .q-input-chips
   min-height 36px !important
-.q-if-dark .q-input-target
-  color white
+.q-if .q-input-target
   &::-webkit-input-placeholder /* Chrome/Opera/Safari */
-    color rgba(255, 255, 255, .6) !important
+    color $form-dark !important
   &::-moz-placeholder 
-    color rgba(255, 255, 255, .6) !important
+    color $form-dark !important
   &:-ms-input-placeholder 
-    color rgba(255, 255, 255, .6) !important
+    color $form-dark !important
+  &::selection
+    background black
+    color white
+.q-if-dark .q-input-target
+  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+    color #979797 !important
+  &::-moz-placeholder 
+    color #979797 !important
+  &:-ms-input-placeholder 
+    color #979797 !important
+  &::selection
+    background white
+    color black
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target
+  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+    color #ddd !important
+  &::-moz-placeholder 
+    color #ddd !important
+  &:-ms-input-placeholder 
+    color #ddd !important
   &::selection
     background white
     color black
@@ -2719,20 +2744,16 @@ body.desktop .q-stepper-tab.step-done:hover
       display none
 .q-tabs
   flex-direction column
-  width 100%
 .q-tabs-scroller
   overflow hidden
   color $tabs-color
 .q-tab-pane
   padding $tabs-pane-padding
   border $tabs-pane-border
-  flex-grow 1
 .q-tabs-no-pane-border .q-tab-pane
   border 0
-.q-tabs-panes
-  flex-grow 1
-  &:empty
-    display none
+.q-tabs-panes:empty
+  display none
 .q-tab-icon, .q-tab-label
   opacity $tabs-unselected-opacity
 .q-tab
@@ -4733,10 +4754,6 @@ for $name, $size in $sizes
   &.active
     display block
     background $backdrop-background
-.no-border
-  border 0 !important
-.no-outline
-  outline 0 !important
 .round-borders
   border-radius $generic-border-radius !important
 .generic-margin, .group > * 
@@ -4863,6 +4880,8 @@ body.with-mixin-fullscreen
   cursor pointer !important
 .cursor-not-allowed
   cursor not-allowed !important
+.cursor-inherit
+  cursor inherit !important
 .rotate-45
   transform rotate(45deg)
 .rotate-90
@@ -5223,6 +5242,8 @@ input::selection
   border-radius 0 !important
 .no-box-shadow
   box-shadow none !important
+.no-outline
+  outline 0 !important
 .ellipsis
   text-overflow ellipsis
   white-space nowrap

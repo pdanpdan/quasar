@@ -1531,11 +1531,11 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   min-width: 28px;
   font-size: 28px;
   margin-left: 16px;
-  color: #424242;
+  color: #979797;
 }
 .q-field-label {
   padding-left: 8px;
-  color: #424242;
+  color: #979797;
 }
 .q-field-label-inner {
   min-height: 28px;
@@ -1546,24 +1546,24 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-field-bottom {
   font-size: 12px;
   padding-top: 8px;
-  color: rgba(0,0,0,0.46);
+  color: #979797;
 }
 .q-field-no-input {
   margin-top: 8px;
   border-top: 1px solid rgba(0,0,0,0.12);
 }
 .q-field-counter {
-  color: #424242;
+  color: #979797;
   padding-right: 8px;
 }
 .q-field-dark .q-field-label,
 .q-field-dark .q-field-icon,
 .q-field-dark .q-field-counter,
 .q-field-dark .q-field-bottom {
-  color: #bdbdbd;
+  color: #a7a7a7;
 }
 .q-field-dark .q-field-no-input {
-  border-top: 1px solid #424242;
+  border-top: 1px solid #979797;
 }
 .q-field-with-error .q-field-icon,
 .q-field-with-error .q-field-label,
@@ -1661,7 +1661,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if {
   min-height: 32px;
-  color: #027be3;
   outline: 0;
 }
 .q-if:not(.q-if-hide-underline) {
@@ -1681,7 +1680,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if:before {
   height: 1px;
-  color: rgba(0,0,0,0.12);
+  color: #bdbdbd;
   -webkit-transform: scaleY(1);
           transform: scaleY(1);
 }
@@ -1691,7 +1690,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   color: currentColor;
 }
 .q-if:hover:before {
-  color: rgba(0,0,0,0.36);
+  color: #000;
 }
 .q-if .group {
   margin: -5px;
@@ -1711,7 +1710,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   padding-top: 15px;
 }
 .q-if-label {
-  color: rgba(0,0,0,0.46);
   pointer-events: none;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -1731,7 +1729,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-addon {
   pointer-events: none;
-  color: rgba(0,0,0,0.46);
   opacity: 0;
 }
 .q-if-addon-left {
@@ -1745,7 +1742,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-control {
   cursor: pointer;
-  color: rgba(0,0,0,0.54);
   font-size: 24px;
 }
 .q-if-control.q-icon {
@@ -1758,11 +1754,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   margin-right: 0;
   margin-left: 4px;
 }
-.q-if-focused:after {
-  width: 100%;
-}
-.q-if-focused .q-if-label {
-  color: currentColor;
+.q-if-label,
+.q-if-addon,
+.q-if-control {
+  color: #979797;
 }
 .q-if-inverted {
   min-height: 38px;
@@ -1773,32 +1768,48 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 1px rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
           box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 1px rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
 }
-.q-if-dark:before,
-.q-if-dark .q-if-label,
-.q-if-dark .q-if-control {
-  color: rgba(255,255,255,0.7);
+.q-if-inverted .q-input-target {
+  color: inherit;
 }
-.q-if-dark:hover:before,
-.q-if-dark .q-if-addon {
-  color: rgba(255,255,255,0.9);
+.q-if-inverted .q-if-label,
+.q-if-inverted .q-if-addon,
+.q-if-inverted .q-if-control {
+  color: #ddd;
+}
+.q-if-dark:hover:before {
+  color: #fff;
+}
+.q-if-dark:not(.q-if-inverted-light) .q-input-target {
+  color: #fff;
+}
+.q-if-inverted-light .q-if-label,
+.q-if-inverted-light .q-if-addon,
+.q-if-inverted-light .q-if-control {
+  color: #656565;
+}
+.q-if-focused:after {
+  width: 100%;
+}
+.q-if-focused .q-if-label,
+.q-if-focused .q-if-addon,
+.q-if-focused .q-if-control {
+  color: currentColor !important;
 }
 .q-if-error:before,
 .q-if-error:after,
-.q-if-error:not(.q-if-inverted) .q-if-label,
-.q-if-error .q-if-addon {
+.q-if-error:not(.q-if-inverted) .q-if-label {
   color: #db2828;
 }
 .q-if-error:hover:before {
-  color: #e46060;
+  color: #ec8b8b;
 }
 .q-if-warning:before,
 .q-if-warning:after,
-.q-if-warning:not(.q-if-inverted) .q-if-label,
-.q-if-warning .q-if-addon {
+.q-if-warning:not(.q-if-inverted) .q-if-label {
   color: #f2c037;
 }
 .q-if-warning:hover:before {
-  color: #f5d06b;
+  color: #f8dd93;
 }
 .q-if-disabled {
   cursor: not-allowed !important;
@@ -1826,7 +1837,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   border: 0;
   outline: 0;
   padding: 0;
-  color: #000;
   background: transparent;
   min-height: 18px;
   font-size: inherit;
@@ -1864,23 +1874,54 @@ input.q-input-target {
 .q-input-chips {
   min-height: 36px !important;
 }
-.q-if-dark .q-input-target {
+.q-if .q-input-target::-webkit-input-placeholder {
+  color: #979797 !important;
+}
+.q-if .q-input-target::-moz-placeholder {
+  color: #979797 !important;
+}
+.q-if .q-input-target:-ms-input-placeholder {
+  color: #979797 !important;
+}
+.q-if .q-input-target::-moz-selection {
+  background: #000;
+  color: #fff;
+}
+.q-if .q-input-target::selection {
+  background: #000;
   color: #fff;
 }
 .q-if-dark .q-input-target::-webkit-input-placeholder {
-  color: rgba(255,255,255,0.6) !important;
+  color: #979797 !important;
 }
 .q-if-dark .q-input-target::-moz-placeholder {
-  color: rgba(255,255,255,0.6) !important;
+  color: #979797 !important;
 }
 .q-if-dark .q-input-target:-ms-input-placeholder {
-  color: rgba(255,255,255,0.6) !important;
+  color: #979797 !important;
 }
 .q-if-dark .q-input-target::-moz-selection {
   background: #fff;
   color: #000;
 }
 .q-if-dark .q-input-target::selection {
+  background: #fff;
+  color: #000;
+}
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target::-webkit-input-placeholder {
+  color: #ddd !important;
+}
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target::-moz-placeholder {
+  color: #ddd !important;
+}
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target:-ms-input-placeholder {
+  color: #ddd !important;
+}
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target::-moz-selection {
+  background: #fff;
+  color: #000;
+}
+.q-if-inverted:not(.q-if-inverted-light) .q-input-target::selection {
   background: #fff;
   color: #000;
 }
@@ -3117,6 +3158,12 @@ body.desktop .q-stepper-tab.step-done:hover {
     display: none;
   }
 }
+.q-tabs {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
 .q-tabs-scroller {
   overflow: hidden;
   color: #fff;
@@ -3124,17 +3171,9 @@ body.desktop .q-stepper-tab.step-done:hover {
 .q-tab-pane {
   padding: 12px;
   border: 1px solid rgba(0,0,0,0.1);
-  -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
 }
 .q-tabs-no-pane-border .q-tab-pane {
   border: 0;
-}
-.q-tabs-panes {
-  -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
 }
 .q-tabs-panes:empty {
   display: none;
@@ -3275,7 +3314,8 @@ body.desktop .q-stepper-tab.step-done:hover {
           justify-content: flex-end;
 }
 .q-tabs-bar {
-  border: 0 solid currentColor;
+  border: 2px solid currentColor;
+  border-width: 0;
   position: absolute;
   height: 0;
   right: 0;
@@ -4045,10 +4085,10 @@ body.desktop .q-tree-dark .q-tree-node-link:hover {
 }
 .q-uploader-dark .q-uploader-files {
   color: #fff;
-  border: 1px solid #bdbdbd;
+  border: 1px solid #a7a7a7;
 }
 .q-uploader-dark .q-uploader-file:not(:last-child) {
-  border-bottom: 1px solid #bdbdbd;
+  border-bottom: 1px solid #a7a7a7;
 }
 img.responsive {
   max-width: 100%;
@@ -7647,12 +7687,6 @@ img.avatar {
   display: block;
   background: rgba(0,0,0,0.3);
 }
-.no-border {
-  border: 0 !important;
-}
-.no-outline {
-  outline: 0 !important;
-}
 .round-borders {
   border-radius: 2px !important;
 }
@@ -7777,6 +7811,9 @@ body.with-mixin-fullscreen {
 }
 .cursor-not-allowed {
   cursor: not-allowed !important;
+}
+.cursor-inherit {
+  cursor: inherit !important;
 }
 .rotate-45 {
   -webkit-transform: rotate(-45deg);
@@ -8613,6 +8650,9 @@ input::selection {
 .no-box-shadow {
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
+}
+.no-outline {
+  outline: 0 !important;
 }
 .ellipsis {
   text-overflow: ellipsis;
