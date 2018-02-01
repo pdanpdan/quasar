@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.11
+ * Quasar Framework v0.15.0-beta.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -160,7 +160,7 @@ $info      ?= #31CCEC
 $warning   ?= #F2C037
 $white     ?= #fff
 $light     ?= #bdbdbd
-$dark      ?= #757575
+$dark      ?= #424242
 $faded     ?= #777
 $link-color          ?= lighten($primary, 25%)
 $link-color-active   ?= $primary
@@ -607,6 +607,7 @@ $chip-padding-horizontal ?= 0
 $chip-padding-vertical   ?= 12px
 $chip-height             ?= 32px
 $chip-icon-size          ?= 24px
+$chip-small-icon-size    ?= 16px
 $chip-small-height       ?= 26px
 $chip-color              ?= black
 $chip-background         ?= $grey-3
@@ -1208,99 +1209,101 @@ $checkbox-size = 21px
   .q-icon
     font-size $chip-icon-size
     line-height 1
+.q-chip-main
+  line-height initial
+.q-chip-side
+  border-radius 50%
+  height $chip-height
+  width $chip-height
+  min-width $chip-height
+  overflow hidden
+  img
+    width 100%
+    height 100%
+.q-chip-left
+  margin-left -12px
+  margin-right 8px
+.q-chip-right
+  margin-left 2px
+  margin-right -12px
+.q-chip-square
+  border-radius 2px
+.q-chip-floating
+  position absolute
+  top -.7rem
+  left 100%
+  margin 0 0 0 -1.5rem !important
+  pointer-events none
+.q-chip-tag
+  position relative
+  padding-left 1.7rem
+  &:after
+    content ''
+    position absolute
+    top 50%
+    left .5rem
+    margin-top -.25rem
+    background white
+    width .5rem
+    height .5rem
+    box-shadow 0 -1px 1px 0 rgba(0, 0, 0, .3)
+    border-radius 50%
+.q-chip-pointing
+  position relative
+  &:before
+    content ''
+    z-index -1
+    background inherit
+    width 16px
+    height 16px
+    position absolute
+.q-chip-pointing-up
+  margin-top .8rem
+  &:before
+    top 0
+    left 50%
+    transform translateX(-50%) translateY(-22%) rotate(45deg)
+.q-chip-pointing-down
+  margin-bottom .8rem
+  &:before
+    right auto
+    top 100%
+    left 50%
+    transform translateX(-50%) translateY(-78%) rotate(45deg)
+.q-chip-pointing-right
+  margin-right .8rem
+  &:before
+    top 50%
+    right 2px
+    bottom auto
+    left auto
+    transform translateX(33%) translateY(-50%) rotate(45deg)
+.q-chip-pointing-left
+  margin-left .8rem
+  &:before
+    top 50%
+    left 2px
+    bottom auto
+    right auto
+    transform translateX(-33%) translateY(-50%) rotate(45deg)
+.q-chip-detail
+  background rgba(0, 0, 0, .1)
+  opacity .8
+  padding 0 5px
+  border-radius inherit
+  border-top-right-radius 0
+  border-bottom-right-radius 0
+.q-chip-small
+  min-height $chip-small-height
   .q-chip-main
+    padding 4px 0
     line-height initial
   .q-chip-side
-    border-radius 50%
-    height $chip-height
-    width $chip-height
-    min-width $chip-height
-    overflow hidden
-    img
-      width 100%
-      height 100%
-    &.chip-left
-      margin-left -12px
-      margin-right 8px
-    &.chip-right
-      margin-left 2px
-      margin-right -12px
-  &.square
-    border-radius 2px
-  &.floating
-    position absolute
-    top -.7rem
-    left 100%
-    margin 0 0 0 -1.5rem !important
-    pointer-events none
-  &.tag
-    position relative
-    padding-left 1.7rem
-    &:after
-      content ''
-      position absolute
-      top 50%
-      left .5rem
-      margin-top -.25rem
-      background white
-      width .5rem
-      height .5rem
-      box-shadow 0 -1px 1px 0 rgba(0, 0, 0, .3)
-      border-radius 50%
-  &.pointing
-    position relative
-    &:before
-      content ''
-      z-index -1
-      background inherit
-      width 16px
-      height 16px
-      position absolute
-  &.pointing-up
-    margin-top .8rem
-    &:before
-      top 0
-      left 50%
-      transform translateX(-50%) translateY(-22%) rotate(45deg)
-  &.pointing-down
-    margin-bottom .8rem
-    &:before
-      right auto
-      top 100%
-      left 50%
-      transform translateX(-50%) translateY(-78%) rotate(45deg)
-  &.pointing-right
-    margin-right .8rem
-    &:before
-      top 50%
-      right 2px
-      bottom auto
-      left auto
-      transform translateX(33%) translateY(-50%) rotate(45deg)
-  &.pointing-left
-    margin-left .8rem
-    &:before
-      top 50%
-      left 2px
-      bottom auto
-      right auto
-      transform translateX(-33%) translateY(-50%) rotate(45deg)
-  .chip-detail
-    background rgba(0, 0, 0, .1)
-    opacity .8
-    padding 0 5px
-    border-radius inherit
-    border-top-right-radius 0
-    border-bottom-right-radius 0
-  &.small
-    min-height $chip-small-height
-    .q-chip-main
-      padding 4px 0
-      line-height initial
-    .q-chip-side
-      height $chip-small-height
-      width $chip-small-height
-      min-width $chip-small-height
+    height $chip-small-height
+    width $chip-small-height
+    min-width $chip-small-height
+  .q-chip-icon
+    font-size $chip-small-icon-size
 .q-chips-input input
   min-width 70px
 .q-collapsible-sub-item
@@ -1334,6 +1337,7 @@ $checkbox-size = 21px
   border 1px solid $grey-4
   display inline-block
   width 240px
+  background white
 .q-color-saturation
   width 100%
   height 123px
@@ -1396,14 +1400,23 @@ $checkbox-size = 21px
     display none
 .q-color-inputs
   font-size 11px
+  color $grey-7
   input
     border 1px solid $grey-4
     outline 0
 .q-color-padding
   padding 0 2px
 .q-color-label
-  color $grey-7
   padding-top 4px
+.q-color-dark
+  background $dark
+  border 1px solid $grey-9
+  input
+    background $dark
+    color $light
+    border 1px solid $light
+  .q-color-inputs
+    color $light
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime-controls
@@ -1413,8 +1426,6 @@ $checkbox-size = 21px
   text-align center
   user-select none
   line-height initial
-.q-datetime-dark
-  color black
 .q-datetime-header
   background currentColor
   > div
@@ -1446,8 +1457,11 @@ div + .q-datetime-time
 .q-datetime-view-day
   width 250px
   height 300px
+  color black
+.q-datetime-view-year, .q-datetime-view-month
+  > .q-btn:not(.active)
+    color black
 .q-datetime-weekdays
-  color rgba(0, 0, 0, .87)
   font-size .75rem
   margin-top 10px
   margin-bottom 5px
@@ -1467,8 +1481,6 @@ div + .q-datetime-time
   width 35px
   height 35px
   border-radius 50%
-  &:not(.q-datetime-day-active)
-    color black
   &.q-datetime-day-active
     background currentColor
     > span
@@ -1481,8 +1493,6 @@ div + .q-datetime-time
     background $grey-4
 .q-datetime-btn
   font-weight normal
-  &:not(.active)
-    color black !important
   &.active
     font-size 1.5rem
     padding-top 1rem
@@ -1530,8 +1540,22 @@ div + .q-datetime-time
     min-height 0
     transform translate(-50%, -50%)
     background currentColor
+.q-datetime-dark
+  background $dark
+  .q-datetime-header, .q-datetime-clock
+    background $grey-8
+  .q-datetime-view-day
+    color white
+  .q-datetime-view-year, .q-datetime-view-month
+    > .q-btn:not(.active)
+      color white
+  .q-datetime-days div
+    &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
+      color black
 body.desktop .q-datetime-clock-position:not(.active):hover
   background $grey-2 !important
+body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover
+  color black
 .q-datetime-clock-position
   position absolute
   min-height 32px
@@ -1545,6 +1569,8 @@ body.desktop .q-datetime-clock-position:not(.active):hover
   border-radius 50%
   &:not(.active)
     color black
+    .q-datetime-dark &
+      color white
   &.active
     background currentColor
     > span
@@ -1578,10 +1604,13 @@ for $pos in 0..23
       margin-top 1.3rem
   .q-datetime
     width 290px
-    &:not(.no-border) .q-datetime-content
-      border-width 0 1px 1px 1px
-      border-style solid
-      border-color $grey-4
+    &:not(.no-border)
+      &:not(.q-datetime-dark) .q-datetime-content
+        border-width 0 1px 1px 1px
+        border-style solid
+        border-color $grey-4
+      &.q-datetime-dark
+        border 1px solid $dark
 @media (min-width $breakpoint-md-min)
   .q-datetime-datestring
     padding 10px 0
@@ -1601,10 +1630,13 @@ for $pos in 0..23
     width 290px
   .q-datetime
     width 480px
-    &:not(.no-border) .q-datetime-content
-      border-width 1px 1px 1px 0
-      border-style solid
-      border-color $grey-4
+    &:not(.no-border)
+      &:not(.q-datetime-dark) .q-datetime-content
+        border-width 1px 1px 1px 0
+        border-style solid
+        border-color $grey-4
+      &.q-datetime-dark
+        border 1px solid $dark
 .q-dot
   position absolute
   top $dot-position-top
@@ -1862,11 +1894,6 @@ qfield-horizontal()
 .q-if-control-before
   margin-left 0
   margin-right 4px
-.q-if-dark
-  &:before, .q-if-label, .q-if-control
-    color rgba(255, 255, 255, .7)
-  &:hover:before, .q-if-addon
-    color rgba(255, 255, 255, .9)
 .q-if-focused
   &:after
     width 100%
@@ -1880,8 +1907,10 @@ qfield-horizontal()
   padding-right 8px
   box-shadow $shadow-1
 .q-if-dark
-  .q-if-control
-    color white
+  &:before, .q-if-label, .q-if-control
+    color rgba(255, 255, 255, .7)
+  &:hover:before, .q-if-addon
+    color rgba(255, 255, 255, .9)
 .q-if-error
   &:before, &:after, &:not(.q-if-inverted) .q-if-label, .q-if-addon
     color $negative
@@ -2512,16 +2541,18 @@ $radio-size = 21px
     position relative
     cursor default
     opacity .4
-  i + i
-    margin-left .3rem
-  i.hovered
-    transform scale(1.3)
-  i.exselected
-    opacity .7
-  i.active
-    opacity 1
+    &.hovered
+      transform scale(1.3)
+    &.exselected
+      opacity .7
+    &.active
+      opacity 1
+    & + i
+      margin-left .3rem
   &.editable i
     cursor pointer
+  &:not(.editable) i:focus
+    outline none
 .q-scrollarea-thumb
   background black
   width 10px

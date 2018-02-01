@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.11
+ * Quasar Framework v0.15.0-beta.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.0-beta.11";
+var version = "0.15.0-beta.12";
 
 function offset (el) {
   if (el === window) {
@@ -4123,8 +4123,10 @@ var QAutocomplete = {
   render: function render (h) {
     var this$1 = this;
 
+    var dark = this.__input.isDark();
     return h(QPopover, {
       ref: 'popover',
+      'class': dark ? 'bg-dark' : null,
       props: {
         fit: true,
         offset: [0, 10],
@@ -4137,6 +4139,7 @@ var QAutocomplete = {
     }, [
       h(QList, {
         props: {
+          dark: dark,
           noBorder: true,
           separator: this.separator
         },
@@ -5742,14 +5745,15 @@ var QChip = {
   },
   computed: {
     classes: function classes () {
-      var cls = [{
-        tag: this.tag,
-        square: this.square,
-        floating: this.floating,
-        pointing: this.pointing,
-        small: this.small || this.floating
-      }];
-      this.pointing && cls.push(("pointing-" + (this.pointing)));
+      var this$1 = this;
+
+      var cls = [];
+
+      this.pointing && cls.push(("q-chip-pointing-" + (this.pointing)))
+      ;['tag', 'square', 'floating', 'pointing', 'small'].forEach(function (prop) {
+        this$1[prop] && cls.push(("q-chip-" + prop));
+      });
+
       if (this.color) {
         cls.push(("bg-" + (this.color)));
         !this.textColor && cls.push("text-white");
@@ -5757,6 +5761,7 @@ var QChip = {
       if (this.textColor) {
         cls.push(("text-" + (this.textColor)));
       }
+
       return cls
     }
   },
@@ -5789,11 +5794,11 @@ var QChip = {
     }, [
       this.icon || this.avatar
         ? h('div', {
-          staticClass: 'q-chip-side chip-left row flex-center',
-          'class': { 'chip-detail': this.detail }
+          staticClass: 'q-chip-side q-chip-left row flex-center',
+          'class': { 'q-chip-detail': this.detail }
         }, [
           this.icon
-            ? h(QIcon, { props: { name: this.icon } })
+            ? h(QIcon, { staticClass: 'q-chip-icon', props: { name: this.icon } })
             : (this.avatar ? h('img', { domProps: { src: this.avatar } }) : null)
         ])
         : null,
@@ -5805,12 +5810,12 @@ var QChip = {
       this.iconRight
         ? h(QIcon, {
           props: { name: this.iconRight },
-          'class': this.closable ? 'on-right' : 'q-chip-side chip-right'
+          'class': this.closable ? 'on-right q-chip-icon' : 'q-chip-side q-chip-right'
         })
         : null,
 
       this.closable
-        ? h('div', { staticClass: 'q-chip-side q-chip-close chip-right row flex-center' }, [
+        ? h('div', { staticClass: 'q-chip-side q-chip-close q-chip-right row flex-center' }, [
           h(QIcon, {
             props: { name: this.$q.icon.chip.close },
             staticClass: 'cursor-pointer',
@@ -5845,6 +5850,8 @@ var FrameMixin = {
     error: Boolean,
     warning: Boolean,
     disable: Boolean,
+    readonly: Boolean,
+    clearable: Boolean,
     color: {
       type: String,
       default: 'primary'
@@ -6134,15 +6141,17 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         if (this.frameColor) {
           return this.color
         }
-        return this.dark !== false ? 'white' : null
+        return this.dark === false ? 'dark' : 'white'
       }
       return this.color
     },
     computedChipTextColor: function computedChipTextColor () {
       if (this.inverted) {
-        return this.frameColor || this.color
+        if (this.frameColor) {
+          return this.frameColor
+        }
+        return this.dark === false ? 'white' : this.color
       }
-      return this.dark !== false ? 'white' : null
     }
   },
   methods: {
@@ -6660,10 +6669,7 @@ var QSlider = {
   name: 'q-slider',
   mixins: [SliderMixin],
   props: {
-    value: {
-      type: Number,
-      required: true
-    },
+    value: Number,
     labelValue: String
   },
   data: function data () {
@@ -6987,9 +6993,10 @@ var QColorPicker = {
     TouchPan: TouchPan
   },
   props: {
-    value: {
+    value: [String, Object],
+    defaultValue: {
       type: [String, Object],
-      required: true
+      default: '#000'
     },
     type: {
       type: String,
@@ -6997,12 +7004,13 @@ var QColorPicker = {
       validator: function (v) { return ['auto', 'hex', 'rgb', 'hexa', 'rgba'].includes(v); }
     },
     disable: Boolean,
-    readonly: Boolean
+    readonly: Boolean,
+    dark: Boolean
   },
   data: function data () {
     return {
       view: !this.value || typeof this.value === 'string' ? 'hex' : 'rgb',
-      model: this.__parseModel(this.value),
+      model: this.__parseModel(this.value || this.defaultValue),
       inputError: {
         hex: false,
         r: false,
@@ -7014,7 +7022,7 @@ var QColorPicker = {
   watch: {
     value: {
       handler: function handler (v) {
-        var model = this.__parseModel(v);
+        var model = this.__parseModel(v || this.defaultValue);
         if (model.hex !== this.model.hex) {
           this.model = model;
         }
@@ -7050,7 +7058,7 @@ var QColorPicker = {
       }
       return this.isHex
         ? this.value.length > 7
-        : this.value.a !== void 0
+        : this.value && this.value.a !== void 0
     },
     swatchStyle: function swatchStyle () {
       return {
@@ -7082,7 +7090,7 @@ var QColorPicker = {
   render: function render (h) {
     return h('div', {
       staticClass: 'q-color',
-      'class': { disabled: this.disable }
+      'class': { disabled: this.disable, 'q-color-dark': this.dark }
     }, [
       this.__getSaturation(h),
       this.__getSliders(h),
@@ -7179,19 +7187,16 @@ var QColorPicker = {
               type: 'number',
               min: 0,
               max: max,
-              readonly: !this$1.editable
+              readonly: !this$1.editable,
+              tabindex: this$1.disable ? 0 : -1
             },
             staticClass: 'full-width text-center q-no-input-spinner',
             domProps: {
               value: Math.round(this$1.model[type])
             },
             on: {
-              input: function (evt) {
-                this$1.__onNumericChange(evt, type, max);
-              },
-              blur: function (evt) {
-                this$1.__onNumericChange(evt, type, max, true);
-              }
+              input: function (evt) { return this$1.__onNumericChange(evt, type, max); },
+              blur: function (evt) { return this$1.editable && this$1.__onNumericChange(evt, type, max, true); }
             }
           }),
           h('div', { staticClass: 'q-color-label text-center uppercase' }, [
@@ -7210,11 +7215,11 @@ var QColorPicker = {
               domProps: { value: this.model.hex },
               attrs: {
                 readonly: !this.editable,
-                tabindex: this.editable ? 0 : -1
+                tabindex: this.disable ? 0 : -1
               },
               on: {
                 input: this.__onHexChange,
-                blur: function (evt) { return this$1.__onHexChange(evt, true); }
+                blur: function (evt) { return this$1.editable && this$1.__onHexChange(evt, true); }
               },
               staticClass: 'full-width text-center uppercase'
             }),
@@ -7233,7 +7238,7 @@ var QColorPicker = {
           h(QBtn, {
             props: {
               flat: true,
-              color: 'grey-7'
+              disable: this.disable
             },
             on: {
               click: this.__nextInputView
@@ -7641,7 +7646,7 @@ var QColor = {
       type: String,
       default: 'primary'
     },
-    defaultSelection: {
+    defaultValue: {
       type: [String, Object],
       default: null
     },
@@ -7652,18 +7657,15 @@ var QColor = {
     },
     displayValue: String,
     placeholder: String,
-    clearable: Boolean,
     okLabel: String,
-    cancelLabel: String,
-    disable: Boolean,
-    readonly: Boolean
+    cancelLabel: String
   },
   data: function data () {
     var data = this.isPopover ? {} : {
       transition: 'q-modal-bottom'
     };
     data.focused = false;
-    data.model = clone(this.value || this.defaultSelection);
+    data.model = clone(this.value || this.defaultValue);
     return data
   },
   computed: {
@@ -7689,7 +7691,7 @@ var QColor = {
     show: function show () {
       if (!this.disable) {
         if (!this.focused) {
-          this.__setModel(this.value || this.defaultSelection);
+          this.__setModel(this.value || this.defaultValue);
         }
         return this.$refs.popup.show()
       }
@@ -7712,10 +7714,10 @@ var QColor = {
       }
     },
     __onFocus: function __onFocus () {
-      if (this.focused) {
+      if (this.disable || this.focused) {
         return
       }
-      this.__setModel(this.value || this.defaultSelection);
+      this.__setModel(this.value || this.defaultValue);
       this.focused = true;
       this.$emit('focus');
     },
@@ -7767,7 +7769,8 @@ var QColor = {
               value: this.model || '#000',
               disable: this.disable,
               readonly: this.readonly,
-              type: this.type
+              type: this.type,
+              dark: this.dark
             }, this.$attrs),
             on: {
               input: function (v) { return this$1.$nextTick(function () { return this$1.__setModel(v); }); }
@@ -8044,6 +8047,10 @@ var inline = {
     validator: modelValidator,
     required: true
   },
+  defaultValue: {
+    type: [String, Number, Date],
+    default: null
+  },
   type: {
     type: String,
     default: 'date',
@@ -8053,6 +8060,7 @@ var inline = {
     type: String,
     default: 'primary'
   },
+  dark: Boolean,
   min: {
     validator: modelValidator,
     default: null
@@ -8081,16 +8089,9 @@ var inline = {
 var input = {
   format: String,
   placeholder: String,
-  clearable: Boolean,
   okLabel: String,
   cancelLabel: String,
-  defaultSelection: {
-    type: [String, Number, Date],
-    default: null
-  },
-  displayValue: String,
-  disable: Boolean,
-  readonly: Boolean
+  displayValue: String
 };
 
 /* eslint no-fallthrough: 0 */
@@ -8677,7 +8678,7 @@ var DateMixin = {
       get: function get () {
         var date = isValid(this.value)
           ? new Date(this.value)
-          : (this.defaultSelection ? new Date(this.defaultSelection) : startOfDate(new Date(), 'day'));
+          : (this.defaultValue ? new Date(this.defaultValue) : startOfDate(new Date(), 'day'));
 
         return getDateBetween(
           date,
@@ -8789,14 +8790,14 @@ var DateMixin = {
   }
 }
 
-var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '']},[_vm._t("default"),_vm._v(" "),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center",on:{"touchstart":function($event){$event.stopPropagation();$event.preventDefault();}}},[(_vm.typeHasDate)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMonth),expression:"__dragMonth",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-month"},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{key:("mi" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragDate),expression:"__dragDate",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-day"},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{key:("di" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(index + _vm.dayMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragYear),expression:"__dragYear",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-year"},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{key:("yi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])}))])]:_vm._e(),_vm._v(" "),(_vm.typeHasTime)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragHour),expression:"__dragHour",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-hour"},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.hourMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMinute),expression:"__dragMinute",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-minute"},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{key:("ni" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.__pad(n + _vm.minuteMin - 1))+" ")])}))])]:_vm._e()],2),_vm._v(" "),_c('div',{staticClass:"q-datetime-mask"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-highlight"})])],2)},staticRenderFns: [],
+var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime",class:['type-' + _vm.type, _vm.disable ? 'disabled' : '', _vm.readonly ? 'readonly' : '', _vm.dark ? 'q-datetime-dark' : '']},[_vm._t("default"),_vm._v(" "),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center",on:{"touchstart":function($event){$event.stopPropagation();$event.preventDefault();}}},[(_vm.typeHasDate)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMonth),expression:"__dragMonth",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-month"},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{key:("mi" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragDate),expression:"__dragDate",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-day"},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{key:("di" + index),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(index + _vm.dayMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragYear),expression:"__dragYear",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-year"},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{key:("yi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])}))])]:_vm._e(),_vm._v(" "),(_vm.typeHasTime)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragHour),expression:"__dragHour",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-hour"},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(n + _vm.hourMin - 1)+" ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMinute),expression:"__dragMinute",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-minute"},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{key:("ni" + n),staticClass:"q-datetime-item"},[_vm._v(" "+_vm._s(_vm.__pad(n + _vm.minuteMin - 1))+" ")])}))])]:_vm._e()],2),_vm._v(" "),_c('div',{staticClass:"q-datetime-mask"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-highlight"})])],2)},staticRenderFns: [],
   name: 'q-datetime-picker',
   mixins: [DateMixin, FieldParentMixin],
   directives: {
     TouchPan: TouchPan
   },
   props: {
-    defaultSelection: [String, Number, Date],
+    defaultValue: [String, Number, Date],
     disable: Boolean,
     readonly: Boolean
   },
@@ -9049,7 +9050,7 @@ var QDatetime = {
       transition: 'q-modal-bottom'
     };
     data.focused = false;
-    data.model = clone$1(isValid(this.value) ? this.value : this.defaultSelection);
+    data.model = clone$1(isValid(this.value) ? this.value : this.defaultValue);
     return data
   },
   computed: {
@@ -9086,7 +9087,7 @@ var QDatetime = {
     show: function show () {
       if (!this.disable) {
         if (!this.focused) {
-          this.__setModel(isValid(this.value) ? this.value : this.defaultSelection);
+          this.__setModel(isValid(this.value) ? this.value : this.defaultValue);
         }
         return this.$refs.popup.show()
       }
@@ -9109,6 +9110,9 @@ var QDatetime = {
       }
     },
     __onFocus: function __onFocus () {
+      if (this.disable || this.focused) {
+        return
+      }
       if (this.defaultView) {
         var target = this.$refs.target;
         if (target.view !== this.defaultView) {
@@ -9118,10 +9122,7 @@ var QDatetime = {
           target.__scrollView();
         }
       }
-      if (this.focused) {
-        return
-      }
-      this.__setModel(isValid(this.value) ? this.value : this.defaultSelection);
+      this.__setModel(isValid(this.value) ? this.value : this.defaultValue);
       this.focused = true;
       this.$emit('focus');
     },
@@ -9178,7 +9179,8 @@ var QDatetime = {
               format24h: this.format24h,
               firstDayOfWeek: this.firstDayOfWeek,
               defaultView: this.defaultView,
-              color: this.dark === false ? null : this.color,
+              color: !this.inverted || this.dark !== false ? this.color : null,
+              dark: this.dark,
               value: this.model,
               disable: this.disable,
               readonly: this.readonly
@@ -9241,6 +9243,7 @@ var QDatetime = {
         error: this.error,
         warning: this.warning,
         disable: this.disable,
+        readonly: this.readonly,
         inverted: this.inverted,
         dark: this.dark,
         hideUnderline: this.hideUnderline,
@@ -9456,7 +9459,7 @@ var QWindowResizeObservable = {
   }
 }
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:[("text-" + (_vm.align))],attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(_vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (this.inverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:[("text-" + (_vm.align))],attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (this.inverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -9493,9 +9496,8 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         set: this.__set,
         loading: false,
         watched: false,
-        hasFocus: function () {
-          return document.activeElement === this$1.$refs.input
-        },
+        isDark: function () { return this$1.dark; },
+        hasFocus: function () { return document.activeElement === this$1.$refs.input; },
         register: function () {
           this$1.shadow.watched = true;
           this$1.__watcherRegister();
@@ -9504,9 +9506,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
           this$1.shadow.watched = false;
           this$1.__watcherUnregister();
         },
-        getEl: function () {
-          return this$1.$refs.input
-        }
+        getEl: function () { return this$1.$refs.input; }
       }
     }
   },
@@ -9550,10 +9550,10 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     inputType: function inputType () {
       if (this.isPassword) {
-        return this.showPass ? 'text' : 'password'
+        return this.showPass && this.editable ? 'text' : 'password'
       }
       return this.isNumber
-        ? (this.showNumber ? 'number' : 'text')
+        ? (this.showNumber || !this.editable ? 'number' : 'text')
         : this.type
     },
     length: function length () {
@@ -11401,10 +11401,7 @@ var QKnob = {
     TouchPan: TouchPan
   },
   props: {
-    value: {
-      type: Number,
-      required: true
-    },
+    value: Number,
     min: {
       type: Number,
       default: 0
@@ -11491,7 +11488,7 @@ var QKnob = {
         });
       }
       else {
-        this.model = this.computedDecimals
+        this.model = this.computedDecimals && typeof value$1 === 'number'
           ? parseFloat(value$1.toFixed(this.computedDecimals))
           : value$1;
       }
@@ -13334,9 +13331,12 @@ var QRange = {
   props: {
     value: {
       type: Object,
-      required: true,
+      default: function () { return ({
+        min: 0,
+        max: 0
+      }); },
       validator: function validator (value) {
-        return typeof value.min !== 'undefined' && typeof value.max !== 'undefined'
+        return value.hasOwnProperty('min') && value.hasOwnProperty('max')
       }
     },
     dragRange: Boolean,
@@ -13637,11 +13637,7 @@ var QRange = {
 var QRating = {
   name: 'q-rating',
   props: {
-    value: {
-      type: Number,
-      default: 0,
-      required: true
-    },
+    value: Number,
     max: {
       type: Number,
       default: 5
@@ -13689,7 +13685,8 @@ var QRating = {
   methods: {
     set: function set (value) {
       if (this.editable) {
-        this.model = between(parseInt(value, 10), 1, this.max);
+        var model = between(parseInt(value, 10), 1, this.max);
+        this.model = this.model === model ? 0 : model;
         this.mouseModel = 0;
       }
     },
@@ -13709,6 +13706,7 @@ var QRating = {
     var loop = function ( i ) {
       child.push(h(QIcon, {
         key: i,
+        ref: ("rt" + i),
         props: { name: this$1.icon || this$1.$q.icon.rating.icon },
         'class': {
           active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
@@ -13724,9 +13722,23 @@ var QRating = {
           mouseover: function () { return this$1.__setHoverValue(i); },
           mouseout: function () { this$1.mouseModel = 0; },
           keydown: function (e) {
-            if ([13, 32].includes(getEventKey(e))) {
-              stopAndPrevent(e);
-              this$1.set(i);
+            switch (getEventKey(e)) {
+              case 13:
+              case 32:
+                this$1.set(i);
+                return stopAndPrevent(e)
+              case 37: // LEFT ARROW
+              case 40: // DOWN ARROW
+                if (this$1.$refs[("rt" + (i - 1))]) {
+                  this$1.$refs[("rt" + (i - 1))].$el.focus();
+                }
+                return stopAndPrevent(e)
+              case 39: // RIGHT ARROW
+              case 38: // UP ARROW
+                if (this$1.$refs[("rt" + (i + 1))]) {
+                  this$1.$refs[("rt" + (i + 1))].$el.focus();
+                }
+                return stopAndPrevent(e)
             }
           },
           focus: function () { return this$1.__setHoverValue(i); },
@@ -14038,11 +14050,16 @@ var QSearch = {
       }]
     },
     controlAfter: function controlAfter () {
-      return this.after || [{
-        icon: this.$q.icon.search[("clear" + (this.inverted ? 'Inverted' : ''))],
-        content: true,
-        handler: this.clear
-      }]
+      if (this.after) {
+        return this.after
+      }
+      if (this.editable && this.clearable) {
+        return [{
+          icon: this.$q.icon.search[("clear" + (this.inverted ? 'Inverted' : ''))],
+          content: true,
+          handler: this.clear
+        }]
+      }
     }
   },
   methods: {
@@ -14062,6 +14079,7 @@ var QSearch = {
         autofocus: this.autofocus,
         placeholder: this.placeholder || this.$q.i18n.label.search,
         disable: this.disable,
+        readonly: this.readonly,
         error: this.error,
         warning: this.warning,
         align: this.align,
@@ -14108,7 +14126,7 @@ var optIcon = ref.icon;
 var optIconRight = ref.rightIcon;
 var optAvatar = ref.avatar;
 var optDisable = ref.disable;
-return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optDisable,"color":_vm.computedChipColor(optColor),"text-color":_vm.computedChipTextColor(optColor),"icon":optIcon,"iconRight":optIconRight,"avatar":optAvatar},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target q-if-control",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":opt.color || _vm.color,"keep-color":!!opt.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":opt.color || _vm.color,"keep-color":!!opt.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":opt.color || _vm.color,"keep-color":!!opt.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !optDisable,"color":_vm.computedChipColor(optColor),"text-color":_vm.computedChipTextColor(optColor),"icon":optIcon,"iconRight":optIconRight,"avatar":optAvatar},on:{"hide":function($event){_vm.__toggleMultiple(value, _vm.disable || optDisable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(label)+" ")])})):_c('div',{staticClass:"col row items-center q-input-target q-if-control",class:_vm.alignClass,domProps:{"innerHTML":_vm._s(_vm.actualValue)}}),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onFocus,"hide":_vm.__onClose}},[_c('q-field-reset',[(_vm.filter)?_c('q-search',{ref:"filter",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"icon":"filter_list"},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e()],1),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","color":opt.color || (_vm.dark !== false ? _vm.color : null),"dark":_vm.dark,"keep-color":!!opt.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","color":opt.color || (_vm.dark !== false ? _vm.color : null),"dark":_vm.dark,"keep-color":!!opt.color,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:{'text-faded': opt.disable},attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","color":opt.color || _vm.color,"keep-color":!!opt.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [FrameMixin],
   components: {
@@ -14253,14 +14271,14 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         case 32: // SPACE key
           stopAndPrevent(e);
           return this.show()
-        case 8: // Backspace key
+        case 8: // BACKSPACE key
           if (this.editable && this.clearable && this.actualValue.length) {
             this.clear();
           }
       }
     },
     __onFocus: function __onFocus () {
-      if (this.focused) {
+      if (this.disable || this.focused) {
         return
       }
       this.focused = true;
@@ -14346,15 +14364,17 @@ return _c('q-chip',{key:label,attrs:{"small":"","closable":!_vm.disable && !optD
         if (this.frameColor) {
           return this.color
         }
-        return this.dark !== false ? 'white' : null
+        return this.dark === false ? 'dark' : 'white'
       }
       return optColor || this.color
     },
     computedChipTextColor: function computedChipTextColor (optColor) {
       if (this.inverted) {
-        return optColor || this.frameColor || this.color
+        if (optColor || this.frameColor) {
+          return optColor || this.frameColor
+        }
+        return this.dark === false ? 'white' : optColor || this.color
       }
-      return this.dark !== false ? 'white' : null
     }
   }
 }
