@@ -893,6 +893,7 @@ input[type='search']::-webkit-search-decoration
 .q-alert-side, .q-alert-content
   padding 12px
   font-size 16px
+  word-break break-word
 .q-alert-side
   font-size 24px
   background rgba(0, 0, 0, .1)
@@ -2261,6 +2262,7 @@ maximized-modal()
   margin 10px 10px 0
   transition all 1s
   z-index $z-notify
+  max-width 100%
 .q-notification-
   &top-left-enter, &top-left-leave-to,
   &top-enter, &top-leave-to,
@@ -2483,7 +2485,7 @@ $radio-size = 21px
     opacity 0 !important
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
-.q-select-highlight
+body.desktop .q-select-highlight
   background rgba(0, 0, 0, .2) !important
 $slider-height              = 28px
 $slider-track-height        = 2px

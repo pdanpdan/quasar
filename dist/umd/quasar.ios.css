@@ -202,6 +202,7 @@ input[type='search']::-webkit-search-decoration {
 .q-alert-content {
   padding: 12px;
   font-size: 16px;
+  word-break: break-word;
 }
 .q-alert-side {
   font-size: 24px;
@@ -2209,6 +2210,7 @@ body.with-modal {
   -webkit-transition: all 1s;
   transition: all 1s;
   z-index: 9500;
+  max-width: 100%;
 }
 .q-notification-top-left-enter,
 .q-notification-top-left-leave-to,
@@ -2489,7 +2491,7 @@ body.with-modal {
 .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
 }
-.q-select-highlight {
+body.desktop .q-select-highlight {
   background: rgba(0,0,0,0.2) !important;
 }
 .q-slider-track,

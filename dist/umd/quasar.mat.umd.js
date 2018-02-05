@@ -1424,37 +1424,54 @@ function textStyle (n) {
     : {overflow: 'hidden', display: '-webkit-box', '-webkit-box-orient': 'vertical', '-webkit-line-clamp': n}
 }
 
-function itemClasses (prop) {
-  return {
-    'q-item': true,
-    'q-item-division': true,
-    'relative-position': true,
-    'q-item-dark': prop.dark,
-    'q-item-dense': prop.dense,
-    'q-item-sparse': prop.sparse,
-    'q-item-separator': prop.separator,
-    'q-item-inset-separator': prop.insetSeparator,
-    'q-item-multiline': prop.multiline,
-    'q-item-highlight': prop.highlight,
-    'q-item-link': prop.to || prop.link
-  }
-}
-
 var ItemMixin = {
   props: {
     dark: Boolean,
+
+    link: Boolean,
     dense: Boolean,
     sparse: Boolean,
     separator: Boolean,
     insetSeparator: Boolean,
     multiline: Boolean,
     highlight: Boolean,
+
+    icon: String,
+    rightIcon: String,
+    image: String,
+    rightImage: String,
+    avatar: String,
+    rightAvatar: String,
+    letter: String,
+    rightLetter: String,
+    label: String,
+    sublabel: String,
+    labelLines: [String, Number],
+    sublabelLines: [String, Number],
+
     tag: {
       type: String,
       default: 'div'
     }
+  },
+  computed: {
+    itemClasses: function itemClasses () {
+      return {
+        'q-item': true,
+        'q-item-division': true,
+        'relative-position': true,
+        'q-item-dark': this.dark,
+        'q-item-dense': this.dense,
+        'q-item-sparse': this.sparse,
+        'q-item-separator': this.separator,
+        'q-item-inset-separator': this.insetSeparator,
+        'q-item-multiline': this.multiline,
+        'q-item-highlight': this.highlight,
+        'q-item-link': this.to || this.link
+      }
+    }
   }
-};
+}
 
 var routerLinkEventName = 'qrouterlinkclick';
 
@@ -1497,7 +1514,7 @@ var QItem = {
   },
   computed: {
     classes: function classes () {
-      var cls = itemClasses(this.$props);
+      var cls = this.itemClasses;
       return this.to !== void 0
         ? cls
         : [{active: this.active}, cls]
@@ -4022,7 +4039,7 @@ var QAutocomplete = {
         this.results = this.filter(terms, this.staticData);
         var popover = this.$refs.popover;
         if (this.results.length) {
-          this.__keyboardShow();
+          this.__keyboardShow(this.$q.platform.is.desktop ? 0 : -1);
           if (popover.showing) {
             popover.reposition();
           }
@@ -4046,7 +4063,7 @@ var QAutocomplete = {
 
         if (Array.isArray(results) && results.length > 0) {
           this$1.results = results;
-          this$1.__keyboardShow();
+          this$1.__keyboardShow(this$1.$q.platform.is.desktop ? 0 : -1);
           this$1.$refs.popover.show();
           return
         }
@@ -6332,7 +6349,7 @@ var eventName = 'q:collapsible:close';
 
 var QCollapsible = {
   name: 'q-collapsible',
-  mixins: [ModelToggleMixin],
+  mixins: [ModelToggleMixin, ItemMixin],
   modelToggle: {
     history: false
   },
@@ -6345,57 +6362,14 @@ var QCollapsible = {
     indent: Boolean,
     group: String,
     iconToggle: Boolean,
-    separator: Boolean,
-    insetSeparator: Boolean,
     noRipple: Boolean,
     collapseIcon: String,
     opened: Boolean,
-
-    dense: Boolean,
-    sparse: Boolean,
-    multiline: Boolean,
-
-    icon: String,
-    rightIcon: String,
-    image: String,
-    rightImage: String,
-    avatar: String,
-    rightAvatar: String,
-    letter: String,
-    rightLetter: String,
-    label: String,
-    sublabel: String,
-    labelLines: [String, Number],
-    sublabelLines: [String, Number],
 
     headerStyle: [Array, String, Object],
     headerClass: [Array, String, Object]
   },
   computed: {
-    cfg: function cfg () {
-      return {
-        link: !this.iconToggle,
-
-        dark: this.dark,
-        dense: this.dense,
-        sparse: this.sparse,
-        multiline: this.multiline,
-
-        icon: this.icon,
-        rightIcon: this.rightIcon,
-        image: this.image,
-        rightImage: this.rightImage,
-        avatar: this.avatar,
-        rightAvatar: this.rightAvatar,
-        letter: this.letter,
-        rightLetter: this.rightLetter,
-
-        label: this.label,
-        sublabel: this.sublabel,
-        labelLines: this.labelLines,
-        sublabelLines: this.sublabelLines
-      }
-    },
     hasRipple: function hasRipple () {
       return "mat" === 'mat' && !this.noRipple && !this.disable
     },
@@ -6407,6 +6381,11 @@ var QCollapsible = {
         'q-item-inset-separator': this.insetSeparator,
         disabled: this.disable
       }
+    },
+    wrapperCfg: function wrapperCfg () {
+      return extend({}, this.$props, {
+        link: !this.iconToggle
+      })
     }
   },
   watch: {
@@ -6455,7 +6434,7 @@ var QCollapsible = {
     __getItemProps: function __getItemProps (wrapper) {
       return {
         props: wrapper
-          ? { cfg: this.cfg }
+          ? { cfg: this.wrapperCfg }
           : { link: !this.iconToggle },
         style: this.headerStyle,
         'class': this.headerClass,
