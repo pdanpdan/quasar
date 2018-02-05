@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.12
+ * Quasar Framework v0.15.0-beta.13
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -666,11 +666,13 @@ $table-transition               ?= .3s cubic-bezier(.25, .8, .5, 1)
 $table-border-radius            ?= $generic-border-radius
 $table-box-shadow               ?= $shadow-2
 $table-border-color             ?= rgba(0, 0, 0, .12)
+$table-background               ?= white
 $table-color                    ?= rgba(0, 0, 0, .87)
 $table-header-color             ?= rgba(0, 0, 0, .54)
 $table-hover-background         ?= rgba(0, 0, 0, .03)
 $table-selected-background      ?= rgba(0, 0, 0, .06)
 $table-dark-border-color        ?= rgba(255, 255, 255, .12)
+$table-dark-background          ?= $grey-10
 $table-dark-color               ?= white
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
@@ -1410,8 +1412,6 @@ $checkbox-size = 21px
     border 1px solid $light
   .q-color-inputs
     color $light
-.q-datetime-dark
-  background $dark
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime
@@ -1474,8 +1474,6 @@ body.desktop .q-datetime-col-wrapper
   width 100%
   backface-visibility hidden
   transform-origin center center -110px
-  .q-datetime-dark &
-    color rgba(255, 255, 255, .87)
 .q-datetime-mask
   position absolute
   top 0
@@ -1486,8 +1484,6 @@ body.desktop .q-datetime-col-wrapper
   width 100%
   background linear-gradient(to top, white, rgba(255, 255, 255, 0.0) 50%, white)
   pointer-events none
-  .q-datetime-dark &
-    background linear-gradient(to top, black, rgba(0, 0, 0, 0.0) 50%, black)
 .q-datetime-highlight
   height 36px
   position absolute
@@ -1509,6 +1505,12 @@ body.desktop .q-datetime-col-wrapper
       border-bottom-left-radius 0
   &.column > div + div
     margin-top $datetime-range-space
+.q-datetime-dark
+  background $dark
+  .q-datetime-item
+    color rgba(255, 255, 255, .87)
+  .q-datetime-mask
+    background linear-gradient(to top, black, rgba(0, 0, 0, 0.0) 50%, black)
 .q-dot
   position absolute
   top $dot-position-top
@@ -1941,6 +1943,10 @@ input.q-input-target
   z-index ($z-marginals + 1)
   height 100vh
   width 15px
+.q-page-sticky
+  pointer-events none
+  > span
+    pointer-events auto
 body
   &.q-layout-animate .q-layout-transition
     transition all .12s ease-in
@@ -2311,7 +2317,6 @@ maximized-modal()
   margin -5px
   padding 5px 0
 .q-pagination
-  display inline-flex
   input
     text-align center
   .q-btn
@@ -2478,6 +2483,8 @@ $radio-size = 21px
     opacity 0 !important
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
+.q-select-highlight
+  background rgba(0, 0, 0, .2) !important
 $slider-height              = 28px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px
@@ -3383,8 +3390,12 @@ body.desktop
   .q-uploader-files
     color white
     border 1px solid $field-dark-label-color
+  .q-uploader-bg
+    color white
+  .q-uploader-progress-text
+    opacity .2
   .q-uploader-file:not(:last-child)
-    border-bottom 1px solid $field-dark-label-color
+    border-bottom 1px solid $dark
 img
   &.responsive
     max-width 100%

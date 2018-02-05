@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-beta.12
+ * Quasar Framework v0.15.0-beta.13
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2033,6 +2033,12 @@ input.q-input-target {
   height: 100vh;
   width: 15px;
 }
+.q-page-sticky {
+  pointer-events: none;
+}
+.q-page-sticky > span {
+  pointer-events: auto;
+}
 body.q-layout-animate .q-layout-transition {
   -webkit-transition: all 0.12s ease-in;
   transition: all 0.12s ease-in;
@@ -2581,11 +2587,6 @@ body.with-modal {
   margin: -5px;
   padding: 5px 0;
 }
-.q-pagination {
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-}
 .q-pagination input {
   text-align: center;
 }
@@ -2785,6 +2786,9 @@ body.with-modal {
 }
 .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
+}
+.q-select-highlight {
+  background: rgba(0,0,0,0.2) !important;
 }
 .q-slider-track,
 .q-slider-mark {
@@ -3620,7 +3624,8 @@ body.mobile .q-tabs-scroller {
   background: rgba(0,0,0,0.03);
 }
 .q-table-dark {
-  color: #fff;
+  background: #212121;
+  color: #eee;
 }
 .q-table-dark .q-table-bottom,
 .q-table-dark .q-table-top {
@@ -3638,7 +3643,7 @@ body.mobile .q-tabs-scroller {
 }
 .q-table-dark th.sortable:hover,
 .q-table-dark th.sorted {
-  color: #fff;
+  color: #eee;
 }
 .q-table-dark tbody tr.selected {
   background: rgba(255,255,255,0.2);
@@ -4087,8 +4092,14 @@ body.desktop .q-tree-dark .q-tree-node-link:hover {
   color: #fff;
   border: 1px solid #a7a7a7;
 }
+.q-uploader-dark .q-uploader-bg {
+  color: #fff;
+}
+.q-uploader-dark .q-uploader-progress-text {
+  opacity: 0.2;
+}
 .q-uploader-dark .q-uploader-file:not(:last-child) {
-  border-bottom: 1px solid #a7a7a7;
+  border-bottom: 1px solid #424242;
 }
 img.responsive {
   max-width: 100%;

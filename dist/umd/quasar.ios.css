@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.0-beta.12
+ * Quasar Framework v0.15.0-beta.13
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -919,9 +919,6 @@ input[type='search']::-webkit-search-decoration {
 .q-color-dark .q-color-inputs {
   color: #bdbdbd;
 }
-.q-datetime-dark {
-  background: #424242;
-}
 .q-datetime-input {
   min-width: 70px;
 }
@@ -1008,9 +1005,6 @@ body.desktop .q-datetime-col-wrapper {
   -webkit-transform-origin: center center -110px;
           transform-origin: center center -110px;
 }
-.q-datetime-dark .q-datetime-item {
-  color: rgba(255,255,255,0.87);
-}
 .q-datetime-mask {
   position: absolute;
   top: 0;
@@ -1022,10 +1016,6 @@ body.desktop .q-datetime-col-wrapper {
   background: -webkit-gradient(linear, left bottom, left top, from(#fff), color-stop(50%, rgba(255,255,255,0)), to(#fff));
   background: linear-gradient(to top, #fff, rgba(255,255,255,0) 50%, #fff);
   pointer-events: none;
-}
-.q-datetime-dark .q-datetime-mask {
-  background: -webkit-gradient(linear, left bottom, left top, from(#000), color-stop(50%, rgba(0,0,0,0)), to(#000));
-  background: linear-gradient(to top, #000, rgba(0,0,0,0) 50%, #000);
 }
 .q-datetime-highlight {
   height: 36px;
@@ -1049,6 +1039,16 @@ body.desktop .q-datetime-col-wrapper {
 }
 .q-datetime-range.column > div + div {
   margin-top: 10px;
+}
+.q-datetime-dark {
+  background: #424242;
+}
+.q-datetime-dark .q-datetime-item {
+  color: rgba(255,255,255,0.87);
+}
+.q-datetime-dark .q-datetime-mask {
+  background: -webkit-gradient(linear, left bottom, left top, from(#000), color-stop(50%, rgba(0,0,0,0)), to(#000));
+  background: linear-gradient(to top, #000, rgba(0,0,0,0) 50%, #000);
 }
 .q-dot {
   position: absolute;
@@ -1718,6 +1718,12 @@ input.q-input-target {
   height: 100vh;
   width: 15px;
 }
+.q-page-sticky {
+  pointer-events: none;
+}
+.q-page-sticky > span {
+  pointer-events: auto;
+}
 body.q-layout-animate .q-layout-transition {
   -webkit-transition: all 0.12s ease-in;
   transition: all 0.12s ease-in;
@@ -2284,11 +2290,6 @@ body.with-modal {
   margin: -5px;
   padding: 5px 0;
 }
-.q-pagination {
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-}
 .q-pagination input {
   text-align: center;
 }
@@ -2487,6 +2488,9 @@ body.with-modal {
 }
 .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
+}
+.q-select-highlight {
+  background: rgba(0,0,0,0.2) !important;
 }
 .q-slider-track,
 .q-slider-mark {
@@ -3770,8 +3774,14 @@ body.desktop .q-tree-dark .q-tree-node-link:hover {
   color: #fff;
   border: 1px solid #bdbdbd;
 }
+.q-uploader-dark .q-uploader-bg {
+  color: #fff;
+}
+.q-uploader-dark .q-uploader-progress-text {
+  opacity: 0.2;
+}
 .q-uploader-dark .q-uploader-file:not(:last-child) {
-  border-bottom: 1px solid #bdbdbd;
+  border-bottom: 1px solid #424242;
 }
 img.responsive {
   max-width: 100%;
