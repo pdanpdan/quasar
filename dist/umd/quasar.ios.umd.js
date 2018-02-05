@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.13
+ * Quasar Framework v0.15.0-beta.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.0-beta.13";
+var version = "0.15.0-beta.14";
 
 function offset (el) {
   if (el === window) {
@@ -4282,8 +4282,7 @@ var QBreadcrumbsEl = {
   props: {
     label: String,
     icon: String,
-    color: String,
-    noRipple: Boolean
+    color: String
   },
   computed: {
     link: function link () {
@@ -5946,11 +5945,11 @@ var FrameMixin = {
       return !this.disable && !this.readonly
     },
     hasError: function hasError () {
-      return !!((this.field && this.field.error) || this.error)
+      return !!((!this.noParentField && this.field && this.field.error) || this.error)
     },
     hasWarning: function hasWarning () {
       // error is the higher priority
-      return !!(!this.hasError && ((this.field && this.field.warning) || this.warning))
+      return !!(!this.hasError && ((!this.noParentField && this.field && this.field.warning) || this.warning))
     }
   },
   methods: {
@@ -14331,9 +14330,6 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     },
     additionalLength: function additionalLength () {
       return this.displayValue && this.displayValue.length > 0
-    },
-    computedColor: function computedColor () {
-      return this.inverted ? this.frameColor || this.color : this.color
     }
   },
   methods: {
