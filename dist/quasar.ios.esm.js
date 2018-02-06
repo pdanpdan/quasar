@@ -2907,12 +2907,12 @@ var QBtn = {
 
       clearTimeout(this.timer);
 
-      if (this.isDisabled || this.repeated) {
-        this.repeated = 0;
-        return
-      }
-
       var trigger = function () {
+        if (this$1.isDisabled || this$1.repeated) {
+          this$1.__clearRepeat(0);
+          return
+        }
+
         this$1.removeFocus(e);
         if (this$1.loader !== false || this$1.$slots.loading) {
           this$1.loading = true;
@@ -2931,10 +2931,21 @@ var QBtn = {
         trigger();
       }
     },
-    startRepeat: function startRepeat (e) {
+    __clearRepeat: function __clearRepeat (delay) {
+      var this$1 = this;
+      if ( delay === void 0 ) delay = 500;
+
+      clearTimeout(this.clearTimer);
+      clearTimeout(this.timer);
+      this.clearTimer = setTimeout(function () { this$1.repeated = 0; }, delay);
+    },
+    __startRepeat: function __startRepeat (e) {
       var this$1 = this;
 
-      this.repeated = 0;
+      if (this.repeated) {
+        return
+      }
+      this.__clearRepeat(0);
 
       var setTimer = function () {
         this$1.timer = setTimeout(
@@ -2946,31 +2957,35 @@ var QBtn = {
       };
       var trigger = function () {
         if (this$1.hasNoRepeat || this$1.$slots.loading) {
+          this$1.__clearRepeat();
           return
         }
         this$1.repeated += 1;
+        e.repeatCount = this$1.repeated;
         this$1.$emit('click', e);
         setTimer();
       };
 
       setTimer();
     },
-    endRepeat: function endRepeat () {
-      clearTimeout(this.timer);
+    __endRepeat: function __endRepeat () {
+      this.__clearRepeat();
     }
   },
   beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.clearTimer);
     clearTimeout(this.timer);
   },
   render: function render (h) {
     var on = this.hasNoRepeat || this.$slots.loading
       ? {}
       : {
-        mousedown: this.startRepeat,
-        touchstart: this.startRepeat,
-        mouseup: this.endRepeat,
-        mouseleave: this.endRepeat,
-        touchend: this.endRepeat
+        mousedown: this.__startRepeat,
+        touchstart: this.__startRepeat,
+        mouseup: this.__endRepeat,
+        mouseleave: this.__endRepeat,
+        touchend: this.__endRepeat,
+        touchcancel: this.__endRepeat
       };
 
     on.click = this.click;
@@ -3860,14 +3875,14 @@ var QAlert = {
           ? h('div', {
             staticClass: 'q-alert-actions col-auto gutter-xs column flex-center'
           },
-          this.actions.map(function (action) { return h('div', [
+          this.actions.map(function (action) { return h('div', { staticClass: 'full-width' }, [
               h(QBtn, {
                 staticClass: 'full-width',
                 props: {
                   flat: true,
                   dense: true,
-                  icon: action.icon,
                   align: 'left',
+                  icon: action.icon,
                   label: action.closeBtn === true
                     ? (typeof action.label === 'string' ? action.label : this$1.$q.i18n.label.close)
                     : action.label
