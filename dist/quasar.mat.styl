@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.14
+ * Quasar Framework v0.15.7
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -52,7 +52,7 @@ $flex-gutter = {
   lg: $flex-gutter-lg,
   xl: $flex-gutter-xl
 }
-$sizes = {
+$sizes ?= {
   xs: 0,
   sm: $breakpoint-xs + 1, 
   md: $breakpoint-sm + 1, 
@@ -69,14 +69,16 @@ $breakpoint-lg-min = $sizes[lg]
 $breakpoint-lg-max = $breakpoint-lg
 $breakpoint-xl-min = $sizes[xl]
 $breakpoint-xl-max = 9999px
-$backdrop-opacity     ?= .3
-$backdrop-background  ?= rgba(0, 0, 0, $backdrop-opacity)
+$backdrop-opacity    ?= .3
+$backdrop-background ?= rgba(0, 0, 0, $backdrop-opacity)
+$router-link-active       ?= router-link-active
+$router-link-exact-active ?= router-link-exact-active
 $headings = {
   display-4: {
     size: 112px,
     weight: 300,
     opacity: .54,
-    line-height: 1,
+    line-height: $min-line-height,
     letter-spacing: -.04em
   },
   display-3: {
@@ -111,7 +113,7 @@ $headings = {
     size: 20px,
     weight: 500,
     opacity: .87
-    line-height: 1,
+    line-height: $min-line-height,
     letter-spacing: .02em
   },
   subheading: {
@@ -159,13 +161,15 @@ $negative  ?= #DB2828
 $info      ?= #31CCEC
 $warning   ?= #F2C037
 $white     ?= #fff
+$black     ?= #000
 $light     ?= #bdbdbd
 $dark      ?= #424242
 $faded     ?= #777
-$form-light ?= #a7a7a7
-$form-dark  ?= #979797
-$link-color          ?= lighten($primary, 25%)
-$link-color-active   ?= $primary
+$form-light    ?= #a7a7a7
+$form-dark     ?= #979797
+$form-autofill ?= #ff9800
+$link-color        ?= lighten($primary, 25%)
+$link-color-active ?= $primary
 $dimmed-background       ?= rgba(0, 0, 0, .4)
 $light-dimmed-background ?= rgba(255, 255, 255, .6)
 $red = #f44336
@@ -494,17 +498,17 @@ max(value1, value2)
   else
     value1
 $ios-statusbar-height ?= 20px
-$z-fab            ?= 990
-$z-side           ?= 1000
-$z-marginals      ?= 2000
-$z-fixed-drawer   ?= 3000
-$z-modal          ?= 5000
-$z-fullscreen     ?= 6000
-$z-top            ?= 7000
-$z-popover        ?= 8000
-$z-tooltip        ?= 9000
-$z-notify         ?= 9500
-$z-max            ?= 9998
+$z-fab          ?= 990
+$z-side         ?= 1000
+$z-marginals    ?= 2000
+$z-fixed-drawer ?= 3000
+$z-modal        ?= 5000
+$z-fullscreen   ?= 6000
+$z-top          ?= 7000
+$z-popover      ?= 8000
+$z-tooltip      ?= 9000
+$z-notify       ?= 9500
+$z-max          ?= 9998
 $shadow-color ?= black
 $shadow-transition ?= box-shadow .28s cubic-bezier(.4, 0, .2, 1)
 $inset-shadow = 0 7px 9px -7px alpha($shadow-color, .7) inset
@@ -561,8 +565,9 @@ $shadow-up-21 = 0 -10px 13px -6px $elevation-umbra, 0 -21px 33px 3px $elevation-
 $shadow-up-22 = 0 -10px 14px -6px $elevation-umbra, 0 -22px 35px 3px $elevation-penumbra, 0 -8px 42px 7px $elevation-ambient
 $shadow-up-23 = 0 -11px 14px -7px $elevation-umbra, 0 -23px 36px 3px $elevation-penumbra, 0 -9px 44px 8px $elevation-ambient
 $shadow-up-24 = 0 -11px 15px -7px $elevation-umbra, 0 -24px 38px 3px $elevation-penumbra, 0 -9px 46px 8px $elevation-ambient
-$generic-border-radius       ?= 2px
-$typography-font-family      ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
+$generic-border-radius      ?= 2px
+$typography-font-family     ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
+$min-line-height            ?= 1.12
 $action-sheet-background       ?= white
 $action-sheet-hover-background ?= #d0d0d0
 $alert-padding       ?= 12px
@@ -578,7 +583,7 @@ $breadcrumb-active    ?= darken($breadcrumb-hover, 15%)
 $button-border-radius         ?= $generic-border-radius
 $button-padding               ?= 4px 16px
 $button-dense-padding         ?= 4px
-$button-transition            ?= .12s ease-in
+$button-transition            ?= .3s cubic-bezier(.25, .8, .5, 1)
 $button-font-size             ?= 14px
 $button-font-weight           ?= 500
 $button-shadow                ?= $shadow-2
@@ -666,26 +671,26 @@ $table-transition               ?= .3s cubic-bezier(.25, .8, .5, 1)
 $table-border-radius            ?= $generic-border-radius
 $table-box-shadow               ?= $shadow-2
 $table-border-color             ?= rgba(0, 0, 0, .12)
-$table-background               ?= white
 $table-color                    ?= rgba(0, 0, 0, .87)
 $table-header-color             ?= rgba(0, 0, 0, .54)
 $table-hover-background         ?= rgba(0, 0, 0, .03)
 $table-selected-background      ?= rgba(0, 0, 0, .06)
 $table-dark-border-color        ?= rgba(255, 255, 255, .12)
-$table-dark-background          ?= $grey-10
 $table-dark-color               ?= $grey-3
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
 $input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
-$toolbar-color              ?= white
-$toolbar-background         ?= $primary
-$toolbar-min-height         ?= 50px
-$toolbar-padding            ?= 4px 12px
-$toolbar-title-font-size    ?= 18px
-$toolbar-subtitle-font-size ?= 12px
-$toolbar-title-font-weight  ?= 500
-$toolbar-title-padding      ?= 0 12px
+$toolbar-color               ?= white
+$toolbar-background          ?= $primary
+$toolbar-inverted-color      ?= $toolbar-background
+$toolbar-inverted-background ?= $toolbar-color
+$toolbar-min-height          ?= 50px
+$toolbar-padding             ?= 4px 12px
+$toolbar-title-font-size     ?= 18px
+$toolbar-subtitle-font-size  ?= 12px
+$toolbar-title-font-weight   ?= 500
+$toolbar-title-padding       ?= 0 12px
 $layout-aside-background   ?= white
 $layout-aside-left-width   ?= 300px
 $layout-aside-right-width  ?= 300px
@@ -727,11 +732,9 @@ $stepper-label-inactive-color  ?= rgba(0, 0, 0, .42)
 $stepper-hover-background      ?= rgba(0, 0, 0, .05)
 $stepper-pane-padding          ?= 16px
 $stepper-border-radius         ?= $generic-border-radius
-$tabs-padding                  ?= 14px 12px
-$tabs-padding-with-icon        ?= 8px 10px
+$tabs-padding                  ?= 8px
 $tabs-big-screen-horiz-padding ?= 25px
 $tabs-min-height               ?= 48px
-$tabs-min-height-with-icon     ?= 72px
 $tabs-big-screen-side-padding  ?= 12px
 $tabs-pane-padding             ?= 12px
 $tabs-color                    ?= $toolbar-color
@@ -845,15 +848,15 @@ input[type='search']::-webkit-search-decoration
 .q-loading-bar
   position fixed
   z-index $z-max
-  transition all .2s cubic-bezier(0, 0, .2, 1)
+  transition all .7s cubic-bezier(0, 0, .2, 1)
   &.top
-    left 0
-    right 0
+    left 0 /* rtl:ignore */
+    right 0 /* rtl:ignore */
     top 0
     width 100%
   &.bottom
-    left 0
-    right 0
+    left 0 /* rtl:ignore */
+    right 0 /* rtl:ignore */
     bottom 0
     width 100%
   &.right
@@ -892,8 +895,11 @@ input[type='search']::-webkit-search-decoration
     font-size 150%
 .q-breadcrumbs-el
   color inherit !important
+  text-decoration none
 .q-breadcrumbs-last a
   pointer-events none
+[dir=rtl] .q-breadcrumbs-separator .q-icon
+  transform scaleX(-1) /* rtl:ignore */
 .q-btn
   outline 0
   border 0
@@ -902,23 +908,23 @@ input[type='search']::-webkit-search-decoration
   -webkit-appearance button
   padding $button-padding
   font-size $button-font-size
-  font-weight $button-font-weight
   text-decoration none
   color inherit
-  min-height 2.572em
   background transparent
-  box-shadow $button-shadow
   transition $button-transition
+  min-height 2.572em
+  box-shadow $button-shadow
+  font-weight $button-font-weight
   text-transform uppercase
-  .q-icon
+  .q-icon, .q-spinner
     font-size 1.4em
-  .q-spinner
-    height 1.39em
-    width 1.39em
+  
+  .q-btn-inner:before
+    content ''
   &.disabled
     opacity .7 !important
   &:not(.disabled):not(.q-btn-flat):not(.q-btn-outline):not(.q-btn-push)
-    &:after
+    &:before
       
       
       
@@ -932,9 +938,7 @@ input[type='search']::-webkit-search-decoration
       border-radius inherit
       z-index -1
       transition $button-transition
-    &:active:after
-      
-      
+    &:active:before
       box-shadow $shadow-8
 .q-btn-progress
   transition all .3s
@@ -995,19 +999,28 @@ input[type='search']::-webkit-search-decoration
   border-radius $button-border-radius
   box-shadow $button-shadow
   vertical-align middle
+  > .q-btn-item
+    box-shadow none
   > .q-btn-group
-    box-shadow none
-  .q-btn
-    box-shadow none
-  .q-btn:not(:last-child)
+    > .q-btn:first-child
+      border-top-left-radius inherit
+      border-bottom-left-radius inherit
+    > .q-btn:last-child
+      border-top-right-radius inherit
+      border-bottom-right-radius inherit
+  > .q-btn-group:not(:first-child) > .q-btn:first-child
+    border-left 0
+  > .q-btn-group:not(:last-child) > .q-btn:last-child
+    border-right 0
+  > .q-btn-item:not(:last-child)
     border-top-right-radius 0
     border-bottom-right-radius 0
-  .q-btn + .q-btn
+  > .q-btn-item + .q-btn-item
     border-top-left-radius 0
     border-bottom-left-radius 0
 .q-btn-group-push
   border-radius $button-push-border-radius
-  .q-btn-push
+  > .q-btn-push
     .q-btn-inner
       transition $button-transition
     &:active:not(.disabled)
@@ -1020,11 +1033,9 @@ input[type='search']::-webkit-search-decoration
 .q-btn-group-flat, .q-btn-group-outline
   box-shadow none
 .q-btn-group-outline
-  .q-btn + .q-btn
+  > .q-btn-item + .q-btn-item
     border-left 0
-  .q-btn:not(:first-child)
-    border-left 0
-  .q-btn:not(:last-child)
+  > .q-btn-item:not(:last-child)
     border-right 0
 .q-card
   border-radius $generic-border-radius
@@ -1178,7 +1189,7 @@ input[type='search']::-webkit-search-decoration
 .q-message-text
   background currentColor
   padding $chat-message-text-padding
-  line-height 1.2
+  line-height max(1.2, $min-line-height)
   word-break break-word
   position relative
   transform translate3d(0, 0, 0)
@@ -1318,7 +1329,7 @@ $checkbox-size = 21px
     padding-right 0
   .q-card
     margin-bottom 0
-.q-collapsible.router-link-active > .q-item
+.q-collapsible.{$router-link-active} > .q-item
   background $collapsible-active-color
 .q-collapsible
   transition padding .5s
@@ -1357,22 +1368,14 @@ $checkbox-size = 21px
   box-shadow 0 0 0 1.5px white, inset 0 0 1px 1px rgba(0, 0, 0, .3), 0 0 1px 2px rgba(0, 0, 0, .4)
   border-radius 50%
   transform translate(-5px, -5px)
-.q-color-swatch:after, .q-color-alpha .q-slider-track
+.q-color-swatch, .q-color-alpha .q-slider-track
   background-image url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAH0lEQVQoU2NkYGAwZkAFZ5G5jPRRgOYEVDeB3EBjBQBOZwTVugIGyAAAAABJRU5ErkJggg==') !important
 .q-color-swatch
   position relative
   width 32px
   height 32px
   border-radius 50%
-  &:after
-    content ''
-    position absolute
-    left 0
-    right 0
-    top 0
-    bottom 0
-    border-radius $generic-border-radius
-    z-index -1
+  background white
 .q-color-hue .q-slider-track
   border-radius 2px
   background linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%) 
@@ -1414,23 +1417,27 @@ $checkbox-size = 21px
 .q-color-label
   padding-top 4px
 .q-color-dark
-  background $dark
+  background black
   border 1px solid $grey-9
   input
-    background $dark
+    background black
     color $light
-    border 1px solid $light
+    border 1px solid $dark
   .q-color-inputs
     color $light
+  .q-color-swatch
+    border 1px solid $dark
 .q-datetime-input
   min-width $datetime-input-min-width
 .q-datetime-controls
   padding 0 10px 8px
 .q-datetime
-  font-size 1rem
+  font-size 12px
   text-align center
   user-select none
   line-height initial
+  .modal-buttons
+    padding-top 8px
 .q-datetime-header
   background currentColor
   > div
@@ -1456,19 +1463,20 @@ div + .q-datetime-time
     opacity 1
 .q-datetime-clockstring
   font-size 2.7rem
+  direction: ltr /* rtl:ignore */
 .q-datetime-selector
   height 310px
   overflow auto
 .q-datetime-view-day
   width 250px
-  height 300px
+  height 285px
   color black
 .q-datetime-view-year, .q-datetime-view-month
   > .q-btn:not(.active)
     color black
+.q-datetime-month-stamp
+  font-size 16px
 .q-datetime-weekdays
-  font-size .75rem
-  margin-top 10px
   margin-bottom 5px
   div
     opacity .6
@@ -1481,19 +1489,20 @@ div + .q-datetime-time
     min-height 0
     background transparent
 .q-datetime-days div
-  font-size 12px
-  line-height 35px
-  width 35px
-  height 35px
+  margin 1px
+  line-height 33px
+  width 33px
+  height 33px
   border-radius 50%
   &.q-datetime-day-active
     background currentColor
     > span
       color white
+      font-weight bold
   &.q-datetime-day-today
     color currentColor
     font-weight bold
-    font-size 105%
+    font-size 14px
   &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
     background $grey-4
 .q-datetime-btn
@@ -1545,8 +1554,12 @@ div + .q-datetime-time
     min-height 0
     transform translate(-50%, -50%)
     background currentColor
+.q-datetime-arrow
+  color $grey-7
 .q-datetime-dark
   background $dark
+  .q-datetime-arrow
+    color $light
   .q-datetime-header, .q-datetime-clock
     background $grey-8
   .q-datetime-view-day
@@ -1555,7 +1568,7 @@ div + .q-datetime-time
     > .q-btn:not(.active)
       color white
   .q-datetime-days div
-    &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
+    &.q-datetime-day-active > span, &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
       color black
 body.desktop .q-datetime-clock-position:not(.active):hover
   background $grey-2 !important
@@ -1570,7 +1583,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover
   line-height 32px
   margin 0
   padding 0
-  transform translate(-50%, -50%)
+  transform translate(-50%, -50%) /* rtl:ignore */
   border-radius 50%
   &:not(.active)
     color black
@@ -1584,12 +1597,12 @@ for $pos in 0..12
   $degree = (270 + 30 * $pos)
   .q-datetime-clock-pos-{$pos}
     top round(((1 + sin($degree * 1deg)) * 100%) / 2, 2)
-    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2)
+    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2) /* rtl:ignore */
 for $pos in 0..23
   $degree = (270 + 15 * $pos)
   .q-datetime-clock-pos-{$pos}.fmt24
     top round(((1 + sin($degree * 1deg)) * 100%) / 2, 2)
-    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2)
+    left round(((1 + cos($degree * 1deg)) * 100%) / 2, 2) /* rtl:ignore */
 .q-datetime-range
   &.row
     .q-datetime-range-left
@@ -1833,8 +1846,7 @@ qfield-horizontal()
 .q-if
   min-height 32px
   outline 0
-  &:not(.q-if-hide-underline)
-    padding-bottom 8px
+  padding-bottom 8px
   &:not(.q-if-hide-underline):not(.q-if-inverted)
     &:before, &:after
       content ''
@@ -1856,16 +1868,22 @@ qfield-horizontal()
     color black
   .group
     margin -5px
+    &:not(:first-child)
+      margin-top 0
+.q-if-hide-underline:not(.q-if-inverted)
+  min-height 24px
+  padding-bottom 0
 .q-if-focusable
   outline 0
   cursor pointer
 .q-if-inner
   min-height 24px !important
+  align-items center
 .q-if-has-label
   min-height 41px
   .q-if-inner
-    min-height 34px !important
-    padding-top 15px
+    min-height 36px !important
+    padding-top 12px
 .q-if-label
   pointer-events none
   user-select none
@@ -1888,6 +1906,7 @@ qfield-horizontal()
 .q-if-control
   cursor pointer
   font-size 24px
+  align-self flex-end
   &.q-icon
     cursor pointer
   &:hover
@@ -1900,14 +1919,14 @@ qfield-horizontal()
 .q-if-inverted
   min-height 38px
   border-radius 2px
-  padding-top 8px
-  padding-left 8px
-  padding-right 8px
+  padding 8px
   box-shadow $shadow-1
   .q-input-target
     color inherit
   .q-if-label, .q-if-addon,  .q-if-control
     color #ddd
+div.q-input-target
+  min-width 35px
 .q-if-dark
   &:hover:before
     color white
@@ -1943,7 +1962,13 @@ qfield-horizontal()
     background-position bottom
     background-size 3px 1px
     background-repeat repeat-x
-@-webkit-keyframes autofill
+  &.q-if-dark:before
+    background-image linear-gradient(90deg, rgba(255, 255, 255, .7) 0, rgba(255, 255, 255, .7) 33%, transparent 0)
+@keyframes webkit-autofill-on
+  to
+    background transparent
+    color $form-autofill
+@keyframes webkit-autofill-off
   to
     background transparent
 .q-input-target, .q-input-shadow
@@ -1953,12 +1978,15 @@ qfield-horizontal()
   background transparent
   min-height 18px
   font-size inherit
-  overflow hidden
   resize none
   display flex
   align-items center
+  color black
   &:-webkit-autofill
-    -webkit-animation-name autofill
+    -webkit-animation-name webkit-autofill-on
+    -webkit-animation-fill-mode both
+  &.q-input-autofill:not(:-webkit-autofill)
+    -webkit-animation-name webkit-autofill-off
     -webkit-animation-fill-mode both
   &::-ms-clear, &::-ms-reveal
     display none
@@ -1967,40 +1995,49 @@ qfield-horizontal()
   &:invalid
     box-shadow inherit
 input.q-input-target
-  height 18px
+  height 19px
   outline 0
 .q-input-chips
   min-height 36px !important
-.q-if .q-input-target
-  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+.q-if
+  .q-input-target-placeholder
     color $form-dark !important
-  &::-moz-placeholder 
-    color $form-dark !important
-  &:-ms-input-placeholder 
-    color $form-dark !important
-  &::selection
-    background black
-    color white
-.q-if-dark .q-input-target
-  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+  .q-input-target
+    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+      color $form-dark !important
+    &::-moz-placeholder 
+      color $form-dark !important
+    &:-ms-input-placeholder 
+      color $form-dark !important
+    &::selection
+      background black
+      color white
+.q-if-dark
+  .q-input-target-placeholder
     color #979797 !important
-  &::-moz-placeholder 
-    color #979797 !important
-  &:-ms-input-placeholder 
-    color #979797 !important
-  &::selection
-    background white
-    color black
-.q-if-inverted:not(.q-if-inverted-light) .q-input-target
-  &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+  .q-input-target
+    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+      color #979797 !important
+    &::-moz-placeholder 
+      color #979797 !important
+    &:-ms-input-placeholder 
+      color #979797 !important
+    &::selection
+      background white
+      color black
+.q-if-inverted:not(.q-if-inverted-light)
+  .q-input-target-placeholder
     color #ddd !important
-  &::-moz-placeholder 
-    color #ddd !important
-  &:-ms-input-placeholder 
-    color #ddd !important
-  &::selection
-    background white
-    color black
+  .q-input-target
+    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
+      color #ddd !important
+    &::-moz-placeholder 
+      color #ddd !important
+    &:-ms-input-placeholder 
+      color #ddd !important
+    &::selection
+      background white
+      color black
 .q-input-shadow
   overflow hidden
   visibility hidden
@@ -2070,7 +2107,7 @@ input.q-input-target
   z-index ($z-marginals + 1)
   height 100vh
   width 15px
-.q-page-sticky
+.q-page-sticky-shrink
   pointer-events none
   > span
     pointer-events auto
@@ -2082,7 +2119,9 @@ body
   &.with-layout-drawer-opened-above
     overflow-x hidden
   &.cordova.platform-ios
-    .q-layout-header > .q-toolbar:first-child, .q-layout-drawer.top-padding
+    .q-layout-header > .q-toolbar:first-child,
+    .q-layout-header > .q-tabs:first-child .q-tabs-head
+    .q-layout-drawer.top-padding
       padding-top $ios-statusbar-height
       min-height ($toolbar-min-height + $ios-statusbar-height)
 .layout-padding
@@ -2155,7 +2194,7 @@ body
   text-align left
   padding ($item-padding / 2) $item-padding
   min-height $item-min-height
-  &.active, &.router-link-active, &:focus
+  &.active, &.{$router-link-active}, &:focus
     background $item-active-color
   &:focus
     outline 0
@@ -2224,7 +2263,7 @@ body
     color $item-content-secondary-text-dark-color
   .q-item
     color white
-    &.active, &.router-link-active, &:focus
+    &.active, &.{$router-link-active}, &:focus
       background $item-active-dark-color
 .q-list-dark
   border 1px solid $item-separator-dark-color
@@ -2460,6 +2499,10 @@ maximized-modal()
   overflow-y auto
   overflow-x hidden
   max-width $popover-max-width
+  > .q-list:only-child
+    border none
+body div .q-popover
+  display none
 .q-progress
   position relative
   height $progress-track-height
@@ -2897,23 +2940,22 @@ body.desktop .q-stepper-tab.step-done:hover
   min-height $tabs-min-height
   text-transform $tabs-text-transform
   > .q-icon + .q-tab-label
-    margin-top 7px
-  .q-tab-label
-    text-align center
-  &.icon-and-label:not(.hide-icon):not(.hide-label)
-    padding $tabs-padding-with-icon
-    min-height $tabs-min-height-with-icon
-  .q-tab-icon
-    font-size $tabs-icon-font-size
+    margin-top 4px
   .q-chip
     top 5px
     right 0
-    left initial
+    left auto
+    min-height auto
+    padding 2px 6px
     color white
     background alpha($dot-color, .75)
   &.active
     .q-tab-icon, .q-tab-label
       opacity 1
+.q-tab-label
+  text-align center
+.q-tab-icon
+  font-size $tabs-icon-font-size
 @media (max-width $breakpoint-sm-max)
   .q-tab
     &.hide-icon .q-tab-icon,
@@ -2926,7 +2968,7 @@ body.desktop .q-stepper-tab.step-done:hover
     .q-tabs-scroller, .q-tab
       flex 1 1 auto
 @media (min-width $breakpoint-lg-min)
-  .q-tab, .q-tab.icon-and-label:not(.hide-icon):not(.hide-label)
+  .q-tab
     padding-left $tabs-big-screen-horiz-padding
     padding-right $tabs-big-screen-horiz-padding
   .q-tabs-head:not(.scrollable)
@@ -2948,20 +2990,21 @@ body.desktop .q-stepper-tab.step-done:hover
   height 100%
   cursor pointer
   color white
+  top 0
   .q-icon
     text-shadow 0 0 10px black
     font-size (1.2 * $tabs-icon-font-size)
     visibility hidden
-  &:hover .q-icon
-    visibility visible
   &.disabled
     display none
+.q-tabs:hover
+  .q-tabs-left-scroll, .q-tabs-right-scroll
+    .q-icon
+      visibility visible
 .q-tabs-left-scroll
-  left 0
-  background linear-gradient(to left, transparent, rgba(255, 255, 255, .5))
+  left 0 /* rtl:ignore */
 .q-tabs-right-scroll
-  right 0
-  background linear-gradient(to right, transparent, rgba(255, 255, 255, .5))
+  right 0 /* rtl:ignore */
 .q-tabs-align-justify
   .q-tabs-scroller, .q-tab
     flex 1 1 auto
@@ -3008,10 +3051,6 @@ body.desktop .q-stepper-tab.step-done:hover
 .q-tabs-inverted
   .q-tabs-scroller
     color $tabs-background
-  .q-tabs-left-scroll
-    background linear-gradient(to left, transparent, rgba(0, 0, 0, .1))
-  .q-tabs-right-scroll
-    background linear-gradient(to right, transparent, rgba(0, 0, 0, .1))
   .q-tabs-head
     background transparent
   &.q-tabs-position-top
@@ -3033,10 +3072,11 @@ body.mobile .q-tabs-scroller
   border-radius $table-border-radius
   box-shadow $table-box-shadow
   position relative
-  background $table-background
+  &.fullscreen
+    background-color inherit
 .q-table-top
   min-height 64px
-  padding 4px 24px
+  padding 8px 24px
   &:before
     content ''
     position absolute
@@ -3047,15 +3087,19 @@ body.mobile .q-tabs-scroller
     left 0
     opacity .2
     transition $table-transition
+  .q-table-control
+    min-height 36px
+    padding 8px 0
+    flex-wrap wrap
+.q-table-title
+  font-size 20px
+  letter-spacing 0.005em
+  font-weight 400
 .q-table-separator
   min-width 8px !important
 .q-table-nodata .q-icon
   font-size 200%
   padding-right 15px
-.q-table-title
-  font-size 20px
-  letter-spacing .005em
-  font-weight 400
 .q-table-progress
   height 0 !important
   td
@@ -3069,8 +3113,13 @@ body.mobile .q-tabs-scroller
   max-width 100%
 .q-table-bottom
   min-height 48px
-  padding 0 14px 0 24px
+  padding 4px 14px 4px 24px
   font-size 12px
+  .q-table-control
+    min-height 24px
+.q-table-control
+  display flex
+  align-items center
 .q-table-sort-icon
   transition $table-transition
   will-change opacity, transform
@@ -3115,8 +3164,12 @@ body.mobile .q-tabs-scroller
     height 48px
     font-weight 400
     font-size 13px
+  .q-radial-ripple
+    margin-bottom -100%
 .q-table-col-auto-width
   width 1px
+.q-table-bottom-item
+  margin-right 24px
 .q-table-horizontal-separator
   thead, tbody td
     border-width 0 0 1px 0
@@ -3147,8 +3200,12 @@ table-dense()
   .q-table
     th, td
       padding 4px 8px
-    thead tr, tbody td
+    thead tr
+      height 40px
+    tbody td
       height 28px
+  .q-table-bottom-item
+    margin-right 8px
 .q-table-dense
   table-dense()
 @media (max-width $breakpoint-sm-max)
@@ -3170,7 +3227,6 @@ table-dense()
     &:hover
       background $table-hover-background
 .q-table-dark
-  background $table-dark-background
   color $table-dark-color
   .q-table-bottom, .q-table-top
     color $table-dark-header-color
@@ -3375,8 +3431,8 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
   color $toolbar-color
   background $toolbar-background
 .q-toolbar-inverted
-  color $toolbar-background
-  background transparent
+  color $toolbar-inverted-color
+  background $toolbar-inverted-background
 .q-toolbar-title
   flex 1
   min-width 1px
@@ -3469,15 +3525,22 @@ body.desktop
     pointer-events none
 .q-tree-icon
   font-size 1.5em
-.q-tree-arrow
-  font-size 1rem
-  width 1rem
-  height 1rem
 .q-tree-img
   height 3em
   &.avatar
     width 2em
     height 2em
+.q-tree-arrow
+  font-size 1rem
+  width 1rem
+  height 1rem
+.q-tree-arrow-rotate
+  transform rotate(90deg)
+[dir=rtl]
+  .q-tree-arrow
+    transform rotate(180deg) /* rtl:ignore */
+  .q-tree-arrow-rotate
+    transform rotate(90deg) /* rtl:ignore */
 .q-tree
   
   > .q-tree-node
@@ -3549,54 +3612,95 @@ img
   iframe, object, embed
     width 100%
     height 100%
+body
+  --q-color-primary   $primary
+  --q-color-secondary $secondary
+  --q-color-tertiary  $tertiary
+  --q-color-positive  $positive
+  --q-color-negative  $negative
+  --q-color-info      $info
+  --q-color-warning   $warning
+  --q-color-white     $white
+  --q-color-light     $light
+  --q-color-faded     $faded
+  --q-color-dark      $dark
+  --q-color-black     $black
 .text-primary
   color $primary !important
+  color var(--q-color-primary, $primary) !important
 .bg-primary
   background $primary !important
+  background var(--q-color-primary, $primary) !important
 .text-secondary
   color $secondary !important
+  color var(--q-color-secondary, $secondary) !important
 .bg-secondary
   background $secondary !important
+  background var(--q-color-secondary, $secondary) !important
 .text-tertiary
   color $tertiary !important
+  color var(--q-color-tertiary, $tertiary) !important
 .bg-tertiary
   background $tertiary !important
+  background var(--q-color-tertiary, $tertiary) !important
 .text-faded
   color $faded !important
+  color var(--q-color-faded, $faded) !important
 .bg-faded
   background $faded !important
+  background var(--q-color-faded, $faded) !important
 .text-positive
   color $positive !important
+  color var(--q-color-positive, $positive) !important
 .bg-positive
   background $positive !important
+  background var(--q-color-positive, $positive) !important
 .text-negative
   color $negative !important
+  color var(--q-color-negative, $negative) !important
 .bg-negative
   background $negative !important
+  background var(--q-color-negative, $negative) !important
 .text-info
   color $info !important
+  color var(--q-color-info, $info) !important
 .bg-info
   background $info !important
+  background var(--q-color-info, $info) !important
 .text-warning
   color $warning !important
+  color var(--q-color-warning, $warning) !important
 .bg-warning
   background $warning !important
+  background var(--q-color-warning, $warning) !important
 .text-white
-  color white !important
+  color $white !important
+  color var(--q-color-white, $white) !important
 .bg-white
-  background white !important
+  background $white !important
+  background var(--q-color-white, $white) !important
 .text-black
-  color black !important
+  color $black !important
+  color var(--q-color-black, $black) !important
 .bg-black
-  background black !important
+  background $black !important
+  background var(--q-color-black, $black) !important
 .text-light
   color $light !important
+  color var(--q-color-light, $light) !important
 .bg-light
   background $light !important
+  background var(--q-color-light, $light) !important
 .text-dark
   color $dark !important
+  color var(--q-color-dark, $dark) !important
 .bg-dark
   background $dark !important
+  background var(--q-color-dark, $dark) !important
+.text-transparent
+  color transparent !important
+.bg-transparent
+  background transparent !important
 .text-red
   color $red !important
 .text-red-1
@@ -4832,6 +4936,8 @@ for $name, $size in $sizes
     align-content flex-end
   &center
     align-content center
+  &stretch
+    align-content stretch
   &between
     align-content space-between
   &around
@@ -4938,15 +5044,15 @@ body.with-mixin-fullscreen
   animation q-highlight 2s
 @keyframes q-rotate
   0%
-    transform rotate(0)
+    transform rotate(0) /* rtl:ignore */
   25%
-    transform rotate(90deg)
+    transform rotate(90deg) /* rtl:ignore */
   50%
-    transform rotate(180deg)
+    transform rotate(180deg) /* rtl:ignore */
   75%
-    transform rotate(270deg)
+    transform rotate(270deg) /* rtl:ignore */
   100%
-    transform rotate(360deg)
+    transform rotate(360deg) /* rtl:ignore */
 .transition-generic
   transition all .3s
 .animate-spin, .animate-spin-reverse
@@ -4968,9 +5074,9 @@ body.with-mixin-fullscreen
     visibility hidden
 @keyframes q-spin
   0%
-    transform rotate(0deg)
+    transform rotate(0deg) /* rtl:ignore */
   100%
-    transform rotate(359deg)
+    transform rotate(359deg) /* rtl:ignore */
 @keyframes q-pop
   0%
     opacity 0
@@ -4999,6 +5105,28 @@ body.with-mixin-fullscreen
     transform translateY(-30px)
   60%
     transform translateY(-15px)
+.animate-popup-up, .animate-popup-down
+  animation-timing-function cubic-bezier(0.23, 1, 0.32, 1)
+.animate-popup-down
+  animation q-popup-down .42s
+  transform-origin left top 0px
+.animate-popup-up
+  animation q-popup-up .42s
+  transform-origin left bottom 0px
+@keyframes q-popup-down
+  0%
+    opacity 0
+    transform translateY(-20px) scaleY(.3)
+    pointer-events none
+  100%
+    opacity 1
+@keyframes q-popup-up
+  0%
+    opacity 0
+    transform translateY(20px) scaleY(.3)
+    pointer-events none
+  100%
+    opacity 1
 .animated
   animation-duration 1s
   animation-fill-mode both
@@ -5030,19 +5158,19 @@ body.with-mixin-fullscreen
 .cursor-inherit
   cursor inherit !important
 .rotate-45
-  transform rotate(45deg)
+  transform rotate(45deg) /* rtl:ignore */
 .rotate-90
-  transform rotate(90deg)
+  transform rotate(90deg) /* rtl:ignore */
 .rotate-135
-  transform rotate(135deg)
+  transform rotate(135deg) /* rtl:ignore */
 .rotate-180
-  transform rotate(180deg)
+  transform rotate(180deg) /* rtl:ignore */
 .rotate-205
-  transform rotate(205deg)
+  transform rotate(205deg) /* rtl:ignore */
 .rotate-270
-  transform rotate(270deg)
+  transform rotate(270deg) /* rtl:ignore */
 .rotate-315
-  transform rotate(315deg)
+  transform rotate(315deg) /* rtl:ignore */
 .flip-horizontal
   transform scale(-1, 1)
 .flip-vertical
@@ -5135,10 +5263,10 @@ body.with-mixin-fullscreen
     color inherit
     border-radius inherit
     position absolute
-    width 100%
-    height 100%
     left 0
     top 0
+    width 100%
+    height 100%
     overflow hidden
     z-index 0
     pointer-events none
@@ -5146,7 +5274,7 @@ body.with-mixin-fullscreen
     color inherit
     position absolute
     top 0
-    left 0
+    left 0 /* rtl:ignore */
     border-radius 50%
     background currentColor
     opacity 0
@@ -5248,16 +5376,6 @@ body
   background $body-background
   color $body-color
   min-height 100vh
-a
-  color $link-color
-  text-decoration none
-  cursor pointer
-  outline 0
-  transition color .25s
-  &:hover
-    color $link-color-active
-  &:active, &:hover
-    outline-width 0
 for $heading, $value in $h-tags
   {$heading}
     font-size: $value.size
@@ -5470,26 +5588,30 @@ for type in desktop mobile cordova electron ios mat touch within-iframe platform
 .q-focus-helper
   position absolute
   top 0
-  right 0
-  bottom 0
-  left 0
+  left 0 /* rtl:ignore */
+  width 100%
+  height 100%
   pointer-events none
   border-radius inherit
-  background currentColor
-  opacity 0
-  transition opacity .12s ease-in
-.q-focusable:focus, body.no-touch .q-hoverable:hover, body.touch .q-hoverable:active
-  .q-focus-helper
-    opacity .15
-body.ios .q-hoverable:active .q-focus-helper
-  opacity .3
+  opacity .15
+  transition background-color .3s cubic-bezier(.25, .8, .5, 1)
+body
+  &.desktop
+    .q-focusable:focus, .q-hoverable:hover
+      .q-focus-helper
+        background currentColor
+  &.ios .q-hoverable:active .q-focus-helper
+    background currentColor
+    opacity .3
 ie_style = @block
   
-  .absolute .q-if-inner, .fixed .q-if-inner
-    min-width 10em
+  .absolute, .fixed
+    .q-if-inner, .q-input-target
+      min-width auto
+      flex-basis auto
+  .q-if-inner
+    height 0
   
-  .q-alert-container
-    max-width 100%
   .row > .col
     &.q-alert-content
       flex-basis auto
@@ -5498,38 +5620,37 @@ ie_style = @block
     > .q-chip.inline.row
       display -ms-inline-grid
   
-  .q-btn.row
-    &:not(.q-btn-round)
-      &.inline
-        display inline-block
-      &.block
-        display block
+  .q-btn
     &:active
       .q-btn-inner
         margin -1px 1px 1px -1px
-      &.q-btn-push .q-btn-inner
-        margin 0 1px 0 -1px
+      &.q-btn-push
+        .q-btn-inner
+          margin 0 1px 0 -1px
+        &.disabled
+          .q-btn-inner
+            margin -1px 1px 1px -1px
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner
+    margin 0
   
   .q-chip
     .q-chip-main
       line-height $chip-height
-    &.small .q-chip-main
+    &.q-chip-small .q-chip-main
       line-height normal
-  .q-btn
-    .q-chip
-      display inline-block
-      .q-chip-main
-        line-height normal
-  .q-tab
-    .q-chip
-      left auto
+  .q-btn .q-chip
+    display inline-block
+  .q-tab .q-chip .q-chip-main
+    line-height normal
   
   .q-fab-actions
     &.q-fab-left
     &.q-fab-right
       display block
       white-space nowrap
-      top -6px
+  
+  .q-item-main
+    flex 1 1 100%
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
   {ie_style}
 @supports (-ms-ime-align:auto)

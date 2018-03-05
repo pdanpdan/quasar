@@ -31,11 +31,17 @@ export default {
   table: {
     noData: 'Sin datos disponibles',
     noResults: 'No se econtraron resultados',
-    loader: 'Cargando...',
-    selectedRows: rows => rows > 1 ? `${rows} filas seleccionadas.` : `${rows === 0 ? 'Sin' : '1'} fila seleccionada.`,
+    loading: 'Cargando...',
+    selectedRows: function (rows) {
+      return rows > 1
+        ? rows + ' filas seleccionadas.'
+        : (rows === 0 ? 'Sin' : '1') + ' fila seleccionada.'
+    },
     rowsPerPage: 'Filas por página:',
     allRows: 'Todas',
-    pagination: (start, end, total) => `${start}-${end} de ${total}`,
+    pagination: function (start, end, total) {
+      return start + '-' + end + ' de ' + total
+    },
     columns: 'Columnas'
   },
   editor: {

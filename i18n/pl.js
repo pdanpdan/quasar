@@ -31,11 +31,17 @@ export default {
   table: {
     noData: 'Brak dostępnych danych',
     noResults: 'Nie znaleziono pasujących wpisów',
-    loader: 'Ładowanie...',
-    selectedRows: rows => rows > 1 ? `${rows} zaznaczony(ch) wiersz(y).` : `${rows === 0 ? 'Brak' : '1'} zaznaczony wiersz.`,
+    loading: 'Ładowanie...',
+    selectedRows: function (rows) {
+      return rows > 1
+        ? rows + ' zaznaczony(ch) wiersz(y).'
+        : (rows === 0 ? 'Brak' : '1') + ' zaznaczony wiersz.'
+    },
     rowsPerPage: 'Wierszy na stronę:',
     allRows: 'Wszystkie',
-    pagination: (start, end, total) => `${start}-${end} z ${total}`,
+    pagination: function (start, end, total) {
+      return start + '-' + end + ' z ' + total
+    },
     columns: 'Kolumny'
   },
   editor: {

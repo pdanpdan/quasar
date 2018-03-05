@@ -31,11 +31,17 @@ export default {
   table: {
     noData: 'Tidak ada data tersedia',
     noResults: 'Tidak ada yang cocok',
-    loader: 'Memuat...',
-    selectedRows: rows => rows > 1 ? `${rows} baris terpilih.` : `${rows === 0 ? 'tidak ada' : '1'} baris terpilih.`,
+    loading: 'Memuat...',
+    selectedRows: function (rows) {
+      return rows > 1
+        ? rows + ' baris terpilih.'
+        : (rows === 0 ? 'tidak ada' : '1') + ' baris terpilih.'
+    },
     rowsPerPage: 'Baris per halaman:',
     allRows: 'Semua',
-    pagination: (start, end, total) => `${start}-${end} dari ${total}`,
+    pagination: function (start, end, total) {
+      return start + '-' + end + ' dari ' + total
+    },
     columns: 'Kolom'
   },
   editor: {

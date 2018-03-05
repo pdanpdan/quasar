@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.14
+ * Quasar Framework v0.15.7
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -576,6 +576,41 @@ var Promise = Object.freeze({
 });
 
 /* eslint-disable no-extend-native */
+
+function assign (target, firstSource) {
+  var arguments$1 = arguments;
+
+  if (target === undefined || target === null) {
+    throw new TypeError('Cannot convert first argument to object')
+  }
+
+  var to = Object(target);
+  for (var i = 1; i < arguments.length; i++) {
+    var nextSource = arguments$1[i];
+    if (nextSource === undefined || nextSource === null) {
+      continue
+    }
+
+    var keysArray = Object.keys(Object(nextSource));
+    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+      var nextKey = keysArray[nextIndex];
+      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+      if (desc !== undefined && desc.enumerable) {
+        to[nextKey] = nextSource[nextKey];
+      }
+    }
+  }
+  return to
+}
+
+if (!Object.assign) {
+  Object.defineProperty(Object, 'assign', {
+    enumerable: false,
+    configurable: true,
+    writable: true,
+    value: assign
+  });
+}
 
 if (window && !window.Promise) {
   window.Promise = Promise;

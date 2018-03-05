@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.0-beta.14
+ * Quasar Framework v0.15.7
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.0-beta.14";
+var version = "0.15.7";
 
 function offset (el) {
   if (el === window) {
@@ -251,18 +251,16 @@ function getPlatform () {
   browser.name = matched.browser;
   browser.platform = matched.platform;
 
-  if (window && window.process && window.process.versions && window.process.versions.electron) {
-    browser.electron = true;
-  }
-  else if (document.location.href.indexOf('chrome-extension://') === 0) {
-    browser.chromeExt = true;
-  }
-  else if (
-    window._cordovaNative ||
-    window.cordova ||
-    document.location.href.indexOf('http://') === -1
-  ) {
-    browser.cordova = true;
+  if (!isSSR) {
+    if (window.process && window.process.versions && window.process.versions.electron) {
+      browser.electron = true;
+    }
+    else if (document.location.href.indexOf('chrome-extension://') === 0) {
+      browser.chromeExt = true;
+    }
+    else if (window._cordovaNative || window.cordova) {
+      browser.cordova = true;
+    }
   }
 
   return browser
@@ -348,8 +346,10 @@ var History = {
 }
 
 /* eslint-disable no-extend-native, one-var, no-self-compare */
+
 if (!Array.prototype.includes) {
   Array.prototype.includes = function (searchEl, startFrom) {
+
     var O = Object(this);
     var len = parseInt(O.length, 10) || 0;
     if (len === 0) {
@@ -487,11 +487,17 @@ var langEn = {
   table: {
     noData: 'No data available',
     noResults: 'No matching records found',
-    loader: 'Loading...',
-    selectedRows: function (rows) { return rows > 0 ? (rows + " row" + (rows === 1 ? '' : 's') + " selected.") : 'No selected rows.'; },
+    loading: 'Loading...',
+    selectedRows: function (rows) {
+      return rows === 1
+        ? '1 selected row.'
+        : (rows === 0 ? 'No' : rows) + ' selected rows.'
+    },
     rowsPerPage: 'Rows per page:',
     allRows: 'All',
-    pagination: function (start, end, total) { return (start + "-" + end + " of " + total); },
+    pagination: function (start, end, total) {
+      return start + '-' + end + ' of ' + total
+    },
     columns: 'Columns'
   },
   editor: {
@@ -559,8 +565,24 @@ var i18n = {
       if ( lang === void 0 ) lang = langEn;
 
       lang.set = this$1.set;
+      lang.getLocale = this$1.getLocale;
+      lang.rtl = lang.rtl || false;
 
-      Vue$$1.set($q, 'i18n', lang);
+      if (!isSSR) {
+        ready(function () {
+          var el = document.documentElement;
+          el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr');
+          el.setAttribute('lang', lang.lang);
+        });
+      }
+
+      if ($q.i18n) {
+        $q.i18n = lang;
+      }
+      else {
+        Vue$$1.util.defineReactive($q, 'i18n', lang);
+      }
+
       this$1.name = lang.lang;
       this$1.lang = lang;
     };
@@ -582,7 +604,7 @@ var i18n = {
   }
 }
 
-var iconMaterial = {
+var materialIcons = {
   name: 'material',
   type: {
     positive: 'check_circle',
@@ -746,11 +768,17 @@ var icons = {
     this.__installed = true;
 
     this.set = function (iconDef) {
-      if ( iconDef === void 0 ) iconDef = iconMaterial;
+      if ( iconDef === void 0 ) iconDef = materialIcons;
 
       iconDef.set = this$1.set;
 
-      Vue$$1.set($q, 'icon', iconDef);
+      if ($q.icon) {
+        $q.icon = iconDef;
+      }
+      else {
+        Vue$$1.util.defineReactive($q, 'icon', iconDef);
+      }
+
       this$1.name = iconDef.name;
       this$1.def = iconDef;
     };
@@ -759,7 +787,7 @@ var icons = {
   }
 }
 
-function addBodyClasses () {
+function bodyInit () {
   var cls = [
     "mat",
     Platform.is.desktop ? 'desktop' : 'mobile',
@@ -771,7 +799,17 @@ function addBodyClasses () {
   Platform.is.cordova && cls.push('cordova');
   Platform.is.electron && cls.push('electron');
 
-  document.body.classList.add.apply(document.body.classList, cls);
+  if (Platform.is.ie && Platform.is.versionNumber === 11) {
+    cls.forEach(function (c) { return document.body.classList.add(c); });
+  }
+  else {
+    document.body.classList.add.apply(document.body.classList, cls);
+  }
+
+  if (Platform.is.ios) {
+    // needed for iOS button active state
+    document.body.addEventListener('touchstart', function () {});
+  }
 }
 
 function install (_Vue, opts) {
@@ -794,8 +832,7 @@ function install (_Vue, opts) {
   icons.install({ $q: $q, Vue: _Vue, iconSet: opts.iconSet });
 
   if (!isSSR) {
-    // inject body classes
-    ready(addBodyClasses);
+    ready(bodyInit);
   }
 
   if (opts.directives) {
@@ -862,9 +899,10 @@ var EscapeKey = {
   }
 }
 
-var toString = Object.prototype.toString;
-var hasOwn = Object.prototype.hasOwnProperty;
-var class2type = {};
+var
+  toString = Object.prototype.toString,
+  hasOwn = Object.prototype.hasOwnProperty,
+  class2type = {};
 
 'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
   class2type['[object ' + name + ']'] = name.toLowerCase();
@@ -948,6 +986,7 @@ function extend () {
 }
 
 /* eslint prefer-promise-reject-errors: 0 */
+
 var ModelToggleMixin = {
   props: {
     value: Boolean
@@ -1089,6 +1128,7 @@ function additionalCSS (position) {
   if (['left', 'right'].includes(position)) {
     css.maxWidth = '90vw';
   }
+
   return css
 }
 
@@ -1198,7 +1238,9 @@ var QModal = {
       var body = document.body;
 
       body.appendChild(this.$el);
-      body.classList.add('with-modal');
+      if (openedModalNumber === 0) {
+        body.classList.add('with-modal');
+      }
 
       EscapeKey.register(function () {
         if (!this$1.noEscDismiss) {
@@ -1223,9 +1265,7 @@ var QModal = {
       openedModalNumber--;
 
       if (openedModalNumber === 0) {
-        var body = document.body;
-
-        body.classList.remove('with-modal');
+        document.body.classList.remove('with-modal');
       }
     }
   },
@@ -1493,7 +1533,10 @@ var RouterLinkMixin = {
     to: [String, Object],
     exact: Boolean,
     append: Boolean,
-    replace: Boolean
+    replace: Boolean,
+    event: [String, Array],
+    activeClass: String,
+    exactActiveClass: String
   },
   data: function data () {
     return {
@@ -1683,6 +1726,11 @@ var QItemTile = {
     sublabel: Boolean,
     lines: [Number, String],
 
+    tag: {
+      type: String,
+      default: 'div'
+    },
+
     color: String,
     textColor: String // only for inverted icon/letter
   },
@@ -1736,7 +1784,7 @@ var QItemTile = {
       data.props = { name: this.icon };
     }
 
-    return h(this.icon ? QIcon : 'div', data, [ this.$slots.default ])
+    return h(this.icon ? QIcon : this.tag, data, [ this.$slots.default ])
   }
 }
 
@@ -1782,7 +1830,9 @@ var QItemWrapper = {
       color: cfg.leftColor,
       avatar: cfg.avatar,
       letter: cfg.letter,
-      image: cfg.image
+      image: cfg.image,
+      inverted: cfg.leftInverted,
+      textColor: cfg.leftTextColor
     });
 
     push(child, h, QItemMain, this.$slots.main, replace, {
@@ -1800,7 +1850,9 @@ var QItemWrapper = {
       avatar: cfg.rightAvatar,
       letter: cfg.rightLetter,
       image: cfg.rightImage,
-      stamp: cfg.stamp
+      stamp: cfg.stamp,
+      inverted: cfg.rightInverted,
+      textColor: cfg.rightTextColor
     });
 
     child.push(this.$slots.default);
@@ -1883,7 +1935,6 @@ var QActionSheet = {
   },
   computed: {
     contentCss: function contentCss () {
-      
     }
   },
   render: function render (h) {
@@ -1953,9 +2004,11 @@ var QActionSheet = {
     },
     __getActions: function __getActions (h) {
       var this$1 = this;
-      var obj;
 
-      return this.actions.map(function (action) { return action.label
+      return this.actions.map(function (action) {
+        var obj;
+
+        return action.label
         ? h(this$1.grid ? 'div' : QItem, ( obj = {
           staticClass: this$1.grid
             ? 'q-actionsheet-grid-item cursor-pointer relative-position column inline flex-center'
@@ -1978,7 +2031,8 @@ var QActionSheet = {
             h(QItemMain, { props: { inset: true, label: action.label } })
           ]
         )
-        : h(QItemSeparator, { staticClass: 'col-12' }); }
+        : h(QItemSeparator, { staticClass: 'col-12' });
+      }
       )
     },
     __onOk: function __onOk (action) {
@@ -2006,7 +2060,7 @@ var units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
 function humanStorageSize (bytes) {
   var u = 0;
 
-  while (Math.abs(bytes) >= 1024 && u < units.length - 1) {
+  while (parseInt(bytes, 10) >= 1024 && u < units.length - 1) {
     bytes /= 1024;
     ++u;
   }
@@ -2059,8 +2113,9 @@ var format = Object.freeze({
 	pad: pad
 });
 
-var xhr = isSSR ? null : XMLHttpRequest;
-var send = isSSR ? null : xhr.prototype.send;
+var
+  xhr = isSSR ? null : XMLHttpRequest,
+  send = isSSR ? null : xhr.prototype.send;
 
 function translate (ref) {
   var p = ref.p;
@@ -2068,6 +2123,7 @@ function translate (ref) {
   var active = ref.active;
   var horiz = ref.horiz;
   var reverse = ref.reverse;
+  var dir = ref.dir;
 
   var x = 1, y = 1;
 
@@ -2080,7 +2136,7 @@ function translate (ref) {
   if (reverse) { y = -1; }
   if (pos === 'right') { x = -1; }
 
-  return cssTransform(("translate3d(" + (active ? 0 : x * -200) + "%, " + (y * (p - 100)) + "%, 0)"))
+  return cssTransform(("translate3d(" + (active ? 0 : dir * x * -200) + "%, " + (y * (p - 100)) + "%, 0)"))
 }
 
 function inc (p, amount) {
@@ -2167,19 +2223,23 @@ var QAjaxBar = {
     classes: function classes () {
       return [
         this.position,
-        { 'no-trantion': this.animate }
+        this.animate ? '' : 'no-transition'
       ]
     },
     innerClasses: function innerClasses () {
       return ("bg-" + (this.color))
     },
     style: function style$$1 () {
+      var reverse = this.$q.i18n.rtl && ['top', 'bottom'].includes(this.position)
+        ? !this.reverse
+        : this.reverse;
       var o = translate({
         p: this.progress,
         pos: this.position,
         active: this.active,
         horiz: this.horizontal,
-        reverse: this.reverse
+        reverse: reverse,
+        dir: this.$q.i18n.rtl ? -1 : 1
       });
       o[this.sizeProp] = this.size;
       return o
@@ -2384,9 +2444,10 @@ function targetElement (e) {
 }
 
 // Reasonable defaults
-var PIXEL_STEP = 10;
-var LINE_HEIGHT = 40;
-var PAGE_HEIGHT = 800;
+var
+  PIXEL_STEP = 10,
+  LINE_HEIGHT = 40,
+  PAGE_HEIGHT = 800;
 
 function getMouseWheelDistance (e) {
   if ( e === void 0 ) e = window.event;
@@ -2582,7 +2643,17 @@ var AlignMixin = {
 }
 
 var sizes = {
-  xs: 8, sm: 10, md: 14, lg: 20, xl: 24
+  xs: 8,
+  sm: 10,
+  md: 14,
+  lg: 20,
+  xl: 24,
+  form: 12.446,
+  'form-label': 17.11,
+  'form-hide-underline': 9.335,
+  'form-label-hide-underline': 14,
+  'form-inverted': 15.555,
+  'form-label-inverted': 20.22
 };
 
 var BtnMixin = {
@@ -2594,6 +2665,7 @@ var BtnMixin = {
     Ripple: Ripple
   },
   props: {
+    loading: Boolean,
     disable: Boolean,
     label: [Number, String],
     noCaps: Boolean,
@@ -2637,6 +2709,9 @@ var BtnMixin = {
     },
     hasRipple: function hasRipple () {
       return "mat" === 'mat' && !this.noRipple && !this.isDisabled
+    },
+    computedTabIndex: function computedTabIndex () {
+      return this.isDisabled ? -1 : this.tabindex || 0
     },
     classes: function classes () {
       var cls = [ this.shape ];
@@ -2689,18 +2764,9 @@ var BtnMixin = {
     },
     innerClasses: function innerClasses () {
       var classes = [ this.alignClass ];
-      if (this.noWrap) {
-        classes.push('no-wrap', 'text-no-wrap');
-      }
+      this.noWrap && classes.push('no-wrap', 'text-no-wrap');
+      this.repeating && classes.push('non-selectable');
       return classes
-    }
-  },
-  methods: {
-    removeFocus: function removeFocus (e) {
-      // if is touch enabled and focus was received from pointer
-      if (this.$q.platform.has.touch && e.detail) {
-        this.$el.blur();
-      }
     }
   }
 }
@@ -2836,25 +2902,10 @@ var QBtn = {
   name: 'q-btn',
   mixins: [BtnMixin],
   props: {
-    value: Boolean,
-    loader: Boolean,
     percentage: Number,
     darkPercentage: Boolean,
     waitForRipple: Boolean,
     repeatTimeout: [Number, Function]
-  },
-  data: function data () {
-    return {
-      loading: this.value || false,
-      repeated: 0
-    }
-  },
-  watch: {
-    value: function value (val) {
-      if (this.loading !== val) {
-        this.loading = val;
-      }
-    }
   },
   computed: {
     hasPercentage: function hasPercentage () {
@@ -2863,105 +2914,106 @@ var QBtn = {
     width: function width () {
       return ((between(this.percentage, 0, 100)) + "%")
     },
-    hasNoRepeat: function hasNoRepeat () {
-      return this.isDisabled || !this.repeatTimeout || this.loader !== false
+    events: function events () {
+      return this.isDisabled || !this.repeatTimeout
+        ? { click: this.click }
+        : {
+          mousedown: this.__startRepeat,
+          touchstart: this.__startRepeat,
+
+          mouseup: this.__endRepeat,
+          touchend: this.__endRepeat,
+
+          mouseleave: this.__abortRepeat,
+          touchmove: this.__abortRepeat
+        }
+    }
+  },
+  data: function data () {
+    return {
+      repeating: false
     }
   },
   methods: {
     click: function click (e) {
       var this$1 = this;
 
-      clearTimeout(this.timer);
+      this.__cleanup();
 
       var trigger = function () {
-        if (this$1.isDisabled || this$1.repeated) {
-          this$1.__clearRepeat(0);
+        if (this$1.isDisabled) {
           return
         }
 
-        this$1.removeFocus(e);
-        if (this$1.loader !== false || this$1.$slots.loading) {
-          this$1.loading = true;
-          this$1.$emit('input', true);
-        }
-        this$1.$emit('click', e, function () {
-          this$1.loading = false;
-          this$1.$emit('input', false);
-        });
+        this$1.$emit('click', e);
       };
 
       if (this.waitForRipple && this.hasRipple) {
-        this.timer = setTimeout(trigger, 350);
+        this.timer = setTimeout(trigger, 300);
       }
       else {
         trigger();
       }
     },
-    __clearRepeat: function __clearRepeat (delay) {
-      var this$1 = this;
-      if ( delay === void 0 ) delay = 500;
-
-      clearTimeout(this.clearTimer);
+    __cleanup: function __cleanup () {
       clearTimeout(this.timer);
-      this.clearTimer = setTimeout(function () { this$1.repeated = 0; }, delay);
     },
     __startRepeat: function __startRepeat (e) {
       var this$1 = this;
-
-      if (this.repeated) {
-        return
-      }
-      this.__clearRepeat(0);
 
       var setTimer = function () {
         this$1.timer = setTimeout(
           trigger,
           typeof this$1.repeatTimeout === 'function'
-            ? this$1.repeatTimeout(this$1.repeated)
+            ? this$1.repeatTimeout(this$1.repeatCount)
             : this$1.repeatTimeout
         );
       };
       var trigger = function () {
-        if (this$1.hasNoRepeat || this$1.$slots.loading) {
-          this$1.__clearRepeat();
+        if (this$1.isDisabled) {
           return
         }
-        this$1.repeated += 1;
-        e.repeatCount = this$1.repeated;
+        this$1.repeatCount += 1;
+        e.repeatCount = this$1.repeatCount;
         this$1.$emit('click', e);
         setTimer();
       };
 
+      this.repeatCount = 0;
+      this.repeating = true;
       setTimer();
     },
-    __endRepeat: function __endRepeat () {
-      this.__clearRepeat();
+    __abortRepeat: function __abortRepeat () {
+      this.repeating = false;
+      this.__cleanup();
+    },
+    __endRepeat: function __endRepeat (e) {
+      if (!this.repeating) {
+        return
+      }
+
+      if (this.repeatCount) {
+        this.repeatCount = 0;
+      }
+      else if (e.detail) {
+        this.repeating = false;
+        e.repeatCount = 0;
+        this.$emit('click', e);
+      }
+
+      this.__cleanup();
     }
   },
   beforeDestroy: function beforeDestroy () {
-    clearTimeout(this.clearTimer);
-    clearTimeout(this.timer);
+    this.__cleanup();
   },
   render: function render (h) {
-    var on = this.hasNoRepeat || this.$slots.loading
-      ? {}
-      : {
-        mousedown: this.__startRepeat,
-        touchstart: this.__startRepeat,
-        mouseup: this.__endRepeat,
-        mouseleave: this.__endRepeat,
-        touchend: this.__endRepeat,
-        touchcancel: this.__endRepeat
-      };
-
-    on.click = this.click;
-
     return h('button', {
-      staticClass: 'q-btn inline relative-position',
+      staticClass: 'q-btn inline relative-position q-btn-item non-selectable',
       'class': this.classes,
       style: this.style,
-      attrs: { tabindex: this.isDisabled ? -1 : this.tabindex || 0 },
-      on: on,
+      attrs: { tabindex: this.computedTabIndex },
+      on: this.events,
       directives: this.hasRipple
         ? [{
           name: 'ripple',
@@ -2969,7 +3021,9 @@ var QBtn = {
         }]
         : null
     }, [
-      h('div', { staticClass: 'q-focus-helper' }),
+      "mat" === 'ios' || this.$q.platform.is.desktop
+        ? h('div', { staticClass: 'q-focus-helper' })
+        : null,
 
       this.loading && this.hasPercentage
         ? h('div', {
@@ -3125,7 +3179,7 @@ function getPositions (anchor, target) {
   }
 }
 
-function applyAutoPositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
+function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
   var ref = getPositions(anchorOrigin, selfOrigin);
   var positions = ref.positions;
   var anchorPos = ref.anchorPos;
@@ -3154,27 +3208,13 @@ function applyAutoPositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, ta
       }
     }
   }
+
   return targetPosition
-}
-
-function parseHorizTransformOrigin (pos) {
-  return pos === 'middle' ? 'center' : pos
-}
-
-function getTransformProperties (ref) {
-  var selfOrigin = ref.selfOrigin;
-
-  var
-    vert = selfOrigin.vertical,
-    horiz = parseHorizTransformOrigin(selfOrigin.horizontal);
-
-  return {
-    'transform-origin': vert + ' ' + horiz + ' 0px'
-  }
 }
 
 function setPosition (ref) {
   var el = ref.el;
+  var animate = ref.animate;
   var anchorEl = ref.anchorEl;
   var anchorOrigin = ref.anchorOrigin;
   var selfOrigin = ref.selfOrigin;
@@ -3203,10 +3243,16 @@ function setPosition (ref) {
     left: anchor[anchorOrigin.horizontal] - target[selfOrigin.horizontal]
   };
 
-  targetPosition = applyAutoPositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
+  targetPosition = repositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
 
   el.style.top = Math.max(0, targetPosition.top) + 'px';
   el.style.left = Math.max(0, targetPosition.left) + 'px';
+
+  if (animate) {
+    var directions = targetPosition.top < anchor.top ? ['up', 'down'] : ['down', 'up'];
+    el.classList.add(("animate-popup-" + (directions[0])));
+    el.classList.remove(("animate-popup-" + (directions[1])));
+  }
 }
 
 function positionValidator (pos) {
@@ -3393,12 +3439,10 @@ var QPopover = {
   props: {
     anchor: {
       type: String,
-      default: 'bottom left',
       validator: positionValidator
     },
     self: {
       type: String,
-      default: 'top left',
       validator: positionValidator
     },
     fit: Boolean,
@@ -3424,24 +3468,22 @@ var QPopover = {
     }
   },
   computed: {
-    transformCSS: function transformCSS () {
-      return getTransformProperties({selfOrigin: this.selfOrigin})
-    },
     anchorOrigin: function anchorOrigin () {
-      return parsePosition(this.anchor)
+      return parsePosition(this.anchor || ("bottom " + (this.$q.i18n.rtl ? 'right' : 'left')))
     },
     selfOrigin: function selfOrigin () {
-      return parsePosition(this.self)
+      return parsePosition(this.self || ("top " + (this.$q.i18n.rtl ? 'right' : 'left')))
     }
   },
   render: function render (h) {
     return h('div', {
-      staticClass: 'q-popover animate-scale',
-      style: this.transformCSS,
+      staticClass: 'q-popover scroll',
       on: {
         click: function click (e) { e.stopPropagation(); }
       }
-    }, this.$slots.default)
+    }, [
+      this.$slots.default
+    ])
   },
   created: function created () {
     var this$1 = this;
@@ -3480,7 +3522,7 @@ var QPopover = {
       this.scrollTarget = getScrollTarget(this.anchorEl);
       this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
       window.addEventListener('resize', this.__updatePosition, listenOpts.passive);
-      this.reposition(evt);
+      this.reposition(evt, true);
 
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
@@ -3511,7 +3553,7 @@ var QPopover = {
       document.body.removeChild(this.$el);
       this.hidePromise && this.hidePromiseResolve();
     },
-    reposition: function reposition (event) {
+    reposition: function reposition (event, animate) {
       var this$1 = this;
 
       this.$nextTick(function () {
@@ -3522,11 +3564,14 @@ var QPopover = {
         var top = ref.top;
         var ref$1 = viewport();
         var height$$1 = ref$1.height;
+
         if (top < 0 || top > height$$1) {
           return this$1.hide()
         }
+
         setPosition({
           event: event,
+          animate: animate,
           el: this$1.$el,
           offset: this$1.offset,
           anchorEl: this$1.anchorEl,
@@ -3546,7 +3591,19 @@ var QBtnDropdown = {
   mixins: [BtnMixin],
   props: {
     value: Boolean,
-    split: Boolean
+    split: Boolean,
+    contentClass: [Array, String, Object],
+    contentStyle: [Array, String, Object]
+  },
+  data: function data () {
+    return {
+      showing: this.value
+    }
+  },
+  watch: {
+    value: function value (val) {
+      this.$refs.popover[val ? 'show' : 'hide']();
+    }
   },
   render: function render (h) {
     var this$1 = this;
@@ -3557,19 +3614,22 @@ var QBtnDropdown = {
         {
           ref: 'popover',
           props: {
-            value: this.value,
             disable: this.disable,
             fit: true,
             anchorClick: !this.split,
             anchor: 'bottom right',
             self: 'top right'
           },
+          'class': this.contentClass,
+          style: this.contentStyle,
           on: {
             show: function (e) {
+              this$1.showing = true;
               this$1.$emit('show', e);
               this$1.$emit('input', true);
             },
             hide: function (e) {
+              this$1.showing = false;
               this$1.$emit('hide', e);
               this$1.$emit('input', false);
             }
@@ -3593,6 +3653,7 @@ var QBtnDropdown = {
       ),
       Btn = h(QBtn, {
         props: {
+          loading: this.loading,
           disable: this.disable,
           noCaps: this.noCaps,
           noWrap: this.noWrap,
@@ -3635,7 +3696,7 @@ var QBtnDropdown = {
           rounded: this.rounded,
           push: this.push
         },
-        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap'
+        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap q-btn-item'
       },
       [
         Btn,
@@ -3644,6 +3705,7 @@ var QBtnDropdown = {
           {
             props: {
               disable: this.disable,
+              outline: this.outline,
               flat: this.flat,
               rounded: this.rounded,
               push: this.push,
@@ -3674,6 +3736,15 @@ var QBtnDropdown = {
     hide: function hide () {
       return this.$refs.popover.hide()
     }
+  },
+  mounted: function mounted () {
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      if (this$1.value) {
+        this$1.$refs.popover.show();
+      }
+    });
   }
 }
 
@@ -3690,7 +3761,7 @@ var QBtnToggle = {
       type: String,
       default: 'primary'
     },
-    textToggleColor: String,
+    toggleTextColor: String,
     options: {
       type: Array,
       required: true,
@@ -3753,11 +3824,11 @@ var QBtnToggle = {
           label: opt.label,
           // Colors come from the button specific options first, then from general props
           color: this$1.val[i] ? opt.toggleColor || this$1.toggleColor : opt.color || this$1.color,
-          textColor: this$1.val[i] ? opt.textToggleColor || this$1.textToggleColor : opt.textColor || this$1.textColor,
+          textColor: this$1.val[i] ? opt.toggleTextColor || this$1.toggleTextColor : opt.textColor || this$1.textColor,
           icon: opt.icon,
           iconRight: opt.iconRight,
-          noCaps: this$1.noCaps,
-          noWrap: this$1.noWrap,
+          noCaps: this$1.noCaps || opt.noCaps,
+          noWrap: this$1.noWrap || opt.noWrap,
           outline: this$1.outline,
           flat: this$1.flat,
           rounded: this$1.rounded,
@@ -3765,8 +3836,8 @@ var QBtnToggle = {
           glossy: this$1.glossy,
           size: this$1.size,
           dense: this$1.dense,
-          noRipple: this$1.noRipple,
-          waitForRipple: this$1.waitForRipple,
+          noRipple: this$1.noRipple || opt.noRipple,
+          waitForRipple: this$1.waitForRipple || opt.waitForRipple,
           tabindex: opt.tabindex
         }
       }); }
@@ -3914,7 +3985,6 @@ var KeyboardSelectionMixin = {
           this.__keyboardMoveCursor(1, e);
           break
         case 13: // ENTER key
-        case 32: // SPACE key
           if (this.$refs.popover.showing) {
             stopAndPrevent(e);
             this.__keyboardSetCurrentSelection();
@@ -4054,7 +4124,7 @@ var QAutocomplete = {
         this.results = this.filter(terms, this.staticData);
         var popover = this.$refs.popover;
         if (this.results.length) {
-          this.__keyboardShow(this.$q.platform.is.desktop ? 0 : -1);
+          this.__keyboardShow(-1);
           if (popover.showing) {
             popover.reposition();
           }
@@ -4078,7 +4148,7 @@ var QAutocomplete = {
 
         if (Array.isArray(results) && results.length > 0) {
           this$1.results = results;
-          this$1.__keyboardShow(this$1.$q.platform.is.desktop ? 0 : -1);
+          this$1.__keyboardShow(-1);
           this$1.$refs.popover.show();
           return
         }
@@ -4110,6 +4180,9 @@ var QAutocomplete = {
     },
     __keyboardShowTrigger: function __keyboardShowTrigger () {
       this.trigger();
+    },
+    __keyboardIsSelectableIndex: function __keyboardIsSelectableIndex (index) {
+      return index > -1 && index < this.computedResults.length && !this.computedResults[index].disable
     },
     setValue: function setValue (result) {
       var value = this.staticData ? result[this.staticData.field] : result.value;
@@ -4175,7 +4248,6 @@ var QAutocomplete = {
       'class': dark ? 'bg-dark' : null,
       props: {
         fit: true,
-        offset: [0, 10],
         anchorClick: false
       },
       on: {
@@ -4195,7 +4267,8 @@ var QAutocomplete = {
         key: result.id || JSON.stringify(result),
         'class': {
           active: this$1.keyboardIndex === index,
-          'cursor-pointer': !result.disable
+          'cursor-pointer': !result.disable,
+          'text-faded': result.disable
         },
         props: { cfg: result },
         nativeOn: {
@@ -4282,14 +4355,7 @@ var QBreadcrumbsEl = {
   render: function render (h) {
     return h(this.link ? 'router-link' : 'span', {
       staticClass: 'q-breadcrumbs-el flex inline items-center relative-position',
-      props: this.link
-        ? {
-          to: this.to,
-          exact: this.exact,
-          append: this.append,
-          replace: this.replace
-        }
-        : null
+      props: this.link ? this.$props : null
     },
     this.label || this.icon
       ? [
@@ -4441,7 +4507,9 @@ function getDirection (mod) {
     }
   }
 
-  var dir = {};['horizontal', 'vertical'].forEach(function (direction) {
+  var dir = {}
+
+  ;['horizontal', 'vertical'].forEach(function (direction) {
     if (mod[direction]) {
       dir[direction] = true;
     }
@@ -4627,8 +4695,6 @@ var TouchPan = {
 function isDate (v) {
   return Object.prototype.toString.call(v) === '[object Date]'
 }
-
-
 
 function isNumber (v) {
   return typeof v === 'number' && isFinite(v)
@@ -4860,6 +4926,11 @@ var QCarousel = {
     autoplay: [Number, Boolean],
     handleArrowKeys: Boolean,
     quickNav: Boolean,
+    quickNavPosition: {
+      type: String,
+      default: 'bottom',
+      validator: function (v) { return ['top', 'bottom'].includes(v); }
+    },
     quickNavIcon: String
   },
   provide: function provide () {
@@ -4893,8 +4964,17 @@ var QCarousel = {
     }
   },
   computed: {
+    rtlDir: function rtlDir () {
+      return this.$q.i18n.rtl ? -1 : 1
+    },
+    arrowIcon: function arrowIcon () {
+      var ico = [ this.$q.icon.carousel.left, this.$q.icon.carousel.right ];
+      return this.$q.i18n.rtl
+        ? ico.reverse()
+        : ico
+    },
     trackPosition: function trackPosition () {
-      return cssTransform(("translateX(" + (this.position) + "%)"))
+      return cssTransform(("translateX(" + (this.rtlDir * this.position) + "%)"))
     },
     infiniteLeft: function infiniteLeft () {
       return this.infinite && this.slidesNumber > 1 && this.positionSlide < 0
@@ -4952,12 +5032,14 @@ var QCarousel = {
       return new Promise(function (resolve, reject) {
         var
           direction = '',
+          curSlide = this$1.slide,
           pos;
 
         this$1.__cleanup();
 
         var finish = function () {
           this$1.$emit('input', this$1.slide);
+          this$1.$emit('slide', this$1.slide, direction);
           this$1.$emit('slide-direction', direction);
           this$1.__planAutoPlay();
           resolve();
@@ -4987,6 +5069,7 @@ var QCarousel = {
           }
         }
 
+        this$1.$emit('slide-trigger', curSlide, this$1.slide, direction);
         pos = pos * -100;
 
         if (!this$1.animation) {
@@ -5033,7 +5116,7 @@ var QCarousel = {
         this.__cleanup();
       }
 
-      var delta = (event.direction === 'left' ? -1 : 1) * event.distance.x;
+      var delta = this.rtlDir * (event.direction === 'left' ? -1 : 1) * event.distance.x;
 
       if (
         (this.infinite && this.slidesNumber < 2) ||
@@ -5045,11 +5128,19 @@ var QCarousel = {
           )
         )
       ) {
-        delta = delta / 10;
+        delta = 0;
       }
 
-      this.position = this.initialPosition + delta / this.$refs.track.offsetWidth * 100;
-      this.positionSlide = (event.direction === 'left' ? this.slide + 1 : this.slide - 1);
+      var
+        pos = this.initialPosition + delta / this.$refs.track.offsetWidth * 100,
+        slidePos = this.slide + this.rtlDir * (event.direction === 'left' ? 1 : -1);
+
+      if (this.position !== pos) {
+        this.position = pos;
+      }
+      if (this.positionSlide !== slidePos) {
+        this.positionSlide = slidePos;
+      }
 
       if (event.isFinal) {
         this.goToSlide(
@@ -5161,8 +5252,8 @@ var QCarousel = {
       }
 
       return h('div', {
-        staticClass: 'q-carousel-quick-nav absolute-bottom scroll text-center',
-        'class': ("text-" + (this.color))
+        staticClass: 'q-carousel-quick-nav scroll text-center',
+        'class': [("text-" + (this.color)), ("absolute-" + (this.quickNavPosition))]
       }, items)
     }
   },
@@ -5202,13 +5293,13 @@ var QCarousel = {
       ]),
       this.arrows ? h(QBtn, {
         staticClass: 'q-carousel-left-arrow absolute',
-        props: { color: this.color, icon: this.$q.icon.carousel.left, fabMini: true, flat: true },
+        props: { color: this.color, icon: this.arrowIcon[0], fabMini: true, flat: true },
         directives: [{ name: 'show', value: this.canGoToPrevious }],
         on: { click: this.previous }
       }) : null,
       this.arrows ? h(QBtn, {
         staticClass: 'q-carousel-right-arrow absolute',
-        props: { color: this.color, icon: this.$q.icon.carousel.right, fabMini: true, flat: true },
+        props: { color: this.color, icon: this.arrowIcon[1], fabMini: true, flat: true },
         directives: [{ name: 'show', value: this.canGoToNext }],
         on: { click: this.next }
       }) : null,
@@ -5225,7 +5316,6 @@ var QCarousel = {
       this.__setArrowKeys(true);
     }
     this.__stopSlideNumberNotifier = this.$watch('slidesNumber', function (val) {
-      this$1.$emit('slides-number', val);
       if (this$1.value >= val) {
         this$1.$emit('input', val - 1);
       }
@@ -5352,7 +5442,9 @@ var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;va
 }
 
 function getDirection$1 (mod) {
-  var dir = {};['left', 'right', 'up', 'down', 'horizontal', 'vertical'].forEach(function (direction) {
+  var dir = {}
+
+  ;['left', 'right', 'up', 'down', 'horizontal', 'vertical'].forEach(function (direction) {
     if (mod[direction]) {
       dir[direction] = true;
     }
@@ -5637,7 +5729,7 @@ var OptionMixin = {
       else {
         var color = this.keepColor
           ? this.color
-          : (this.dark ? 'light' : 'dark');
+          : (this.dark ? 'light' : 'faded');
 
         return ("text-" + color)
       }
@@ -5703,7 +5795,9 @@ var OptionMixin = {
           attrs: { type: 'checkbox' },
           on: { change: this.toggle }
         }),
-        h('div', { staticClass: 'q-focus-helper' }),
+        this.$q.platform.is.desktop
+          ? h('div', { staticClass: 'q-focus-helper' })
+          : null,
         this.__getContent(h)
       ]),
 
@@ -5914,7 +6008,8 @@ var FrameMixin = {
     hideUnderline: Boolean,
     clearValue: {
       default: null
-    }
+    },
+    noParentField: Boolean
   },
   computed: {
     inputPlaceholder: function inputPlaceholder () {
@@ -5940,6 +6035,18 @@ var FrameMixin = {
     hasWarning: function hasWarning () {
       // error is the higher priority
       return !!(!this.hasError && ((!this.noParentField && this.field && this.field.warning) || this.warning))
+    },
+    fakeInputValue: function fakeInputValue () {
+      return this.actualValue || this.actualValue === 0
+        ? this.actualValue
+        : this.placeholder
+    },
+    fakeInputClasses: function fakeInputClasses () {
+      var hasValue = this.actualValue || this.actualValue === 0;
+      return [this.alignClass, {
+        invisible: (this.stackLabel || this.floatLabel) && !this.labelIsAbove && !hasValue,
+        'q-input-target-placeholder': !hasValue && this.inputPlaceholder
+      }]
     }
   },
   methods: {
@@ -6045,7 +6152,7 @@ var InputMixin = {
   }
 }
 
-var FieldParentMixin = {
+var ParentFieldMixin = {
   inject: {
     field: {
       from: '__field',
@@ -6067,9 +6174,9 @@ var FieldParentMixin = {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-center relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap items-center relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-end relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
   name: 'q-input-frame',
-  mixins: [FrameMixin, FieldParentMixin],
+  mixins: [FrameMixin, ParentFieldMixin],
   props: {
     topAddons: Boolean,
     focused: Boolean,
@@ -6105,7 +6212,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         'q-if-inverted-light': this.isInvertedLight,
         'q-if-light-color': this.lightColor,
         'q-if-dark': this.dark,
-        'q-if-hide-underline': this.hideUnderline
+        'q-if-hide-underline': !this.isInverted && this.hideUnderline
       }];
 
       var color = this.hasError ? 'negative' : (this.hasWarning ? 'warning' : this.color);
@@ -6151,7 +6258,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 }
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){_vm.__onInputBlur($event);},"focus":function($event){_vm.__clearTimer($event);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control self-end",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){_vm.__onInputBlur($event);},"focus":function($event){_vm.__clearTimer($event);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-chips-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -6171,12 +6278,12 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   data: function data () {
     return {
       input: '',
-      model: [].concat( this.value )
+      model: this.value
     }
   },
   watch: {
     value: function value (v) {
-      this.model = Array.isArray(v) ? [].concat( v ) : [];
+      this.model = this.value;
     }
   },
   computed: {
@@ -6223,7 +6330,7 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
 
       clearTimeout(this.timer);
       this.focus();
-      if (this.editable && value) {
+      if (this.editable && value && !this.model.includes(value)) {
         this.model.push(value);
         this.$emit('input', this.model);
         this.input = '';
@@ -6520,8 +6627,9 @@ var DisplayModeMixin = {
   }
 }
 
-function getPercentage (event, dragging) {
-  return between((position(event).left - dragging.left) / dragging.width, 0, 1)
+function getPercentage (event, dragging, rtl) {
+  var val = between((position(event).left - dragging.left) / dragging.width, 0, 1);
+  return rtl ? 1.0 - val : val
 }
 
 function notDivides (res, decimals) {
@@ -6763,7 +6871,7 @@ var QSlider = {
     },
     __update: function __update (event) {
       var
-        percentage = getPercentage(event, this.dragging),
+        percentage = getPercentage(event, this.dragging, this.$q.i18n.rtl),
         model = getModel(percentage, this.min, this.max, this.step, this.computedDecimals);
 
       this.currentPercentage = percentage;
@@ -6791,6 +6899,8 @@ var QSlider = {
       }
     },
     __getContent: function __getContent (h) {
+      var obj;
+
       return [
         h('div', {
           staticClass: 'q-slider-track active-track',
@@ -6802,10 +6912,7 @@ var QSlider = {
         }),
         h('div', {
           staticClass: 'q-slider-handle',
-          style: {
-            left: this.percentage,
-            borderRadius: this.square ? '0' : '50%'
-          },
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj),
           'class': {
             dragging: this.dragging,
             'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
@@ -7013,7 +7120,7 @@ var colors = Object.freeze({
 
 var QColorPicker = {
   name: 'q-color-picker',
-  mixins: [FieldParentMixin],
+  mixins: [ParentFieldMixin],
   directives: {
     TouchPan: TouchPan
   },
@@ -7023,7 +7130,7 @@ var QColorPicker = {
       type: [String, Object],
       default: '#000'
     },
-    type: {
+    formatModel: {
       type: String,
       default: 'auto',
       validator: function (v) { return ['auto', 'hex', 'rgb', 'hexa', 'rgba'].includes(v); }
@@ -7057,14 +7164,14 @@ var QColorPicker = {
   },
   computed: {
     forceHex: function forceHex () {
-      return this.type === 'auto'
+      return this.formatModel === 'auto'
         ? null
-        : this.type.indexOf('hex') > -1
+        : this.formatModel.indexOf('hex') > -1
     },
     forceAlpha: function forceAlpha () {
-      return this.type === 'auto'
+      return this.formatModel === 'auto'
         ? null
-        : this.type.indexOf('a') > -1
+        : this.formatModel.indexOf('a') > -1
     },
     isHex: function isHex () {
       return typeof this.value === 'string'
@@ -7082,10 +7189,10 @@ var QColorPicker = {
         return this.forceAlpha
       }
       return this.isHex
-        ? this.value.length > 7
+        ? this.value.trim().length > 7
         : this.value && this.value.a !== void 0
     },
-    swatchStyle: function swatchStyle () {
+    swatchColor: function swatchColor () {
       return {
         backgroundColor: ("rgba(" + (this.model.r) + "," + (this.model.g) + "," + (this.model.b) + "," + ((this.model.a === void 0 ? 100 : this.model.a) / 100) + ")")
       }
@@ -7096,10 +7203,11 @@ var QColorPicker = {
       }
     },
     saturationPointerStyle: function saturationPointerStyle () {
-      return {
-        top: ((101 - this.model.v) + "%"),
-        left: ((this.model.s) + "%")
-      }
+      var obj;
+
+      return ( obj = {
+        top: ((101 - this.model.v) + "%")
+      }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj)
     },
     inputsArray: function inputsArray () {
       var inp = ['r', 'g', 'b'];
@@ -7160,9 +7268,10 @@ var QColorPicker = {
         staticClass: 'q-color-sliders row items-center'
       }, [
         h('div', {
-          staticClass: 'q-color-swatch q-mt-sm q-ml-sm q-mb-sm non-selectable overflow-hidden',
-          style: this.swatchStyle
-        }),
+          staticClass: 'q-color-swatch q-mt-sm q-ml-md q-mb-sm non-selectable overflow-hidden'
+        }, [
+          h('div', { style: this.swatchColor, staticClass: 'fit' })
+        ]),
         h('div', { staticClass: 'col q-pa-sm' }, [
           h('div', { staticClass: 'q-color-hue non-selectable' }, [
             h(QSlider, {
@@ -7204,8 +7313,8 @@ var QColorPicker = {
     __getNumericInputs: function __getNumericInputs (h) {
       var this$1 = this;
 
-      return this.inputsArray.map(function (type) {
-        var max = type === 'a' ? 100 : 255;
+      return this.inputsArray.map(function (formatModel) {
+        var max = formatModel === 'a' ? 100 : 255;
         return h('div', { staticClass: 'col q-color-padding' }, [
           h('input', {
             attrs: {
@@ -7217,15 +7326,15 @@ var QColorPicker = {
             },
             staticClass: 'full-width text-center q-no-input-spinner',
             domProps: {
-              value: Math.round(this$1.model[type])
+              value: Math.round(this$1.model[formatModel])
             },
             on: {
-              input: function (evt) { return this$1.__onNumericChange(evt, type, max); },
-              blur: function (evt) { return this$1.editable && this$1.__onNumericChange(evt, type, max, true); }
+              input: function (evt) { return this$1.__onNumericChange(evt, formatModel, max); },
+              blur: function (evt) { return this$1.editable && this$1.__onNumericChange(evt, formatModel, max, true); }
             }
           }),
           h('div', { staticClass: 'q-color-label text-center uppercase' }, [
-            type
+            formatModel
           ])
         ])
       })
@@ -7293,8 +7402,14 @@ var QColorPicker = {
         panel = this.$refs.saturation,
         width = panel.clientWidth,
         height = panel.clientHeight,
-        rect = panel.getBoundingClientRect(),
-        x = Math.min(width, Math.max(0, left - rect.left)),
+        rect = panel.getBoundingClientRect();
+      var x = Math.min(width, Math.max(0, left - rect.left));
+
+      if (this.$q.i18n.rtl) {
+        x = width - x;
+      }
+
+      var
         y = Math.min(height, Math.max(0, top - rect.top)),
         s = Math.round(100 * x / width),
         v = Math.round(100 * Math.max(0, Math.min(1, -(y / height) + 1))),
@@ -7321,7 +7436,7 @@ var QColorPicker = {
       this.model.h = h;
       this.__update(val, rgbToHex(val), change);
     },
-    __onNumericChange: function __onNumericChange (evt, type, max, change) {
+    __onNumericChange: function __onNumericChange (evt, formatModel, max, change) {
       var val = Number(evt.target.value);
       if (isNaN(val)) {
         return
@@ -7336,14 +7451,14 @@ var QColorPicker = {
       }
 
       var rgb = {
-        r: type === 'r' ? val : this.model.r,
-        g: type === 'g' ? val : this.model.g,
-        b: type === 'b' ? val : this.model.b,
+        r: formatModel === 'r' ? val : this.model.r,
+        g: formatModel === 'g' ? val : this.model.g,
+        b: formatModel === 'b' ? val : this.model.b,
         a: this.hasAlpha
-          ? (type === 'a' ? val : this.model.a)
+          ? (formatModel === 'a' ? val : this.model.a)
           : void 0
       };
-      if (type !== 'a') {
+      if (formatModel !== 'a') {
         var hsv = rgbToHsv(rgb);
         this.model.h = hsv.h;
         this.model.s = hsv.s;
@@ -7397,7 +7512,7 @@ var QColorPicker = {
       this.view = this.view === 'hex' ? 'rgba' : 'hex';
     },
     __parseModel: function __parseModel (v) {
-      var model = typeof v === 'string' ? hexToRgb(v) : clone(v);
+      var model = typeof v === 'string' ? hexToRgb(v.trim()) : clone(v);
       if (this.forceAlpha === (model.a === void 0)) {
         model.a = this.forceAlpha ? 100 : void 0;
       }
@@ -7482,7 +7597,7 @@ var QColor = {
       type: [String, Object],
       default: null
     },
-    type: {
+    formatModel: {
       type: String,
       default: 'auto',
       validator: function (v) { return ['auto', 'hex', 'rgb', 'hexa', 'rgba'].includes(v); }
@@ -7505,15 +7620,19 @@ var QColor = {
       if (this.displayValue) {
         return this.displayValue
       }
-      if (!this.value) {
-        return this.placeholder || ''
-      }
 
       if (this.value) {
         return typeof this.value === 'string'
           ? this.value
           : ("rgb" + (this.value.a !== void 0 ? 'a' : '') + "(" + (this.value.r) + "," + (this.value.g) + "," + (this.value.b) + (this.value.a !== void 0 ? ("," + (this.value.a / 100)) : '') + ")")
       }
+
+      return ''
+    },
+    modalBtnColor: function modalBtnColor () {
+      return this.$q.theme === 'mat'
+        ? this.color
+        : (this.dark ? 'light' : 'dark')
     }
   },
   methods: {
@@ -7600,7 +7719,7 @@ var QColor = {
             value: this.model || '#000',
             disable: this.disable,
             readonly: this.readonly,
-            type: this.type,
+            formatModel: this.formatModel,
             dark: this.dark,
             noParentField: true
           }, this.$attrs),
@@ -7612,12 +7731,13 @@ var QColor = {
 
       if (modal) {
         child['push'](h('div', {
-          staticClass: 'modal-buttons modal-buttons-top row full-width'
+          staticClass: 'modal-buttons modal-buttons-top row full-width',
+          'class': this.dark ? 'bg-black' : null
         }, [
           h('div', { staticClass: 'col' }),
           h(QBtn, {
             props: {
-              color: this.color,
+              color: this.modalBtnColor,
               flat: true,
               label: this.cancelLabel || this.$q.i18n.label.cancel,
               waitForRipple: true
@@ -7627,7 +7747,7 @@ var QColor = {
           this.editable
             ? h(QBtn, {
               props: {
-                color: this.color,
+                color: this.modalBtnColor,
                 flat: true,
                 label: this.okLabel || this.$q.i18n.label.set,
                 waitForRipple: true
@@ -7650,6 +7770,7 @@ var QColor = {
     var this$1 = this;
 
     return h(QInputFrame, {
+      staticClass: 'q-color-input',
       props: {
         prefix: this.prefix,
         suffix: this.suffix,
@@ -7665,6 +7786,7 @@ var QColor = {
         before: this.before,
         after: this.after,
         color: this.color,
+        noParentField: this.noParentField,
 
         focused: this.focused,
         focusable: true,
@@ -7677,23 +7799,17 @@ var QColor = {
         keydown: this.__handleKeyDown
       }
     }, [
-      h('input', {
-        staticClass: 'col q-input-target cursor-inherit',
-        'class': this.alignClass,
-        attrs: {
-          value: this.actualValue,
-          placeholder: this.inputPlaceholder,
-          readonly: true,
-          disabled: this.disable,
-          tabindex: -1
-        }
-      }),
+      h('div', {
+        staticClass: 'col q-input-target ellipsis',
+        'class': this.fakeInputClasses
+      }, [
+        this.fakeInputValue
+      ]),
 
       this.isPopover
         ? h(QPopover, {
           ref: 'popup',
           props: {
-            offset: [0, 10],
             disable: this.disable,
             anchorClick: false,
             maxHeight: '100vh'
@@ -7932,10 +8048,11 @@ var input = {
 
 /* eslint no-fallthrough: 0 */
 
-var MILLISECONDS_IN_DAY = 86400000;
-var MILLISECONDS_IN_HOUR = 3600000;
-var MILLISECONDS_IN_MINUTE = 60000;
-var token = /\[((?:[^\]\\]|\\]|\\)*)\]|d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
+var
+  MILLISECONDS_IN_DAY = 86400000,
+  MILLISECONDS_IN_HOUR = 3600000,
+  MILLISECONDS_IN_MINUTE = 60000,
+  token = /\[((?:[^\]\\]|\\]|\\)*)\]|d{1,4}|M{1,4}|m{1,2}|w{1,2}|Qo|Do|D{1,4}|YY(?:YY)?|H{1,2}|h{1,2}|s{1,2}|S{1,3}|Z{1,2}|a{1,2}|[AQExX]/g;
 
 function formatTimezone (offset, delimeter) {
   if ( delimeter === void 0 ) delimeter = '';
@@ -8015,11 +8132,16 @@ function getWeekOfYear (date) {
   return 1 + Math.floor(weekDiff)
 }
 
-function isBetweenDates (date, from, to) {
+function isBetweenDates (date, from, to, opts) {
+  if ( opts === void 0 ) opts = {};
+
   var
     d1 = new Date(from).getTime(),
     d2 = new Date(to).getTime(),
     cur = new Date(date).getTime();
+
+  opts.inclusiveFrom && d1--;
+  opts.inclusiveTo && d2++;
 
   return cur > d1 && cur < d2
 }
@@ -8630,9 +8752,9 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime inline row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{attrs:{"round":"","dense":"","flat":"","color":_vm.color,"icon":_vm.$q.icon.datetime.arrowLeft,"repeatTimeout":_vm.__getRepeatEasing(),"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{attrs:{"round":"","dense":"","flat":"","color":_vm.color,"icon":_vm.$q.icon.datetime.arrowRight,"repeatTimeout":_vm.__getRepeatEasing(),"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
+var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-datetime-picker',
-  mixins: [DateMixin, FieldParentMixin],
+  mixins: [DateMixin, ParentFieldMixin],
   props: {
     defaultValue: [String, Number, Date],
     disable: Boolean,
@@ -8667,10 +8789,12 @@ var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement
       this.disable && cls.push('disabled');
       this.readonly && cls.push('readonly');
       this.dark && cls.push('q-datetime-dark');
-      if (this.color) {
-        cls.push(("text-" + (this.color)));
-      }
+      this.color && cls.push(("text-" + (this.color)));
       return cls
+    },
+    dateArrow: function dateArrow () {
+      var val = [ this.$q.icon.datetime.arrowLeft, this.$q.icon.datetime.arrowRight ];
+      return this.$q.i18n.rtl ? val.reverse() : val
     },
     computedFormat24h: function computedFormat24h () {
       return this.format24h !== 0
@@ -8895,12 +9019,8 @@ var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement
         this.setMinute(Math.round(angle / 6));
       }
     },
-    __getRepeatEasing: function __getRepeatEasing (from, step, to) {
-      if ( from === void 0 ) from = 300;
-      if ( step === void 0 ) step = 10;
-      if ( to === void 0 ) to = 100;
-
-      return function (cnt) { return cnt ? Math.max(to, from - cnt * cnt * step) : 100; }
+    __repeatTimeout: function __repeatTimeout (count) {
+      return Math.max(100, 300 - count * count * 10)
     }
   },
   mounted: function mounted () {
@@ -8953,6 +9073,11 @@ var QDatetime = {
       }
 
       return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
+    },
+    modalBtnColor: function modalBtnColor () {
+      return this.$q.theme === 'mat'
+        ? this.color
+        : (this.dark ? 'light' : 'dark')
     }
   },
   methods: {
@@ -9044,7 +9169,10 @@ var QDatetime = {
       return [
         h(QDatetimePicker, {
           ref: 'target',
-          staticClass: "no-border block",
+          staticClass: 'no-border',
+          'class': {
+            'datetime-ios-modal': "mat" === 'ios' && modal
+          },
           props: {
             type: this.type,
             min: this.min,
@@ -9053,7 +9181,7 @@ var QDatetime = {
             format24h: this.format24h,
             firstDayOfWeek: this.firstDayOfWeek,
             defaultView: this.defaultView,
-            color: this.color,
+            color: this.invertedLight ? 'grey-7' : this.color,
             dark: this.dark,
             value: this.model,
             disable: this.disable,
@@ -9076,7 +9204,7 @@ var QDatetime = {
               h('div', { staticClass: 'col' }),
               h(QBtn, {
                 props: {
-                  color: this.color,
+                  color: this.modalBtnColor,
                   flat: true,
                   label: this.cancelLabel || this.$q.i18n.label.cancel,
                   waitForRipple: true
@@ -9086,7 +9214,7 @@ var QDatetime = {
               this.editable
                 ? h(QBtn, {
                   props: {
-                    color: this.color,
+                    color: this.modalBtnColor,
                     flat: true,
                     label: this.okLabel || this.$q.i18n.label.set,
                     waitForRipple: true
@@ -9109,6 +9237,7 @@ var QDatetime = {
     var this$1 = this;
 
     return h(QInputFrame, {
+      staticClass: 'q-datetime-input',
       props: {
         prefix: this.prefix,
         suffix: this.suffix,
@@ -9125,6 +9254,7 @@ var QDatetime = {
         before: this.before,
         after: this.after,
         color: this.color,
+        noParentField: this.noParentField,
 
         focused: this.focused,
         focusable: true,
@@ -9137,23 +9267,17 @@ var QDatetime = {
         keydown: this.__handleKeyDown
       }
     }, [
-      h('input', {
-        staticClass: 'col q-input-target cursor-inherit',
-        'class': this.alignClass,
-        attrs: {
-          value: this.actualValue,
-          placeholder: this.inputPlaceholder,
-          readonly: true,
-          disabled: this.disable,
-          tabindex: -1
-        }
-      }),
+      h('div', {
+        staticClass: 'col q-input-target ellipsis',
+        'class': this.fakeInputClasses
+      }, [
+        this.fakeInputValue
+      ]),
 
       this.isPopover
         ? h(QPopover, {
           ref: 'popup',
           props: {
-            offset: [0, 10],
             disable: this.disable,
             anchorClick: false,
             maxHeight: '100vh'
@@ -9220,10 +9344,7 @@ var QResizeObservable = {
     }
   },
   render: function render (h) {
-    return h('div', {
-      staticClass: 'absolute-full overflow-hidden invisible',
-      style: 'z-index: -1;'
-    })
+    return h('span')
   },
   mounted: function mounted () {
     var this$1 = this;
@@ -9238,7 +9359,8 @@ var QResizeObservable = {
     this.onResize();
 
     this.object = object;
-    object.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
+    object.setAttribute('aria-hidden', true);
+    object.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
     object.onload = function () {
       object.contentDocument.defaultView.addEventListener('resize', this$1.onResize, listenOpts.passive);
     };
@@ -9338,7 +9460,7 @@ var QWindowResizeObservable = {
   }
 }
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"length":_vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'q-input',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -9352,6 +9474,10 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       type: String,
       default: 'text',
       validator: function (t) { return inputTypes.includes(t); }
+    },
+    align: {
+      type: String,
+      validator: function (v) { return ['left', 'center', 'right'].includes(v); }
     },
     clearable: Boolean,
     noPassToggle: Boolean,
@@ -9370,6 +9496,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       showNumber: true,
       model: this.value,
       watcher: null,
+      autofilled: false,
       shadow: {
         val: this.model,
         set: this.__set,
@@ -9435,6 +9562,12 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         ? (this.showNumber || !this.editable ? 'number' : 'text')
         : this.type
     },
+    inputClasses: function inputClasses () {
+      var classes = [];
+      this.align && classes.push(("text-" + (this.align)));
+      this.autofilled && classes.push('q-input-autofill');
+      return classes
+    },
     length: function length () {
       return this.model !== null && this.model !== undefined
         ? ('' + this.model).length
@@ -9460,6 +9593,17 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       var this$1 = this;
 
       this.$nextTick(function () { return clearTimeout(this$1.timer); });
+    },
+
+    __onAnimationStart: function __onAnimationStart (e) {
+      if (e.animationName.indexOf('webkit-autofill-') === 0) {
+        var value = e.animationName === 'webkit-autofill-on';
+        if (value !== this.autofilled) {
+          e.value = this.autofilled = value;
+          e.el = this;
+          return this.$emit('autofill', e)
+        }
+      }
     },
 
     __setModel: function __setModel (val) {
@@ -9608,13 +9752,12 @@ var QToggle = {
   },
   computed: {
     currentIcon: function currentIcon () {
-      return (this.isActive ? this.checkedIcon : this.uncheckedIcon) || this.icon
+      return (this.isTrue ? this.checkedIcon : this.uncheckedIcon) || this.icon
     },
     iconColor: function iconColor () {
       return this.isTrue ? 'white' : 'dark'
     },
     baseClass: function baseClass () {
-      
     }
   },
   methods: {
@@ -9649,7 +9792,7 @@ var QToggle = {
 
 var QOptionGroup = {
   name: 'q-option-group',
-  mixins: [FieldParentMixin],
+  mixins: [ParentFieldMixin],
   components: {
     QRadio: QRadio,
     QCheckbox: QCheckbox,
@@ -9768,12 +9911,14 @@ var QDialog = {
     prompt: Object,
     options: Object,
     ok: {
-      type: [String, Boolean],
+      type: [String, Object, Boolean],
       default: true
     },
-    cancel: [String, Boolean],
+    cancel: [String, Object, Boolean],
     stackButtons: Boolean,
     preventClose: Boolean,
+    noBackdropDismiss: Boolean,
+    noEscDismiss: Boolean,
     position: String,
     color: {
       type: String,
@@ -9837,8 +9982,8 @@ var QDialog = {
       props: {
         value: this.value,
         minimized: true,
-        noBackdropDismiss: this.preventClose,
-        noEscDismiss: this.preventClose,
+        noBackdropDismiss: this.noBackdropDismiss || this.preventClose,
+        noEscDismiss: this.noEscDismiss || this.preventClose,
         position: this.position
       },
       on: {
@@ -9899,6 +10044,24 @@ var QDialog = {
       return this.stackButtons
         ? 'column'
         : 'row'
+    },
+    okProps: function okProps () {
+      return Object(this.ok) === this.ok
+        ? extend({
+          color: this.color,
+          label: this.$q.i18n.label.ok,
+          noRipple: true
+        }, this.ok)
+        : { color: this.color, flat: true, label: this.okLabel, noRipple: true }
+    },
+    cancelProps: function cancelProps () {
+      return Object(this.cancel) === this.cancel
+        ? extend({
+          color: this.color,
+          label: this.$q.i18n.label.cancel,
+          noRipple: true
+        }, this.cancel)
+        : { color: this.color, flat: true, label: this.cancelLabel, noRipple: true }
     }
   },
   methods: {
@@ -9958,13 +10121,13 @@ var QDialog = {
 
       if (this.cancel) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: this.cancelLabel, waitForRipple: true },
+          props: this.cancelProps,
           on: { click: this.__onCancel }
         }));
       }
       if (this.ok) {
         child.push(h(QBtn, {
-          props: { color: this.color, flat: true, label: this.okLabel, waitForRipple: true },
+          props: this.okProps,
           on: { click: this.__onOk }
         }));
       }
@@ -10035,11 +10198,6 @@ var QTooltip = {
     },
     selfOrigin: function selfOrigin () {
       return parsePosition(this.self)
-    },
-    transformCSS: function transformCSS () {
-      return getTransformProperties({
-        selfOrigin: this.selfOrigin
-      })
     }
   },
   methods: {
@@ -10072,6 +10230,7 @@ var QTooltip = {
     __updatePosition: function __updatePosition () {
       setPosition({
         el: this.$el,
+        animate: true,
         offset: this.offset,
         anchorEl: this.anchorEl,
         anchorOrigin: this.anchorOrigin,
@@ -10090,9 +10249,13 @@ var QTooltip = {
   },
   render: function render (h) {
     return h('span', {
-      staticClass: 'q-tooltip animate-scale',
+      staticClass: 'q-tooltip animate-popup',
       style: this.transformCSS
-    }, [ this.$slots.default ])
+    }, [
+      h('div', [
+        this.$slots.default
+      ])
+    ])
   },
   created: function created () {
     var this$1 = this;
@@ -10201,6 +10364,7 @@ function getDropdown (h, vm, btn) {
     icon = btn.icon,
     noIcons = btn.list === 'no-icons',
     onlyIcons = btn.list === 'only-icons',
+    contentClass,
     Items;
 
   function closeDropdown () {
@@ -10219,13 +10383,13 @@ function getDropdown (h, vm, btn) {
       }
       return getBtn(h, vm, btn, closeDropdown, active)
     });
+    contentClass = vm.toolbarBackgroundClass;
     Items = [
       h(
         QBtnGroup,
         {
           props: vm.buttonProps,
           staticClass: 'relative-position q-editor-toolbar-padding',
-          'class': vm.toolbarBackgroundClass,
           style: { borderRadius: '0' }
         },
         Items
@@ -10243,6 +10407,8 @@ function getDropdown (h, vm, btn) {
         label = btn.tip;
         icon = btn.icon;
       }
+
+      var htmlTip = btn.htmlTip;
 
       return h(
         QItem,
@@ -10262,17 +10428,20 @@ function getDropdown (h, vm, btn) {
         [
           noIcons ? '' : h(QItemSide, {props: {icon: btn.icon}}),
           h(QItemMain, {
-            props: {
-              label: btn.htmlTip || btn.tip
-            }
+            props: !htmlTip && btn.tip
+              ? { label: btn.tip }
+              : null,
+            domProps: htmlTip
+              ? { innerHTML: btn.htmlTip }
+              : null
           })
         ]
       )
     });
+    contentClass = [vm.toolbarBackgroundClass, vm.toolbarTextColor ? ("text-" + (vm.toolbarTextColor)) : ''];
     Items = [
       h(QList, {
-        props: { separator: true },
-        'class': [vm.toolbarBackgroundClass, vm.toolbarTextColor ? ("text-" + (vm.toolbarTextColor)) : '']
+        props: { separator: true }
       }, [ Items ])
     ];
   }
@@ -10287,7 +10456,8 @@ function getDropdown (h, vm, btn) {
         color: highlight ? vm.toolbarToggleColor : vm.toolbarColor,
         textColor: highlight && (vm.toolbarFlat || vm.toolbarOutline) ? null : vm.toolbarTextColor,
         label: btn.fixedLabel ? btn.label : label,
-        icon: btn.fixedIcon ? btn.icon : icon
+        icon: btn.fixedIcon ? btn.icon : icon,
+        contentClass: contentClass
       }, vm.buttonProps)
     },
     Items
@@ -10863,6 +11033,24 @@ var QEditor = {
         });
       });
       return k
+    },
+    innerStyle: function innerStyle () {
+      return this.inFullscreen
+        ? this.contentStyle
+        : [
+          {
+            minHeight: this.minHeight,
+            height: this.height,
+            maxHeight: this.maxHeight
+          },
+          this.contentStyle
+        ]
+    },
+    innerClass: function innerClass () {
+      return [
+        this.contentClass,
+        { col: this.inFullscreen, 'overflow-auto': this.inFullscreen || this.maxHeight }
+      ]
     }
   },
   data: function data () {
@@ -10988,13 +11176,8 @@ var QEditor = {
           {
             ref: 'content',
             staticClass: "q-editor-content",
-            style: this.inFullscreen
-              ? this.contentStyle
-              : [{ minHeight: this.minHeight, height: this.height, maxHeight: this.maxHeight }, this.contentStyle],
-            class: [
-              this.contentClass,
-              { col: this.inFullscreen, 'overflow-auto': this.inFullscreen }
-            ],
+            style: this.innerStyle,
+            class: this.innerClass,
             attrs: { contenteditable: this.editable },
             on: {
               input: this.onInput,
@@ -11151,6 +11334,7 @@ var QField = {
     warningLabel: String,
     helper: String,
     icon: String,
+    iconColor: String,
     dark: Boolean,
     orientation: {
       type: String,
@@ -11236,6 +11420,13 @@ var QField = {
       return this.isVertical
         ? "col-xs-12"
         : (this.isHorizontal ? 'col' : 'col-xs-12 col-sm')
+    },
+    iconProps: function iconProps () {
+      var prop = { name: this.icon };
+      if (this.iconColor && !this.hasError && !this.hasWarning) {
+        prop.color = this.iconColor;
+      }
+      return prop
     }
   },
   provide: function provide () {
@@ -11270,7 +11461,7 @@ var QField = {
     }, [
       this.icon
         ? h(QIcon, {
-          props: { name: this.icon },
+          props: this.iconProps,
           staticClass: 'q-field-icon q-field-margin'
         })
         : (this.insetIcon ? h('div', { staticClass: 'q-field-icon' }) : null),
@@ -11497,9 +11688,10 @@ var QKnob = {
       return cls
     },
     svgStyle: function svgStyle () {
+      var dir = this.$q.i18n.rtl ? -1 : 1;
       return {
         'stroke-dasharray': '295.31px, 295.31px',
-        'stroke-dashoffset': (295.31 * (1.0 - (this.model - this.min) / (this.max - this.min))) + 'px',
+        'stroke-dashoffset': (295.31 * dir * (1.0 - (this.model - this.min) / (this.max - this.min))) + 'px',
         'transition': this.dragging ? '' : 'stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease'
       }
     },
@@ -11611,6 +11803,10 @@ var QKnob = {
       }
       else {
         angle = center.left < pos.left ? angle + 90 : 270 - angle;
+      }
+
+      if (this.$q.i18n.rtl) {
+        angle = 360 - angle;
       }
 
       var
@@ -11817,9 +12013,10 @@ var QLayout = {
   }
 }
 
-var bodyClassBelow = 'with-layout-drawer-opened';
-var bodyClassAbove = 'with-layout-drawer-opened-above';
-var duration = 150;
+var
+  bodyClassBelow = 'with-layout-drawer-opened',
+  bodyClassAbove = 'with-layout-drawer-opened-above',
+  duration = 150;
 
 var QLayoutDrawer = {
   name: 'q-layout-drawer',
@@ -11987,7 +12184,7 @@ var QLayoutDrawer = {
         'on-screen': this.showing,
         'off-screen': !this.showing,
         'transition-generic': !this.inTransit,
-        'top-padding': this.fixed || this.headerSlot
+        'top-padding': true
       }
     },
     belowStyle: function belowStyle () {
@@ -12001,7 +12198,7 @@ var QLayoutDrawer = {
         'off-screen': !onScreen,
         'on-screen': onScreen,
         'fixed': this.fixed || !this.onLayout,
-        'top-padding': this.fixed || this.headerSlot
+        'top-padding': this.headerSlot
       }
     },
     aboveStyle: function aboveStyle () {
@@ -12115,7 +12312,7 @@ var QLayoutDrawer = {
         return
       }
 
-      this.position = this.rightSide
+      this.position = (this.$q.i18n.rtl ? !this.rightSide : this.rightSide)
         ? Math.max(width$$1 - position, 0)
         : Math.min(0, position - width$$1);
 
@@ -12133,7 +12330,8 @@ var QLayoutDrawer = {
 
       var
         width$$1 = this.size,
-        position = evt.direction === this.side
+        dir = evt.direction === this.side,
+        position = (this.$q.i18n.rtl ? !dir : dir)
           ? between(evt.distance.x, 0, width$$1)
           : 0;
 
@@ -12145,7 +12343,7 @@ var QLayoutDrawer = {
         return
       }
 
-      this.position = (this.rightSide ? 1 : -1) * position;
+      this.position = (this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1) * position;
       this.percentage = between(1 - position / width$$1, 0, 1);
 
       if (evt.isFirst) {
@@ -12237,8 +12435,9 @@ var QLayoutFooter = {
     offset: function offset (val) {
       this.__update('offset', val);
     },
-    revealed: function revealed () {
+    revealed: function revealed (val) {
       this.layout.__animate();
+      this.$emit('reveal', val);
     },
     'layout.scroll': function layout_scroll () {
       this.__updateRevealed();
@@ -12278,10 +12477,10 @@ var QLayoutFooter = {
         css = {};
 
       if (view[0] === 'l' && this.layout.left.space) {
-        css.marginLeft = (this.layout.left.size) + "px";
+        css[("margin" + (this.$q.i18n.rtl ? 'Right' : 'Left'))] = (this.layout.left.size) + "px";
       }
       if (view[2] === 'r' && this.layout.right.space) {
-        css.marginRight = (this.layout.right.size) + "px";
+        css[("margin" + (this.$q.i18n.rtl ? 'Left' : 'Right'))] = (this.layout.right.size) + "px";
       }
 
       return css
@@ -12293,10 +12492,10 @@ var QLayoutFooter = {
       'class': this.computedClass,
       style: this.computedStyle
     }, [
+      this.$slots.default,
       h(QResizeObservable, {
         on: { resize: this.__onResize }
-      }),
-      this.$slots.default
+      })
     ])
   },
   created: function created () {
@@ -12376,8 +12575,9 @@ var QLayoutHeader = {
     offset: function offset (val) {
       this.__update('offset', val);
     },
-    revealed: function revealed () {
+    revealed: function revealed (val) {
       this.layout.__animate();
+      this.$emit('reveal', val);
     },
     'layout.scroll': function layout_scroll (scroll) {
       if (!this.reveal) {
@@ -12417,10 +12617,10 @@ var QLayoutHeader = {
         css = {};
 
       if (view[0] === 'l' && this.layout.left.space) {
-        css.marginLeft = (this.layout.left.size) + "px";
+        css[("margin" + (this.$q.i18n.rtl ? 'Right' : 'Left'))] = (this.layout.left.size) + "px";
       }
       if (view[2] === 'r' && this.layout.right.space) {
-        css.marginRight = (this.layout.right.size) + "px";
+        css[("margin" + (this.$q.i18n.rtl ? 'Left' : 'Right'))] = (this.layout.right.size) + "px";
       }
 
       return css
@@ -12432,10 +12632,10 @@ var QLayoutHeader = {
       'class': this.computedClass,
       style: this.computedStyle
     }, [
+      this.$slots.default,
       h(QResizeObservable, {
         on: { resize: this.__onResize }
-      }),
-      this.$slots.default
+      })
     ])
   },
   created: function created () {
@@ -12525,13 +12725,13 @@ var QPageContainer = {
         css.paddingTop = (this.layout.header.size) + "px";
       }
       if (this.layout.right.space) {
-        css.paddingRight = (this.layout.right.size) + "px";
+        css[("padding" + (this.$q.i18n.rtl ? 'Left' : 'Right'))] = (this.layout.right.size) + "px";
       }
       if (this.layout.footer.space) {
         css.paddingBottom = (this.layout.footer.size) + "px";
       }
       if (this.layout.left.space) {
-        css.paddingLeft = (this.layout.left.size) + "px";
+        css[("padding" + (this.$q.i18n.rtl ? 'Right' : 'Left'))] = (this.layout.left.size) + "px";
       }
 
       return css
@@ -12569,7 +12769,8 @@ var QPageSticky = {
     offset: {
       type: Array,
       validator: function (v) { return v.length === 2; }
-    }
+    },
+    expand: Boolean
   },
   computed: {
     attach: function attach () {
@@ -12599,7 +12800,8 @@ var QPageSticky = {
     computedStyle: function computedStyle () {
       var
         attach = this.attach,
-        transforms = [];
+        transforms = [],
+        dir = this.$q.i18n.rtl ? -1 : 1;
 
       if (attach.top && this.top) {
         transforms.push(("translateY(" + (this.top) + "px)"));
@@ -12609,10 +12811,10 @@ var QPageSticky = {
       }
 
       if (attach.left && this.left) {
-        transforms.push(("translateX(" + (this.left) + "px)"));
+        transforms.push(("translateX(" + (dir * this.left) + "px)"));
       }
       else if (attach.right && this.right) {
-        transforms.push(("translateX(" + (-this.right) + "px)"));
+        transforms.push(("translateX(" + (-dir * this.right) + "px)"));
       }
 
       var css$$1 = transforms.length
@@ -12641,17 +12843,22 @@ var QPageSticky = {
       }
 
       return css$$1
+    },
+    classes: function classes () {
+      return [ ("fixed-" + (this.position)), ("q-page-sticky-" + (this.expand ? 'expand' : 'shrink')) ]
     }
   },
   render: function render (h) {
     return h('div', {
       staticClass: 'q-page-sticky q-layout-transition z-fixed row flex-center',
-      'class': ("fixed-" + (this.position)),
+      'class': this.classes,
       style: this.computedStyle
     }, [
-      h('span', [
-        this.$slots.default
-      ])
+      this.expand
+        ? this.$slots.default
+        : h('span', [
+          this.$slots.default
+        ])
     ])
   }
 }
@@ -12754,6 +12961,15 @@ var QPagination = {
     },
     __ellipses: function __ellipses () {
       return this.__getBool(this.ellipses, !this.input)
+    },
+    icons: function icons () {
+      var ico = [
+        this.$q.icon.pagination.first,
+        this.$q.icon.pagination.prev,
+        this.$q.icon.pagination.next,
+        this.$q.icon.pagination.last
+      ];
+      return this.$q.i18n.rtl ? ico.reverse() : ico
     }
   },
   methods: {
@@ -12767,12 +12983,8 @@ var QPagination = {
       this.model = this.newPage;
       this.newPage = null;
     },
-    __getRepeatEasing: function __getRepeatEasing (from, step, to) {
-      if ( from === void 0 ) from = 300;
-      if ( step === void 0 ) step = 10;
-      if ( to === void 0 ) to = 100;
-
-      return function (cnt) { return cnt ? Math.max(to, from - cnt * cnt * step) : 100; }
+    __repeatTimeout: function __repeatTimeout (count) {
+      return Math.max(100, 300 - count * count * 10)
     },
     __getBool: function __getBool (val, otherwise) {
       return [true, false].includes(val)
@@ -12802,7 +13014,7 @@ var QPagination = {
         key: 'bls',
         props: {
           disable: this.disable || this.value <= this.min,
-          icon: this.$q.icon.pagination.first
+          icon: this.icons[0]
         },
         on: {
           click: function () { return this$1.set(this$1.min); }
@@ -12812,7 +13024,7 @@ var QPagination = {
         key: 'ble',
         props: {
           disable: this.disable || this.value >= this.max,
-          icon: this.$q.icon.pagination.last
+          icon: this.icons[3]
         },
         on: {
           click: function () { return this$1.set(this$1.max); }
@@ -12825,8 +13037,8 @@ var QPagination = {
         key: 'bdp',
         props: {
           disable: this.disable || this.value <= this.min,
-          icon: this.$q.icon.pagination.prev,
-          repeatTimeout: this.__getRepeatEasing()
+          icon: this.icons[1],
+          repeatTimeout: this.__repeatTimeout
         },
         on: {
           click: function () { return this$1.setByOffset(-1); }
@@ -12836,8 +13048,8 @@ var QPagination = {
         key: 'bdn',
         props: {
           disable: this.disable || this.value >= this.max,
-          icon: this.$q.icon.pagination.next,
-          repeatTimeout: this.__getRepeatEasing()
+          icon: this.icons[2],
+          repeatTimeout: this.__repeatTimeout
         },
         on: {
           click: function () { return this$1.setByOffset(1); }
@@ -12947,7 +13159,7 @@ var QPagination = {
           props: {
             disable: this.disable,
             label: '…',
-            repeatTimeout: this.__getRepeatEasing()
+            repeatTimeout: this.__repeatTimeout
           },
           on: {
             click: function () { return this$1.set(pgFrom - 1); }
@@ -12961,7 +13173,7 @@ var QPagination = {
           props: {
             disable: this.disable,
             label: '…',
-            repeatTimeout: this.__getRepeatEasing()
+            repeatTimeout: this.__repeatTimeout
           },
           on: {
             click: function () { return this$1.set(pgTo + 1); }
@@ -12990,7 +13202,7 @@ var QPagination = {
     }
 
     return h('div', {
-      staticClass: 'q-pagination row no-wrap items-start',
+      staticClass: 'q-pagination row no-wrap items-center',
       'class': { disabled: this.disable }
     }, [
       contentStart,
@@ -13510,7 +13722,7 @@ var QRange = {
       };
 
       var
-        percentage = getPercentage(event, this.dragging),
+        percentage = getPercentage(event, this.dragging, this.$q.i18n.rtl),
         type;
 
       if (percentage < this.currentMinPercentage + sensitivity) {
@@ -13546,7 +13758,7 @@ var QRange = {
     },
     __update: function __update (event) {
       var
-        percentage = getPercentage(event, this.dragging),
+        percentage = getPercentage(event, this.dragging, this.$q.i18n.rtl),
         model = getModel(percentage, this.min, this.max, this.step, this.computedDecimals),
         pos;
 
@@ -13646,13 +13858,12 @@ var QRange = {
     },
 
     __getHandle: function __getHandle (h, lower, upper, edge, percentage, color, label) {
+      var obj;
+
       return h('div', {
         ref: ("handle" + upper),
         staticClass: ("q-slider-handle q-slider-handle-" + lower),
-        style: {
-          left: ((percentage * 100) + "%"),
-          borderRadius: this.square ? '0' : '50%'
-        },
+        style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj),
         'class': [
           edge ? 'handle-at-minimum' : null,
           { dragging: this.dragging }
@@ -13673,13 +13884,12 @@ var QRange = {
       ])
     },
     __getContent: function __getContent (h) {
+      var obj;
+
       return [
         h('div', {
           staticClass: 'q-slider-track active-track',
-          style: {
-            left: ((this.percentageMin * 100) + "%"),
-            width: this.activeTrackWidth
-          },
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj),
           'class': {
             dragging: this.dragging,
             'track-draggable': this.dragRange || this.dragOnlyRange
@@ -14014,20 +14224,17 @@ var QScrollArea = {
           staticClass: 'absolute full-width',
           style: this.mainStyle
         }, [
-          this.$slots.default,
           h(QResizeObservable, {
-            staticClass: 'resize-obs',
             on: { resize: this.__updateScrollHeight }
-          })
+          }),
+          this.$slots.default
         ]),
         h(QScrollObservable, {
-          staticClass: 'scroll-obs',
           on: { scroll: this.__updateScroll }
         })
       ]),
 
       h(QResizeObservable, {
-        staticClass: 'main-resize-obs',
         on: { resize: this.__updateContainer }
       }),
 
@@ -14059,7 +14266,8 @@ var QSearch = {
       default: 300
     },
     icon: String,
-    placeholder: String
+    placeholder: String,
+    noIcon: Boolean
   },
   data: function data () {
     return {
@@ -14109,10 +14317,14 @@ var QSearch = {
         : this.debounce
     },
     controlBefore: function controlBefore () {
-      return this.before || [{
-        icon: this.icon || this.$q.icon.search.icon,
-        handler: this.focus
-      }]
+      return this.before || (
+        this.noIcon
+          ? null
+          : [{
+            icon: this.icon || this.$q.icon.search.icon,
+            handler: this.focus
+          }]
+      )
     },
     controlAfter: function controlAfter () {
       if (this.after) {
@@ -14148,6 +14360,7 @@ var QSearch = {
         error: this.error,
         warning: this.warning,
         align: this.align,
+        noParentField: this.noParentField,
         floatLabel: this.floatLabel,
         stackLabel: this.stackLabel,
         prefix: this.prefix,
@@ -14184,7 +14397,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.togglePopup($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);},"keydown":function($event){_vm.__keyboardHandleKey($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('input',{staticClass:"col q-input-target cursor-inherit",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"readonly":"readonly","disabled":this.disable,"tabindex":"-1"},domProps:{"value":_vm.actualValue}}),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"offset":[0, 10],"anchor-click":false},on:{"show":_vm.__onShow,"hide":_vm.__onClose}},[(_vm.filter)?_c('q-search',{ref:"filter",staticStyle:{"min-height":"50px","padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","icon":"filter_list"},on:{"input":_vm.reposition},nativeOn:{"keydown":function($event){_vm.__keyboardHandleKey($event);}},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2)],1)],1)},staticRenderFns: [],
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.togglePopup($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);},"keydown":function($event){_vm.__keyboardHandleKey($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":_vm.__onClose}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},nativeOn:{"keydown":function($event){_vm.__keyboardHandleKey($event);}},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
   name: 'q-select',
   mixins: [FrameMixin, KeyboardSelectionMixin],
   components: {
@@ -14340,10 +14553,16 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     __keyboardCalcIndex: function __keyboardCalcIndex () {
       var this$1 = this;
 
-      this.keyboardMoveDirection = true;
       this.keyboardIndex = -1;
       var sel = this.multiple ? this.selectedOptions.map(function (o) { return o.value; }) : [this.model];
-      this.$nextTick(function () { return this$1.__keyboardShow(sel === void 0 ? 0 : Math.max(0, this$1.visibleOptions.findIndex(function (opt) { return sel.includes(opt.value); }))); });
+      this.$nextTick(function () {
+        var index = sel === void 0 ? -1 : Math.max(-1, this$1.visibleOptions.findIndex(function (opt) { return sel.includes(opt.value); }));
+        if (index > -1) {
+          this$1.keyboardMoveDirection = true;
+          setTimeout(function () { this$1.keyboardMoveDirection = false; }, 500);
+          this$1.__keyboardShow(index);
+        }
+      });
     },
     __keyboardCustomKeyHandle: function __keyboardCustomKeyHandle (key, e) {
       switch (key) {
@@ -14897,7 +15116,7 @@ var TabMixin = {
         active: this.active,
         hidden: this.hidden,
         disabled: this.disable,
-        'icon-and-label': this.icon && this.label,
+        'q-tab-only-label': !this.icon && this.label,
         'hide-icon': this.hide === 'icon',
         'hide-label': this.hide === 'label'
       };
@@ -14929,7 +15148,7 @@ var TabMixin = {
         }
       }));
 
-      this.label && child.push(h('span', {
+      this.label && child.push(h('div', {
         staticClass: 'q-tab-label',
         domProps: {
           innerHTML: this.label
@@ -14965,6 +15184,9 @@ var TabMixin = {
 var QRouteTab = {
   name: 'q-route-tab',
   mixins: [TabMixin, RouterLinkMixin],
+  inject: {
+    selectTabRouter: {}
+  },
   watch: {
     $route: function $route () {
       this.checkIfSelected();
@@ -14975,18 +15197,22 @@ var QRouteTab = {
       this.$emit('click', this.name);
       if (!this.disable) {
         this.$el.dispatchEvent(evt);
-        this.selectTab(this.name);
+        this.selectTabRouter({ value: this.name, selected: true });
       }
     },
     checkIfSelected: function checkIfSelected () {
       var this$1 = this;
 
       this.$nextTick(function () {
-        if (this$1.$el.classList.contains('router-link-active') || this$1.$el.classList.contains('router-link-exact-active')) {
-          this$1.selectTab(this$1.name);
+        if (this$1.$el.classList.contains('q-router-link-exact-active')) {
+          this$1.selectTabRouter({ value: this$1.name, selectable: true, exact: true });
+        }
+        else if (this$1.$el.classList.contains('q-router-link-active')) {
+          var path = this$1.$router.resolve(this$1.to, undefined, this$1.append);
+          this$1.selectTabRouter({ value: this$1.name, selectable: true, priority: path.href.length });
         }
         else if (this$1.active) {
-          this$1.selectTab(null);
+          this$1.selectTabRouter({ value: null });
         }
       });
     }
@@ -14999,9 +15225,12 @@ var QRouteTab = {
       props: {
         tag: 'div',
         to: this.to,
-        replace: this.replace,
+        exact: this.exact,
         append: this.append,
-        event: routerLinkEventName
+        replace: this.replace,
+        event: routerLinkEventName,
+        activeClass: 'q-router-link-active',
+        exactActiveClass: 'q-router-link-exact-active'
       },
       nativeOn: {
         click: this.select
@@ -15088,17 +15317,17 @@ var QTabPane = {
   }
 }
 
-var scrollNavigationSpeed = 5;
-var debounceDelay = 50; // in ms
+var
+  scrollNavigationSpeed = 5, // in pixels
+  debounceDelay = 50; // in ms
 
-var QTabs = {render: function(){
-var obj;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex no-wrap",class:[ ("q-tabs-position-" + (_vm.position)), ("q-tabs-" + (_vm.inverted ? 'inverted' : 'normal')), _vm.noPaneBorder ? 'q-tabs-no-pane-border' : '', _vm.twoLines ? 'q-tabs-two-lines' : '' ]},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:( obj = {}, obj[("q-tabs-align-" + (_vm.align))] = true, obj.glossy = _vm.glossy, obj[("bg-" + (_vm.color))] = !_vm.inverted && _vm.color, obj)},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.left}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.right}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])},staticRenderFns: [],
+var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex no-wrap",class:_vm.classes},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:_vm.innerClasses},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.left}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.right}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])},staticRenderFns: [],
   name: 'q-tabs',
   provide: function provide () {
     return {
       data: this.data,
-      selectTab: this.selectTab
+      selectTab: this.selectTab,
+      selectTabRouter: this.selectTabRouter
     }
   },
   components: {
@@ -15148,6 +15377,24 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
       this.data.inverted = v;
     }
   },
+  computed: {
+    classes: function classes () {
+      return [
+        ("q-tabs-position-" + (this.position)),
+        ("q-tabs-" + (this.inverted ? 'inverted' : 'normal')),
+        this.noPaneBorder ? 'q-tabs-no-pane-border' : '',
+        this.twoLines ? 'q-tabs-two-lines' : ''
+      ]
+    },
+    innerClasses: function innerClasses () {
+      var cls = [ ("q-tabs-align-" + (this.align)) ];
+      this.glossy && cls.push('glossy');
+      if (!this.inverted && this.color) {
+        cls.push(("bg-" + (this.color)));
+      }
+      return cls
+    }
+  },
   methods: {
     selectTab: function selectTab (value) {
       var this$1 = this;
@@ -15175,6 +15422,41 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
       {
         this.currentEl = el;
         this.__repositionBar();
+      }
+    },
+    selectTabRouter: function selectTabRouter (params) {
+      var this$1 = this;
+
+      var value = params.value;
+      var selectable = params.selectable;
+      var exact = params.exact;
+      var selected = params.selected;
+      var priority = params.priority;
+      var first = !this.buffer.length,
+        existingIndex = first ? -1 : this.buffer.findIndex(function (t) { return t.value === value; });
+
+      if (existingIndex > -1) {
+        var buffer = this.buffer[existingIndex];
+        exact && (buffer.exact = exact);
+        selectable && (buffer.selectable = selectable);
+        selected && (buffer.selected = selected);
+        priority && (buffer.priority = priority);
+      }
+      else {
+        this.buffer.push(params);
+      }
+
+      if (first) {
+        this.bufferTimer = setTimeout(function () {
+          var tab = this$1.buffer.find(function (t) { return t.exact && t.selected; }) ||
+            this$1.buffer.find(function (t) { return t.selectable && t.selected; }) ||
+            this$1.buffer.find(function (t) { return t.exact; }) ||
+            this$1.buffer.filter(function (t) { return t.selectable; }).sort(function (t1, t2) { return t2.priority - t1.priority; })[0] ||
+            this$1.buffer[0];
+
+          this$1.buffer.length = 0;
+          this$1.selectTab(tab.value);
+        }, 100);
       }
     },
     __repositionBar: function __repositionBar () {
@@ -15234,7 +15516,10 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
         return
       }
       this.posbar = {width: width$$1, left: left};
-      css(this.$refs.posbar, cssTransform(("translateX(" + left + "px) scaleX(" + width$$1 + ")")));
+      var xPos = this.$q.i18n.rtl
+        ? left + width$$1
+        : left;
+      css(this.$refs.posbar, cssTransform(("translateX(" + xPos + "px) scaleX(" + width$$1 + ")")));
     },
     __updatePosbarTransition: function __updatePosbarTransition () {
       if (
@@ -15255,10 +15540,11 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
       if (!this.$q.platform.is.desktop) {
         return
       }
-      if (width(this.$refs.scroller) === 0 && this.$refs.scroller.scrollWidth === 0) {
+      this.scrollerWidth = width(this.$refs.scroller);
+      if (this.scrollerWidth === 0 && this.$refs.scroller.scrollWidth === 0) {
         return
       }
-      if (width(this.$refs.scroller) + 5 < this.$refs.scroller.scrollWidth) {
+      if (this.scrollerWidth + 5 < this.$refs.scroller.scrollWidth) {
         this.$refs.tabs.classList.add('scrollable');
         this.scrollable = true;
         this.__updateScrollIndicator();
@@ -15359,7 +15645,10 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
     }
   },
   created: function created () {
+    this.timer = null;
     this.scrollTimer = null;
+    this.bufferTimer = null;
+    this.buffer = [];
     this.scrollable = !this.$q.platform.is.desktop;
 
     // debounce some costly methods;
@@ -15387,6 +15676,7 @@ var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{
   },
   beforeDestroy: function beforeDestroy () {
     clearTimeout(this.timer);
+    clearTimeout(this.bufferTimer);
     this.__stopAnimScroll();
     this.$refs.scroller.removeEventListener('scroll', this.__updateScrollIndicator, listenOpts.passive);
     window.removeEventListener('resize', this.__redraw, listenOpts.passive);
@@ -15418,8 +15708,8 @@ var Top = {
         topLeft = this.$scopedSlots['top-left'],
         topRight = this.$scopedSlots['top-right'],
         topSelection = this.$scopedSlots['top-selection'],
-        hasSelection = this.selection && topSelection && this.rowsSelectedNumber > 0,
-        staticClass = 'q-table-top relative-position row no-wrap items-center',
+        hasSelection = this.hasSelectionMode && topSelection && this.rowsSelectedNumber > 0,
+        staticClass = 'q-table-top relative-position row items-center',
         child = [];
 
       if (top) {
@@ -15431,16 +15721,28 @@ var Top = {
       }
       else {
         if (topLeft) {
-          child.push(topLeft(this.marginalsProps));
+          child.push(
+            h('div', { staticClass: 'q-table-control' }, [
+              topLeft(this.marginalsProps)
+            ])
+          );
         }
         else if (this.title) {
-          child.push(h('div', { staticClass: 'q-table-title' }, this.title));
+          child.push(
+            h('div', { staticClass: 'q-table-control' }, [
+              h('div', { staticClass: 'q-table-title' }, this.title)
+            ])
+          );
         }
       }
 
       if (topRight) {
         child.push(h('div', { staticClass: 'q-table-separator col' }));
-        child.push(topRight(this.marginalsProps));
+        child.push(
+          h('div', { staticClass: 'q-table-control' }, [
+            topRight(this.marginalsProps)
+          ])
+        );
       }
 
       if (child.length === 0) {
@@ -15513,7 +15815,7 @@ var TableHeader = {
 
       var child = [ this.getTableHeaderRow(h) ];
 
-      if (this.loader) {
+      if (this.loading) {
         child.push(h('tr', { staticClass: 'q-table-progress animate-fade' }, [
           h('td', { attrs: {colspan: '100%'} }, [
             h(QProgress, {
@@ -15657,7 +15959,7 @@ var TableBody = {
                   : h('td', { staticClass: col.__tdClass }, this$1.getCellValue(col, row))
               });
 
-          if (this$1.selection) {
+          if (this$1.hasSelectionMode) {
             child.unshift(h('td', { staticClass: 'q-table-col-auto-width' }, [
               h(QCheckbox, {
                 props: {
@@ -15690,7 +15992,7 @@ var TableBody = {
     addBodyRowMeta: function addBodyRowMeta (data) {
       var this$1 = this;
 
-      if (this.selection) {
+      if (this.hasSelectionMode) {
         Object.defineProperty(data, 'selected', {
           get: function () { return this$1.isRowSelected(data.key); },
           set: function (adding) {
@@ -15707,7 +16009,7 @@ var TableBody = {
       });
 
       data.cols = data.cols.map(function (col) {
-        var c = Object.assign({}, col);
+        var c = extend({}, col);
         Object.defineProperty(c, 'value', {
           get: function () { return this$1.getCellValue(col, data.row); }
         });
@@ -15732,6 +16034,12 @@ var TableBody = {
 }
 
 var Bottom = {
+  computed: {
+    navIcon: function navIcon () {
+      var ico = [ this.$q.icon.table.prevPage, this.$q.icon.table.nextPage ];
+      return this.$q.i18n.rtl ? ico.reverse() : ico
+    }
+  },
   methods: {
     getBottom: function getBottom (h) {
       if (this.hideBottom) {
@@ -15741,7 +16049,7 @@ var Bottom = {
       if (this.nothingToDisplay) {
         var message = this.filter
           ? this.noResultsLabel || this.$q.i18n.table.noResults
-          : (this.loader ? this.loaderLabel || this.$q.i18n.table.loader : this.noDataLabel || this.$q.i18n.table.noData);
+          : (this.loading ? this.loadingLabel || this.$q.i18n.table.loading : this.noDataLabel || this.$q.i18n.table.noData);
 
         return h('div', { staticClass: 'q-table-bottom row items-center q-table-nodata' }, [
           h(QIcon, {props: { name: this.$q.icon.table.warning }}),
@@ -15751,9 +16059,10 @@ var Bottom = {
 
       var bottom = this.$scopedSlots.bottom;
 
-      return h('div', { staticClass: 'q-table-bottom row items-center' },
-        bottom ? [ bottom(this.marginalsProps) ] : this.getPaginationRow(h)
-      )
+      return h('div', {
+        staticClass: 'q-table-bottom row items-center',
+        'class': bottom ? null : 'justify-end'
+      }, bottom ? [ bottom(this.marginalsProps) ] : this.getPaginationRow(h))
     },
     getPaginationRow: function getPaginationRow (h) {
       var this$1 = this;
@@ -15764,20 +16073,20 @@ var Bottom = {
         paginationSlot = this.$scopedSlots.pagination;
 
       return [
-        h('div', { staticClass: 'col' }, [
-          this.selection && this.rowsSelectedNumber > 0
-            ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRows)(this.rowsSelectedNumber)
-            : ''
+        h('div', { staticClass: 'q-table-control' }, [
+          h('div', [
+            this.hasSelectionMode && this.rowsSelectedNumber > 0
+              ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRows)(this.rowsSelectedNumber)
+              : ''
+          ])
         ]),
-        h('div', { staticClass: 'flex items-center' }, [
-          h('span', { staticClass: 'q-mr-lg' }, [
+        h('div', { staticClass: 'q-table-separator col' }),
+        h('div', { staticClass: 'q-table-control' }, [
+          h('span', { staticClass: 'q-table-bottom-item' }, [
             this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
-            staticClass: 'inline q-pb-none q-my-none q-ml-none q-mr-lg',
-            style: {
-              minWidth: '50px'
-            },
+            staticClass: 'inline q-table-bottom-item',
             props: {
               color: this.color,
               value: rowsPerPage,
@@ -15793,11 +16102,13 @@ var Bottom = {
                 });
               }
             }
-          }),
+          })
+        ]),
+        h('div', { staticClass: 'q-table-control' }, [
           paginationSlot
             ? paginationSlot(this.marginalsProps)
             : [
-              h('span', { staticClass: 'q-mr-lg' }, [
+              h('span', { staticClass: 'q-table-bottom-item' }, [
                 rowsPerPage
                   ? paginationLabel(this.firstRowIndex + 1, Math.min(this.lastRowIndex, this.computedRowsNumber), this.computedRowsNumber)
                   : paginationLabel(1, this.computedRowsNumber, this.computedRowsNumber)
@@ -15806,7 +16117,7 @@ var Bottom = {
                 props: {
                   color: this.color,
                   round: true,
-                  icon: this.$q.icon.table.prevPage,
+                  icon: this.navIcon[0],
                   dense: true,
                   flat: true,
                   disable: this.isFirstPage
@@ -15817,7 +16128,7 @@ var Bottom = {
                 props: {
                   color: this.color,
                   round: true,
-                  icon: this.$q.icon.table.nextPage,
+                  icon: this.navIcon[1],
                   dense: true,
                   flat: true,
                   disable: this.isLastPage
@@ -15852,6 +16163,8 @@ var Sort = {
             : function (v) { return v[col.field]; };
 
         return data.sort(function (a, b) {
+          var assign;
+
           var
             A = val(a),
             B = val(b);
@@ -15871,8 +16184,10 @@ var Sort = {
           if (isDate(A) && isDate(B)) {
             return sortDate(A, B) * dir
           }
+          if (typeof A === 'boolean' && typeof B === 'boolean') {
+            return (a - b) * dir
+          }
 
-          var assign;
           (assign = [A, B].map(function (s) { return s.toLowerCase(); }), A = assign[0], B = assign[1]);
 
           return A < B
@@ -15971,7 +16286,7 @@ var Pagination = {
   },
   computed: {
     computedPagination: function computedPagination () {
-      return Object.assign({}, this.innerPagination, this.pagination)
+      return extend({}, this.innerPagination, this.pagination)
     },
     firstRowIndex: function firstRowIndex () {
       var ref = this.computedPagination;
@@ -16012,9 +16327,20 @@ var Pagination = {
       }); })
     }
   },
+  watch: {
+    pagesNumber: function pagesNumber (lastPage) {
+      var currentPage = this.computedPagination.page;
+      if (lastPage && !currentPage) {
+        this.setPagination({ page: 1 });
+      }
+      else if (lastPage < currentPage) {
+        this.setPagination({ page: lastPage });
+      }
+    }
+  },
   methods: {
     setPagination: function setPagination (val) {
-      var newPagination = Object.assign({}, this.computedPagination, val);
+      var newPagination = extend({}, this.computedPagination, val);
 
       if (this.isServerSide) {
         this.requestServerInteraction({
@@ -16047,7 +16373,7 @@ var Pagination = {
     }
   },
   created: function created () {
-    this.$emit('update:pagination', Object.assign({}, this.computedPagination));
+    this.$emit('update:pagination', extend({}, this.computedPagination));
   }
 }
 
@@ -16055,7 +16381,8 @@ var RowSelection = {
   props: {
     selection: {
       type: String,
-      validator: function (v) { return ['single', 'multiple'].includes(v); }
+      default: 'none',
+      validator: function (v) { return ['single', 'multiple', 'none'].includes(v); }
     },
     selected: {
       type: Array,
@@ -16071,6 +16398,9 @@ var RowSelection = {
         keys[key] = true;
       });
       return keys
+    },
+    hasSelectionMode: function hasSelectionMode () {
+      return this.selection !== 'none'
     },
     singleSelection: function singleSelection () {
       return this.selection === 'single'
@@ -16191,7 +16521,7 @@ var QTable = {
     },
     dense: Boolean,
     columns: Array,
-    loader: Boolean,
+    loading: Boolean,
     title: String,
     hideHeader: Boolean,
     hideBottom: Boolean,
@@ -16203,7 +16533,7 @@ var QTable = {
     },
     noDataLabel: String,
     noResultsLabel: String,
-    loaderLabel: String,
+    loadingLabel: String,
     selectedRowsLabel: Function,
     rowsPerPageLabel: String,
     paginationLabel: Function,
@@ -16217,17 +16547,20 @@ var QTable = {
     }
   },
   computed: {
-    computedRows: function computedRows () {
+    computedData: function computedData () {
       var rows = this.data.slice().map(function (row, i) {
         row.__index = i;
         return row
       });
 
       if (rows.length === 0) {
-        return []
+        return {
+          rowsNumber: 0,
+          rows: []
+        }
       }
       if (this.isServerSide) {
-        return rows
+        return { rows: rows }
       }
 
       var ref = this.computedPagination;
@@ -16243,16 +16576,21 @@ var QTable = {
         rows = this.sortMethod(rows, sortBy, descending);
       }
 
+      var rowsNumber = rows.length;
+
       if (rowsPerPage) {
         rows = rows.slice(this.firstRowIndex, this.lastRowIndex);
       }
 
-      return rows
+      return { rowsNumber: rowsNumber, rows: rows }
+    },
+    computedRows: function computedRows () {
+      return this.computedData.rows
     },
     computedRowsNumber: function computedRowsNumber () {
       return this.isServerSide
         ? this.computedPagination.rowsNumber || 0
-        : this.data.length
+        : this.computedData.rowsNumber
     },
     nothingToDisplay: function nothingToDisplay () {
       return this.computedRows.length === 0
@@ -16489,16 +16827,30 @@ var QToolbar = {
   name: 'q-toolbar',
   props: {
     color: String,
+    textColor: String,
     inverted: Boolean,
     glossy: Boolean
   },
   computed: {
     classes: function classes () {
-      return [
-        ("q-toolbar-" + (this.inverted ? 'inverted' : 'normal')),
-        this.color ? (" " + (this.inverted ? 'text' : 'bg') + "-" + (this.color)) : '',
-        this.glossy ? 'glossy' : ''
-      ]
+      var cls = [ ("q-toolbar-" + (this.inverted ? 'inverted' : 'normal')) ];
+
+      this.glossy && cls.push('glossy');
+
+      if (this.color) {
+        if (this.inverted) {
+          cls.push(("text-" + (this.textColor || this.color)));
+        }
+        else {
+          cls.push(("bg-" + (this.color)));
+          cls.push(("text-" + (this.textColor || 'white')));
+        }
+      }
+      else if (this.textColor) {
+        cls.push(("text-" + (this.textColor)));
+      }
+
+      return cls
     }
   },
   render: function render (h) {
@@ -16513,9 +16865,13 @@ var QToolbar = {
 
 var QToolbarTitle = {
   name: 'q-toolbar-title',
+  props: {
+    shrink: Boolean
+  },
   render: function render (h) {
     return h('div', {
-      staticClass: 'q-toolbar-title'
+      staticClass: 'q-toolbar-title',
+      'class': this.shrink ? 'col-auto' : null
     }, [
       this.$slots.default,
       this.$slots.subtitle
@@ -16991,7 +17347,7 @@ var QTree = {
               isParent
                 ? h(QIcon, {
                   staticClass: 'q-tree-arrow q-mr-xs transition-generic',
-                  'class': { 'rotate-90': meta.expanded },
+                  'class': { 'q-tree-arrow-rotate': meta.expanded },
                   props: { name: this.computedIcon },
                   nativeOn: {
                     click: function (e) {
@@ -17124,7 +17480,7 @@ function initFile (file) {
   file.__progress = 0;
 }
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragOver($event);}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"length":_vm.queueLength,"additional-length":""}},[_c('input',{staticClass:"col q-input-target cursor-inherit",class:_vm.alignClass,attrs:{"readonly":"readonly","disabled":this.disable,"tabindex":"-1"},domProps:{"value":_vm.label}}),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){_vm.abort($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){_vm.__pick($event);}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){_vm.upload($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragLeave($event);},"drop":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDrop($event);}}}):_vm._e()],1)},staticRenderFns: [],
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragOver($event);}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){_vm.abort($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){_vm.__pick($event);}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){_vm.upload($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragLeave($event);},"drop":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDrop($event);}}}):_vm._e()],1)},staticRenderFns: [],
   name: 'q-uploader',
   mixins: [FrameMixin],
   components: {
@@ -17226,6 +17582,18 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     progressColor: function progressColor () {
       return this.dark ? 'white' : 'grey'
+    },
+    computedExtensions: function computedExtensions () {
+      if (this.extensions) {
+        return this.extensions.split(',').map(function (ext) {
+          ext = ext.trim();
+          // support "image/*"
+          if (ext.endsWith('/*')) {
+            ext = ext.slice(0, ext.length - 1);
+          }
+          return ext
+        })
+      }
     }
   },
   watch: {
@@ -17247,14 +17615,28 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     __onDrop: function __onDrop (e) {
       this.dnd = false;
+      var files = e.dataTransfer.files;
 
-      var
-        files = e.dataTransfer.files,
-        count = files.length;
-
-      if (count > 0) {
-        this.__add(null, this.multiple ? files : [ files[0] ]);
+      if (files.length === 0) {
+        return
       }
+
+      files = this.multiple ? files : [ files[0] ];
+      if (this.extensions) {
+        files = this.__filter(files);
+        if (files.length === 0) {
+          return
+        }
+      }
+
+      this.__add(null, files);
+    },
+    __filter: function __filter (files) {
+      var this$1 = this;
+
+      return Array.prototype.filter.call(files, function (file) {
+        return this$1.computedExtensions.some(function (ext) { return file.type.startsWith(ext) || file.name.endsWith(ext); })
+      })
     },
     __add: function __add (e, files) {
       var this$1 = this;
@@ -17660,17 +18042,18 @@ var backToTop = {
     var ctx = {
       offset: 200,
       duration: 300,
-      update: debounce(function () {
-        var trigger = getScrollPosition(ctx.scrollTarget) > ctx.offset;
-        if (ctx.visible !== trigger) {
-          ctx.visible = trigger;
-          el.classList[trigger ? 'remove' : 'add']('hidden');
+      updateNow: function () {
+        var trigger = getScrollPosition(ctx.scrollTarget) <= ctx.offset;
+
+        if (trigger !== el.classList.contains('hidden')) {
+          el.classList[trigger ? 'add' : 'remove']('hidden');
         }
-      }, 25),
+      },
       goToTop: function goToTop () {
         setScrollPosition(ctx.scrollTarget, 0, ctx.animate ? ctx.duration : 0);
       }
     };
+    ctx.update = debounce(ctx.updateNow, 25);
     el.classList.add('hidden');
     el.__qbacktotop = ctx;
   },
@@ -17684,8 +18067,13 @@ var backToTop = {
     el.addEventListener('click', ctx.goToTop);
   },
   update: function update (el, binding) {
-    if (binding.oldValue !== binding.value) {
+    if (JSON.stringify(binding.oldValue) !== JSON.stringify(binding.value)) {
       updateBinding(el, binding);
+    }
+    else {
+      setTimeout(function () {
+        el.__qbacktotop.updateNow();
+      }, 0);
     }
   },
   unbind: function unbind (el) {
@@ -17999,7 +18387,7 @@ var actionSheet = {
     if (this.__installed) { return }
     this.__installed = true;
 
-    $q.actionSheet = modalFn(QActionSheet, Vue$$1);
+    this.create = $q.actionSheet = modalFn(QActionSheet, Vue$$1);
   }
 }
 
@@ -18122,21 +18510,21 @@ var appFullscreen = {
       exit: exit
     };
 
-    this.isActive = (document.fullscreenElement ||
+    this.isActive = !!(document.fullscreenElement ||
       document.mozFullScreenElement ||
       document.webkitFullscreenElement ||
-      document.msFullscreenElement) !== undefined
+      document.msFullscreenElement)
 
     ;[
       'onfullscreenchange',
-      'MSFullscreenChange', 'onmozfullscreenchange', 'onwebkitfullscreenchange'
+      'onmsfullscreenchange', 'onmozfullscreenchange', 'onwebkitfullscreenchange'
     ].forEach(function (evt) {
       document[evt] = function () {
         this$1.isActive = !this$1.isActive;
       };
     });
 
-    Vue$$1.util.defineReactive({}, 'isActive', this);
+    Vue$$1.util.defineReactive(this, 'isActive', this.isActive);
     $q.fullscreen = this;
   }
 }
@@ -18180,7 +18568,7 @@ var appVisibility = {
     update();
 
     if (evt && typeof document[prop] !== 'undefined') {
-      Vue$$1.util.defineReactive({}, 'appVisible', $q);
+      Vue$$1.util.defineReactive($q, 'appVisible', this.appVisible);
       document.addEventListener(evt, update, false);
     }
   }
@@ -18313,15 +18701,16 @@ var dialog = {
     if (this.__installed) { return }
     this.__installed = true;
 
-    $q.dialog = isSSR
+    this.create = $q.dialog = isSSR
       ? function () { return new Promise(); }
       : modalFn(QDialog, Vue$$1);
   }
 }
 
-var vm;
-var timeout;
-var props = {};
+var
+  vm,
+  timeout,
+  props = {};
 
 var staticClass = 'q-loading animate-fade fullscreen column flex-center z-max';
 
@@ -18810,8 +19199,6 @@ function openUrl (url, reject) {
 }
 
 function noop () {}
-
-
 
 
 var utils = Object.freeze({
