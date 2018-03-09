@@ -2021,38 +2021,24 @@ input.q-input-target {
   top: 0;
   bottom: 0;
   background: #fff;
+  -webkit-transition: all 0.12s ease-in;
+  transition: all 0.12s ease-in;
   z-index: 1000;
-}
-.q-layout-drawer.fixed.on-screen {
-  -webkit-box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
-          box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
 }
 .q-layout-drawer.on-top {
   z-index: 3000;
+}
+.q-layout-drawer-delimiter {
+  -webkit-box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+          box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
 }
 .q-layout-drawer-left {
   left: 0;
   width: 300px;
 }
-.q-layout-drawer-left.off-screen {
-  -webkit-transform: translateX(-100%);
-          transform: translateX(-100%);
-}
-.q-layout-drawer-left.on-screen {
-  -webkit-transform: translateX(0);
-          transform: translateX(0);
-}
 .q-layout-drawer-right {
   right: 0;
   width: 300px;
-}
-.q-layout-drawer-right.off-screen {
-  -webkit-transform: translateX(100%);
-          transform: translateX(100%);
-}
-.q-layout-drawer-right.on-screen {
-  -webkit-transform: translateX(0);
-          transform: translateX(0);
 }
 .q-layout,
 .q-layout-header,
@@ -2067,10 +2053,6 @@ input.q-input-target {
 .q-layout-backdrop {
   z-index: 2999 !important;
   will-change: background-color;
-}
-.q-layout-backdrop-transition {
-  -webkit-transition: background 0.12s;
-  transition: background 0.12s;
 }
 .q-layout-drawer-opener {
   z-index: 2001;
@@ -2160,19 +2142,16 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
 .q-item-icon {
   font-size: 24px;
 }
-.q-item-letter-inverted,
-.q-item-icon-inverted {
+.q-item-inverted {
   border-radius: 50%;
   color: #fff;
   background: #737373;
+  height: 38px;
+  width: 38px;
 }
-.q-item-letter-inverted {
-  padding: 5px 0;
-  text-align: center;
-}
-.q-item-icon-inverted {
+.q-item-inverted,
+.q-item-inverted .q-icon {
   font-size: 20px;
-  padding: 9px;
 }
 .q-item-main {
   -webkit-box-flex: 1;
@@ -2302,10 +2281,8 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
 .q-item-dark .q-item-side {
   color: #bbb;
 }
-.q-list-dark .q-item-letter-inverted,
-.q-item-dark .q-item-letter-inverted,
-.q-list-dark .q-item-icon-inverted,
-.q-item-dark .q-item-icon-inverted {
+.q-list-dark .q-item-inverted,
+.q-item-dark .q-item-inverted {
   color: #000;
   background: #bbb;
 }
@@ -3040,12 +3017,12 @@ body.desktop .q-select-highlight {
 .q-stepper-tab.step-waiting .q-stepper-dot {
   color: rgba(0,0,0,0.42);
 }
-.q-stepper-tab.step-done {
-  cursor: pointer;
+.q-stepper-tab.step-navigation {
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+  cursor: pointer;
 }
 .q-stepper-tab.step-color {
   color: currentColor;
@@ -3194,7 +3171,7 @@ body.desktop .q-select-highlight {
   top: 100%;
   margin-top: 8px;
 }
-body.desktop .q-stepper-tab.step-done:hover {
+body.desktop .q-stepper-tab.step-navigation:hover {
   background: rgba(0,0,0,0.05);
 }
 @media (max-width: 767px) {
@@ -4208,7 +4185,7 @@ img.avatar {
   width: 100%;
   height: 100%;
 }
-body {
+:root {
   --q-color-primary: #027be3;
   --q-color-secondary: #26a69a;
   --q-color-tertiary: #555;
@@ -4216,11 +4193,9 @@ body {
   --q-color-negative: #db2828;
   --q-color-info: #31ccec;
   --q-color-warning: #f2c037;
-  --q-color-white: #fff;
   --q-color-light: #bdbdbd;
   --q-color-faded: #777;
   --q-color-dark: #424242;
-  --q-color-black: #000;
 }
 .text-primary {
   color: #027be3 !important;
@@ -4288,19 +4263,15 @@ body {
 }
 .text-white {
   color: #fff !important;
-  color: var(--q-color-white, #fff) !important;
 }
 .bg-white {
   background: #fff !important;
-  background: var(--q-color-white, #fff) !important;
 }
 .text-black {
   color: #000 !important;
-  color: var(--q-color-black, #000) !important;
 }
 .bg-black {
   background: #000 !important;
-  background: var(--q-color-black, #000) !important;
 }
 .text-light {
   color: #bdbdbd !important;
@@ -9059,9 +9030,7 @@ body.ios .q-hoverable:active .q-focus-helper {
     white-space: nowrap;
   }
   .q-item-main {
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 100%;
-            flex: 1 1 100%;
+    min-width: 1px;
   }
 }
 @supports (-ms-ime-align: auto) {
@@ -9113,9 +9082,7 @@ body.ios .q-hoverable:active .q-focus-helper {
     white-space: nowrap;
   }
   .q-item-main {
-    -webkit-box-flex: 1;
-        -ms-flex: 1 1 100%;
-            flex: 1 1 100%;
+    min-width: 1px;
   }
 }
 @-webkit-keyframes webkit-autofill-on {

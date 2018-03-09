@@ -160,8 +160,6 @@ $positive  ?= #21BA45
 $negative  ?= #DB2828
 $info      ?= #31CCEC
 $warning   ?= #F2C037
-$white     ?= #fff
-$black     ?= #000
 $light     ?= #bdbdbd
 $dark      ?= #424242
 $faded     ?= #777
@@ -694,7 +692,7 @@ $toolbar-title-padding       ?= 0 5px
 $layout-aside-background   ?= white
 $layout-aside-left-width   ?= 280px
 $layout-aside-right-width  ?= 280px
-$layout-border-color       ?= $grey-5
+$layout-border-color       ?= $item-separator-color
 $layout-border             ?= 1px solid $layout-border-color
 $loading-background ?= $dimmed-background
 $modal-background        ?= white
@@ -1939,6 +1937,7 @@ input.q-input-target
   bottom 0
   i
     font-size 130%
+$layout-transition = all .12s ease-in
 .q-layout
   width 100%
   min-height 100vh
@@ -1956,24 +1955,17 @@ input.q-input-target
   bottom 0
   background $layout-aside-background
   z-index $z-side
+  transition $layout-transition
   &.on-top
     z-index $z-fixed-drawer
 .q-layout-drawer-left
   left 0
   width $layout-aside-left-width
-  &.off-screen
-    transform translateX(-100%)
-  &.on-screen
-    transform translateX(0)
   &.fixed
     border-right $layout-border
 .q-layout-drawer-right
   right 0
   width $layout-aside-right-width
-  &.off-screen
-    transform translateX(100%)
-  &.on-screen
-    transform translateX(0)
   &.fixed
     border-left $layout-border
 .q-layout, .q-layout-header, .q-layout-footer, .q-layout-page
@@ -1983,8 +1975,6 @@ input.q-input-target
 .q-layout-backdrop
   z-index ($z-fixed-drawer - 1) !important
   will-change background-color
-.q-layout-backdrop-transition
-  transition background .12s
 .q-layout-drawer-opener
   z-index ($z-marginals + 1)
   height 100vh
@@ -1995,7 +1985,7 @@ input.q-input-target
     pointer-events auto
 body
   &.q-layout-animate .q-layout-transition
-    transition all .12s ease-in
+    transition $layout-transition
   &.with-layout-drawer-opened
     overflow hidden
   &.with-layout-drawer-opened-above
@@ -2043,16 +2033,14 @@ body
   border-radius 50%
 .q-item-letter, .q-item-icon
   font-size $item-icon-size
-.q-item-letter-inverted, .q-item-icon-inverted
+.q-item-inverted
   border-radius 50%
   color white
   background $item-side-color
-.q-item-letter-inverted
-  padding 5px 0
-  text-align center
-.q-item-icon-inverted
-  font-size $item-inverted-icon-size
-  padding 9px
+  height $item-primary-size
+  width $item-primary-size
+  &, .q-icon
+    font-size $item-inverted-icon-size
 .q-item-main
   flex 1 1 auto
   min-width 0
@@ -2141,7 +2129,7 @@ body
 .q-list-dark, .q-item-dark
   .q-item-side
     color $item-side-dark-color
-  .q-item-letter-inverted, .q-item-icon-inverted
+  .q-item-inverted
     color black
     background $item-side-dark-color
   .q-item-label > span, .q-item-sublabel
@@ -2683,9 +2671,9 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
     color black
     .q-stepper-dot
       color $stepper-label-inactive-color
-  &.step-done
-    cursor pointer
+  &.step-navigation
     user-select none
+    cursor pointer
     &:active
       background $stepper-active-background !important
   &.step-color
@@ -2790,7 +2778,7 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   .q-stepper-dot:after
     top 100%
     margin-top 8px
-body.desktop .q-stepper-tab.step-done:hover
+body.desktop .q-stepper-tab.step-navigation:hover
   background $stepper-hover-background
 @media (max-width $breakpoint-sm-max)
   .q-stepper-horizontal.q-stepper-contractable
@@ -3495,7 +3483,7 @@ img
   iframe, object, embed
     width 100%
     height 100%
-body
+:root
   --q-color-primary   $primary
   --q-color-secondary $secondary
   --q-color-tertiary  $tertiary
@@ -3503,11 +3491,9 @@ body
   --q-color-negative  $negative
   --q-color-info      $info
   --q-color-warning   $warning
-  --q-color-white     $white
   --q-color-light     $light
   --q-color-faded     $faded
   --q-color-dark      $dark
-  --q-color-black     $black
 .text-primary
   color $primary !important
   color var(--q-color-primary, $primary) !important
@@ -3557,17 +3543,13 @@ body
   background $warning !important
   background var(--q-color-warning, $warning) !important
 .text-white
-  color $white !important
-  color var(--q-color-white, $white) !important
+  color #fff !important
 .bg-white
-  background $white !important
-  background var(--q-color-white, $white) !important
+  background #fff !important
 .text-black
-  color $black !important
-  color var(--q-color-black, $black) !important
+  color #000 !important
 .bg-black
-  background $black !important
-  background var(--q-color-black, $black) !important
+  background #000 !important
 .text-light
   color $light !important
   color var(--q-color-light, $light) !important
@@ -5533,7 +5515,7 @@ ie_style = @block
       white-space nowrap
   
   .q-item-main
-    flex 1 1 100%
+    min-width 1px
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
   {ie_style}
 @supports (-ms-ime-align:auto)

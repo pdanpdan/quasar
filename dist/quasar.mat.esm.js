@@ -830,7 +830,7 @@ function install (_Vue, opts) {
   if (opts.directives) {
     Object.keys(opts.directives).forEach(function (key) {
       var d = opts.directives[key];
-      if (d.name !== undefined && !d.name.startsWith('q-')) {
+      if (d.name !== undefined && d.unbind !== void 0) {
         _Vue.directive(d.name, d);
       }
     });
@@ -839,7 +839,7 @@ function install (_Vue, opts) {
   if (opts.components) {
     Object.keys(opts.components).forEach(function (key) {
       var c = opts.components[key];
-      if (c.name !== undefined && c.name.startsWith('q-')) {
+      if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
         _Vue.component(c.name, c);
       }
     });
@@ -1127,7 +1127,7 @@ function additionalCSS (position) {
 var openedModalNumber = 0;
 
 var QModal = {
-  name: 'q-modal',
+  name: 'QModal',
   mixins: [ModelToggleMixin],
   provide: function provide () {
     return {
@@ -1322,7 +1322,7 @@ var QModal = {
 }
 
 var QModalLayout = {
-  name: 'q-modal-layout',
+  name: 'QModalLayout',
   inject: {
     __qmodal: {
       default: function default$1 () {
@@ -1380,7 +1380,7 @@ var QModalLayout = {
 }
 
 var QIcon = {
-  name: 'q-icon',
+  name: 'QIcon',
   props: {
     name: String,
     mat: String,
@@ -1538,7 +1538,7 @@ var RouterLinkMixin = {
 };
 
 var QItem = {
-  name: 'q-item',
+  name: 'QItem',
   mixins: [
     ItemMixin,
     { props: RouterLinkMixin.props }
@@ -1563,7 +1563,7 @@ var QItem = {
 }
 
 var QItemSeparator = {
-  name: 'q-item-separator',
+  name: 'QItemSeparator',
   props: {
     inset: Boolean
   },
@@ -1588,7 +1588,7 @@ function text (h, name, val, n) {
 }
 
 var QItemMain = {
-  name: 'q-item-main',
+  name: 'QItemMain',
   props: {
     label: String,
     labelLines: [String, Number],
@@ -1615,7 +1615,7 @@ var QItemMain = {
 }
 
 var QItemSide = {
-  name: 'q-item-side',
+  name: 'QItemSide',
   props: {
     right: Boolean,
 
@@ -1661,9 +1661,10 @@ var QItemSide = {
       }
       this.textColor && cls.push(("text-" + (this.textColor)));
 
-      if (this.inverted) {
-        this.icon && cls.push('q-item-icon-inverted');
-        this.letter && cls.push('q-item-letter-inverted');
+      if (this.inverted && (this.icon || this.letter)) {
+        cls.push('q-item-inverted');
+        cls.push('flex');
+        cls.push('flex-center');
       }
 
       return cls
@@ -1678,9 +1679,15 @@ var QItemSide = {
     if (this.type) {
       if (this.icon) {
         child = h(QIcon, {
-          'class': this.typeClasses,
+          'class': this.inverted ? null : this.typeClasses,
           props: { name: this.icon }
-        }, [ this.$slots.default ]);
+        });
+
+        if (this.inverted) {
+          child = h('div', {
+            'class': this.typeClasses
+          }, [ child ]);
+        }
       }
       else if (this.imagePath) {
         child = h('img', {
@@ -1704,7 +1711,7 @@ var QItemSide = {
 }
 
 var QItemTile = {
-  name: 'q-item-tile',
+  name: 'QItemTile',
   props: {
     icon: String,
     letter: Boolean,
@@ -1749,9 +1756,10 @@ var QItemTile = {
       this.textColor && cls.push(("text-" + (this.textColor)));
       this.type && cls.push(("q-item-" + (this.type)));
 
-      if (this.inverted) {
-        this.icon && cls.push('q-item-icon-inverted');
-        this.letter && cls.push('q-item-letter-inverted');
+      if (this.inverted && (this.icon || this.letter)) {
+        cls.push('q-item-inverted');
+        cls.push('flex');
+        cls.push('flex-center');
       }
 
       if (this.hasLines && (this.lines === '1' || this.lines === 1)) {
@@ -1773,6 +1781,11 @@ var QItemTile = {
     };
 
     if (this.icon) {
+      if (this.inverted) {
+        return h(this.tag, data, [
+          h(QIcon, { props: { name: this.icon } }, [ this.$slots.default ])
+        ])
+      }
       data.props = { name: this.icon };
     }
 
@@ -1803,7 +1816,7 @@ function push (child, h, name, slot, replace, conf) {
 }
 
 var QItemWrapper = {
-  name: 'q-item-wrapper',
+  name: 'QItemWrapper',
   props: {
     cfg: {
       type: Object,
@@ -1858,7 +1871,7 @@ var QItemWrapper = {
 }
 
 var QList = {
-  name: 'q-list',
+  name: 'QList',
   props: {
     noBorder: Boolean,
     dark: Boolean,
@@ -1900,7 +1913,7 @@ var QList = {
 }
 
 var QListHeader = {
-  name: 'q-list-header',
+  name: 'QListHeader',
   props: {
     inset: Boolean
   },
@@ -1917,7 +1930,7 @@ var QListHeader = {
 }
 
 var QActionSheet = {
-  name: 'q-action-sheet',
+  name: 'QActionSheet',
   props: {
     value: Boolean,
     title: String,
@@ -2108,6 +2121,7 @@ var format = Object.freeze({
 var
   xhr = isSSR ? null : XMLHttpRequest,
   send = isSSR ? null : xhr.prototype.send;
+var highjackCount = 0;
 
 function translate (ref) {
   var p = ref.p;
@@ -2169,14 +2183,18 @@ function highjackAjax (startHandler, endHandler) {
 
     send.apply(this, args);
   };
+  highjackCount += 1;
 }
 
 function restoreAjax () {
-  xhr.prototype.send = send;
+  highjackCount = Math.max(0, highjackCount - 1);
+  if (!highjackCount) {
+    xhr.prototype.send = send;
+  }
 }
 
 var QAjaxBar = {
-  name: 'q-ajax-bar',
+  name: 'QAjaxBar',
   props: {
     position: {
       type: String,
@@ -2781,117 +2799,117 @@ var mixin = {
 }
 
 var DefaultSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner q-spinner-mat",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"25 25 50 50"}},[_c('circle',{staticClass:"path",attrs:{"cx":"50","cy":"50","r":"20","fill":"none","stroke":"currentColor","stroke-width":"3","stroke-miterlimit":"10"}})])},staticRenderFns: [],
-  name: 'q-spinner-mat',
+  name: 'QSpinnerMat',
   mixins: [mixin]
 }
 
 var audio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 55 80","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"matrix(1 0 0 -1 0 80)"}},[_c('rect',{attrs:{"width":"10","height":"20","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"4.3s","values":"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"15","width":"10","height":"80","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"80;55;33;5;75;23;73;33;12;14;60;80","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","width":"10","height":"50","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1.4s","values":"50;34;78;23;56;23;34;76;80;54;21;50","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"45","width":"10","height":"30","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"30;45;13;80;56;72;45;76;34;23;67;30","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-audio',
+  name: 'QSpinnerAudio',
   mixins: [mixin]
 }
 
 var ball = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 57 57","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"cx":"5","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;5;50;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","values":"5;27;49;5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"27","cy":"5","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","from":"5","to":"5","values":"5;50;50;5","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","from":"27","to":"27","values":"27;49;5;27","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"49","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;50;5;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","from":"49","to":"49","begin":"0s","dur":"2.2s","values":"49;5;27;49","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-ball',
+  name: 'QSpinnerBall',
   mixins: [mixin]
 }
 
 var bars = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 140","xmlns":"http://www.w3.org/2000/svg"}},[_c('rect',{attrs:{"y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"60","width":"15","height":"140","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"90","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"120","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-bars',
+  name: 'QSpinnerBars',
   mixins: [mixin]
 }
 
 var circles = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 135","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"-360 67 67","dur":"2.5s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"360 67 67","dur":"8s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-circles',
+  name: 'QSpinnerCircles',
   mixins: [mixin]
 }
 
 var comment = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('path',{attrs:{"d":"M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z","fill":"currentColor"}}),_c('circle',{attrs:{"cx":"30","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;1;1","keyTimes":"0;0.2;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"50","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.2;0.4;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"70","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.4;0.6;1","dur":"1s","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-comment',
+  name: 'QSpinnerComment',
   mixins: [mixin]
 }
 
 var cube = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('g',{attrs:{"transform":"translate(25 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.1s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(25 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.7"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.3s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.2s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-cube',
+  name: 'QSpinnerCube',
   mixins: [mixin]
 }
 
 var dots = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 120 30","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"15","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"60","cy":"15","r":"9","fill-opacity":".3"}},[_c('animate',{attrs:{"attributeName":"r","from":"9","to":"9","begin":"0s","dur":"0.8s","values":"9;15;9","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":".5","to":".5","begin":"0s","dur":"0.8s","values":".5;1;.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"105","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-dots',
+  name: 'QSpinnerDots',
   mixins: [mixin]
 }
 
 var facebook = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","xmlns":"http://www.w3.org/2000/svg","preserveAspectRatio":"xMidYMid"}},[_c('g',{attrs:{"transform":"translate(20 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(50 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.1s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(80 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.2s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-facebook',
+  name: 'QSpinnerFacebook',
   mixins: [mixin]
 }
 
 var gears = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(-20,-20)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"90 50 50","to":"0 50 50","dur":"1s","repeatCount":"indefinite"}})],1)]),_c('g',{attrs:{"transform":"translate(20,20) rotate(15 50 50)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"90 50 50","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-gears',
+  name: 'QSpinnerGears',
   mixins: [mixin]
 }
 
 var grid = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 105 105","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"12.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"52.5","r":"12.5","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"100ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"300ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"600ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"800ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"400ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"700ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"500ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"200ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
-  name: 'q-spinner-grid',
+  name: 'QSpinnerGrid',
   mixins: [mixin]
 }
 
 var hearts = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 140 64","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0.7s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"}})])},staticRenderFns: [],
-  name: 'q-spinner-hearts',
+  name: 'QSpinnerHearts',
   mixins: [mixin]
 }
 
 var hourglass = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',[_c('path',{staticClass:"glass",attrs:{"fill":"none","stroke":"currentColor","stroke-width":"5","stroke-miterlimit":"10","d":"M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z"}}),_c('clipPath',{attrs:{"id":"uil-hourglass-clip1"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"20","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"25","to":"0","dur":"1s","repeatCount":"indefinite","vlaues":"25;0;0","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"20","to":"45","dur":"1s","repeatCount":"indefinite","vlaues":"20;45;45","keyTimes":"0;0.5;1"}})])]),_c('clipPath',{attrs:{"id":"uil-hourglass-clip2"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"55","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"0","to":"25","dur":"1s","repeatCount":"indefinite","vlaues":"0;25;25","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"80","to":"55","dur":"1s","repeatCount":"indefinite","vlaues":"80;55;55","keyTimes":"0;0.5;1"}})])]),_c('path',{staticClass:"sand",attrs:{"d":"M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z","clip-path":"url(#uil-hourglass-clip1)","fill":"currentColor"}}),_c('path',{staticClass:"sand",attrs:{"d":"M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z","clip-path":"url(#uil-hourglass-clip2)","fill":"currentColor"}}),_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"180 50 50","repeatCount":"indefinite","dur":"1s","values":"0 50 50;0 50 50;180 50 50","keyTimes":"0;0.7;1"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-hourglass',
+  name: 'QSpinnerHourglass',
   mixins: [mixin]
 }
 
 var infinity = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('path',{attrs:{"d":"M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z","fill":"none","stroke":"currentColor","stroke-width":"8","stroke-dasharray":"10.691205342610678 10.691205342610678","stroke-dashoffset":"0"}},[_c('animate',{attrs:{"attributeName":"stroke-dashoffset","from":"0","to":"21.382410685221355","begin":"0","dur":"2s","repeatCount":"indefinite","fill":"freeze"}})])])},staticRenderFns: [],
-  name: 'q-spinner-infinity',
+  name: 'QSpinnerInfinity',
   mixins: [mixin]
 }
 
 var QSpinner_ios = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"stroke":"currentColor","fill":"currentColor","viewBox":"0 0 64 64"}},[_c('g',{attrs:{"stroke-width":"4","stroke-linecap":"round"}},[_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(180)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(210)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(240)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(270)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(300)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(330)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(0)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(30)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(60)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(90)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(120)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(150)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-ios',
+  name: 'QSpinnerIos',
   mixins: [mixin]
 }
 
 var oval = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"stroke-opacity":".5","cx":"18","cy":"18","r":"18"}}),_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-oval',
+  name: 'QSpinnerOval',
   mixins: [mixin]
 }
 
 var pie = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M0 50A50 50 0 0 1 50 0L50 50L0 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"0.8s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 0A50 50 0 0 1 100 50L50 50L50 0","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"1.6s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M100 50A50 50 0 0 1 50 100L50 50L100 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"2.4s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 100A50 50 0 0 1 0 50L50 50L50 100","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"3.2s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
-  name: 'q-spinner-pie',
+  name: 'QSpinnerPie',
   mixins: [mixin]
 }
 
 var puff = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 44 44","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"0s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"-0.9s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"-0.9s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-puff',
+  name: 'QSpinnerPuff',
   mixins: [mixin]
 }
 
 var radio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"scale(0.55)"}},[_c('circle',{attrs:{"cx":"30","cy":"150","r":"30","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.1","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.2","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-radio',
+  name: 'QSpinnerRadio',
   mixins: [mixin]
 }
 
 var rings = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 45 45","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","transform":"translate(1 1)","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"1.5s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"1.5s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"1.5s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"3s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"3s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"3s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"8"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.5s","values":"6;1;2;3;4;5;6","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
-  name: 'q-spinner-rings',
+  name: 'QSpinnerRings',
   mixins: [mixin]
 }
 
 var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('defs',[_c('linearGradient',{attrs:{"x1":"8.042%","y1":"0%","x2":"65.682%","y2":"23.865%","id":"a"}},[_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":"0","offset":"0%"}}),_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":".631","offset":"63.146%"}}),_c('stop',{attrs:{"stop-color":"currentColor","offset":"100%"}})],1)],1),_c('g',{attrs:{"transform":"translate(1 1)","fill":"none","fill-rule":"evenodd"}},[_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18","stroke":"url(#a)","stroke-width":"2"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1),_c('circle',{attrs:{"fill":"currentColor","cx":"36","cy":"18","r":"1"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
-  name: 'q-spinner-tail',
+  name: 'QSpinnerTail',
   mixins: [mixin]
 }
 
 var QSpinner = {
   mixins: [DefaultSpinner],
-  name: 'q-spinner'
+  name: 'QSpinner'
 };
 
 var QBtn = {
-  name: 'q-btn',
+  name: 'QBtn',
   mixins: [BtnMixin],
   props: {
     percentage: Number,
@@ -3033,7 +3051,7 @@ var QBtn = {
         ? [ this.$slots.loading || h(QSpinner) ]
         : [
           this.icon
-            ? h('q-icon', {
+            ? h('QIcon', {
               'class': { 'on-left': this.label && this.isRectangle },
               props: { name: this.icon }
             })
@@ -3044,7 +3062,7 @@ var QBtn = {
           this.$slots.default,
 
           this.iconRight && this.isRectangle
-            ? h('q-icon', {
+            ? h('QIcon', {
               staticClass: 'on-right',
               props: { name: this.iconRight }
             })
@@ -3056,7 +3074,7 @@ var QBtn = {
 }
 
 var QBtnGroup = {
-  name: 'q-btn-group',
+  name: 'QBtnGroup',
   props: {
     outline: Boolean,
     flat: Boolean,
@@ -3215,6 +3233,7 @@ function setPosition (ref) {
   var anchorClick = ref.anchorClick;
   var touchPosition = ref.touchPosition;
   var offset = ref.offset;
+  var forceTop = ref.forceTop;
 
   var anchor;
   el.style.maxHeight = maxHeight || '65vh';
@@ -3231,7 +3250,7 @@ function setPosition (ref) {
 
   var target = getTargetPosition(el);
   var targetPosition = {
-    top: anchor[anchorOrigin.vertical] - target[selfOrigin.vertical],
+    top: (forceTop ? 0 : anchor[anchorOrigin.vertical]) - target[selfOrigin.vertical],
     left: anchor[anchorOrigin.horizontal] - target[selfOrigin.horizontal]
   };
 
@@ -3426,7 +3445,7 @@ var scroll = Object.freeze({
 });
 
 var QPopover = {
-  name: 'q-popover',
+  name: 'QPopover',
   mixins: [ModelToggleMixin],
   props: {
     anchor: {
@@ -3452,6 +3471,7 @@ var QPopover = {
       type: Array,
       validator: offsetValidator
     },
+    forceTop: Boolean,
     disable: Boolean
   },
   watch: {
@@ -3571,7 +3591,8 @@ var QPopover = {
           selfOrigin: this$1.selfOrigin,
           maxHeight: this$1.maxHeight,
           anchorClick: this$1.anchorClick,
-          touchPosition: this$1.touchPosition
+          touchPosition: this$1.touchPosition,
+          forceTop: this$1.forceTop
         });
       });
     }
@@ -3579,7 +3600,7 @@ var QPopover = {
 }
 
 var QBtnDropdown = {
-  name: 'q-btn-dropdown',
+  name: 'QBtnDropdown',
   mixins: [BtnMixin],
   props: {
     value: Boolean,
@@ -3630,7 +3651,7 @@ var QBtnDropdown = {
         [ this.$slots.default ]
       ),
       Icon = h(
-        'q-icon',
+        'QIcon',
         {
           props: {
             name: this.$q.icon.input.dropdown
@@ -3741,7 +3762,7 @@ var QBtnDropdown = {
 }
 
 var QBtnToggle = {
-  name: 'q-btn-toggle',
+  name: 'QBtnToggle',
   props: {
     value: {
       required: true
@@ -3838,7 +3859,7 @@ var QBtnToggle = {
 }
 
 var QAlert = {
-  name: 'q-alert',
+  name: 'QAlert',
   props: {
     type: {
       type: String,
@@ -4022,7 +4043,7 @@ var KeyboardSelectionMixin = {
 }
 
 var QAutocomplete = {
-  name: 'q-autocomplete',
+  name: 'QAutocomplete',
   mixins: [KeyboardSelectionMixin],
   props: {
     minCharacters: {
@@ -4273,7 +4294,7 @@ var QAutocomplete = {
 }
 
 var QBreadcrumbs = {
-  name: 'q-breadcrumbs',
+  name: 'QBreadcrumbs',
   mixins: [AlignMixin],
   props: {
     color: {
@@ -4332,7 +4353,7 @@ var QBreadcrumbs = {
 }
 
 var QBreadcrumbsEl = {
-  name: 'q-breadcrumbs-el',
+  name: 'QBreadcrumbsEl',
   mixins: [{ props: RouterLinkMixin.props }],
   props: {
     label: String,
@@ -4360,7 +4381,7 @@ var QBreadcrumbsEl = {
 }
 
 var QCard = {
-  name: 'q-card',
+  name: 'QCard',
   props: {
     square: Boolean,
     flat: Boolean,
@@ -4399,7 +4420,7 @@ var QCard = {
 }
 
 var QCardTitle = {
-  name: 'q-card-title',
+  name: 'QCardTitle',
   render: function render (h) {
     return h('div', {
       staticClass: 'q-card-primary q-card-container row no-wrap'
@@ -4414,7 +4435,7 @@ var QCardTitle = {
 }
 
 var QCardMain = {
-  name: 'q-card-main',
+  name: 'QCardMain',
   render: function render (h) {
     return h('div', {
       staticClass: 'q-card-main q-card-container'
@@ -4425,7 +4446,7 @@ var QCardMain = {
 }
 
 var QCardActions = {
-  name: 'q-card-actions',
+  name: 'QCardActions',
   props: {
     vertical: Boolean,
     align: {
@@ -4451,7 +4472,7 @@ var QCardActions = {
 }
 
 var QCardMedia = {
-  name: 'q-card-media',
+  name: 'QCardMedia',
   props: {
     overlayPosition: {
       type: String,
@@ -4477,7 +4498,7 @@ var QCardMedia = {
 }
 
 var QCardSeparator = {
-  name: 'q-card-separator',
+  name: 'QCardSeparator',
   props: {
     inset: Boolean
   },
@@ -4894,7 +4915,7 @@ var FullscreenMixin = {
 }
 
 var QCarousel = {
-  name: 'q-carousel',
+  name: 'QCarousel',
   mixins: [FullscreenMixin],
   directives: {
     TouchPan: TouchPan
@@ -5323,7 +5344,7 @@ var QCarousel = {
 }
 
 var QCarouselSlide = {
-  name: 'q-carousel-slide',
+  name: 'QCarouselSlide',
   inject: {
     carousel: {
       default: function default$1 () {
@@ -5363,7 +5384,7 @@ var QCarouselSlide = {
 }
 
 var QCarouselControl = {
-  name: 'q-carousel-control',
+  name: 'QCarouselControl',
   props: {
     position: {
       type: String,
@@ -5394,7 +5415,7 @@ var QCarouselControl = {
 }
 
 var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-message-container row items-end no-wrap"},[(_vm.hasAvatarSlot())?_vm._t("avatar"):_vm._e(),_vm._v(" "),(_vm.avatar && !_vm.hasAvatarSlot())?_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}}):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sizeClass},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._v(" "),(_vm.text)?_vm._l((_vm.text),function(msg,index){return _c('div',{key:index,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()])])}):_vm._e(),_vm._v(" "),(_vm.hasDefaultSlot())?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()],2)]):_vm._e()],2)],2)])},staticRenderFns: [],
-  name: 'q-chat-message',
+  name: 'QChatMessage',
   props: {
     sent: Boolean,
     label: String,
@@ -5806,7 +5827,7 @@ var OptionMixin = {
 }
 
 var QCheckbox = {
-  name: 'q-checkbox',
+  name: 'QCheckbox',
   mixins: [CheckboxMixin, OptionMixin],
   props: {
     toggleIndeterminate: Boolean,
@@ -5858,7 +5879,7 @@ var QCheckbox = {
 }
 
 var QChip = {
-  name: 'q-chip',
+  name: 'QChip',
   props: {
     small: Boolean,
     tag: Boolean,
@@ -6161,13 +6182,13 @@ var ParentFieldMixin = {
   },
   beforeDestroy: function beforeDestroy () {
     if (!this.noParentField && this.field) {
-      this.field.__unregisterInput();
+      this.field.__unregisterInput(this);
     }
   }
 }
 
 var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-end relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),_vm._t("after"),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){_vm.__onMouseDown($event);},"touchstart":function($event){_vm.__onMouseDown($event);},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e()],2)},staticRenderFns: [],
-  name: 'q-input-frame',
+  name: 'QInputFrame',
   mixins: [FrameMixin, ParentFieldMixin],
   props: {
     topAddons: Boolean,
@@ -6251,7 +6272,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
 }
 
 var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){_vm.__onInputBlur($event);},"focus":function($event){_vm.__clearTimer($event);}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
-  name: 'q-chips-input',
+  name: 'QChipsInput',
   mixins: [FrameMixin, InputMixin],
   components: {
     QInputFrame: QInputFrame,
@@ -6436,7 +6457,7 @@ function toggleSlide (el, showing, done) {
 }
 
 var QSlideTransition = {
-  name: 'q-slide-transition',
+  name: 'QSlideTransition',
   props: {
     appear: Boolean
   },
@@ -6462,7 +6483,7 @@ var QSlideTransition = {
 var eventName = 'q:collapsible:close';
 
 var QCollapsible = {
-  name: 'q-collapsible',
+  name: 'QCollapsible',
   mixins: [ModelToggleMixin, ItemMixin],
   modelToggle: {
     history: false
@@ -6791,7 +6812,7 @@ var SliderMixin = {
 };
 
 var QSlider = {
-  name: 'q-slider',
+  name: 'QSlider',
   mixins: [SliderMixin],
   props: {
     value: Number,
@@ -7111,7 +7132,7 @@ var colors = Object.freeze({
 });
 
 var QColorPicker = {
-  name: 'q-color-picker',
+  name: 'QColorPicker',
   mixins: [ParentFieldMixin],
   directives: {
     TouchPan: TouchPan
@@ -7575,7 +7596,7 @@ var contentCss = {
   };
 
 var QColor = {
-  name: 'q-color',
+  name: 'QColor',
   mixins: [FrameMixin, DisplayModeMixin],
   props: {
     value: {
@@ -7633,8 +7654,12 @@ var QColor = {
     },
     show: function show () {
       if (!this.disable) {
-        if (!this.focused) {
-          this.__setModel(this.value || this.defaultValue);
+        var val = this.value || this.defaultValue;
+        if (this.focused) {
+          this.model = clone(val);
+        }
+        else {
+          this.__setModel(val);
         }
         return this.$refs.popup.show()
       }
@@ -7827,7 +7852,7 @@ var QColor = {
         }, this.__getPicker(h, true)),
 
       this.editable && this.clearable && this.actualValue.length
-        ? h('q-icon', {
+        ? h('QIcon', {
           slot: 'after',
           props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
           nativeOn: { click: this.clear },
@@ -7835,7 +7860,7 @@ var QColor = {
         })
         : null,
 
-      h('q-icon', {
+      h('QIcon', {
         slot: 'after',
         props: { name: this.$q.icon.input.dropdown },
         staticClass: 'q-if-control'
@@ -7845,7 +7870,7 @@ var QColor = {
 }
 
 var ContextMenuDesktop = {
-  name: 'q-context-menu',
+  name: 'QContextMenu',
   components: {
     QPopover: QPopover
   },
@@ -7899,7 +7924,7 @@ var ContextMenuDesktop = {
 }
 
 var ContextMenuMobile = {
-  name: 'q-context-menu',
+  name: 'QContextMenu',
   props: {
     disable: Boolean
   },
@@ -7966,7 +7991,7 @@ var ContextMenuMobile = {
 }
 
 var QContextMenu = {
-  name: 'q-context-menu',
+  name: 'QContextMenu',
   functional: true,
   render: function render (h, ctx) {
     return h(
@@ -8745,7 +8770,7 @@ function convertToAmPm (hour) {
 }
 
 var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime row",class:_vm.classes},[_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12"},[_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'hour'},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.hour, '  '))+" ")]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'minute'},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("AM")]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("PM")])]):_vm._e()]):_vm._e()]),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 col-md-8 column"},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-datetime-picker',
+  name: 'QDatetimePicker',
   mixins: [DateMixin, ParentFieldMixin],
   props: {
     defaultValue: [String, Number, Date],
@@ -9026,7 +9051,7 @@ var contentCss$1 = {
   };
 
 var QDatetime = {
-  name: 'q-datetime',
+  name: 'QDatetime',
   mixins: [FrameMixin, DisplayModeMixin],
   props: extend(
     input,
@@ -9078,8 +9103,12 @@ var QDatetime = {
     },
     show: function show () {
       if (!this.disable) {
-        if (!this.focused) {
-          this.__setModel(isValid(this.value) ? this.value : this.defaultValue);
+        var val = isValid(this.value) ? this.value : this.defaultValue;
+        if (this.focused) {
+          this.model = clone$1(val);
+        }
+        else {
+          this.__setModel(val);
         }
         return this.$refs.popup.show()
       }
@@ -9185,6 +9214,11 @@ var QDatetime = {
             canClose: function () {
               if (this$1.isPopover) {
                 this$1.hide();
+                // go back to initial entry point for that type of control
+                // if it has defaultView it's goint to be reapplied anyway on focus
+                if (!this$1.defaultView) {
+                  this$1.$refs.target.setView();
+                }
               }
             }
           }
@@ -9295,7 +9329,7 @@ var QDatetime = {
         }, this.__getPicker(h, true)),
 
       this.editable && this.clearable && this.actualValue.length
-        ? h('q-icon', {
+        ? h('QIcon', {
           slot: 'after',
           props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
           nativeOn: { click: this.clear },
@@ -9303,7 +9337,7 @@ var QDatetime = {
         })
         : null,
 
-      h('q-icon', {
+      h('QIcon', {
         slot: 'after',
         props: { name: this.$q.icon.input.dropdown },
         staticClass: 'q-if-control'
@@ -9319,7 +9353,13 @@ var inputTypes = [
 ]
 
 var QResizeObservable = {
-  name: 'q-resize-observable',
+  name: 'QResizeObservable',
+  props: {
+    debounce: {
+      type: Number,
+      default: 100
+    }
+  },
   methods: {
     onResize: function onResize () {
       var size = {
@@ -9332,7 +9372,16 @@ var QResizeObservable = {
       }
 
       this.size = size;
+      this.timer = null;
       this.$emit('resize', this.size);
+    },
+    trigger: function trigger () {
+      if (this.debounce === 0) {
+        this.onResize();
+      }
+      else if (!this.timer) {
+        this.timer = setTimeout(this.onResize, this.debounce);
+      }
     }
   },
   render: function render (h) {
@@ -9347,14 +9396,13 @@ var QResizeObservable = {
 
     this.parent = this.$el.parentNode;
     this.size = { width: -1, height: -1 };
-    this.onResize = debounce(this.onResize, 100);
-    this.onResize();
+    this.trigger();
 
     this.object = object;
     object.setAttribute('aria-hidden', true);
-    object.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
+    object.setAttribute('style', 'display:block;position:absolute;top:0;left:0;right:0;bottom:0;height:100%;width:100%;overflow:hidden;pointer-events:none;z-index:-1;visibility:hidden;');
     object.onload = function () {
-      object.contentDocument.defaultView.addEventListener('resize', this$1.onResize, listenOpts.passive);
+      object.contentDocument.defaultView.addEventListener('resize', this$1.trigger, listenOpts.passive);
     };
     object.type = 'text/html';
     if (onIE) {
@@ -9366,9 +9414,10 @@ var QResizeObservable = {
     }
   },
   beforeDestroy: function beforeDestroy () {
+    clearTimeout(this.timer);
     if (this.object && this.object.onload) {
       if (!this.$q.platform.is.ie && this.object.contentDocument) {
-        this.object.contentDocument.defaultView.removeEventListener('resize', this.onResize, listenOpts.passive);
+        this.object.contentDocument.defaultView.removeEventListener('resize', this.trigger, listenOpts.passive);
       }
       delete this.object.onload;
     }
@@ -9376,7 +9425,7 @@ var QResizeObservable = {
 }
 
 var QScrollObservable = {
-  name: 'q-scroll-observable',
+  name: 'QScrollObservable',
   render: function render () {},
   data: function data () {
     return {
@@ -9428,7 +9477,7 @@ var QScrollObservable = {
 }
 
 var QWindowResizeObservable = {
-  name: 'q-window-resize-observable',
+  name: 'QWindowResizeObservable',
   render: function render () {},
   methods: {
     trigger: function trigger () {
@@ -9453,7 +9502,7 @@ var QWindowResizeObservable = {
 }
 
 var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.togglePass($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.toggleNumber($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){_vm.__clearTimer($event);},"touchstart":function($event){_vm.__clearTimer($event);},"click":function($event){_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
-  name: 'q-input',
+  name: 'QInput',
   mixins: [FrameMixin, InputMixin],
   components: {
     QInputFrame: QInputFrame,
@@ -9493,15 +9542,15 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         val: this.model,
         set: this.__set,
         loading: false,
-        watched: false,
+        watched: 0,
         isDark: function () { return this$1.dark; },
         hasFocus: function () { return document.activeElement === this$1.$refs.input; },
         register: function () {
-          this$1.shadow.watched = true;
+          this$1.shadow.watched += 1;
           this$1.__watcherRegister();
         },
         unregister: function () {
-          this$1.shadow.watched = false;
+          this$1.shadow.watched = Math.max(0, this$1.shadow.watched - 1);
           this$1.__watcherUnregister();
         },
         getEl: function () { return this$1.$refs.input; }
@@ -9646,8 +9695,8 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       var shadow = this.$refs.shadow;
       if (shadow) {
         var h = shadow.scrollHeight;
-        var max = this.maxHeight || h;
-        this.$refs.input.style.minHeight = (between(h, 19, max)) + "px";
+        var minHeight = between(h, 19, this.maxHeight || h);
+        this.$refs.input.style.minHeight = (minHeight + 19) + "px";
       }
     },
     __watcher: function __watcher (value) {
@@ -9686,7 +9735,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
 }
 
 var QRadio = {
-  name: 'q-radio',
+  name: 'QRadio',
   mixins: [OptionMixin],
   props: {
     val: {
@@ -9737,7 +9786,7 @@ var QRadio = {
 }
 
 var QToggle = {
-  name: 'q-toggle',
+  name: 'QToggle',
   mixins: [CheckboxMixin, OptionMixin],
   props: {
     icon: String
@@ -9783,7 +9832,7 @@ var QToggle = {
 }
 
 var QOptionGroup = {
-  name: 'q-option-group',
+  name: 'QOptionGroup',
   mixins: [ParentFieldMixin],
   components: {
     QRadio: QRadio,
@@ -9895,7 +9944,7 @@ var QOptionGroup = {
 }
 
 var QDialog = {
-  name: 'q-dialog',
+  name: 'QDialog',
   props: {
     value: Boolean,
     title: String,
@@ -10155,7 +10204,7 @@ var QDialog = {
 }
 
 var QTooltip = {
-  name: 'q-tooltip',
+  name: 'QTooltip',
   mixins: [ModelToggleMixin],
   props: {
     anchor: {
@@ -10833,7 +10882,7 @@ Caret.prototype.selectWord = function selectWord (sel) {
 Object.defineProperties( Caret.prototype, prototypeAccessors );
 
 var QEditor = {
-  name: 'q-editor',
+  name: 'QEditor',
   mixins: [FullscreenMixin],
   props: {
     value: {
@@ -11202,7 +11251,7 @@ var FabMixin = {
 }
 
 var QFab = {
-  name: 'q-fab',
+  name: 'QFab',
   mixins: [FabMixin, ModelToggleMixin],
   provide: function provide () {
     return {
@@ -11269,7 +11318,7 @@ var QFab = {
 }
 
 var QFabAction = {
-  name: 'q-fab-action',
+  name: 'QFabAction',
   mixins: [FabMixin],
   inject: {
     __qFabClose: {
@@ -11309,7 +11358,7 @@ var QFabAction = {
 }
 
 var QField = {
-  name: 'q-field',
+  name: 'QField',
   props: {
     inset: {
       type: String,
@@ -11430,8 +11479,10 @@ var QField = {
     __registerInput: function __registerInput (vm) {
       this.input = vm;
     },
-    __unregisterInput: function __unregisterInput () {
-      this.input = {};
+    __unregisterInput: function __unregisterInput (vm) {
+      if (!vm || vm === this.input) {
+        this.input = {};
+      }
     },
     __getBottomContent: function __getBottomContent (h) {
       if (this.hasError && this.errorLabel) {
@@ -11494,7 +11545,7 @@ var QField = {
 }
 
 var QInfiniteScroll = {
-  name: 'q-infinite-scroll',
+  name: 'QInfiniteScroll',
   props: {
     handler: {
       type: Function,
@@ -11599,7 +11650,7 @@ var QInfiniteScroll = {
 }
 
 var QInnerLoading = {
-  name: 'q-inner-loading',
+  name: 'QInnerLoading',
   props: {
     dark: Boolean,
     visible: Boolean,
@@ -11630,7 +11681,7 @@ var QInnerLoading = {
 }
 
 var QKnob = {
-  name: 'q-knob',
+  name: 'QKnob',
   directives: {
     TouchPan: TouchPan
   },
@@ -11893,7 +11944,7 @@ var QKnob = {
 }
 
 var QLayout = {
-  name: 'q-layout',
+  name: 'QLayout',
   provide: function provide () {
     return {
       layout: this
@@ -11918,7 +11969,7 @@ var QLayout = {
       header: {
         size: 0,
         offset: 0,
-        space: true
+        space: false
       },
       right: {
         size: 300,
@@ -11928,7 +11979,7 @@ var QLayout = {
       footer: {
         size: 0,
         offset: 0,
-        space: true
+        space: false
       },
       left: {
         size: 300,
@@ -11952,6 +12003,14 @@ var QLayout = {
         bottom: rows[2].split('')
       }
     }
+  },
+  created: function created () {
+    this.instances = {
+      header: null,
+      right: null,
+      footer: null,
+      left: null
+    };
   },
   render: function render (h) {
     return h('div', { staticClass: 'q-layout' }, [
@@ -12011,7 +12070,7 @@ var
   duration = 150;
 
 var QLayoutDrawer = {
-  name: 'q-layout-drawer',
+  name: 'QLayoutDrawer',
   inject: {
     layout: {
       default: function default$1 () {
@@ -12064,10 +12123,7 @@ var QLayoutDrawer = {
       largeScreenState: largeScreenState,
       mobileOpened: false,
 
-      size: 300,
-      inTransit: false,
-      position: 0,
-      percentage: 0
+      size: 300
     }
   },
   watch: {
@@ -12128,7 +12184,7 @@ var QLayoutDrawer = {
       return this.side === 'right'
     },
     offset: function offset$$1 () {
-      return this.showing && !this.mobileOpened
+      return this.showing && !this.mobileOpened && !this.overlay
         ? this.size
         : 0
     },
@@ -12143,8 +12199,7 @@ var QLayoutDrawer = {
     },
     backdropClass: function backdropClass () {
       return {
-        'q-layout-backdrop-transition': !this.inTransit,
-        'no-pointer-events': !this.inTransit && !this.showing
+        'no-pointer-events': !this.showing
       }
     },
     mobileView: function mobileView () {
@@ -12166,30 +12221,18 @@ var QLayoutDrawer = {
           : this.layout.rows.bottom[0] === 'l'
         )
     },
-    backdropStyle: function backdropStyle () {
-      return { backgroundColor: ("rgba(0,0,0," + (this.percentage * 0.4) + ")") }
-    },
     belowClass: function belowClass () {
       return {
         'fixed': true,
         'on-top': true,
-        'on-screen': this.showing,
-        'off-screen': !this.showing,
-        'transition-generic': !this.inTransit,
+        'q-layout-drawer-delimiter': this.fixed && this.showing,
         'top-padding': true
       }
     },
-    belowStyle: function belowStyle () {
-      if (this.inTransit) {
-        return cssTransform(("translateX(" + (this.position) + "px)"))
-      }
-    },
     aboveClass: function aboveClass () {
-      var onScreen = this.onLayout || this.onScreenOverlay;
       return {
-        'off-screen': !onScreen,
-        'on-screen': onScreen,
         'fixed': this.fixed || !this.onLayout,
+        'q-layout-drawer-delimiter': this.fixed && this.showing,
         'top-padding': this.headerSlot
       }
     },
@@ -12217,10 +12260,13 @@ var QLayoutDrawer = {
       return css$$1
     },
     computedStyle: function computedStyle () {
-      return [this.contentStyle, this.mobileView ? this.belowStyle : this.aboveStyle]
+      return [this.contentStyle, this.mobileView ? '' : this.aboveStyle]
     },
     computedClass: function computedClass () {
       return [this.contentClass, this.mobileView ? this.belowClass : this.aboveClass]
+    },
+    stateDirection: function stateDirection () {
+      return (this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1)
     }
   },
   render: function render (h) {
@@ -12238,9 +12284,9 @@ var QLayoutDrawer = {
         }));
       }
       child.push(h('div', {
+        ref: 'backdrop',
         staticClass: 'fullscreen q-layout-backdrop',
         'class': this.backdropClass,
-        style: this.backdropStyle,
         on: { click: this.hide },
         directives: [{
           name: 'touch-pan',
@@ -12252,7 +12298,8 @@ var QLayoutDrawer = {
 
     return h('div', { staticClass: 'q-drawer-container' }, child.concat([
       h('aside', {
-        staticClass: ("q-layout-drawer q-layout-drawer-" + (this.side) + " scroll q-layout-transition"),
+        ref: 'content',
+        staticClass: ("q-layout-drawer q-layout-drawer-" + (this.side) + " scroll"),
         'class': this.computedClass,
         style: this.computedStyle,
         attrs: this.$attrs,
@@ -12265,6 +12312,7 @@ var QLayoutDrawer = {
       }, [
         this.$slots.default,
         h(QResizeObservable, {
+          props: { debounce: 0 },
           on: { resize: this.__onResize }
         })
       ])
@@ -12273,21 +12321,36 @@ var QLayoutDrawer = {
   created: function created () {
     var this$1 = this;
 
+    this.layout.instances[this.side] = this;
     if (this.onLayout) {
       this.__update('space', true);
-      this.__update('offset', this.offset);
     }
 
     this.$nextTick(function () {
       this$1.animateOverlay = true;
     });
   },
+  mounted: function mounted () {
+    if (!this.showing) {
+      this.applyPosition(this.stateDirection * this.size);
+    }
+  },
   beforeDestroy: function beforeDestroy () {
     clearTimeout(this.timer);
-    this.__update('size', 0);
-    this.__update('space', false);
+    if (this.layout.instances[this.side] === this) {
+      this.layout.instances[this.side] = null;
+      this.__update('size', 0);
+      this.__update('offset', 0);
+      this.__update('space', false);
+    }
   },
   methods: {
+    applyPosition: function applyPosition (position) {
+      css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
+    },
+    applyBackdrop: function applyBackdrop (x) {
+      this.$refs.backdrop && css(this.$refs.backdrop, { backgroundColor: ("rgba(0,0,0," + (x * 0.4) + ")") });
+    },
     __openByTouch: function __openByTouch (evt) {
       if (!this.belowBreakpoint) {
         return
@@ -12297,22 +12360,36 @@ var QLayoutDrawer = {
         position = between(evt.distance.x, 0, width$$1);
 
       if (evt.isFinal) {
-        var opened = position >= Math.min(75, width$$1);
-        this.inTransit = false;
-        if (opened) { this.show(); }
-        else { this.percentage = 0; }
+        var
+          el = this.$refs.content,
+          opened = position >= Math.min(75, width$$1);
+
+        el.classList.remove('no-transition');
+        if (opened) {
+          this.show();
+        }
+        else {
+          this.applyBackdrop(0);
+          this.applyPosition(this.stateDirection * width$$1);
+          el.classList.remove('q-layout-drawer-delimiter');
+        }
         return
       }
 
-      this.position = (this.$q.i18n.rtl ? !this.rightSide : this.rightSide)
-        ? Math.max(width$$1 - position, 0)
-        : Math.min(0, position - width$$1);
-
-      this.percentage = between(position / width$$1, 0, 1);
+      this.applyPosition(
+        (this.$q.i18n.rtl ? !this.rightSide : this.rightSide)
+          ? Math.max(width$$1 - position, 0)
+          : Math.min(0, position - width$$1)
+      );
+      this.applyBackdrop(
+        between(position / width$$1, 0, 1)
+      );
 
       if (evt.isFirst) {
+        var el$1 = this.$refs.content;
         document.body.classList.add(bodyClassBelow);
-        this.inTransit = true;
+        el$1.classList.add('no-transition');
+        el$1.classList.add('q-layout-drawer-delimiter');
       }
     },
     __closeByTouch: function __closeByTouch (evt) {
@@ -12329,27 +12406,37 @@ var QLayoutDrawer = {
 
       if (evt.isFinal) {
         var opened = Math.abs(position) < Math.min(75, width$$1);
-        this.inTransit = false;
-        if (opened) { this.percentage = 1; }
-        else { this.hide(); }
+        this.$refs.content.classList.remove('no-transition');
+        if (opened) {
+          this.applyBackdrop(1);
+          this.applyPosition(0);
+        }
+        else {
+          this.hide();
+        }
         return
       }
 
-      this.position = (this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1) * position;
-      this.percentage = between(1 - position / width$$1, 0, 1);
+      this.applyPosition(this.stateDirection * position);
+      this.applyBackdrop(between(1 - position / width$$1, 0, 1));
 
       if (evt.isFirst) {
-        this.inTransit = true;
+        this.$refs.content.classList.add('no-transition');
       }
     },
     __show: function __show () {
       var this$1 = this;
 
       if (this.belowBreakpoint) {
+        var otherSide = this.layout.instances[this.rightSide ? 'left' : 'right'];
+        if (otherSide && otherSide.mobileOpened) {
+          otherSide.hide();
+        }
         this.mobileOpened = true;
-        this.percentage = 1;
+        this.applyBackdrop(1);
       }
 
+      this.applyPosition(0);
       document.body.classList.add(this.belowBreakpoint ? bodyClassBelow : bodyClassAbove);
 
       clearTimeout(this.timer);
@@ -12366,7 +12453,8 @@ var QLayoutDrawer = {
       var this$1 = this;
 
       this.mobileOpened = false;
-      this.percentage = 0;
+      this.applyPosition((this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1) * this.size);
+      this.applyBackdrop(0);
 
       document.body.classList.remove(bodyClassAbove);
       document.body.classList.remove(bodyClassBelow);
@@ -12397,7 +12485,7 @@ var QLayoutDrawer = {
 }
 
 var QLayoutFooter = {
-  name: 'q-layout-footer',
+  name: 'QLayoutFooter',
   inject: {
     layout: {
       default: function default$1 () {
@@ -12426,6 +12514,11 @@ var QLayoutFooter = {
     },
     offset: function offset (val) {
       this.__update('offset', val);
+    },
+    reveal: function reveal (val) {
+      if (!val) {
+        this.__updateLocal('revealed', this.value);
+      }
     },
     revealed: function revealed (val) {
       this.layout.__animate();
@@ -12486,16 +12579,22 @@ var QLayoutFooter = {
     }, [
       this.$slots.default,
       h(QResizeObservable, {
+        props: { debounce: 0 },
         on: { resize: this.__onResize }
       })
     ])
   },
   created: function created () {
+    this.layout.instances.footer = this;
     this.__update('space', this.value);
   },
-  destroyed: function destroyed () {
-    this.__update('size', 0);
-    this.__update('space', false);
+  beforeDestroy: function beforeDestroy () {
+    if (this.layout.instances.footer === this) {
+      this.layout.instances.footer = null;
+      this.__update('size', 0);
+      this.__update('offset', 0);
+      this.__update('space', false);
+    }
   },
   methods: {
     __onResize: function __onResize (ref) {
@@ -12533,7 +12632,7 @@ var QLayoutFooter = {
 }
 
 var QLayoutHeader = {
-  name: 'q-layout-header',
+  name: 'QLayoutHeader',
   inject: {
     layout: {
       default: function default$1 () {
@@ -12566,6 +12665,11 @@ var QLayoutHeader = {
     },
     offset: function offset (val) {
       this.__update('offset', val);
+    },
+    reveal: function reveal (val) {
+      if (!val) {
+        this.__updateLocal('revealed', this.value);
+      }
     },
     revealed: function revealed (val) {
       this.layout.__animate();
@@ -12626,16 +12730,22 @@ var QLayoutHeader = {
     }, [
       this.$slots.default,
       h(QResizeObservable, {
+        props: { debounce: 0 },
         on: { resize: this.__onResize }
       })
     ])
   },
   created: function created () {
+    this.layout.instances.header = this;
     this.__update('space', this.value);
   },
-  destroyed: function destroyed () {
-    this.__update('size', 0);
-    this.__update('space', false);
+  beforeDestroy: function beforeDestroy () {
+    if (this.layout.instances.header === this) {
+      this.layout.instances.header = null;
+      this.__update('size', 0);
+      this.__update('offset', 0);
+      this.__update('space', false);
+    }
   },
   methods: {
     __onResize: function __onResize (ref) {
@@ -12658,7 +12768,7 @@ var QLayoutHeader = {
 }
 
 var QPage = {
-  name: 'q-page',
+  name: 'QPage',
   inject: {
     pageContainer: {
       default: function default$1 () {
@@ -12698,7 +12808,7 @@ var QPage = {
 }
 
 var QPageContainer = {
-  name: 'q-page-container',
+  name: 'QPageContainer',
   inject: {
     layout: {
       default: function default$1 () {
@@ -12740,7 +12850,7 @@ var QPageContainer = {
 }
 
 var QPageSticky = {
-  name: 'q-page-sticky',
+  name: 'QPageSticky',
   inject: {
     layout: {
       default: function default$1 () {
@@ -12856,7 +12966,7 @@ var QPageSticky = {
 }
 
 var QPagination = {
-  name: 'q-pagination',
+  name: 'QPagination',
   props: {
     value: {
       type: Number,
@@ -13209,7 +13319,7 @@ var QPagination = {
 }
 
 var QParallax = {
-  name: 'q-parallax',
+  name: 'QParallax',
   props: {
     src: {
       type: String,
@@ -13344,7 +13454,7 @@ function width$1 (val) {
 }
 
 var QProgress = {
-  name: 'q-progress',
+  name: 'QProgress',
   props: {
     percentage: {
       type: Number,
@@ -13420,7 +13530,7 @@ var QProgress = {
 }
 
 var QPullToRefresh = {
-  name: 'q-pull-to-refresh',
+  name: 'QPullToRefresh',
   directives: {
     TouchPan: TouchPan
   },
@@ -13595,7 +13705,7 @@ var dragType = {
 };
 
 var QRange = {
-  name: 'q-range',
+  name: 'QRange',
   mixins: [SliderMixin],
   props: {
     value: {
@@ -13902,7 +14012,7 @@ var QRange = {
 }
 
 var QRating = {
-  name: 'q-rating',
+  name: 'QRating',
   props: {
     value: Number,
     max: {
@@ -14025,7 +14135,7 @@ var QRating = {
 }
 
 var QScrollArea = {
-  name: 'q-scroll-area',
+  name: 'QScrollArea',
   directives: {
     TouchPan: TouchPan
   },
@@ -14248,7 +14358,7 @@ var QScrollArea = {
 }
 
 var QSearch = {
-  name: 'q-search',
+  name: 'QSearch',
   mixins: [FrameMixin, InputMixin],
   props: {
     value: { required: true },
@@ -14389,8 +14499,8 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.togglePopup($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);},"keydown":function($event){_vm.__keyboardHandleKey($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":_vm.__onClose}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},nativeOn:{"keydown":function($event){_vm.__keyboardHandleKey($event);}},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
-  name: 'q-select',
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){_vm.togglePopup($event);},"focus":function($event){_vm.__onFocus($event);},"blur":function($event){_vm.__onBlur($event);},"keydown":function($event){_vm.__keyboardHandleKey($event);}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":"cancel"},nativeOn:{"click":function($event){$event.stopPropagation();_vm.clear($event);}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false,"force-top":_vm.forceTop},on:{"show":_vm.__onShow,"hide":_vm.__onClose}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},nativeOn:{"keydown":function($event){_vm.__keyboardHandleKey($event);}},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){(function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event);}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
+  name: 'QSelect',
   mixins: [FrameMixin, KeyboardSelectionMixin],
   components: {
     QSearch: QSearch,
@@ -14522,6 +14632,9 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     },
     additionalLength: function additionalLength () {
       return this.displayValue && this.displayValue.length > 0
+    },
+    forceTop: function forceTop () {
+      return this.filter && this.$q.platform.is.mobile
     }
   },
   methods: {
@@ -14702,7 +14815,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 }
 
 var StepTab = {
-  name: 'q-step-tab',
+  name: 'QStepTab',
   components: {
     QIcon: QIcon
   },
@@ -14711,11 +14824,15 @@ var StepTab = {
   },
   props: ['vm'],
   computed: {
+    hasNavigation: function hasNavigation () {
+      return !this.vm.__stepper.noHeaderNavigation
+    },
     classes: function classes () {
       return {
         'step-error': this.vm.error,
         'step-active': this.vm.active,
         'step-done': this.vm.done,
+        'step-navigation': this.vm.done && this.hasNavigation,
         'step-waiting': this.vm.waiting,
         'step-disabled': this.vm.disable,
         'step-colored': this.vm.active || this.vm.done,
@@ -14728,7 +14845,9 @@ var StepTab = {
   },
   methods: {
     __select: function __select () {
-      this.vm.select();
+      if (this.hasNavigation) {
+        this.vm.select();
+      }
     }
   },
   render: function render (h) {
@@ -14742,10 +14861,12 @@ var StepTab = {
       on: {
         click: this.__select
       },
-      directives: [{
+      directives: "mat" === 'mat' && this.hasNavigation
+        ? [{
           name: 'ripple',
           value: this.vm.done
         }]
+        : null
     }, [
       h('div', { staticClass: 'q-stepper-dot row flex-center q-stepper-line relative-position' }, [
         h('span', { staticClass: 'row flex-center' }, [ icon ])
@@ -14763,7 +14884,7 @@ var StepTab = {
 }
 
 var QStep = {
-  name: 'q-step',
+  name: 'QStep',
   inject: {
     __stepper: {
       default: function default$1 () {
@@ -14881,7 +15002,7 @@ var QStep = {
 }
 
 var QStepper = {
-  name: 'q-stepper',
+  name: 'QStepper',
   components: {
     StepTab: StepTab
   },
@@ -14890,6 +15011,7 @@ var QStepper = {
     color: String,
     vertical: Boolean,
     alternativeLabels: Boolean,
+    noHeaderNavigation: Boolean,
     contractable: Boolean,
     doneIcon: Boolean,
     activeIcon: Boolean,
@@ -15049,7 +15171,7 @@ var QStepper = {
 }
 
 var QStepperNavigation = {
-  name: 'q-stepper-navigation',
+  name: 'QStepperNavigation',
   render: function render (h) {
     return h('div', {
       staticClass: 'q-stepper-nav order-last row no-wrap items-center'
@@ -15174,7 +15296,7 @@ var TabMixin = {
 }
 
 var QRouteTab = {
-  name: 'q-route-tab',
+  name: 'QRouteTab',
   mixins: [TabMixin, RouterLinkMixin],
   inject: {
     selectTabRouter: {}
@@ -15235,7 +15357,7 @@ var QRouteTab = {
 }
 
 var QTab = {
-  name: 'q-tab',
+  name: 'QTab',
   mixins: [TabMixin],
   props: {
     default: Boolean
@@ -15266,7 +15388,7 @@ var QTab = {
 }
 
 var QTabPane = {
-  name: 'q-tab-pane',
+  name: 'QTabPane',
   inject: {
     data: {
       default: function default$1 () {
@@ -15314,7 +15436,7 @@ var
   debounceDelay = 50; // in ms
 
 var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex no-wrap",class:_vm.classes},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:_vm.innerClasses},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:[_vm.inverted && _vm.color ? ("text-" + (_vm.color)) : '', _vm.data.highlight ? 'highlight' : '']},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.left}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.right}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])},staticRenderFns: [],
-  name: 'q-tabs',
+  name: 'QTabs',
   provide: function provide () {
     return {
       data: this.data,
@@ -15747,7 +15869,7 @@ var Top = {
 }
 
 var QTh = {
-  name: 'q-th',
+  name: 'QTh',
   props: {
     props: Object,
     autoWidth: Boolean
@@ -16484,7 +16606,7 @@ var Expand = {
 }
 
 var QTable = {
-  name: 'q-table',
+  name: 'QTable',
   mixins: [
     FullscreenMixin,
     Top,
@@ -16632,7 +16754,7 @@ var QTable = {
 }
 
 var QTr = {
-  name: 'q-tr',
+  name: 'QTr',
   props: {
     props: Object
   },
@@ -16645,7 +16767,7 @@ var QTr = {
 }
 
 var QTd = {
-  name: 'q-td',
+  name: 'QTd',
   props: {
     props: Object,
     autoWidth: Boolean
@@ -16677,7 +16799,7 @@ var QTd = {
 }
 
 var QTableColumns = {
-  name: 'q-table-columns',
+  name: 'QTableColumns',
   props: {
     value: {
       type: Array,
@@ -16720,7 +16842,7 @@ var QTableColumns = {
 }
 
 var QTimeline = {
-  name: 'q-timeline',
+  name: 'QTimeline',
   provide: function provide () {
     return {
       __timeline: this
@@ -16744,7 +16866,7 @@ var QTimeline = {
 }
 
 var QTimelineEntry = {
-  name: 'q-timeline-entry',
+  name: 'QTimelineEntry',
   inject: {
     __timeline: {
       default: function default$1 () {
@@ -16816,7 +16938,7 @@ var QTimelineEntry = {
 }
 
 var QToolbar = {
-  name: 'q-toolbar',
+  name: 'QToolbar',
   props: {
     color: String,
     textColor: String,
@@ -16856,7 +16978,7 @@ var QToolbar = {
 }
 
 var QToolbarTitle = {
-  name: 'q-toolbar-title',
+  name: 'QToolbarTitle',
   props: {
     shrink: Boolean
   },
@@ -16874,7 +16996,7 @@ var QToolbarTitle = {
 }
 
 var QTree = {
-  name: 'q-tree',
+  name: 'QTree',
   directives: {
     Ripple: Ripple
   },
@@ -17473,13 +17595,14 @@ function initFile (file) {
 }
 
 var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragOver($event);}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){_vm.abort($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){_vm.__pick($event);}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){_vm.upload($event);}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDragLeave($event);},"drop":function($event){$event.preventDefault();$event.stopPropagation();_vm.__onDrop($event);}}}):_vm._e()],1)},staticRenderFns: [],
-  name: 'q-uploader',
+  name: 'QUploader',
   mixins: [FrameMixin],
   components: {
     QInputFrame: QInputFrame,
     QSpinner: QSpinner,
     QIcon: QIcon,
     QProgress: QProgress,
+    QList: QList,
     QItem: QItem,
     QItemSide: QItemSide,
     QItemMain: QItemMain,
@@ -17627,7 +17750,10 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       var this$1 = this;
 
       return Array.prototype.filter.call(files, function (file) {
-        return this$1.computedExtensions.some(function (ext) { return file.type.startsWith(ext) || file.name.endsWith(ext); })
+        return this$1.computedExtensions.some(function (ext) {
+          return file.type.toUpperCase().startsWith(ext.toUpperCase()) ||
+            file.name.toUpperCase().endsWith(ext.toUpperCase())
+        })
       })
     },
     __add: function __add (e, files) {
@@ -17647,7 +17773,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
           file.__size = humanStorageSize(file.size);
           file.__timestamp = new Date().getTime();
 
-          if (this$1.noThumbnails || !file.type.startsWith('image')) {
+          if (this$1.noThumbnails || !file.type.toUpperCase().startsWith('IMAGE')) {
             this$1.queue.push(file);
           }
           else {
@@ -17839,7 +17965,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
 }
 
 var QVideo = {
-  name: 'q-video',
+  name: 'QVideo',
   props: {
     src: {
       type: String,
@@ -17963,7 +18089,7 @@ var closeOverlay = {
       var vm = vnode.componentInstance;
       while ((vm = vm.$parent)) {
         var name = vm.$options.name;
-        if (name === 'q-popover' || name === 'q-modal') {
+        if (name === 'QPopover' || name === 'QModal') {
           vm.hide();
           break
         }
