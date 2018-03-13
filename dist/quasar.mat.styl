@@ -643,8 +643,8 @@ $datetime-input-min-width ?= 70px
 $dot-color             ?= $red
 $dot-opacity           ?= .8
 $dot-size              ?= 10px
-$dot-position-top      ?= 10px
-$dot-position-right    ?= 10px
+$dot-position-top      ?= 8px
+$dot-position-right    ?= 4px
 $editor-border-color            ?= #ccc
 $editor-border                  ?= 1px solid $editor-border-color
 $editor-content-padding         ?= 10px
@@ -1228,9 +1228,8 @@ $checkbox-size = 21px
   border-radius 2px
 .q-chip-floating
   position absolute
-  top -.7rem
-  left 100%
-  margin 0 0 0 -1.5rem !important
+  top -.3em
+  right -.3em
   pointer-events none
 .q-chip-tag
   position relative
@@ -1302,6 +1301,30 @@ $checkbox-size = 21px
     min-width $chip-small-height
   .q-chip-icon
     font-size $chip-small-icon-size
+.q-chip-dense
+  min-height 1px
+  padding 0 3px
+  font-size 12px
+  &.q-chip-tag
+    padding-left 1.3rem
+  &.q-chip-pointing:before
+    width 9px
+    height 9px
+  .q-chip-main
+    padding 1px
+  .q-chip-side
+    height 18px
+    width 18px
+    min-width 16px
+    font-size 14px
+  .q-chip-left
+    margin-left -3px
+    margin-right 2px
+  .q-chip-right
+    margin-left 2px
+    margin-right -2px
+  .q-icon
+    font-size 16px
 .q-chips-input input
   min-width 70px
 .q-collapsible-sub-item
@@ -1330,6 +1353,10 @@ $checkbox-size = 21px
     padding-top 0
   &:last-child
     padding-bottom 0
+.q-collapsible-toggle-icon
+  border-radius 50%
+  width 1em
+  text-align center
 .q-color
   max-width 100vw
   border 1px solid $grey-4
@@ -2662,7 +2689,7 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   opacity 0
   transform translateX(-50%) translateY(0) scale(0)
   transition all .2s
-  padding 5px 9px
+  padding 2px 4px
   &.label-always
     opacity 1
     transform $slider-label-transform
@@ -2722,8 +2749,8 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   color var(--q-color-primary)
   cursor pointer
   &.label-always, &.with-padding
-    padding 55px 0 5px
-    height 85px
+    padding 36px 0 8px
+    height 64px
   &.has-error
     color $negative
     color var(--q-color-negative)
@@ -2924,10 +2951,9 @@ body.desktop .q-stepper-tab.step-navigation:hover
     margin-top 4px
   .q-chip
     top 5px
-    right 0
+    right 5px
     left auto
     min-height auto
-    padding 2px 6px
     color white
     background alpha($dot-color, .75)
   &.active
@@ -5599,11 +5625,8 @@ ie_style = @block
   .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner
     margin 0
   
-  .q-chip
-    .q-chip-main
-      line-height $chip-height
-    &.q-chip-small .q-chip-main
-      line-height normal
+  .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main
+    line-height $chip-height
   .q-btn .q-chip
     display inline-block
   .q-tab .q-chip .q-chip-main
