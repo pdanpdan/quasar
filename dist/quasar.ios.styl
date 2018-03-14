@@ -932,6 +932,9 @@ input[type='search']::-webkit-search-decoration
   &:active:not(.disabled)
     transform translateY(3px)
     border-bottom-color transparent
+  .q-focus-helper, .q-ripple-container
+    height auto
+    bottom -3px
 .q-btn-rounded
   border-radius $button-rounded-border-radius
 .q-btn-round
@@ -1767,15 +1770,12 @@ qfield-horizontal()
     margin -5px
     &:not(:first-child)
       margin-top 0
-.q-if-hide-underline:not(.q-if-inverted)
-  min-height 24px
-  padding-bottom 0
 .q-if-focusable
   outline 0
   cursor pointer
 .q-if-inner
   min-height 24px !important
-  align-items center
+  align-items flex-end
 .q-if-has-label
   min-height 41px
   .q-if-inner
@@ -1788,7 +1788,7 @@ qfield-horizontal()
   left 0
   right 0
   transform-origin left top 0
-  transform scale(1) translate(0, 0)
+  transform scale(1) translate(0, 2px)
 .q-if-label-above
   transform scale(.75) translate(0, -22px)
 .q-if-addon
@@ -1803,7 +1803,7 @@ qfield-horizontal()
 .q-if-control
   cursor pointer
   font-size 24px
-  align-self flex-end
+  transform: translateY(2px);
   &.q-icon
     cursor pointer
   &:hover
@@ -1900,6 +1900,8 @@ input.q-input-target
   outline 0
 .q-input-chips
   min-height 36px !important
+  > .q-chip
+    transform: translateY(2px);
 .q-if
   .q-input-target-placeholder
     color $form-dark !important
@@ -2995,9 +2997,13 @@ body.mobile .q-tabs-scroller
   font-size 12px
   .q-table-control
     min-height 24px
+    > .q-if > .q-if-inner
+      padding-bottom 3px
 .q-table-control
   display flex
   align-items center
+  > .q-if-hide-underline
+    padding-bottom 6px
 .q-table-sort-icon
   transition $table-transition
   will-change opacity, transform
@@ -5370,10 +5376,6 @@ dl
       white-space nowrap
     dd
       margin-left 30%
-.no-margin
-  margin 0 !important
-.no-padding
-  padding 0 !important
 .no-border
   border 0 !important
 .no-border-radius

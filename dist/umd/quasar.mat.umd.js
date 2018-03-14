@@ -5710,20 +5710,6 @@ var CheckboxMixin = {
   }
 }
 
-var reKebab = /([a-zA-Z])(?=[A-Z])/g;
-
-function kebabTag (vm) {
-  var tag = (
-    vm.$vnode &&
-    vm.$vnode.componentOptions &&
-    vm.$vnode.componentOptions.Ctor &&
-    vm.$vnode.componentOptions.Ctor.extendOptions &&
-    vm.$vnode.componentOptions.Ctor.extendOptions.name
-  ) || vm.$options._componentTag;
-
-  return tag.replace(reKebab, '$1-').toLowerCase()
-}
-
 var OptionMixin = {
   props: {
     value: {
@@ -5797,9 +5783,6 @@ var OptionMixin = {
         this.toggle(e, false);
       }
     }
-  },
-  beforeCreate: function beforeCreate () {
-    this.__kebabTag = kebabTag(this);
   },
   render: function render (h) {
     var this$1 = this;
@@ -5897,6 +5880,9 @@ var QCheckbox = {
         h('div', { ref: 'ripple', staticClass: 'q-radial-ripple' })
       ]
     }
+  },
+  beforeCreate: function beforeCreate () {
+    this.__kebabTag = 'q-checkbox';
   }
 }
 
@@ -6298,7 +6284,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 }
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e()],1)},staticRenderFns: [],
   name: 'QChipsInput',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -6778,8 +6764,22 @@ var SliderMixin = {
         this.__update(event.evt);
       }
     },
+    __endEmit: function __endEmit () {
+      var this$1 = this;
+
+      setTimeout(function () {
+        this$1.dragging = false;
+      }, 100);
+      this.$emit('input', this.model);
+      this.$nextTick(function () {
+        this$1.$emit('dragend', this$1.model);
+        if (JSON.stringify(this$1.model) !== JSON.stringify(this$1.value)) {
+          this$1.$emit('change', this$1.model);
+        }
+      });
+    },
     __click: function __click (event) {
-      if (this.clickDisabled) {
+      if (this.clickDisabled || this.dragging) {
         return
       }
       this.__setActive(event);
@@ -6919,16 +6919,8 @@ var QSlider = {
       this.$emit('input', model);
     },
     __end: function __end () {
-      var this$1 = this;
-
-      this.dragging = false;
       this.currentPercentage = (this.model - this.min) / (this.max - this.min);
-      this.$nextTick(function () {
-        if (JSON.stringify(this$1.model) !== JSON.stringify(this$1.value)) {
-          this$1.$emit('change', this$1.model);
-        }
-        this$1.$emit('dragend', this$1.model);
-      });
+      this.__endEmit();
     },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
@@ -9951,6 +9943,9 @@ var QRadio = {
         h('div', { ref: 'ripple', staticClass: 'q-radial-ripple' })
       ]
     }
+  },
+  beforeCreate: function beforeCreate () {
+    this.__kebabTag = 'q-radio';
   }
 }
 
@@ -9997,6 +9992,9 @@ var QToggle = {
         ])
       ]
     }
+  },
+  beforeCreate: function beforeCreate () {
+    this.__kebabTag = 'q-toggle';
   }
 }
 
@@ -10748,7 +10746,7 @@ function getLinkEditor (h, vm) {
       h('div', { staticClass: 'q-mx-xs', 'class': ("text-" + color) }, [((vm.$q.i18n.editor.url) + ": ")]),
       h(QInput, {
         key: 'qedt_btm_input',
-        staticClass: 'q-ma-none q-pa-none col q-editor-input',
+        staticClass: 'q-ma-none q-pb-xs col q-editor-input',
         props: {
           value: link,
           color: color,
@@ -12044,11 +12042,11 @@ var QKnob = {
       this.model = value;
       this.$emit('input', value);
       this.$nextTick(function () {
-        if (emitChange && JSON.stringify(value) !== JSON.stringify(this$1.value)) {
-          this$1.$emit('change', value);
-        }
         if (dragStop) {
           this$1.$emit('dragend', value);
+        }
+        if (emitChange && JSON.stringify(value) !== JSON.stringify(this$1.value)) {
+          this$1.$emit('change', value);
         }
       });
     },
@@ -12073,7 +12071,7 @@ var QKnob = {
     }, [
       h('div', {
         on: {
-          click: function (e) { return this$1.__onInput(e, undefined, true); }
+          click: function (e) { return !this$1.dragging && this$1.__onInput(e, undefined, true); }
         },
         directives: [{
           name: 'touch-pan',
@@ -13342,7 +13340,7 @@ var QPagination = {
 
     if (this.input) {
       contentMiddle.push(h(QInput, {
-        staticClass: 'inline no-padding',
+        staticClass: 'inline',
         style: {
           width: ((this.inputPlaceholder.length) + "rem")
         },
@@ -13998,6 +13996,8 @@ var QRange = {
   },
   methods: {
     __setActive: function __setActive (event) {
+      var this$1 = this;
+
       var
         container = this.$refs.handle,
         width = container.offsetWidth,
@@ -14040,7 +14040,9 @@ var QRange = {
       }
 
       if (this.dragOnlyRange && type !== dragType.RANGE) {
-        this.dragging = false;
+        setTimeout(function () {
+          this$1.dragging = false;
+        }, 100);
         return
       }
 
@@ -14113,17 +14115,9 @@ var QRange = {
       this.__updateInput(pos);
     },
     __end: function __end () {
-      var this$1 = this;
-
-      this.dragging = false;
       this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
       this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
-      this.$nextTick(function () {
-        if (JSON.stringify(this$1.model) !== JSON.stringify(this$1.value)) {
-          this$1.$emit('change', this$1.model);
-        }
-        this$1.$emit('dragend', this$1.model);
-      });
+      this.__endEmit();
     },
     __updateInput: function __updateInput (ref) {
       var min = ref.min; if ( min === void 0 ) min = this.model.min;
@@ -16507,7 +16501,7 @@ var Sort = {
             return (a - b) * dir
           }
 
-          (assign = [A, B].map(function (s) { return s.toLowerCase(); }), A = assign[0], B = assign[1]);
+          (assign = [A, B].map(function (s) { return (s + '').toLowerCase(); }), A = assign[0], B = assign[1]);
 
           return A < B
             ? -1 * dir
