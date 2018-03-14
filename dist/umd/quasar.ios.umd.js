@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.7
+ * Quasar Framework v0.15.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.7";
+var version = "0.15.8";
 
 function offset (el) {
   if (el === window) {
@@ -3542,7 +3542,7 @@ var QPopover = {
   created: function created () {
     var this$1 = this;
 
-    this.__updatePosition = frameDebounce(function (_discard, event, animate) { return this$1.reposition(event, animate); });
+    this.__updatePosition = frameDebounce(function (_, event, animate) { return this$1.reposition(event, animate); });
   },
   mounted: function mounted () {
     var this$1 = this;
@@ -3576,7 +3576,7 @@ var QPopover = {
       this.scrollTarget = getScrollTarget(this.anchorEl);
       this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
       window.addEventListener('resize', this.__updatePosition, listenOpts.passive);
-      this.__updatePosition(void 0, evt, true);
+      this.__updatePosition(0, evt, true);
 
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
@@ -5786,7 +5786,7 @@ var OptionMixin = {
   computed: {
     classes: function classes () {
       return [
-        this.kebabTag,
+        this.__kebabTag,
         {
           disabled: this.disable,
           reverse: this.leftLabel,
@@ -5839,7 +5839,7 @@ var OptionMixin = {
     }
   },
   beforeCreate: function beforeCreate () {
-    this.kebabTag = kebabTag(this);
+    this.__kebabTag = kebabTag(this);
   },
   render: function render (h) {
     var this$1 = this;
@@ -5854,7 +5854,7 @@ var OptionMixin = {
         blur: function () { this$1.$emit('blur'); },
         keydown: this.__handleKeyDown
       },
-      directives: this.kebabTag === 'q-toggle'
+      directives: this.__kebabTag === 'q-toggle'
         ? [{
           name: 'touch-swipe',
           modifiers: { horizontal: true },
@@ -9341,6 +9341,13 @@ var QDatetime = {
         }
       });
     },
+    __resetView: function __resetView () {
+      // go back to initial entry point for that type of control
+      // if it has defaultView it's going to be reapplied anyway on focus
+      if (!this.defaultView) {
+        this.$refs.target.setView();
+      }
+    },
 
     __getPicker: function __getPicker (h, modal) {
       var this$1 = this;
@@ -9372,11 +9379,7 @@ var QDatetime = {
             canClose: function () {
               if (this$1.isPopover) {
                 this$1.hide();
-                // go back to initial entry point for that type of control
-                // if it has defaultView it's goint to be reapplied anyway on focus
-                if (!this$1.defaultView) {
-                  this$1.$refs.target.setView();
-                }
+                this$1.__resetView();
               }
             }
           }
@@ -9397,6 +9400,7 @@ var QDatetime = {
                   click: function () {
                     this$1.__onHide();
                     this$1.hide();
+                    this$1.__resetView();
                   }
                 }
               }),
@@ -9412,6 +9416,7 @@ var QDatetime = {
                     click: function () {
                       this$1.__onHide(true);
                       this$1.hide();
+                      this$1.__resetView();
                     }
                   }
                 })
@@ -12498,9 +12503,8 @@ var QLayoutDrawer = {
     var this$1 = this;
 
     this.layout.instances[this.side] = this;
-    if (this.onLayout) {
-      this.__update('space', true);
-    }
+    this.__update('space', this.onLayout);
+    this.__update('offset', this.offset);
 
     this.$nextTick(function () {
       this$1.animateOverlay = true;
@@ -12763,6 +12767,7 @@ var QLayoutFooter = {
   created: function created () {
     this.layout.instances.footer = this;
     this.__update('space', this.value);
+    this.__update('offset', this.offset);
   },
   beforeDestroy: function beforeDestroy () {
     if (this.layout.instances.footer === this) {
@@ -12914,6 +12919,7 @@ var QLayoutHeader = {
   created: function created () {
     this.layout.instances.header = this;
     this.__update('space', this.value);
+    this.__update('offset', this.offset);
   },
   beforeDestroy: function beforeDestroy () {
     if (this.layout.instances.header === this) {
@@ -18549,7 +18555,7 @@ var scroll$1 = {
 function updateBinding$3 (el, binding) {
   var ctx = el.__qtouchhold;
 
-  ctx.duration = parseInt(binding.arg, 10) || 800;
+  ctx.duration = parseInt(binding.arg, 10) || 600;
 
   if (binding.oldValue !== binding.value) {
     ctx.handler = binding.value;
@@ -18792,8 +18798,9 @@ var appFullscreen = {
     if (this.__installed) { return }
     this.__installed = true;
 
+    $q.fullscreen = this;
+
     if (isSSR) {
-      $q.fullscreen = this;
       return
     }
 
@@ -18833,7 +18840,6 @@ var appFullscreen = {
     });
 
     Vue$$1.util.defineReactive(this, 'isActive', this.isActive);
-    $q.fullscreen = this;
   }
 }
 

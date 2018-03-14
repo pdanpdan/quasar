@@ -1,6 +1,6 @@
 {
   "name": "quasar-framework",
-  "version": "0.15.7",
+  "version": "0.15.8",
   "description": "Build responsive websites, PWAs, hybrid mobile apps and Electron apps, all simultaneously using same codebase",
   "files": [
     "dist",
@@ -96,11 +96,11 @@
     "sym": "0.0.4",
     "uglify-es": "^3.3.9",
     "url-loader": "^1.0.1",
-    "vue": "^2.5.15",
+    "vue": "^2.5.16",
     "vue-loader": "^14.2.1",
     "vue-router": "^3.0.1",
     "vue-style-loader": "^4.0.2",
-    "vue-template-compiler": "^2.5.15",
+    "vue-template-compiler": "^2.5.16",
     "webpack": "^3.11.0",
     "webpack-dev-middleware": "^2.0.6",
     "webpack-hot-middleware": "^2.21.2",

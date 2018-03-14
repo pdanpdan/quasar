@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.7
+ * Quasar Framework v0.15.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -10521,7 +10521,7 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if-inner {
-    height: 0;
+    min-height: 21px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
@@ -10579,7 +10579,7 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if-inner {
-    height: 0;
+    min-height: 21px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
