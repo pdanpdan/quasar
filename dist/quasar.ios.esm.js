@@ -11922,28 +11922,27 @@ var QKnob = {
       var this$1 = this;
 
       if (value$1 < this.min) {
-        this.$emit('input', this.min);
         this.model = this.min;
-        this.$nextTick(function () {
-          if (this$1.model !== this$1.value) {
-            this$1.$emit('change', this$1.model);
-          }
-        });
       }
       else if (value$1 > this.max) {
-        this.$emit('input', this.max);
         this.model = this.max;
-        this.$nextTick(function () {
-          if (this$1.model !== this$1.value) {
-            this$1.$emit('change', this$1.model);
-          }
-        });
       }
       else {
-        this.model = this.computedDecimals && typeof value$1 === 'number'
+        var newVal = this.computedDecimals && typeof value$1 === 'number'
           ? parseFloat(value$1.toFixed(this.computedDecimals))
           : value$1;
+        if (newVal !== this.model) {
+          this.model = newVal;
+        }
+        return
       }
+
+      this.$emit('input', this.model);
+      this.$nextTick(function () {
+        if (this$1.model !== this$1.value) {
+          this$1.$emit('change', this$1.model);
+        }
+      });
     }
   },
   methods: {
@@ -11966,9 +11965,8 @@ var QKnob = {
         return
       }
       stopAndPrevent(ev);
-
       this.centerPosition = this.__getCenter();
-
+      clearTimeout(this.timer);
       this.dragging = true;
       this.__onInput(ev);
     },
@@ -11986,12 +11984,12 @@ var QKnob = {
         return
       }
       stopAndPrevent(ev);
-      setTimeout(function () {
+      this.timer = setTimeout(function () {
         this$1.dragging = false;
       }, 100);
-      this.__onInput(ev, this.centerPosition, true, true);
+      this.__onInput(ev, this.centerPosition, true);
     },
-    __onInput: function __onInput (ev, center, emitChange, dragStop) {
+    __onInput: function __onInput (ev, center, emitChange) {
       var this$1 = this;
       if ( center === void 0 ) center = this.__getCenter();
 
@@ -12032,16 +12030,21 @@ var QKnob = {
         value = parseFloat(value.toFixed(this.computedDecimals));
       }
 
-      this.model = value;
+      if (this.model !== value) {
+        this.model = value;
+      }
+      if (this.value === value) {
+        return
+      }
+
       this.$emit('input', value);
-      this.$nextTick(function () {
-        if (dragStop) {
-          this$1.$emit('dragend', value);
-        }
-        if (emitChange && JSON.stringify(value) !== JSON.stringify(this$1.value)) {
-          this$1.$emit('change', value);
-        }
-      });
+      if (emitChange) {
+        this.$nextTick(function () {
+          if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
+            this$1.$emit('change', value);
+          }
+        });
+      }
     },
     __getCenter: function __getCenter () {
       var knobOffset = offset(this.$el);
@@ -13333,7 +13336,7 @@ var QPagination = {
 
     if (this.input) {
       contentMiddle.push(h(QInput, {
-        staticClass: 'inline',
+        staticClass: 'inline q-pb-sm',
         style: {
           width: ((this.inputPlaceholder.length) + "rem")
         },

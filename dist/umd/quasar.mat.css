@@ -1737,6 +1737,8 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if {
   min-height: 32px;
   outline: 0;
+}
+.q-if:not(.q-if-hide-underline):not(.q-if-inverted) {
   padding-bottom: 8px;
 }
 .q-if:not(.q-if-hide-underline):not(.q-if-inverted):before,
@@ -1769,8 +1771,8 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if .group {
   margin: -5px;
 }
-.q-if .group:not(:first-child) {
-  margin-top: 0;
+.q-if-hide-underline:not(.q-if-inverted) {
+  min-height: 24px;
 }
 .q-if-focusable {
   outline: 0;
@@ -1823,8 +1825,8 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-control {
   cursor: pointer;
   font-size: 24px;
-  -webkit-transform: translateY(2px);
-          transform: translateY(2px);
+  -webkit-transform: translateY(3px);
+          transform: translateY(3px);
 }
 .q-if-control.q-icon {
   cursor: pointer;
@@ -1924,7 +1926,7 @@ div.q-input-target {
   outline: 0;
   padding: 0;
   background: transparent;
-  min-height: 18px;
+  min-height: 24px;
   font-size: inherit;
   resize: none;
   display: -webkit-box;
@@ -1959,15 +1961,14 @@ div.q-input-target {
           box-shadow: inherit;
 }
 input.q-input-target {
-  height: 19px;
   outline: 0;
 }
 .q-input-chips {
   min-height: 36px !important;
 }
 .q-input-chips > .q-chip {
-  -webkit-transform: translateY(2px);
-          transform: translateY(2px);
+  -webkit-transform: translateY(4px);
+          transform: translateY(4px);
 }
 .q-if .q-input-target-placeholder {
   color: #979797 !important;
@@ -3519,7 +3520,7 @@ body.mobile .q-tabs-scroller {
   min-height: 24px;
 }
 .q-table-bottom .q-table-control > .q-if > .q-if-inner {
-  padding-bottom: 3px;
+  padding-bottom: 2px;
 }
 .q-table-control {
   display: -webkit-box;
@@ -9007,8 +9008,6 @@ body.ios .q-hoverable:active .q-focus-helper {
   opacity: 0.3;
 }
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .absolute .q-if-inner,
-  .fixed .q-if-inner,
   .absolute .q-input-target,
   .fixed .q-input-target {
     min-width: auto;
@@ -9016,7 +9015,24 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if-inner {
-    min-height: 21px;
+    min-width: auto;
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-if-inner .q-input-target {
+    min-height: 24px;
+    line-height: 1.22em;
+    padding-top: calc(24px - 1.22em);
+  }
+  .q-if-inner input.q-input-target {
+    line-height: 1;
+  }
+  .q-input-chips.group input.q-input-target {
+    margin-bottom: 4px;
+  }
+  .q-input-chips.group input.q-input-target:first-child {
+    margin-top: 8px;
+    margin-bottom: -1px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
@@ -9056,8 +9072,6 @@ body.ios .q-hoverable:active .q-focus-helper {
   }
 }
 @supports (-ms-ime-align: auto) {
-  .absolute .q-if-inner,
-  .fixed .q-if-inner,
   .absolute .q-input-target,
   .fixed .q-input-target {
     min-width: auto;
@@ -9065,7 +9079,24 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if-inner {
-    min-height: 21px;
+    min-width: auto;
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-if-inner .q-input-target {
+    min-height: 24px;
+    line-height: 1.22em;
+    padding-top: calc(24px - 1.22em);
+  }
+  .q-if-inner input.q-input-target {
+    line-height: 1;
+  }
+  .q-input-chips.group input.q-input-target {
+    margin-bottom: 4px;
+  }
+  .q-input-chips.group input.q-input-target:first-child {
+    margin-top: 8px;
+    margin-bottom: -1px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
