@@ -1350,6 +1350,8 @@ $checkbox-size = 21px
     padding-top 0
   &:last-child
     padding-bottom 0
+.q-collapsible-cursor-pointer > .q-collapsible-inner > .q-item
+  cursor pointer
 .q-collapsible-toggle-icon
   border-radius 50%
   width 1em
@@ -1970,16 +1972,17 @@ $layout-transition = all .12s ease-in
   bottom 0
   background $layout-aside-background
   z-index $z-side
-  transition $layout-transition
   &.on-top
     z-index $z-fixed-drawer
 .q-layout-drawer-left
   left 0
+  transform translateX(-100%)
   width $layout-aside-left-width
   &.fixed
     border-right $layout-border
 .q-layout-drawer-right
   right 0
+  transform translateX(100%)
   width $layout-aside-right-width
   &.fixed
     border-left $layout-border

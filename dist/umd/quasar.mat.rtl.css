@@ -1160,6 +1160,9 @@ input[type='search']::-webkit-search-decoration {
 [dir] .q-collapsible-opened:last-child {
   padding-bottom: 0;
 }
+[dir] .q-collapsible-cursor-pointer > .q-collapsible-inner > .q-item {
+  cursor: pointer;
+}
 .q-collapsible-toggle-icon {
   width: 1em;
 }
@@ -2633,8 +2636,6 @@ input.q-input-target {
   position: absolute;
   top: 0;
   bottom: 0;
-  -webkit-transition: all 0.12s ease-in;
-  transition: all 0.12s ease-in;
   z-index: 1000;
 }
 [dir] .q-layout-drawer {
@@ -2654,18 +2655,26 @@ input.q-input-target {
 }
 [dir=ltr] .q-layout-drawer-left {
   left: 0;
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
 }
 [dir=rtl] .q-layout-drawer-left {
   right: 0;
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
 }
 .q-layout-drawer-right {
   width: 300px;
 }
 [dir=ltr] .q-layout-drawer-right {
   right: 0;
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
 }
 [dir=rtl] .q-layout-drawer-right {
   left: 0;
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
 }
 .q-layout,
 .q-layout-header,

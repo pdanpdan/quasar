@@ -877,6 +877,9 @@ input[type='search']::-webkit-search-decoration {
 .q-collapsible-opened:last-child {
   padding-bottom: 0;
 }
+.q-collapsible-cursor-pointer > .q-collapsible-inner > .q-item {
+  cursor: pointer;
+}
 .q-collapsible-toggle-icon {
   border-radius: 50%;
   width: 1em;
@@ -2058,8 +2061,6 @@ input.q-input-target {
   top: 0;
   bottom: 0;
   background: #fff;
-  -webkit-transition: all 0.12s ease-in;
-  transition: all 0.12s ease-in;
   z-index: 1000;
 }
 .q-layout-drawer.on-top {
@@ -2071,10 +2072,14 @@ input.q-input-target {
 }
 .q-layout-drawer-left {
   left: 0;
+  -webkit-transform: translateX(-100%);
+          transform: translateX(-100%);
   width: 300px;
 }
 .q-layout-drawer-right {
   right: 0;
+  -webkit-transform: translateX(100%);
+          transform: translateX(100%);
   width: 300px;
 }
 .q-layout,
