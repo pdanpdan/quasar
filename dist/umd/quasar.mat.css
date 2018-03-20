@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.8
+ * Quasar Framework v0.15.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3434,11 +3434,8 @@ body.desktop .q-stepper-tab.step-navigation:hover {
       -ms-flex-order: -1;
           order: -1;
 }
-.q-tabs-inverted {
-  background: #fff;
-}
 .q-tabs-inverted .q-tabs-head {
-  background: transparent;
+  background: #fff;
 }
 .q-tabs-inverted.q-tabs-position-top .q-tabs-panes {
   border-top: 1px solid rgba(0,0,0,0.1);

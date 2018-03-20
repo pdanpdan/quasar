@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.8
+ * Quasar Framework v0.15.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -4034,14 +4034,11 @@ body div .q-popover {
       -ms-flex-order: -1;
           order: -1;
 }
-[dir] .q-tabs-inverted {
-  background: #fff;
-}
 [dir] .q-tabs-inverted .q-tab:active {
   background: rgba(0,0,0,0.1);
 }
 [dir] .q-tabs-inverted .q-tabs-head {
-  background: transparent;
+  background: #fff;
 }
 [dir] .q-tabs-inverted.q-tabs-position-top .q-tabs-panes {
   border-top: 1px solid rgba(0,0,0,0.1);

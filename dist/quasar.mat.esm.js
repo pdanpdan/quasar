@@ -1,10 +1,10 @@
 /*!
- * Quasar Framework v0.15.8
+ * Quasar Framework v0.15.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
 
-var version = "0.15.8";
+var version = "0.15.9";
 
 function offset (el) {
   if (el === window) {
@@ -80,15 +80,16 @@ function cssTransform (val) {
   return o
 }
 
-var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-viewport: viewport,
-ready: ready,
-cssTransform: cssTransform
+
+var dom = Object.freeze({
+	offset: offset,
+	style: style,
+	height: height,
+	width: width,
+	css: css,
+	viewport: viewport,
+	ready: ready,
+	cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1240,6 +1241,10 @@ var QModal = {
       openedModalNumber++;
 
       var content = this.$refs.content;
+      if (this.$q.platform.is.ios) {
+        // workaround the iOS hover/touch issue
+        content.click();
+      }
       content.scrollTop = 0
       ;['modal-scroll', 'layout-view'].forEach(function (c) {
         [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
@@ -2104,12 +2109,13 @@ function pad (v, length, char) {
     : new Array(length - val.length + 1).join(char) + val
 }
 
-var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+
+var format = Object.freeze({
+	humanStorageSize: humanStorageSize,
+	capitalize: capitalize,
+	between: between,
+	normalizeToInterval: normalizeToInterval,
+	pad: pad
 });
 
 var
@@ -2517,16 +2523,17 @@ function stopAndPrevent (e) {
   e.stopPropagation();
 }
 
-var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+
+var event = Object.freeze({
+	listenOpts: listenOpts,
+	leftClick: leftClick,
+	middleClick: middleClick,
+	rightClick: rightClick,
+	getEventKey: getEventKey,
+	position: position,
+	targetElement: targetElement,
+	getMouseWheelDistance: getMouseWheelDistance,
+	stopAndPrevent: stopAndPrevent
 });
 
 function showRipple (evt, el, stopPropagation) {
@@ -3426,13 +3433,14 @@ function getScrollbarWidth () {
   return size
 }
 
-var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth
 });
 
 var QPopover = {
@@ -4753,28 +4761,29 @@ var decelerate = easeOutCubic;
 var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
-var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+
+var easing = Object.freeze({
+	linear: linear,
+	easeInQuad: easeInQuad,
+	easeOutQuad: easeOutQuad,
+	easeInOutQuad: easeInOutQuad,
+	easeInCubic: easeInCubic,
+	easeOutCubic: easeOutCubic,
+	easeInOutCubic: easeInOutCubic,
+	easeInQuart: easeInQuart,
+	easeOutQuart: easeOutQuart,
+	easeInOutQuart: easeInOutQuart,
+	easeInQuint: easeInQuint,
+	easeOutQuint: easeOutQuint,
+	easeInOutQuint: easeInOutQuint,
+	easeInCirc: easeInCirc,
+	easeOutCirc: easeOutCirc,
+	easeInOutCirc: easeInOutCirc,
+	overshoot: overshoot,
+	standard: standard,
+	decelerate: decelerate,
+	accelerate: accelerate,
+	sharp: sharp
 });
 
 var ids = {};
@@ -4842,9 +4851,10 @@ function stop (id) {
   }
 }
 
-var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+
+var animate = Object.freeze({
+	start: start,
+	stop: stop
 });
 
 var FullscreenMixin = {
@@ -7216,16 +7226,17 @@ function getBrand (color, element) {
   return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
 }
 
-var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+
+var colors = Object.freeze({
+	rgbToHex: rgbToHex,
+	hexToRgb: hexToRgb,
+	hsvToRgb: hsvToRgb,
+	rgbToHsv: rgbToHsv,
+	textToRgb: textToRgb,
+	lighten: lighten,
+	luminosity: luminosity,
+	setBrand: setBrand,
+	getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -8459,27 +8470,27 @@ function isSameDate (date, date2, unit) {
 
   switch (unit) {
     case 'second':
-      if (t.getUTCSeconds() !== d.getUTCSeconds()) {
+      if (t.getSeconds() !== d.getSeconds()) {
         return false
       }
     case 'minute': // intentional fall-through
-      if (t.getUTCMinutes() !== d.getUTCMinutes()) {
+      if (t.getMinutes() !== d.getMinutes()) {
         return false
       }
     case 'hour': // intentional fall-through
-      if (t.getUTCHours() !== d.getUTCHours()) {
+      if (t.getHours() !== d.getHours()) {
         return false
       }
     case 'day': // intentional fall-through
-      if (t.getUTCDate() !== d.getUTCDate()) {
+      if (t.getDate() !== d.getDate()) {
         return false
       }
     case 'month': // intentional fall-through
-      if (t.getUTCMonth() !== d.getUTCMonth()) {
+      if (t.getMonth() !== d.getMonth()) {
         return false
       }
     case 'year': // intentional fall-through
-      if (t.getUTCFullYear() !== d.getUTCFullYear()) {
+      if (t.getFullYear() !== d.getFullYear()) {
         return false
       }
       break
@@ -8734,30 +8745,31 @@ function clone$1 (value) {
   return isDate(value) ? new Date(value.getTime()) : value
 }
 
-var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+
+var date = Object.freeze({
+	isValid: isValid,
+	buildDate: buildDate,
+	getDayOfWeek: getDayOfWeek,
+	getWeekOfYear: getWeekOfYear,
+	isBetweenDates: isBetweenDates,
+	addToDate: addToDate,
+	subtractFromDate: subtractFromDate,
+	adjustDate: adjustDate,
+	startOfDate: startOfDate,
+	endOfDate: endOfDate,
+	getMaxDate: getMaxDate,
+	getMinDate: getMinDate,
+	getDateDiff: getDateDiff,
+	getDayOfYear: getDayOfYear,
+	inferDateFormat: inferDateFormat,
+	convertDateToFormat: convertDateToFormat,
+	getDateBetween: getDateBetween,
+	isSameDate: isSameDate,
+	daysInMonth: daysInMonth,
+	formatter: formatter,
+	formatDate: formatDate,
+	matchFormat: matchFormat,
+	clone: clone$1
 });
 
 var DateMixin = {

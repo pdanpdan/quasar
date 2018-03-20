@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.8
+ * Quasar Framework v0.15.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.8";
+var version = "0.15.9";
 
 function offset (el) {
   if (el === window) {
@@ -88,15 +88,16 @@ function cssTransform (val) {
   return o
 }
 
-var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-viewport: viewport,
-ready: ready,
-cssTransform: cssTransform
+
+var dom = Object.freeze({
+	offset: offset,
+	style: style,
+	height: height,
+	width: width,
+	css: css,
+	viewport: viewport,
+	ready: ready,
+	cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1263,6 +1264,10 @@ var QModal = {
       openedModalNumber++;
 
       var content = this.$refs.content;
+      if (this.$q.platform.is.ios) {
+        // workaround the iOS hover/touch issue
+        content.click();
+      }
       content.scrollTop = 0
       ;['modal-scroll', 'layout-view'].forEach(function (c) {
         [].slice.call(content.getElementsByClassName(c)).forEach(function (el) {
@@ -2154,12 +2159,13 @@ function pad (v, length, char) {
     : new Array(length - val.length + 1).join(char) + val
 }
 
-var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+
+var format = Object.freeze({
+	humanStorageSize: humanStorageSize,
+	capitalize: capitalize,
+	between: between,
+	normalizeToInterval: normalizeToInterval,
+	pad: pad
 });
 
 var
@@ -2567,16 +2573,17 @@ function stopAndPrevent (e) {
   e.stopPropagation();
 }
 
-var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+
+var event = Object.freeze({
+	listenOpts: listenOpts,
+	leftClick: leftClick,
+	middleClick: middleClick,
+	rightClick: rightClick,
+	getEventKey: getEventKey,
+	position: position,
+	targetElement: targetElement,
+	getMouseWheelDistance: getMouseWheelDistance,
+	stopAndPrevent: stopAndPrevent
 });
 
 function showRipple (evt, el, stopPropagation) {
@@ -3474,13 +3481,14 @@ function getScrollbarWidth () {
   return size
 }
 
-var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth
 });
 
 var QPopover = {
@@ -4801,28 +4809,29 @@ var decelerate = easeOutCubic;
 var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
-var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+
+var easing = Object.freeze({
+	linear: linear,
+	easeInQuad: easeInQuad,
+	easeOutQuad: easeOutQuad,
+	easeInOutQuad: easeInOutQuad,
+	easeInCubic: easeInCubic,
+	easeOutCubic: easeOutCubic,
+	easeInOutCubic: easeInOutCubic,
+	easeInQuart: easeInQuart,
+	easeOutQuart: easeOutQuart,
+	easeInOutQuart: easeInOutQuart,
+	easeInQuint: easeInQuint,
+	easeOutQuint: easeOutQuint,
+	easeInOutQuint: easeInOutQuint,
+	easeInCirc: easeInCirc,
+	easeOutCirc: easeOutCirc,
+	easeInOutCirc: easeInOutCirc,
+	overshoot: overshoot,
+	standard: standard,
+	decelerate: decelerate,
+	accelerate: accelerate,
+	sharp: sharp
 });
 
 var ids = {};
@@ -4890,9 +4899,10 @@ function stop (id) {
   }
 }
 
-var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+
+var animate = Object.freeze({
+	start: start,
+	stop: stop
 });
 
 var FullscreenMixin = {
@@ -7264,16 +7274,17 @@ function getBrand (color, element) {
   return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
 }
 
-var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+
+var colors = Object.freeze({
+	rgbToHex: rgbToHex,
+	hexToRgb: hexToRgb,
+	hsvToRgb: hsvToRgb,
+	rgbToHsv: rgbToHsv,
+	textToRgb: textToRgb,
+	lighten: lighten,
+	luminosity: luminosity,
+	setBrand: setBrand,
+	getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -8509,27 +8520,27 @@ function isSameDate (date, date2, unit) {
 
   switch (unit) {
     case 'second':
-      if (t.getUTCSeconds() !== d.getUTCSeconds()) {
+      if (t.getSeconds() !== d.getSeconds()) {
         return false
       }
     case 'minute': // intentional fall-through
-      if (t.getUTCMinutes() !== d.getUTCMinutes()) {
+      if (t.getMinutes() !== d.getMinutes()) {
         return false
       }
     case 'hour': // intentional fall-through
-      if (t.getUTCHours() !== d.getUTCHours()) {
+      if (t.getHours() !== d.getHours()) {
         return false
       }
     case 'day': // intentional fall-through
-      if (t.getUTCDate() !== d.getUTCDate()) {
+      if (t.getDate() !== d.getDate()) {
         return false
       }
     case 'month': // intentional fall-through
-      if (t.getUTCMonth() !== d.getUTCMonth()) {
+      if (t.getMonth() !== d.getMonth()) {
         return false
       }
     case 'year': // intentional fall-through
-      if (t.getUTCFullYear() !== d.getUTCFullYear()) {
+      if (t.getFullYear() !== d.getFullYear()) {
         return false
       }
       break
@@ -8784,30 +8795,31 @@ function clone$1 (value) {
   return isDate(value) ? new Date(value.getTime()) : value
 }
 
-var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+
+var date = Object.freeze({
+	isValid: isValid,
+	buildDate: buildDate,
+	getDayOfWeek: getDayOfWeek,
+	getWeekOfYear: getWeekOfYear,
+	isBetweenDates: isBetweenDates,
+	addToDate: addToDate,
+	subtractFromDate: subtractFromDate,
+	adjustDate: adjustDate,
+	startOfDate: startOfDate,
+	endOfDate: endOfDate,
+	getMaxDate: getMaxDate,
+	getMinDate: getMinDate,
+	getDateDiff: getDateDiff,
+	getDayOfYear: getDayOfYear,
+	inferDateFormat: inferDateFormat,
+	convertDateToFormat: convertDateToFormat,
+	getDateBetween: getDateBetween,
+	isSameDate: isSameDate,
+	daysInMonth: daysInMonth,
+	formatter: formatter,
+	formatDate: formatDate,
+	matchFormat: matchFormat,
+	clone: clone$1
 });
 
 var DateMixin = {
@@ -18226,124 +18238,124 @@ var QVideo = {
 
 
 
-var components = /*#__PURE__*/Object.freeze({
-QActionSheet: QActionSheet,
-QAjaxBar: QAjaxBar,
-QAlert: QAlert,
-QAutocomplete: QAutocomplete,
-QBreadcrumbs: QBreadcrumbs,
-QBreadcrumbsEl: QBreadcrumbsEl,
-QBtn: QBtn,
-QBtnGroup: QBtnGroup,
-QBtnDropdown: QBtnDropdown,
-QBtnToggle: QBtnToggle,
-QCard: QCard,
-QCardTitle: QCardTitle,
-QCardMain: QCardMain,
-QCardActions: QCardActions,
-QCardMedia: QCardMedia,
-QCardSeparator: QCardSeparator,
-QCarousel: QCarousel,
-QCarouselSlide: QCarouselSlide,
-QCarouselControl: QCarouselControl,
-QChatMessage: QChatMessage,
-QCheckbox: QCheckbox,
-QChip: QChip,
-QChipsInput: QChipsInput,
-QCollapsible: QCollapsible,
-QColor: QColor,
-QColorPicker: QColorPicker,
-QContextMenu: QContextMenu,
-QDatetime: QDatetime,
-QDatetimePicker: QDatetimePicker,
-QDialog: QDialog,
-QEditor: QEditor,
-QFab: QFab,
-QFabAction: QFabAction,
-QField: QField,
-QIcon: QIcon,
-QInfiniteScroll: QInfiniteScroll,
-QInnerLoading: QInnerLoading,
-QInput: QInput,
-QInputFrame: QInputFrame,
-QKnob: QKnob,
-QLayout: QLayout,
-QLayoutDrawer: QLayoutDrawer,
-QLayoutFooter: QLayoutFooter,
-QLayoutHeader: QLayoutHeader,
-QPage: QPage,
-QPageContainer: QPageContainer,
-QPageSticky: QPageSticky,
-QItem: QItem,
-QItemSeparator: QItemSeparator,
-QItemMain: QItemMain,
-QItemSide: QItemSide,
-QItemTile: QItemTile,
-QItemWrapper: QItemWrapper,
-QList: QList,
-QListHeader: QListHeader,
-QModal: QModal,
-QModalLayout: QModalLayout,
-QResizeObservable: QResizeObservable,
-QScrollObservable: QScrollObservable,
-QWindowResizeObservable: QWindowResizeObservable,
-QOptionGroup: QOptionGroup,
-QPagination: QPagination,
-QParallax: QParallax,
-QPopover: QPopover,
-QProgress: QProgress,
-QPullToRefresh: QPullToRefresh,
-QRadio: QRadio,
-QRange: QRange,
-QRating: QRating,
-QScrollArea: QScrollArea,
-QSearch: QSearch,
-QSelect: QSelect,
-QSlideTransition: QSlideTransition,
-QSlider: QSlider,
-QSpinner: QSpinner,
-QSpinnerAudio: audio,
-QSpinnerBall: ball,
-QSpinnerBars: bars,
-QSpinnerCircles: circles,
-QSpinnerComment: comment,
-QSpinnerCube: cube,
-QSpinnerDots: dots,
-QSpinnerFacebook: facebook,
-QSpinnerGears: gears,
-QSpinnerGrid: grid,
-QSpinnerHearts: hearts,
-QSpinnerHourglass: hourglass,
-QSpinnerInfinity: infinity,
-QSpinnerIos: DefaultSpinner,
-QSpinnerMat: QSpinner_mat,
-QSpinnerOval: oval,
-QSpinnerPie: pie,
-QSpinnerPuff: puff,
-QSpinnerRadio: radio,
-QSpinnerRings: rings,
-QSpinnerTail: tail,
-QStep: QStep,
-QStepper: QStepper,
-QStepperNavigation: QStepperNavigation,
-QRouteTab: QRouteTab,
-QTab: QTab,
-QTabPane: QTabPane,
-QTabs: QTabs,
-QTable: QTable,
-QTh: QTh,
-QTr: QTr,
-QTd: QTd,
-QTableColumns: QTableColumns,
-QTimeline: QTimeline,
-QTimelineEntry: QTimelineEntry,
-QToggle: QToggle,
-QToolbar: QToolbar,
-QToolbarTitle: QToolbarTitle,
-QTooltip: QTooltip,
-QTree: QTree,
-QUploader: QUploader,
-QVideo: QVideo
+var components = Object.freeze({
+	QActionSheet: QActionSheet,
+	QAjaxBar: QAjaxBar,
+	QAlert: QAlert,
+	QAutocomplete: QAutocomplete,
+	QBreadcrumbs: QBreadcrumbs,
+	QBreadcrumbsEl: QBreadcrumbsEl,
+	QBtn: QBtn,
+	QBtnGroup: QBtnGroup,
+	QBtnDropdown: QBtnDropdown,
+	QBtnToggle: QBtnToggle,
+	QCard: QCard,
+	QCardTitle: QCardTitle,
+	QCardMain: QCardMain,
+	QCardActions: QCardActions,
+	QCardMedia: QCardMedia,
+	QCardSeparator: QCardSeparator,
+	QCarousel: QCarousel,
+	QCarouselSlide: QCarouselSlide,
+	QCarouselControl: QCarouselControl,
+	QChatMessage: QChatMessage,
+	QCheckbox: QCheckbox,
+	QChip: QChip,
+	QChipsInput: QChipsInput,
+	QCollapsible: QCollapsible,
+	QColor: QColor,
+	QColorPicker: QColorPicker,
+	QContextMenu: QContextMenu,
+	QDatetime: QDatetime,
+	QDatetimePicker: QDatetimePicker,
+	QDialog: QDialog,
+	QEditor: QEditor,
+	QFab: QFab,
+	QFabAction: QFabAction,
+	QField: QField,
+	QIcon: QIcon,
+	QInfiniteScroll: QInfiniteScroll,
+	QInnerLoading: QInnerLoading,
+	QInput: QInput,
+	QInputFrame: QInputFrame,
+	QKnob: QKnob,
+	QLayout: QLayout,
+	QLayoutDrawer: QLayoutDrawer,
+	QLayoutFooter: QLayoutFooter,
+	QLayoutHeader: QLayoutHeader,
+	QPage: QPage,
+	QPageContainer: QPageContainer,
+	QPageSticky: QPageSticky,
+	QItem: QItem,
+	QItemSeparator: QItemSeparator,
+	QItemMain: QItemMain,
+	QItemSide: QItemSide,
+	QItemTile: QItemTile,
+	QItemWrapper: QItemWrapper,
+	QList: QList,
+	QListHeader: QListHeader,
+	QModal: QModal,
+	QModalLayout: QModalLayout,
+	QResizeObservable: QResizeObservable,
+	QScrollObservable: QScrollObservable,
+	QWindowResizeObservable: QWindowResizeObservable,
+	QOptionGroup: QOptionGroup,
+	QPagination: QPagination,
+	QParallax: QParallax,
+	QPopover: QPopover,
+	QProgress: QProgress,
+	QPullToRefresh: QPullToRefresh,
+	QRadio: QRadio,
+	QRange: QRange,
+	QRating: QRating,
+	QScrollArea: QScrollArea,
+	QSearch: QSearch,
+	QSelect: QSelect,
+	QSlideTransition: QSlideTransition,
+	QSlider: QSlider,
+	QSpinner: QSpinner,
+	QSpinnerAudio: audio,
+	QSpinnerBall: ball,
+	QSpinnerBars: bars,
+	QSpinnerCircles: circles,
+	QSpinnerComment: comment,
+	QSpinnerCube: cube,
+	QSpinnerDots: dots,
+	QSpinnerFacebook: facebook,
+	QSpinnerGears: gears,
+	QSpinnerGrid: grid,
+	QSpinnerHearts: hearts,
+	QSpinnerHourglass: hourglass,
+	QSpinnerInfinity: infinity,
+	QSpinnerIos: DefaultSpinner,
+	QSpinnerMat: QSpinner_mat,
+	QSpinnerOval: oval,
+	QSpinnerPie: pie,
+	QSpinnerPuff: puff,
+	QSpinnerRadio: radio,
+	QSpinnerRings: rings,
+	QSpinnerTail: tail,
+	QStep: QStep,
+	QStepper: QStepper,
+	QStepperNavigation: QStepperNavigation,
+	QRouteTab: QRouteTab,
+	QTab: QTab,
+	QTabPane: QTabPane,
+	QTabs: QTabs,
+	QTable: QTable,
+	QTh: QTh,
+	QTr: QTr,
+	QTd: QTd,
+	QTableColumns: QTableColumns,
+	QTimeline: QTimeline,
+	QTimelineEntry: QTimelineEntry,
+	QToggle: QToggle,
+	QToolbar: QToolbar,
+	QToolbarTitle: QToolbarTitle,
+	QTooltip: QTooltip,
+	QTree: QTree,
+	QUploader: QUploader,
+	QVideo: QVideo
 });
 
 function updateBinding (el, ref) {
@@ -18683,16 +18695,16 @@ var touchHold = {
 
 
 
-var directives = /*#__PURE__*/Object.freeze({
-BackToTop: backToTop,
-CloseOverlay: closeOverlay,
-GoBack: goBack,
-Ripple: Ripple,
-ScrollFire: scrollFire,
-Scroll: scroll$1,
-TouchHold: touchHold,
-TouchPan: TouchPan,
-TouchSwipe: TouchSwipe
+var directives = Object.freeze({
+	BackToTop: backToTop,
+	CloseOverlay: closeOverlay,
+	GoBack: goBack,
+	Ripple: Ripple,
+	ScrollFire: scrollFire,
+	Scroll: scroll$1,
+	TouchHold: touchHold,
+	TouchPan: TouchPan,
+	TouchSwipe: TouchSwipe
 });
 
 function modalFn (Component, Vue$$1) {
@@ -19510,18 +19522,18 @@ var SessionStorage = {
 
 
 
-var plugins = /*#__PURE__*/Object.freeze({
-ActionSheet: actionSheet,
-AddressbarColor: addressbarColor,
-AppFullscreen: appFullscreen,
-AppVisibility: appVisibility,
-Cookies: cookies,
-Dialog: dialog,
-Loading: Loading,
-Notify: notify,
-Platform: Platform,
-LocalStorage: LocalStorage,
-SessionStorage: SessionStorage
+var plugins = Object.freeze({
+	ActionSheet: actionSheet,
+	AddressbarColor: addressbarColor,
+	AppFullscreen: appFullscreen,
+	AppVisibility: appVisibility,
+	Cookies: cookies,
+	Dialog: dialog,
+	Loading: Loading,
+	Notify: notify,
+	Platform: Platform,
+	LocalStorage: LocalStorage,
+	SessionStorage: SessionStorage
 });
 
 function openUrl (url, reject) {
@@ -19544,24 +19556,25 @@ function openUrl (url, reject) {
 
 function noop () {}
 
-var utils = /*#__PURE__*/Object.freeze({
-animate: animate,
-clone: clone,
-colors: colors,
-date: date,
-debounce: debounce,
-frameDebounce: frameDebounce,
-dom: dom,
-easing: easing,
-event: event,
-extend: extend,
-filter: filter,
-format: format,
-noop: noop,
-openURL: openUrl,
-scroll: scroll,
-throttle: throttle,
-uid: uid
+
+var utils = Object.freeze({
+	animate: animate,
+	clone: clone,
+	colors: colors,
+	date: date,
+	debounce: debounce,
+	frameDebounce: frameDebounce,
+	dom: dom,
+	easing: easing,
+	event: event,
+	extend: extend,
+	filter: filter,
+	format: format,
+	noop: noop,
+	openURL: openUrl,
+	scroll: scroll,
+	throttle: throttle,
+	uid: uid
 });
 
 if (Vue === void 0) {
