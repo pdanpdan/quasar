@@ -2004,16 +2004,14 @@ $layout-transition = all .12s ease-in
 body
   &.q-layout-animate .q-layout-transition
     transition $layout-transition
-  &.with-layout-drawer-opened
-    overflow hidden
-  &.with-layout-drawer-opened-above
-    overflow-x hidden
   &.cordova.platform-ios
     .q-layout-header > .q-toolbar:first-child,
     .q-layout-header > .q-tabs:first-child .q-tabs-head
     .q-layout-drawer.top-padding
       padding-top $ios-statusbar-height
       min-height ($toolbar-min-height + $ios-statusbar-height)
+.q-drawer-scroll
+  overflow-x hidden
 .layout-padding
   @media (max-width $breakpoint-sm-max)
     padding 1.5rem .5rem
@@ -2184,8 +2182,6 @@ body.with-loading
     max-width 450px
     text-align center
     text-shadow 0 0 7px black
-body.with-modal
-  overflow hidden !important
 minimized-modal()
   max-width 80vw
   max-height 80vh
@@ -2203,7 +2199,6 @@ maximized-modal()
   min-width 280px
   max-height 80vh
   border-radius $modal-border-radius
-  -webkit-backface-visibility hidden
 .modal
   z-index $z-modal
   &.minimized, &.with-backdrop
@@ -2226,6 +2221,8 @@ maximized-modal()
       .modal-content
         transform translateX(30%)
 @media (max-width $breakpoint-sm-max)
+  .q-responsive-modal
+    overflow hidden !important
   .modal:not(.minimized)
     .modal-content
       maximized-modal()
@@ -2237,6 +2234,8 @@ maximized-modal()
       transform scale(1.2)
     &.q-modal-leave-active .modal-content
       transform scale(.8)
+.q-maximized-modal
+  overflow hidden !important
 .modal, .modal-content
   transition all .2s ease-in-out
 .modal-header
@@ -5414,6 +5413,10 @@ dl
   overflow auto !important
 .overflow-hidden
   overflow hidden !important
+.body-scroll-disabled
+  position fixed
+  &.body-overflow-scroll
+    overflow-y scroll
 .dimmed, .light-dimmed
   &:after
     content ''

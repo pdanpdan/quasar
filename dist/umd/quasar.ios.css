@@ -1801,17 +1801,14 @@ body.q-layout-animate .q-layout-transition {
   -webkit-transition: all 0.12s ease-in;
   transition: all 0.12s ease-in;
 }
-body.with-layout-drawer-opened {
-  overflow: hidden;
-}
-body.with-layout-drawer-opened-above {
-  overflow-x: hidden;
-}
 body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child,
 body.cordova.platform-ios .q-layout-header > .q-tabs:first-child .q-tabs-head,
 body.cordova.platform-ios .q-layout-drawer.top-padding {
   padding-top: 20px;
   min-height: 70px;
+}
+.q-drawer-scroll {
+  overflow-x: hidden;
 }
 @media (max-width: 767px) {
   .layout-padding {
@@ -2080,9 +2077,6 @@ body.with-loading {
   text-align: center;
   text-shadow: 0 0 7px #000;
 }
-body.with-modal {
-  overflow: hidden !important;
-}
 .modal-content {
   position: relative;
   background: #fff;
@@ -2092,7 +2086,6 @@ body.with-modal {
   min-width: 280px;
   max-height: 80vh;
   border-radius: 13px;
-  -webkit-backface-visibility: hidden;
 }
 .modal {
   z-index: 5000;
@@ -2135,6 +2128,9 @@ body.with-modal {
   }
 }
 @media (max-width: 767px) {
+  .q-responsive-modal {
+    overflow: hidden !important;
+  }
   .modal:not(.minimized) .modal-content {
     width: 100%;
     height: 100%;
@@ -2155,6 +2151,9 @@ body.with-modal {
     -webkit-transform: scale(0.8);
             transform: scale(0.8);
   }
+}
+.q-maximized-modal {
+  overflow: hidden !important;
 }
 .modal,
 .modal-content {
@@ -8542,6 +8541,12 @@ dl.horizontal dd {
 }
 .overflow-hidden {
   overflow: hidden !important;
+}
+.body-scroll-disabled {
+  position: fixed;
+}
+.body-scroll-disabled.body-overflow-scroll {
+  overflow-y: scroll;
 }
 .dimmed:after,
 .light-dimmed:after {

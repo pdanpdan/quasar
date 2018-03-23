@@ -88,15 +88,16 @@ function cssTransform (val) {
   return o
 }
 
-var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-viewport: viewport,
-ready: ready,
-cssTransform: cssTransform
+
+var dom = Object.freeze({
+	offset: offset,
+	style: style,
+	height: height,
+	width: width,
+	css: css,
+	viewport: viewport,
+	ready: ready,
+	cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -984,6 +985,145 @@ function extend () {
   return target
 }
 
+function getScrollTarget (el) {
+  return el.closest('.scroll') || window
+}
+
+function getScrollHeight (el) {
+  return (el === window ? document.body : el).scrollHeight
+}
+
+function getScrollPosition (scrollTarget) {
+  if (scrollTarget === window) {
+    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
+  }
+  return scrollTarget.scrollTop
+}
+
+function animScrollTo (el, to, duration) {
+  if (duration <= 0) {
+    return
+  }
+
+  var pos = getScrollPosition(el);
+
+  window.requestAnimationFrame(function () {
+    setScroll(el, pos + (to - pos) / duration * 16);
+    if (el.scrollTop !== to) {
+      animScrollTo(el, to, duration - 16);
+    }
+  });
+}
+
+function setScroll (scrollTarget, offset$$1) {
+  if (scrollTarget === window) {
+    document.documentElement.scrollTop = offset$$1;
+    document.body.scrollTop = offset$$1;
+    return
+  }
+  scrollTarget.scrollTop = offset$$1;
+}
+
+function setScrollPosition (scrollTarget, offset$$1, duration) {
+  if (duration) {
+    animScrollTo(scrollTarget, offset$$1, duration);
+    return
+  }
+  setScroll(scrollTarget, offset$$1);
+}
+
+var size;
+function getScrollbarWidth () {
+  if (size !== undefined) {
+    return size
+  }
+
+  var
+    inner = document.createElement('p'),
+    outer = document.createElement('div');
+
+  css(inner, {
+    width: '100%',
+    height: '200px'
+  });
+  css(outer, {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    visibility: 'hidden',
+    width: '200px',
+    height: '150px',
+    overflow: 'hidden'
+  });
+
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  var w2 = inner.offsetWidth;
+
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+
+  document.body.removeChild(outer);
+  size = w1 - w2;
+
+  return size
+}
+
+var originalBodyStyle = {
+  top: '',
+  scrollTop: 0
+};
+
+var bodyScrollHideRequests = 0;
+
+function isBodyScrollHidden () {
+  return bodyScrollHideRequests > 0
+}
+
+function setBodyScroll (scrollable) {
+  var body = document.body;
+  bodyScrollHideRequests = Math.max(0, bodyScrollHideRequests + (scrollable ? -1 : 1));
+  if (scrollable) {
+    if (!bodyScrollHideRequests) {
+      body.style.top = originalBodyStyle.top;
+      body.classList.remove('body-scroll-disabled');
+      body.classList.remove('body-overflow-scroll');
+      setScroll(window, originalBodyStyle.scrollTop);
+    }
+  }
+  else if (bodyScrollHideRequests === 1) {
+    originalBodyStyle.top = body.style.top;
+    originalBodyStyle.scrollTop = getScrollPosition(window);
+
+    if (body.scrollHeight > document.documentElement.clientHeight) {
+      body.style.top = "-" + (originalBodyStyle.scrollTop) + "px";
+      body.classList.add('body-overflow-scroll');
+    }
+    setTimeout(function () {
+      if (bodyScrollHideRequests) {
+        body.classList.add('body-scroll-disabled');
+      }
+    }, 0);
+  }
+}
+
+
+var scroll = Object.freeze({
+	getScrollTarget: getScrollTarget,
+	getScrollHeight: getScrollHeight,
+	getScrollPosition: getScrollPosition,
+	animScrollTo: animScrollTo,
+	setScrollPosition: setScrollPosition,
+	getScrollbarWidth: getScrollbarWidth,
+	isBodyScrollHidden: isBodyScrollHidden,
+	setBodyScroll: setBodyScroll
+});
+
 /* eslint prefer-promise-reject-errors: 0 */
 
 var ModelToggleMixin = {
@@ -1127,7 +1267,10 @@ function additionalCSS (position) {
   return css
 }
 
-var openedModalNumber = 0;
+var modals = {
+  responsive: 0,
+  maximized: 0
+};
 
 var QModal = {
   name: 'QModal',
@@ -1214,6 +1357,13 @@ var QModal = {
       }
 
       return this.contentCss
+    },
+    contentOn: function contentOn () {
+      var evt = {
+        click: this.__stopPropagation,
+        touchstart: this.__stopPropagation
+      };
+      return evt
     }
   },
   methods: {
@@ -1233,9 +1383,7 @@ var QModal = {
       var body = document.body;
 
       body.appendChild(this.$el);
-      if (openedModalNumber === 0) {
-        body.classList.add('with-modal');
-      }
+      this.__register(true);
 
       EscapeKey.register(function () {
         if (!this$1.noEscDismiss) {
@@ -1244,8 +1392,6 @@ var QModal = {
           });
         }
       });
-
-      openedModalNumber++;
 
       var content = this.$refs.content;
       if (this.$q.platform.is.ios) {
@@ -1261,10 +1407,30 @@ var QModal = {
     },
     __hide: function __hide () {
       EscapeKey.pop();
-      openedModalNumber--;
+      this.__register(false);
+    },
+    __stopPropagation: function __stopPropagation (e) {
+      e.stopPropagation();
+    },
+    __register: function __register (opening) {
+      var state = opening
+        ? { action: 'add', step: 1 }
+        : { action: 'remove', step: -1 };
 
-      if (openedModalNumber === 0) {
-        document.body.classList.remove('with-modal');
+      setBodyScroll(!opening);
+      if (this.maximized) {
+        modals.maximized += state.step;
+        if (!opening && modals.maximized > 0) {
+          return
+        }
+        document.body.classList[state.action]('q-maximized-modal');
+      }
+      else if (!this.minimized) {
+        modals.responsive += state.step;
+        if (!opening && modals.responsive > 0) {
+          return
+        }
+        document.body.classList[state.action]('q-responsive-modal');
       }
     }
   },
@@ -1314,14 +1480,7 @@ var QModal = {
           staticClass: 'modal-content scroll',
           style: this.modalCss,
           'class': this.contentClasses,
-          on: {
-            click: function click (e) {
-              e.stopPropagation();
-            },
-            touchstart: function touchstart (e) {
-              e.stopPropagation();
-            }
-          }
+          on: this.contentOn
         }, [ this.$slots.default ])
       ])
     ])
@@ -2116,12 +2275,13 @@ function pad (v, length, char) {
     : new Array(length - val.length + 1).join(char) + val
 }
 
-var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+
+var format = Object.freeze({
+	humanStorageSize: humanStorageSize,
+	capitalize: capitalize,
+	between: between,
+	normalizeToInterval: normalizeToInterval,
+	pad: pad
 });
 
 var
@@ -2350,31 +2510,25 @@ var QAjaxBar = {
   }
 }
 
-function hasPassiveEvents () {
-  var has = false;
-
-  try {
-    var opts = Object.defineProperty({}, 'passive', {
-      get: function get () {
-        has = true;
-      }
-    });
-    window.addEventListener('qtest', null, opts);
-    window.removeEventListener('qtest', null, opts);
-  }
-  catch (e) {}
-
-  return has
-}
-
 var listenOpts = {};
 Object.defineProperty(listenOpts, 'passive', {
   configurable: true,
   get: function get () {
-    listenOpts.passive = hasPassiveEvents()
-      ? { passive: true }
-      : void 0;
-    return listenOpts.passive
+    var passive;
+
+    try {
+      var opts = Object.defineProperty({}, 'passive', {
+        get: function get () {
+          passive = { passive: true };
+        }
+      });
+      window.addEventListener('qtest', null, opts);
+      window.removeEventListener('qtest', null, opts);
+    }
+    catch (e) {}
+
+    listenOpts.passive = passive;
+    return passive
   },
   set: function set (val) {
     Object.defineProperty(this, 'passive', {
@@ -2459,6 +2613,33 @@ function targetElement (e) {
   return target
 }
 
+var wheelEvent = {};
+Object.defineProperty(wheelEvent, 'name', {
+  configurable: true,
+  get: function get () {
+    var evt;
+    if ('onwheel' in document.createElement('div')) {
+      // Modern browsers support "wheel"
+      evt = 'wheel';
+    }
+    else if (document.onmousewheel !== undefined) {
+      // Webkit and IE support at least "mousewheel"
+      evt = 'mousewheel';
+    }
+    else {
+      // let's assume that remaining browsers are older Firefox
+      evt = 'DOMMouseScroll';
+    }
+    wheelEvent.name = evt;
+    return evt
+  },
+  set: function set (val) {
+    Object.defineProperty(this, 'name', {
+      value: val
+    });
+  }
+});
+
 // Reasonable defaults
 var
   PIXEL_STEP = 10,
@@ -2529,16 +2710,18 @@ function stopAndPrevent (e) {
   e.stopPropagation();
 }
 
-var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+
+var event = Object.freeze({
+	listenOpts: listenOpts,
+	leftClick: leftClick,
+	middleClick: middleClick,
+	rightClick: rightClick,
+	getEventKey: getEventKey,
+	position: position,
+	targetElement: targetElement,
+	wheelEvent: wheelEvent,
+	getMouseWheelDistance: getMouseWheelDistance,
+	stopAndPrevent: stopAndPrevent
 });
 
 function showRipple (evt, el, stopPropagation) {
@@ -3348,104 +3531,6 @@ function frameDebounce (fn) {
     });
   }
 }
-
-function getScrollTarget (el) {
-  return el.closest('.scroll') || window
-}
-
-function getScrollHeight (el) {
-  return (el === window ? document.body : el).scrollHeight
-}
-
-function getScrollPosition (scrollTarget) {
-  if (scrollTarget === window) {
-    return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
-  }
-  return scrollTarget.scrollTop
-}
-
-function animScrollTo (el, to, duration) {
-  if (duration <= 0) {
-    return
-  }
-
-  var pos = getScrollPosition(el);
-
-  window.requestAnimationFrame(function () {
-    setScroll(el, pos + (to - pos) / duration * 16);
-    if (el.scrollTop !== to) {
-      animScrollTo(el, to, duration - 16);
-    }
-  });
-}
-
-function setScroll (scrollTarget, offset$$1) {
-  if (scrollTarget === window) {
-    document.documentElement.scrollTop = offset$$1;
-    document.body.scrollTop = offset$$1;
-    return
-  }
-  scrollTarget.scrollTop = offset$$1;
-}
-
-function setScrollPosition (scrollTarget, offset$$1, duration) {
-  if (duration) {
-    animScrollTo(scrollTarget, offset$$1, duration);
-    return
-  }
-  setScroll(scrollTarget, offset$$1);
-}
-
-var size;
-function getScrollbarWidth () {
-  if (size !== undefined) {
-    return size
-  }
-
-  var
-    inner = document.createElement('p'),
-    outer = document.createElement('div');
-
-  css(inner, {
-    width: '100%',
-    height: '200px'
-  });
-  css(outer, {
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-    visibility: 'hidden',
-    width: '200px',
-    height: '150px',
-    overflow: 'hidden'
-  });
-
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  var w2 = inner.offsetWidth;
-
-  if (w1 === w2) {
-    w2 = outer.clientWidth;
-  }
-
-  document.body.removeChild(outer);
-  size = w1 - w2;
-
-  return size
-}
-
-var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth
-});
 
 var QPopover = {
   name: 'QPopover',
@@ -4765,28 +4850,29 @@ var decelerate = easeOutCubic;
 var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
-var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+
+var easing = Object.freeze({
+	linear: linear,
+	easeInQuad: easeInQuad,
+	easeOutQuad: easeOutQuad,
+	easeInOutQuad: easeInOutQuad,
+	easeInCubic: easeInCubic,
+	easeOutCubic: easeOutCubic,
+	easeInOutCubic: easeInOutCubic,
+	easeInQuart: easeInQuart,
+	easeOutQuart: easeOutQuart,
+	easeInOutQuart: easeInOutQuart,
+	easeInQuint: easeInQuint,
+	easeOutQuint: easeOutQuint,
+	easeInOutQuint: easeInOutQuint,
+	easeInCirc: easeInCirc,
+	easeOutCirc: easeOutCirc,
+	easeInOutCirc: easeInOutCirc,
+	overshoot: overshoot,
+	standard: standard,
+	decelerate: decelerate,
+	accelerate: accelerate,
+	sharp: sharp
 });
 
 var ids = {};
@@ -4854,9 +4940,10 @@ function stop (id) {
   }
 }
 
-var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+
+var animate = Object.freeze({
+	start: start,
+	stop: stop
 });
 
 var FullscreenMixin = {
@@ -7235,16 +7322,17 @@ function getBrand (color, element) {
   return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
 }
 
-var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+
+var colors = Object.freeze({
+	rgbToHex: rgbToHex,
+	hexToRgb: hexToRgb,
+	hsvToRgb: hsvToRgb,
+	rgbToHsv: rgbToHsv,
+	textToRgb: textToRgb,
+	lighten: lighten,
+	luminosity: luminosity,
+	setBrand: setBrand,
+	getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -8753,30 +8841,31 @@ function clone$1 (value) {
   return isDate(value) ? new Date(value.getTime()) : value
 }
 
-var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+
+var date = Object.freeze({
+	isValid: isValid,
+	buildDate: buildDate,
+	getDayOfWeek: getDayOfWeek,
+	getWeekOfYear: getWeekOfYear,
+	isBetweenDates: isBetweenDates,
+	addToDate: addToDate,
+	subtractFromDate: subtractFromDate,
+	adjustDate: adjustDate,
+	startOfDate: startOfDate,
+	endOfDate: endOfDate,
+	getMaxDate: getMaxDate,
+	getMinDate: getMinDate,
+	getDateDiff: getDateDiff,
+	getDayOfYear: getDayOfYear,
+	inferDateFormat: inferDateFormat,
+	convertDateToFormat: convertDateToFormat,
+	getDateBetween: getDateBetween,
+	isSameDate: isSameDate,
+	daysInMonth: daysInMonth,
+	formatter: formatter,
+	formatDate: formatDate,
+	matchFormat: matchFormat,
+	clone: clone$1
 });
 
 var DateMixin = {
@@ -9614,7 +9703,8 @@ var QScrollObservable = {
       pos: 0,
       dir: 'down',
       dirChanged: false,
-      dirChangePos: 0
+      dirChangePos: 0,
+      scrollHidden: false
     }
   },
   methods: {
@@ -9623,7 +9713,8 @@ var QScrollObservable = {
         position: this.pos,
         direction: this.dir,
         directionChanged: this.dirChanged,
-        inflexionPosition: this.dirChangePos
+        inflexionPosition: this.dirChangePos,
+        scrollHidden: this.scrollHidden
       }
     },
     trigger: function trigger () {
@@ -9635,17 +9726,25 @@ var QScrollObservable = {
       var
         pos = Math.max(0, getScrollPosition(this.target)),
         delta = pos - this.pos,
-        dir = delta < 0 ? 'up' : 'down';
+        dir = delta < 0 ? 'up' : 'down',
+        scrollHidden = isBodyScrollHidden();
 
       this.dirChanged = this.dir !== dir;
       if (this.dirChanged) {
         this.dir = dir;
         this.dirChangePos = this.pos;
       }
+      if (scrollHidden) {
+        this.scrollHidden = scrollHidden;
+      }
 
       this.timer = null;
       this.pos = pos;
       this.$emit('scroll', this.getPosition());
+
+      if (!scrollHidden) {
+        this.scrollHidden = scrollHidden;
+      }
     }
   },
   mounted: function mounted () {
@@ -12272,8 +12371,7 @@ var QLayout = {
 }
 
 var
-  bodyClassBelow = 'with-layout-drawer-opened',
-  bodyClassAbove = 'with-layout-drawer-opened-above',
+  bodyClass = 'q-drawer-scroll',
   duration = 150;
 
 var QLayoutDrawer = {
@@ -12603,7 +12701,6 @@ var QLayoutDrawer = {
             this$1.applyBackdrop(0);
             this$1.applyPosition(this$1.stateDirection * width$$1);
             el.classList.remove('q-layout-drawer-delimiter');
-            document.body.classList.remove(bodyClassBelow);
           }
         });
         return
@@ -12620,7 +12717,6 @@ var QLayoutDrawer = {
 
       if (evt.isFirst) {
         var el$1 = this.$refs.content;
-        document.body.classList.add(bodyClassBelow);
         el$1.classList.add('no-transition');
         el$1.classList.add('q-layout-drawer-delimiter');
       }
@@ -12666,24 +12762,26 @@ var QLayoutDrawer = {
       var this$1 = this;
 
       this.layout.__animate();
+      this.applyPosition(0);
 
+      var otherSide = this.layout.instances[this.rightSide ? 'left' : 'right'];
+      if (otherSide && otherSide.mobileOpened) {
+        otherSide.hide();
+      }
       if (this.belowBreakpoint) {
-        var otherSide = this.layout.instances[this.rightSide ? 'left' : 'right'];
-        if (otherSide && otherSide.mobileOpened) {
-          otherSide.hide();
-        }
         this.mobileOpened = true;
+        setBodyScroll(false);
         this.applyBackdrop(1);
       }
-
-      this.applyPosition(0);
-      document.body.classList.add(this.belowBreakpoint ? bodyClassBelow : bodyClassAbove);
+      else {
+        document.body.classList.add(bodyClass);
+      }
 
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
         if (this$1.showPromise) {
           this$1.showPromise.then(function () {
-            document.body.classList.remove(bodyClassAbove);
+            document.body.classList.remove(bodyClass);
           });
           this$1.showPromiseResolve();
         }
@@ -12695,12 +12793,12 @@ var QLayoutDrawer = {
       this.layout.__animate();
       clearTimeout(this.timer);
 
+      this.mobileOpened && setBodyScroll(true);
       this.mobileOpened = false;
       this.applyPosition((this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1) * this.size);
       this.applyBackdrop(0);
 
-      document.body.classList.remove(bodyClassAbove);
-      document.body.classList.remove(bodyClassBelow);
+      document.body.classList.remove(bodyClass);
 
       this.timer = setTimeout(function () {
         this$1.hidePromise && this$1.hidePromiseResolve();
@@ -12787,7 +12885,7 @@ var QLayoutFooter = {
       if (this.fixed) {
         return this.revealed ? this.size : 0
       }
-      var offset = this.layout.height + this.layout.scroll.position + this.size - this.layout.scrollHeight;
+      var offset = this.layout.height + (this.layout.scroll.position || (-1 * parseInt(document.body.style.top, 10)) || 0) + this.size - this.layout.scrollHeight;
       return offset > 0 ? offset : 0
     },
     computedClass: function computedClass () {
@@ -12857,7 +12955,7 @@ var QLayoutFooter = {
       }
     },
     __updateRevealed: function __updateRevealed () {
-      if (!this.reveal) {
+      if (!this.reveal || this.layout.scroll.scrollHidden) {
         return
       }
       var
@@ -12919,7 +13017,7 @@ var QLayoutHeader = {
       this.$emit('reveal', val);
     },
     'layout.scroll': function layout_scroll (scroll) {
-      if (!this.reveal) {
+      if (!this.reveal || scroll.scrollHidden) {
         return
       }
       this.__updateLocal('revealed',
@@ -12940,7 +13038,7 @@ var QLayoutHeader = {
       if (this.fixed) {
         return this.revealed ? this.size : 0
       }
-      var offset = this.size - this.layout.scroll.position;
+      var offset = this.size - (this.layout.scroll.position || (-1 * parseInt(document.body.style.top, 10)) || 0);
       return offset > 0 ? offset : 0
     },
     computedClass: function computedClass () {
@@ -14500,7 +14598,7 @@ var QScrollArea = {
       var el = this.$refs.target;
       el.scrollTop += getMouseWheelDistance(e).pixelY;
       if (el.scrollTop > 0 && el.scrollTop + this.containerHeight < this.scrollHeight) {
-        e.preventDefault();
+        stopAndPrevent(e);
       }
     },
     __setActive: function __setActive (active, timer) {
@@ -14533,6 +14631,7 @@ var QScrollArea = {
   },
   render: function render (h) {
     var this$1 = this;
+    var obj;
 
     if (!this.$q.platform.is.desktop) {
       return h('div', {
@@ -14554,11 +14653,7 @@ var QScrollArea = {
       h('div', {
         ref: 'target',
         staticClass: 'scroll relative-position overflow-hidden fit',
-        on: {
-          wheel: this.__mouseWheel,
-          mousewheel: this.__mouseWheel,
-          DOMMouseScroll: this.__mouseWheel
-        },
+        on: ( obj = {}, obj[wheelEvent.name] = this.__mouseWheel, obj),
         directives: [{
           name: 'touch-pan',
           modifiers: {
@@ -18261,124 +18356,124 @@ var QVideo = {
 
 
 
-var components = /*#__PURE__*/Object.freeze({
-QActionSheet: QActionSheet,
-QAjaxBar: QAjaxBar,
-QAlert: QAlert,
-QAutocomplete: QAutocomplete,
-QBreadcrumbs: QBreadcrumbs,
-QBreadcrumbsEl: QBreadcrumbsEl,
-QBtn: QBtn,
-QBtnGroup: QBtnGroup,
-QBtnDropdown: QBtnDropdown,
-QBtnToggle: QBtnToggle,
-QCard: QCard,
-QCardTitle: QCardTitle,
-QCardMain: QCardMain,
-QCardActions: QCardActions,
-QCardMedia: QCardMedia,
-QCardSeparator: QCardSeparator,
-QCarousel: QCarousel,
-QCarouselSlide: QCarouselSlide,
-QCarouselControl: QCarouselControl,
-QChatMessage: QChatMessage,
-QCheckbox: QCheckbox,
-QChip: QChip,
-QChipsInput: QChipsInput,
-QCollapsible: QCollapsible,
-QColor: QColor,
-QColorPicker: QColorPicker,
-QContextMenu: QContextMenu,
-QDatetime: QDatetime,
-QDatetimePicker: QDatetimePicker,
-QDialog: QDialog,
-QEditor: QEditor,
-QFab: QFab,
-QFabAction: QFabAction,
-QField: QField,
-QIcon: QIcon,
-QInfiniteScroll: QInfiniteScroll,
-QInnerLoading: QInnerLoading,
-QInput: QInput,
-QInputFrame: QInputFrame,
-QKnob: QKnob,
-QLayout: QLayout,
-QLayoutDrawer: QLayoutDrawer,
-QLayoutFooter: QLayoutFooter,
-QLayoutHeader: QLayoutHeader,
-QPage: QPage,
-QPageContainer: QPageContainer,
-QPageSticky: QPageSticky,
-QItem: QItem,
-QItemSeparator: QItemSeparator,
-QItemMain: QItemMain,
-QItemSide: QItemSide,
-QItemTile: QItemTile,
-QItemWrapper: QItemWrapper,
-QList: QList,
-QListHeader: QListHeader,
-QModal: QModal,
-QModalLayout: QModalLayout,
-QResizeObservable: QResizeObservable,
-QScrollObservable: QScrollObservable,
-QWindowResizeObservable: QWindowResizeObservable,
-QOptionGroup: QOptionGroup,
-QPagination: QPagination,
-QParallax: QParallax,
-QPopover: QPopover,
-QProgress: QProgress,
-QPullToRefresh: QPullToRefresh,
-QRadio: QRadio,
-QRange: QRange,
-QRating: QRating,
-QScrollArea: QScrollArea,
-QSearch: QSearch,
-QSelect: QSelect,
-QSlideTransition: QSlideTransition,
-QSlider: QSlider,
-QSpinner: QSpinner,
-QSpinnerAudio: audio,
-QSpinnerBall: ball,
-QSpinnerBars: bars,
-QSpinnerCircles: circles,
-QSpinnerComment: comment,
-QSpinnerCube: cube,
-QSpinnerDots: dots,
-QSpinnerFacebook: facebook,
-QSpinnerGears: gears,
-QSpinnerGrid: grid,
-QSpinnerHearts: hearts,
-QSpinnerHourglass: hourglass,
-QSpinnerInfinity: infinity,
-QSpinnerIos: QSpinner_ios,
-QSpinnerMat: DefaultSpinner,
-QSpinnerOval: oval,
-QSpinnerPie: pie,
-QSpinnerPuff: puff,
-QSpinnerRadio: radio,
-QSpinnerRings: rings,
-QSpinnerTail: tail,
-QStep: QStep,
-QStepper: QStepper,
-QStepperNavigation: QStepperNavigation,
-QRouteTab: QRouteTab,
-QTab: QTab,
-QTabPane: QTabPane,
-QTabs: QTabs,
-QTable: QTable,
-QTh: QTh,
-QTr: QTr,
-QTd: QTd,
-QTableColumns: QTableColumns,
-QTimeline: QTimeline,
-QTimelineEntry: QTimelineEntry,
-QToggle: QToggle,
-QToolbar: QToolbar,
-QToolbarTitle: QToolbarTitle,
-QTooltip: QTooltip,
-QTree: QTree,
-QUploader: QUploader,
-QVideo: QVideo
+var components = Object.freeze({
+	QActionSheet: QActionSheet,
+	QAjaxBar: QAjaxBar,
+	QAlert: QAlert,
+	QAutocomplete: QAutocomplete,
+	QBreadcrumbs: QBreadcrumbs,
+	QBreadcrumbsEl: QBreadcrumbsEl,
+	QBtn: QBtn,
+	QBtnGroup: QBtnGroup,
+	QBtnDropdown: QBtnDropdown,
+	QBtnToggle: QBtnToggle,
+	QCard: QCard,
+	QCardTitle: QCardTitle,
+	QCardMain: QCardMain,
+	QCardActions: QCardActions,
+	QCardMedia: QCardMedia,
+	QCardSeparator: QCardSeparator,
+	QCarousel: QCarousel,
+	QCarouselSlide: QCarouselSlide,
+	QCarouselControl: QCarouselControl,
+	QChatMessage: QChatMessage,
+	QCheckbox: QCheckbox,
+	QChip: QChip,
+	QChipsInput: QChipsInput,
+	QCollapsible: QCollapsible,
+	QColor: QColor,
+	QColorPicker: QColorPicker,
+	QContextMenu: QContextMenu,
+	QDatetime: QDatetime,
+	QDatetimePicker: QDatetimePicker,
+	QDialog: QDialog,
+	QEditor: QEditor,
+	QFab: QFab,
+	QFabAction: QFabAction,
+	QField: QField,
+	QIcon: QIcon,
+	QInfiniteScroll: QInfiniteScroll,
+	QInnerLoading: QInnerLoading,
+	QInput: QInput,
+	QInputFrame: QInputFrame,
+	QKnob: QKnob,
+	QLayout: QLayout,
+	QLayoutDrawer: QLayoutDrawer,
+	QLayoutFooter: QLayoutFooter,
+	QLayoutHeader: QLayoutHeader,
+	QPage: QPage,
+	QPageContainer: QPageContainer,
+	QPageSticky: QPageSticky,
+	QItem: QItem,
+	QItemSeparator: QItemSeparator,
+	QItemMain: QItemMain,
+	QItemSide: QItemSide,
+	QItemTile: QItemTile,
+	QItemWrapper: QItemWrapper,
+	QList: QList,
+	QListHeader: QListHeader,
+	QModal: QModal,
+	QModalLayout: QModalLayout,
+	QResizeObservable: QResizeObservable,
+	QScrollObservable: QScrollObservable,
+	QWindowResizeObservable: QWindowResizeObservable,
+	QOptionGroup: QOptionGroup,
+	QPagination: QPagination,
+	QParallax: QParallax,
+	QPopover: QPopover,
+	QProgress: QProgress,
+	QPullToRefresh: QPullToRefresh,
+	QRadio: QRadio,
+	QRange: QRange,
+	QRating: QRating,
+	QScrollArea: QScrollArea,
+	QSearch: QSearch,
+	QSelect: QSelect,
+	QSlideTransition: QSlideTransition,
+	QSlider: QSlider,
+	QSpinner: QSpinner,
+	QSpinnerAudio: audio,
+	QSpinnerBall: ball,
+	QSpinnerBars: bars,
+	QSpinnerCircles: circles,
+	QSpinnerComment: comment,
+	QSpinnerCube: cube,
+	QSpinnerDots: dots,
+	QSpinnerFacebook: facebook,
+	QSpinnerGears: gears,
+	QSpinnerGrid: grid,
+	QSpinnerHearts: hearts,
+	QSpinnerHourglass: hourglass,
+	QSpinnerInfinity: infinity,
+	QSpinnerIos: QSpinner_ios,
+	QSpinnerMat: DefaultSpinner,
+	QSpinnerOval: oval,
+	QSpinnerPie: pie,
+	QSpinnerPuff: puff,
+	QSpinnerRadio: radio,
+	QSpinnerRings: rings,
+	QSpinnerTail: tail,
+	QStep: QStep,
+	QStepper: QStepper,
+	QStepperNavigation: QStepperNavigation,
+	QRouteTab: QRouteTab,
+	QTab: QTab,
+	QTabPane: QTabPane,
+	QTabs: QTabs,
+	QTable: QTable,
+	QTh: QTh,
+	QTr: QTr,
+	QTd: QTd,
+	QTableColumns: QTableColumns,
+	QTimeline: QTimeline,
+	QTimelineEntry: QTimelineEntry,
+	QToggle: QToggle,
+	QToolbar: QToolbar,
+	QToolbarTitle: QToolbarTitle,
+	QTooltip: QTooltip,
+	QTree: QTree,
+	QUploader: QUploader,
+	QVideo: QVideo
 });
 
 function updateBinding (el, ref) {
@@ -18718,16 +18813,16 @@ var touchHold = {
 
 
 
-var directives = /*#__PURE__*/Object.freeze({
-BackToTop: backToTop,
-CloseOverlay: closeOverlay,
-GoBack: goBack,
-Ripple: Ripple,
-ScrollFire: scrollFire,
-Scroll: scroll$1,
-TouchHold: touchHold,
-TouchPan: TouchPan,
-TouchSwipe: TouchSwipe
+var directives = Object.freeze({
+	BackToTop: backToTop,
+	CloseOverlay: closeOverlay,
+	GoBack: goBack,
+	Ripple: Ripple,
+	ScrollFire: scrollFire,
+	Scroll: scroll$1,
+	TouchHold: touchHold,
+	TouchPan: TouchPan,
+	TouchSwipe: TouchSwipe
 });
 
 function modalFn (Component, Vue$$1) {
@@ -19545,18 +19640,18 @@ var SessionStorage = {
 
 
 
-var plugins = /*#__PURE__*/Object.freeze({
-ActionSheet: actionSheet,
-AddressbarColor: addressbarColor,
-AppFullscreen: appFullscreen,
-AppVisibility: appVisibility,
-Cookies: cookies,
-Dialog: dialog,
-Loading: Loading,
-Notify: notify,
-Platform: Platform,
-LocalStorage: LocalStorage,
-SessionStorage: SessionStorage
+var plugins = Object.freeze({
+	ActionSheet: actionSheet,
+	AddressbarColor: addressbarColor,
+	AppFullscreen: appFullscreen,
+	AppVisibility: appVisibility,
+	Cookies: cookies,
+	Dialog: dialog,
+	Loading: Loading,
+	Notify: notify,
+	Platform: Platform,
+	LocalStorage: LocalStorage,
+	SessionStorage: SessionStorage
 });
 
 function openUrl (url, reject) {
@@ -19579,24 +19674,25 @@ function openUrl (url, reject) {
 
 function noop () {}
 
-var utils = /*#__PURE__*/Object.freeze({
-animate: animate,
-clone: clone,
-colors: colors,
-date: date,
-debounce: debounce,
-frameDebounce: frameDebounce,
-dom: dom,
-easing: easing,
-event: event,
-extend: extend,
-filter: filter,
-format: format,
-noop: noop,
-openURL: openUrl,
-scroll: scroll,
-throttle: throttle,
-uid: uid
+
+var utils = Object.freeze({
+	animate: animate,
+	clone: clone,
+	colors: colors,
+	date: date,
+	debounce: debounce,
+	frameDebounce: frameDebounce,
+	dom: dom,
+	easing: easing,
+	event: event,
+	extend: extend,
+	filter: filter,
+	format: format,
+	noop: noop,
+	openURL: openUrl,
+	scroll: scroll,
+	throttle: throttle,
+	uid: uid
 });
 
 if (Vue === void 0) {

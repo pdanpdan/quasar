@@ -2705,12 +2705,6 @@ body.q-layout-animate .q-layout-transition {
   -webkit-transition: all 0.12s ease-in;
   transition: all 0.12s ease-in;
 }
-body.with-layout-drawer-opened {
-  overflow: hidden;
-}
-body.with-layout-drawer-opened-above {
-  overflow-x: hidden;
-}
 body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child,
 body.cordova.platform-ios .q-layout-header > .q-tabs:first-child .q-tabs-head,
 body.cordova.platform-ios .q-layout-drawer.top-padding {
@@ -2718,6 +2712,9 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
 }
 [dir] body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child, [dir] body.cordova.platform-ios .q-layout-header > .q-tabs:first-child .q-tabs-head, [dir] body.cordova.platform-ios .q-layout-drawer.top-padding {
   padding-top: 20px;
+}
+.q-drawer-scroll {
+  overflow-x: hidden;
 }
 @media (max-width: 767px) {
   [dir] .layout-padding {
@@ -3019,16 +3016,12 @@ body.with-loading {
   text-align: center;
   text-shadow: 0 0 7px #000;
 }
-body.with-modal {
-  overflow: hidden !important;
-}
 .modal-content {
   position: relative;
   -webkit-box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);
   overflow-y: auto;
   min-width: 280px;
   max-height: 80vh;
-  -webkit-backface-visibility: hidden;
 }
 [dir] .modal-content {
   background: #fff;
@@ -3079,6 +3072,9 @@ body.with-modal {
   }
 }
 @media (max-width: 767px) {
+  .q-responsive-modal {
+    overflow: hidden !important;
+  }
   .modal:not(.minimized) .modal-content {
     width: 100%;
     height: 100%;
@@ -3104,6 +3100,9 @@ body.with-modal {
   [dir] .modal.minimized.q-modal-leave-active .modal-content {
             transform: scale(0.8);
   }
+}
+.q-maximized-modal {
+  overflow: hidden !important;
 }
 .modal,
 .modal-content {
@@ -10679,6 +10678,12 @@ dl.horizontal dt {
 }
 .overflow-hidden {
   overflow: hidden !important;
+}
+.body-scroll-disabled {
+  position: fixed;
+}
+.body-scroll-disabled.body-overflow-scroll {
+  overflow-y: scroll;
 }
 .dimmed:after,
 .light-dimmed:after {
