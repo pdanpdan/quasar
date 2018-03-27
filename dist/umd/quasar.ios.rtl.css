@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.9
+ * Quasar Framework v0.15.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2376,19 +2376,19 @@ input.q-input-target {
 .q-page-sticky-shrink > span {
   pointer-events: auto;
 }
-body.q-layout-animate .q-layout-transition {
-  -webkit-transition: all 0.12s ease-in;
-  transition: all 0.12s ease-in;
-}
-body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child,
-body.cordova.platform-ios .q-layout-header > .q-tabs:first-child .q-tabs-head,
+body.cordova.platform-ios .q-layout-header > .q-toolbar:nth-child(2),
+body.cordova.platform-ios .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
 body.cordova.platform-ios .q-layout-drawer.top-padding {
   min-height: 70px;
 }
-[dir] body.cordova.platform-ios .q-layout-header > .q-toolbar:first-child, [dir] body.cordova.platform-ios .q-layout-header > .q-tabs:first-child .q-tabs-head, [dir] body.cordova.platform-ios .q-layout-drawer.top-padding {
+[dir] body.cordova.platform-ios .q-layout-header > .q-toolbar:nth-child(2), [dir] body.cordova.platform-ios .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head, [dir] body.cordova.platform-ios .q-layout-drawer.top-padding {
   padding-top: 20px;
 }
-.q-drawer-scroll {
+.q-layout-animate .q-layout-transition {
+  -webkit-transition: all 0.12s ease-in;
+  transition: all 0.12s ease-in;
+}
+.q-body-drawer-toggle {
   overflow-x: hidden;
 }
 @media (max-width: 767px) {
@@ -2700,6 +2700,7 @@ body.with-loading {
   overflow-y: auto;
   min-width: 280px;
   max-height: 80vh;
+  -webkit-backface-visibility: hidden;
 }
 [dir] .modal-content {
   background: #fff;
@@ -2756,7 +2757,7 @@ body.with-loading {
 }
 @media (max-width: 767px) {
   .q-responsive-modal {
-    overflow: hidden !important;
+    overflow: hidden;
   }
   .modal:not(.minimized) .modal-content {
     width: 100%;
@@ -2789,7 +2790,7 @@ body.with-loading {
   }
 }
 .q-maximized-modal {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 .modal,
 .modal-content {
@@ -9124,7 +9125,8 @@ img.avatar {
   color: inherit;
   opacity: 0.5;
 }
-body.with-mixin-fullscreen {
+.q-body-fullscreen-mixin,
+.q-body-prevent-scroll {
   overflow: hidden !important;
 }
 .q-no-input-spinner {
@@ -10344,12 +10346,6 @@ dl.horizontal dt {
 }
 .overflow-hidden {
   overflow: hidden !important;
-}
-.body-scroll-disabled {
-  position: fixed;
-}
-.body-scroll-disabled.body-overflow-scroll {
-  overflow-y: scroll;
 }
 .dimmed:after,
 .light-dimmed:after {
