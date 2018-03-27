@@ -19425,7 +19425,7 @@ function init (ref) {
           });
         }
 
-        if (notif.onDismiss) {
+        if (typeof config.onDismiss === 'function') {
           notif.onDismiss = config.onDismiss;
         }
 
