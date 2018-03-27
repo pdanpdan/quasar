@@ -19387,6 +19387,10 @@ function init (ref) {
           });
         }
 
+        if (notif.onDismiss) {
+          notif.onDismiss = config.onDismiss;
+        }
+
         if (notif.closeBtn) {
           var btn = [{
             closeBtn: true,
