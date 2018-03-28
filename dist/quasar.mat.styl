@@ -1874,8 +1874,8 @@ qfield-horizontal()
 .q-if
   min-height 32px
   outline 0
+  padding-bottom 8px
   &:not(.q-if-hide-underline):not(.q-if-inverted)
-    padding-bottom 8px
     &:before, &:after
       content ''
   &:before, &:after
@@ -1897,14 +1897,17 @@ qfield-horizontal()
     color black
   .group
     margin -5px
+    &:not(:first-child)
+      margin-top 0
 .q-if-hide-underline:not(.q-if-inverted)
   min-height 24px
+  padding-bottom 0
 .q-if-focusable
   outline 0
   cursor pointer
 .q-if-inner
   min-height 24px !important
-  align-items flex-end
+  align-items center
 .q-if-has-label
   min-height 41px
   .q-if-inner
@@ -1917,7 +1920,7 @@ qfield-horizontal()
   left 0
   right 0
   transform-origin left top 0
-  transform scale(1) translate(0, 2px)
+  transform scale(1) translate(0, 0)
 .q-if-label-above
   transform scale(.75) translate(0, -22px)
 .q-if-addon
@@ -1932,7 +1935,7 @@ qfield-horizontal()
 .q-if-control
   cursor pointer
   font-size 24px
-  transform: translateY(3px);
+  align-self flex-end
   &.q-icon
     cursor pointer
   &:hover
@@ -2006,7 +2009,7 @@ div.q-input-target
   outline 0
   padding 0
   background transparent
-  min-height 24px
+  min-height 18px
   font-size inherit
   resize none
   display flex
@@ -2025,11 +2028,10 @@ div.q-input-target
   &:invalid
     box-shadow inherit
 input.q-input-target
+  height 19px
   outline 0
 .q-input-chips
   min-height 36px !important
-  > .q-chip
-    transform: translateY(4px);
 .q-if
   .q-input-target-placeholder
     color $form-dark !important
@@ -3126,13 +3128,9 @@ body.mobile .q-tabs-scroller
   font-size 12px
   .q-table-control
     min-height 24px
-    > .q-if > .q-if-inner
-      padding-bottom 2px
 .q-table-control
   display flex
   align-items center
-  > .q-if-hide-underline
-    padding-bottom 6px
 .q-table-sort-icon
   transition $table-transition
   will-change opacity, transform
@@ -5497,6 +5495,10 @@ dl
       white-space nowrap
     dd
       margin-left 30%
+.no-margin
+  margin 0 !important
+.no-padding
+  padding 0 !important
 .no-border
   border 0 !important
 .no-border-radius
@@ -5602,23 +5604,11 @@ body
 ie_style = @block
   
   .absolute, .fixed
-    .q-input-target
+    .q-if-inner, .q-input-target
       min-width auto
       flex-basis auto
   .q-if-inner
-    min-width auto
-    flex-basis auto
-    .q-input-target
-      min-height 24px
-      line-height 1.22em
-      padding-top calc(24px - 1.22em)
-    input.q-input-target
-      line-height 1
-  .q-input-chips.group input.q-input-target
-    margin-bottom 4px
-    &:first-child
-      margin-top 8px
-      margin-bottom -1px
+    min-height 21px
   
   .row > .col
     &.q-alert-content
