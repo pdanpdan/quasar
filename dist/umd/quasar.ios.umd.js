@@ -1038,14 +1038,14 @@ var ModelToggleMixin = {
       }
 
       if (!this.__show) {
-        this.$emit('show');
+        this.$emit('show', evt);
         return Promise.resolve(evt)
       }
 
       this.showPromise = new Promise(function (resolve, reject) {
         this$1.showPromiseResolve = function () {
           this$1.showPromise = null;
-          this$1.$emit('show');
+          this$1.$emit('show', evt);
           resolve(evt);
         };
         this$1.showPromiseReject = function () {
@@ -1077,14 +1077,14 @@ var ModelToggleMixin = {
       }
 
       if (!this.__hide) {
-        this.$emit('hide');
+        this.$emit('hide', evt);
         return Promise.resolve()
       }
 
       this.hidePromise = new Promise(function (resolve, reject) {
         this$1.hidePromiseResolve = function () {
           this$1.hidePromise = null;
-          this$1.$emit('hide');
+          this$1.$emit('hide', evt);
           resolve();
         };
         this$1.hidePromiseReject = function () {
@@ -4944,7 +4944,7 @@ function start (ref) {
   var easing = ref.easing;
 
   var id = name;
-  var start = performance.now();
+  var start = new Date();
 
   if (id) {
     stop(id);
@@ -4955,7 +4955,7 @@ function start (ref) {
 
   var delta = easing || linear;
   var handler = function () {
-    var progress = (performance.now() - start) / duration;
+    var progress = ((new Date()) - start) / duration;
     if (progress > 1) {
       progress = 1;
     }
@@ -6242,7 +6242,8 @@ var InputMixin = {
     return {
       focused: false,
       timer: null,
-      isNumberError: false
+      isNumberError: false,
+      isNegZero: false
     }
   },
   methods: {
@@ -6280,7 +6281,7 @@ var InputMixin = {
       var this$1 = this;
 
       var isNumberError = this.isNumber && this.isNumberError;
-      var value = isNumberError ? null : this.model;
+      var value = isNumberError ? (this.isNegZero ? -0 : null) : this.model;
       if (isNumberError) {
         this.$emit('input', value);
       }
@@ -8158,48 +8159,63 @@ var ContextMenuDesktop = {
     disable: Boolean
   },
   render: function render (h) {
-    var this$1 = this;
-
     return h(QPopover, {
       ref: 'popover',
       props: {
         anchorClick: false
       },
       on: {
-        show: function () { this$1.$emit('show'); },
-        hide: function () { this$1.$emit('hide'); }
+        show: this.__onShow,
+        hide: this.__onHide
       }
     }, this.$slots.default)
   },
   methods: {
-    hide: function hide () {
-      return this.$refs.popover.hide()
+    hide: function hide (evt) {
+      if (this.$refs.popover) {
+        return this.$refs.popover.hide(evt)
+      }
     },
-    __show: function __show (evt) {
+    show: function show (evt) {
       var this$1 = this;
 
       if (!evt || this.disable) {
         return
       }
-      this.hide();
       stopAndPrevent(evt);
       /*
         Opening with a timeout for
         Firefox workaround
        */
       setTimeout(function () {
-        this$1.$refs.popover.show(evt);
+        if (this$1.$refs.popover) {
+          this$1.event = evt;
+          this$1.$refs.popover.show(evt);
+        }
       }, 100);
+    },
+    __bodyHide: function __bodyHide (evt) {
+      if (!this.$el.contains(evt.target)) {
+        this.hide(evt);
+      }
+    },
+    __onShow: function __onShow () {
+      document.body.addEventListener('contextmenu', this.__bodyHide, true);
+      document.body.addEventListener('click', this.__bodyHide, true);
+      this.$emit('show', this.event);
+    },
+    __onHide: function __onHide (evt) {
+      document.body.removeEventListener('contextmenu', this.__bodyHide, true);
+      document.body.removeEventListener('click', this.__bodyHide, true);
+      this.$emit('hide', this.event, evt);
     }
   },
   mounted: function mounted () {
     this.target = this.$refs.popover.$el.parentNode;
-    this.target.addEventListener('contextmenu', this.__show);
-    this.target.addEventListener('click', this.hide);
+    this.target.addEventListener('contextmenu', this.show);
   },
   beforeDestroy: function beforeDestroy () {
-    this.target.removeEventListener('contexmenu', this.__show);
-    this.target.removeEventListener('click', this.hide);
+    this.target.removeEventListener('contextmenu', this.show);
   }
 }
 
@@ -8209,13 +8225,14 @@ var ContextMenuMobile = {
     disable: Boolean
   },
   methods: {
-    hide: function hide () {
+    hide: function hide (evt) {
       this.target.classList.remove('non-selectable');
-      return this.$refs.dialog.hide()
+      return this.$refs.dialog.hide(evt)
     },
-    __show: function __show () {
+    show: function show (evt) {
       if (!this.disable && this.$refs.dialog) {
-        this.$refs.dialog.show();
+        this.event = evt;
+        this.$refs.dialog.show(evt);
       }
     },
     __touchStartHandler: function __touchStartHandler (evt) {
@@ -8226,7 +8243,7 @@ var ContextMenuMobile = {
         stopAndPrevent(evt);
         setTimeout(function () {
           this$1.__cleanup();
-          this$1.__show();
+          this$1.show(evt);
         }, 10);
       }, 600);
     },
@@ -8244,8 +8261,8 @@ var ContextMenuMobile = {
         minimized: true
       },
       on: {
-        show: function () { this$1.$emit('show'); },
-        hide: function () { this$1.$emit('hide'); }
+        show: function () { this$1.$emit('show', this$1.event); },
+        hide: function (evt) { this$1.$emit('hide', this$1.event, evt); }
       }
     }, this.$slots.default)
   },
@@ -9858,6 +9875,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     value: function value (v) {
       this.model = v;
       this.isNumberError = false;
+      this.isNegZero = false;
     },
     isTextarea: function isTextarea (v) {
       this[v ? '__watcherRegister' : '__watcherUnregister']();
@@ -9880,11 +9898,6 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     isLoading: function isLoading () {
       return this.loading || this.shadow.loading
-    },
-    pattern: function pattern () {
-      if (this.isNumber) {
-        return this.$attrs.pattern || '[0-9]*'
-      }
     },
     keyboardToggle: function keyboardToggle () {
       return this.$q.platform.is.mobile &&
@@ -9955,9 +9968,10 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       var val = e && e.target ? e.target.value : e;
 
       if (this.isNumber) {
-        var forcedValue = val;
+        this.isNegZero = (1 / val) === -Infinity;
+        var forcedValue = this.isNegZero ? -0 : val;
         val = parseFloat(val);
-        if (isNaN(val)) {
+        if (isNaN(val) || this.isNegZero) {
           this.isNumberError = true;
           if (forceUpdate) {
             this.$emit('input', forcedValue);
@@ -16733,6 +16747,25 @@ var Filter = {
   }
 }
 
+function paginationChanged (oldPag, newPag) {
+  for (var prop in newPag) {
+    if (newPag[prop] !== oldPag[prop]) {
+      return true
+    }
+  }
+  return false
+}
+
+function fixPagination (p) {
+  if (p.page < 1) {
+    p.page = 1;
+  }
+  if (p.rowsPerPage !== void 0 && p.rowsPerPage < 1) {
+    p.rowsPerPage = 5;
+  }
+  return p
+}
+
 var Pagination = {
   props: {
     pagination: Object,
@@ -16753,7 +16786,7 @@ var Pagination = {
   },
   computed: {
     computedPagination: function computedPagination () {
-      return extend({}, this.innerPagination, this.pagination)
+      return fixPagination(extend({}, this.innerPagination, this.pagination))
     },
     firstRowIndex: function firstRowIndex () {
       var ref = this.computedPagination;
@@ -16768,22 +16801,19 @@ var Pagination = {
       return page * rowsPerPage
     },
     isFirstPage: function isFirstPage () {
-      var ref = this.computedPagination;
-      var page = ref.page;
-      return page <= 1
+      return this.computedPagination.page === 1
     },
     pagesNumber: function pagesNumber () {
-      var ref = this.computedPagination;
-      var rowsPerPage = ref.rowsPerPage;
-      return Math.ceil(this.computedRowsNumber / rowsPerPage)
+      return Math.max(
+        1,
+        Math.ceil(this.computedRowsNumber / this.computedPagination.rowsPerPage)
+      )
     },
     isLastPage: function isLastPage () {
       if (this.lastRowIndex === 0) {
         return true
       }
-      var ref = this.computedPagination;
-      var page = ref.page;
-      return page >= this.pagesNumber
+      return this.computedPagination.page >= this.pagesNumber
     },
     computedRowsPerPageOptions: function computedRowsPerPageOptions () {
       var this$1 = this;
@@ -16795,7 +16825,11 @@ var Pagination = {
     }
   },
   watch: {
-    pagesNumber: function pagesNumber (lastPage) {
+    pagesNumber: function pagesNumber (lastPage, oldLastPage) {
+      if (lastPage === oldLastPage) {
+        return
+      }
+
       var currentPage = this.computedPagination.page;
       if (lastPage && !currentPage) {
         this.setPagination({ page: 1 });
@@ -16807,7 +16841,11 @@ var Pagination = {
   },
   methods: {
     setPagination: function setPagination (val) {
-      var newPagination = extend({}, this.computedPagination, val);
+      var newPagination = fixPagination(extend({}, this.computedPagination, val));
+
+      if (!paginationChanged(this.computedPagination, newPagination)) {
+        return
+      }
 
       if (this.isServerSide) {
         this.requestServerInteraction({
@@ -17943,7 +17981,11 @@ function initFile (file) {
   file.__progress = 0;
 }
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
+var
+  selectDialogOpened,
+  selectDialogTimer;
+
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}]},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",class:_vm.expandClass,style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
   name: 'QUploader',
   mixins: [FrameMixin],
   components: {
@@ -17986,7 +18028,6 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     hideUploadProgress: Boolean,
     noThumbnails: Boolean,
     autoExpand: Boolean,
-    expandStyle: [Array, String, Object],
     expandClass: [Array, String, Object],
     sendRaw: {
       type: Boolean,
@@ -18114,6 +18155,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     __add: function __add (e, files) {
       var this$1 = this;
 
+      this.__selectDialogOnClose();
       if (this.addDisabled) {
         return
       }
@@ -18191,8 +18233,37 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     __pick: function __pick () {
       if (!this.addDisabled && this.$q.platform.is.mozilla) {
+        this.__selectDialogOnOpen();
         this.$refs.file.click();
       }
+    },
+    __selectDialogOnOpen: function __selectDialogOnOpen () {
+      clearTimeout(selectDialogTimer);
+      if (selectDialogOpened) {
+        return
+      }
+      selectDialogTimer = setTimeout(function () {
+        clearTimeout(selectDialogTimer);
+        selectDialogOpened = true;
+        EscapeKey.register(function () {
+          clearTimeout(selectDialogTimer);
+          selectDialogTimer = setTimeout(function () {
+            selectDialogOpened = false;
+            EscapeKey.pop();
+            // console.log('END-ESC listen for esc')
+          }, 300);
+        });
+        // console.log('START listen for esc')
+      }, 300);
+    },
+    __selectDialogOnClose: function __selectDialogOnClose () {
+      if (!selectDialogOpened) {
+        return
+      }
+      clearTimeout(selectDialogTimer);
+      selectDialogOpened = false;
+      EscapeKey.pop();
+      // console.log('END listen for esc')
     },
     __getUploadPromise: function __getUploadPromise (file) {
       var this$1 = this;
@@ -18316,6 +18387,10 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
       this.__computeTotalSize();
       this.$emit('reset');
     }
+  },
+  beforeDestroy: function beforeDestroy () {
+    clearTimeout(selectDialogTimer);
+    this.__selectDialogOnClose();
   }
 }
 
@@ -18562,12 +18637,12 @@ var backToTop = {
 var closeOverlay = {
   name: 'close-overlay',
   bind: function bind (el, binding, vnode) {
-    var handler = function () {
+    var handler = function (ev) {
       var vm = vnode.componentInstance;
       while ((vm = vm.$parent)) {
         var name = vm.$options.name;
         if (name === 'QPopover' || name === 'QModal') {
-          vm.hide();
+          vm.hide(ev);
           break
         }
       }
@@ -18819,7 +18894,7 @@ var directives = Object.freeze({
 });
 
 function modalFn (Component, Vue$$1) {
-  return function (props) {
+  return function (props, resolver) {
     var node = document.createElement('div');
     document.body.appendChild(node);
 
@@ -18837,8 +18912,8 @@ function modalFn (Component, Vue$$1) {
               resolve(data);
               vm.$destroy();
             },
-            cancel: function () {
-              reject(new Error());
+            cancel: function (reason) {
+              reject(reason || new Error());
               vm.$destroy();
             }
           }
@@ -18847,6 +18922,15 @@ function modalFn (Component, Vue$$1) {
           this.$refs.modal.show();
         }
       });
+      if (resolver) {
+        resolver.then(function (data) {
+          resolve(data);
+          vm.$destroy();
+        }).catch(function (reason) {
+          reject(reason || new Error());
+          vm.$destroy();
+        });
+      }
     })
   }
 }
@@ -19372,7 +19456,7 @@ function init (ref) {
           this$1.remove(notif);
         };
 
-        if (notif.actions) {
+        if (config.actions) {
           notif.actions = config.actions.map(function (item) {
             var
               handler = item.handler,
@@ -19380,7 +19464,7 @@ function init (ref) {
             action.handler = typeof handler === 'function'
               ? function () {
                 handler();
-                close();
+                !item.noDismiss && close();
               }
               : function () { return close(); };
             return action

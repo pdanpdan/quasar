@@ -571,11 +571,12 @@ $alert-border-radius ?= $generic-border-radius
 $alert-min-width     ?= 200px
 $button-border-radius         ?= $generic-border-radius
 $button-padding               ?= 4px 16px
-$button-dense-padding         ?= 4px
+$button-dense-padding         ?= .285em
 $button-transition            ?= .3s cubic-bezier(.25, .8, .5, 1)
 $button-font-size             ?= 14px
 $button-font-weight           ?= 500
 $button-shadow                ?= $shadow-2
+$button-shadow-active         ?= $shadow-8
 $button-rounded-border-radius ?= 28px
 $button-push-border-radius    ?= 7px
 $card-faded-color          ?= rgba(0, 0, 0, .4)
@@ -921,7 +922,7 @@ input[type='search']::-webkit-search-decoration
       z-index -1
       transition $button-transition
     &:active:before
-      box-shadow $shadow-8
+      box-shadow $button-shadow-active
 .q-btn-progress
   transition all .3s
   height 100%
@@ -932,8 +933,6 @@ input[type='search']::-webkit-search-decoration
   text-transform none
 .q-btn-rectangle
   border-radius $button-border-radius
-.q-btn-flat, .q-btn-outline
-  box-shadow none
 .q-btn-outline
   border 1px solid currentColor
   background transparent !important
@@ -955,10 +954,10 @@ input[type='search']::-webkit-search-decoration
   min-height 0
   height 3em
   width 3em
-  &:not(.q-btn-flat):not(.q-btn-outline)
-    box-shadow $button-shadow
+.q-btn-flat, .q-btn-outline
+  box-shadow none
 .q-btn-dense
-  padding .285em
+  padding $button-dense-padding
   min-height 2em
   &.q-btn-round
     padding 0
@@ -2261,8 +2260,9 @@ body.cordova.platform-ios
   color $item-label-color
   font-size 14px
   font-weight 500
-  line-height 48px
-  padding-left $item-padding
+  line-height 18px
+  min-height 48px
+  padding 15px $item-padding
 .q-list-header-inset
   padding-left ($item-padding + $item-gutter + $item-primary-size)
 .q-list-dark, .q-item-dark
@@ -2316,7 +2316,7 @@ maximized-modal()
 .modal-content
   position relative
   background $modal-background
-  box-shadow $shadow-24
+  box-shadow $popover-box-shadow
   overflow-y auto
   min-width 280px
   max-height 80vh

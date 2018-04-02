@@ -335,13 +335,6 @@ input[type='search']::-webkit-search-decoration {
 [dir] .q-btn-rectangle {
   border-radius: 2px;
 }
-.q-btn-flat,
-.q-btn-outline {
-  -webkit-box-shadow: none;
-}
-[dir] .q-btn-flat, [dir] .q-btn-outline {
-          box-shadow: none;
-}
 [dir] .q-btn-outline {
   border: 1px solid currentColor;
   background: transparent !important;
@@ -376,11 +369,12 @@ input[type='search']::-webkit-search-decoration {
   border-radius: 50%;
   padding: 0;
 }
-.q-btn-round:not(.q-btn-flat):not(.q-btn-outline) {
-  -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+.q-btn-flat,
+.q-btn-outline {
+  -webkit-box-shadow: none;
 }
-[dir] .q-btn-round:not(.q-btn-flat):not(.q-btn-outline) {
-          box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+[dir] .q-btn-flat, [dir] .q-btn-outline {
+          box-shadow: none;
 }
 .q-btn-dense {
   min-height: 2em;
@@ -2944,13 +2938,11 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
   color: #757575;
   font-size: 14px;
   font-weight: 500;
-  line-height: 48px;
+  line-height: 18px;
+  min-height: 48px;
 }
-[dir=ltr] .q-list-header {
-  padding-left: 16px;
-}
-[dir=rtl] .q-list-header {
-  padding-right: 16px;
+[dir] .q-list-header {
+  padding: 15px 16px;
 }
 [dir=ltr] .q-list-header-inset {
   padding-left: 64px;

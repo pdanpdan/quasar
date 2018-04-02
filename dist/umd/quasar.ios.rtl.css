@@ -2621,11 +2621,8 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-[dir=ltr] .q-list-header {
-  padding: 8px 8px 8px 16px;
-}
-[dir=rtl] .q-list-header {
-  padding: 8px 16px 8px 8px;
+[dir] .q-list-header {
+  padding: 8px 16px;
 }
 [dir=ltr] .q-list-header-inset {
   padding-left: 64px;

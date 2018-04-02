@@ -284,11 +284,6 @@ input[type='search']::-webkit-search-decoration {
 .q-btn-rectangle {
   border-radius: 2px;
 }
-.q-btn-flat,
-.q-btn-outline {
-  -webkit-box-shadow: none;
-          box-shadow: none;
-}
 .q-btn-outline {
   border: 1px solid currentColor;
   background: transparent !important;
@@ -319,9 +314,10 @@ input[type='search']::-webkit-search-decoration {
   height: 3em;
   width: 3em;
 }
-.q-btn-round:not(.q-btn-flat):not(.q-btn-outline) {
-  -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
-          box-shadow: 0 1px 5px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12);
+.q-btn-flat,
+.q-btn-outline {
+  -webkit-box-shadow: none;
+          box-shadow: none;
 }
 .q-btn-dense {
   padding: 0.285em;
@@ -2312,8 +2308,9 @@ body.cordova.platform-ios .q-layout-drawer.top-padding {
   color: #757575;
   font-size: 14px;
   font-weight: 500;
-  line-height: 48px;
-  padding-left: 16px;
+  line-height: 18px;
+  min-height: 48px;
+  padding: 15px 16px;
 }
 .q-list-header-inset {
   padding-left: 64px;
