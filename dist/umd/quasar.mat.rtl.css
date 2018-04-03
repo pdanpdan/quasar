@@ -2448,10 +2448,12 @@ div.q-input-target {
   cursor: not-allowed !important;
 }
 .q-if-disabled .q-if-label,
-.q-if-disabled .q-if-control {
+.q-if-disabled .q-if-control,
+.q-if-disabled .q-input-target,
+.q-if-disabled .q-chip {
   opacity: 0.6;
 }
-[dir] .q-if-disabled .q-if-label, [dir] .q-if-disabled .q-if-control {
+[dir] .q-if-disabled .q-if-label, [dir] .q-if-disabled .q-if-control, [dir] .q-if-disabled .q-input-target, [dir] .q-if-disabled .q-chip {
   cursor: not-allowed !important;
 }
 [dir] .q-if-disabled:before {

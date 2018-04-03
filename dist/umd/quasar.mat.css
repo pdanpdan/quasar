@@ -1908,7 +1908,9 @@ div.q-input-target {
   cursor: not-allowed !important;
 }
 .q-if-disabled .q-if-label,
-.q-if-disabled .q-if-control {
+.q-if-disabled .q-if-control,
+.q-if-disabled .q-input-target,
+.q-if-disabled .q-chip {
   opacity: 0.6;
   cursor: not-allowed !important;
 }
