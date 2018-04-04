@@ -7394,7 +7394,7 @@ var QColorPicker = {
     value: [String, Object],
     defaultValue: {
       type: [String, Object],
-      default: '#000'
+      default: null
     },
     formatModel: {
       type: String,
@@ -7408,13 +7408,7 @@ var QColorPicker = {
   data: function data () {
     return {
       view: !this.value || typeof this.value === 'string' ? 'hex' : 'rgb',
-      model: this.__parseModel(this.value || this.defaultValue),
-      inputError: {
-        hex: false,
-        r: false,
-        g: false,
-        b: false
-      }
+      model: this.__parseModel(this.value || this.defaultValue)
     }
   },
   watch: {
@@ -7523,7 +7517,7 @@ var QColorPicker = {
           staticClass: 'absolute',
           style: this.saturationPointerStyle
         }, [
-          h('div', { staticClass: 'q-color-saturation-circle' })
+          this.model.hex !== void 0 ? h('div', { staticClass: 'q-color-saturation-circle' }) : null
         ])
       ])
     },
@@ -7592,7 +7586,7 @@ var QColorPicker = {
             },
             staticClass: 'full-width text-center q-no-input-spinner',
             domProps: {
-              value: Math.round(this$1.model[formatModel])
+              value: this$1.model.hex === void 0 ? '' : Math.round(this$1.model[formatModel])
             },
             on: {
               input: function (evt) { return this$1.__onNumericChange(evt, formatModel, max); },
@@ -7778,6 +7772,10 @@ var QColorPicker = {
       this.view = this.view === 'hex' ? 'rgba' : 'hex';
     },
     __parseModel: function __parseModel (v) {
+      if (v === null || v === void 0) {
+        return { h: 0, s: 0, v: 0, r: 0, g: 0, b: 0, hex: void 0, a: 100 }
+      }
+
       var model = typeof v === 'string' ? hexToRgb(v.trim()) : clone(v);
       if (this.forceAlpha === (model.a === void 0)) {
         model.a = this.forceAlpha ? 100 : void 0;
@@ -7877,7 +7875,7 @@ var QColor = {
   },
   watch: {
     value: function value (v) {
-      if (!this.disable && this.$refs.popup && this.$refs.popup.showing) {
+      if (!this.disable && this.isPopover) {
         this.model = clone(v);
       }
     }
@@ -7905,9 +7903,7 @@ var QColor = {
       return ''
     },
     modalBtnColor: function modalBtnColor () {
-      return this.$q.theme === 'mat'
-        ? this.color
-        : (this.dark ? 'light' : 'dark')
+      return this.dark ? 'light' : 'dark'
     }
   },
   methods: {
@@ -7916,18 +7912,11 @@ var QColor = {
     },
     show: function show () {
       if (!this.disable) {
-        var val = this.value || this.defaultValue;
-        if (this.focused) {
-          this.model = clone(val);
-        }
-        else {
-          this.__setModel(val);
-        }
+        this.__setModel(this.value || this.defaultValue);
         return this.$refs.popup.show()
       }
     },
     hide: function hide () {
-      this.focused = false;
       return this.$refs.popup.hide()
     },
 
@@ -7947,7 +7936,7 @@ var QColor = {
       if (this.disable || this.focused) {
         return
       }
-      this.__setModel(this.value || this.defaultValue);
+      this.model = clone(this.value || this.defaultValue);
       this.focused = true;
       this.$emit('focus');
     },
@@ -7967,15 +7956,15 @@ var QColor = {
       }, 1);
     },
     __onHide: function __onHide (forceUpdate) {
+      this.focused && this.$emit('blur');
       this.focused = false;
-      this.$emit('blur');
-      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
+      if (forceUpdate || this.isPopover) {
         this.__update(forceUpdate);
       }
     },
     __setModel: function __setModel (val, forceUpdate) {
       this.model = clone(val);
-      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
+      if (forceUpdate || this.isPopover) {
         this.__update(forceUpdate);
       }
     },
@@ -8002,7 +7991,7 @@ var QColor = {
         h(QColorPicker, {
           staticClass: ("no-border" + (modal ? ' full-width' : '')),
           props: extend({
-            value: this.model || '#000',
+            value: this.model,
             disable: this.disable,
             readonly: this.readonly,
             formatModel: this.formatModel,
@@ -8041,7 +8030,8 @@ var QColor = {
                 color: this.modalBtnColor,
                 flat: true,
                 label: this.okLabel || this.$q.i18n.label.set,
-                noRipple: true
+                noRipple: true,
+                disable: !this.model
               },
               on: {
                 click: function () {
@@ -8070,6 +8060,7 @@ var QColor = {
         error: this.error,
         warning: this.warning,
         disable: this.disable,
+        readonly: this.readonly,
         inverted: this.inverted,
         invertedLight: this.invertedLight,
         dark: this.dark,
@@ -9313,7 +9304,7 @@ var QDatetime = {
   ),
   watch: {
     value: function value (v) {
-      if (!this.disable && this.$refs.popup && this.$refs.popup.showing) {
+      if (!this.disable && this.isPopover) {
         this.model = clone$1(v);
       }
     }
@@ -9323,7 +9314,7 @@ var QDatetime = {
       transition: 'q-modal-bottom'
     };
     data.focused = false;
-    data.model = clone$1(isValid(this.value) ? this.value : this.defaultValue);
+    data.model = clone$1(this.computedValue);
     return data
   },
   computed: {
@@ -9352,10 +9343,17 @@ var QDatetime = {
 
       return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
     },
+    computedValue: function computedValue () {
+      if (isValid(this.value)) {
+        return this.value
+      }
+      {
+        return this.defaultValue || startOfDate(new Date(), 'day')
+      }
+      return this.defaultValue
+    },
     modalBtnColor: function modalBtnColor () {
-      return this.$q.theme === 'mat'
-        ? this.color
-        : (this.dark ? 'light' : 'dark')
+      return this.dark ? 'light' : 'dark'
     }
   },
   methods: {
@@ -9364,18 +9362,11 @@ var QDatetime = {
     },
     show: function show () {
       if (!this.disable) {
-        var val = isValid(this.value) ? this.value : this.defaultValue;
-        if (this.focused) {
-          this.model = clone$1(val);
-        }
-        else {
-          this.__setModel(val);
-        }
+        this.__setModel(this.computedValue);
         return this.$refs.popup.show()
       }
     },
     hide: function hide () {
-      this.focused = false;
       return this.$refs.popup.hide()
     },
 
@@ -9396,7 +9387,7 @@ var QDatetime = {
         return
       }
       
-      this.__setModel(isValid(this.value) ? this.value : this.defaultValue);
+      this.model = clone$1(this.computedValue);
       this.focused = true;
       this.$emit('focus');
     },
@@ -9416,15 +9407,15 @@ var QDatetime = {
       }, 1);
     },
     __onHide: function __onHide (forceUpdate) {
+      this.focused && this.$emit('blur');
       this.focused = false;
-      this.$emit('blur');
-      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
+      if (forceUpdate || this.isPopover) {
         this.__update(forceUpdate);
       }
     },
     __setModel: function __setModel (val, forceUpdate) {
       this.model = clone$1(val);
-      if (forceUpdate || (this.isPopover && this.$refs.popup.showing)) {
+      if (forceUpdate || this.isPopover) {
         this.__update(forceUpdate);
       }
     },
@@ -9510,7 +9501,8 @@ var QDatetime = {
                     color: this.modalBtnColor,
                     flat: true,
                     label: this.okLabel || this.$q.i18n.label.set,
-                    noRipple: true
+                    noRipple: true,
+                    disable: !this.model
                   },
                   on: {
                     click: function () {
