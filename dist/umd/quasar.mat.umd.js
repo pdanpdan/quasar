@@ -9358,13 +9358,13 @@ var QDatetime = {
         format = this.format;
       }
       else if (this.type === 'date') {
-        format = 'YYYY-MM-DD';
+        format = 'YYYY/MM/DD';
       }
       else if (this.type === 'time') {
         format = 'HH:mm';
       }
       else {
-        format = 'YYYY-MM-DD HH:mm:ss';
+        format = 'YYYY/MM/DD HH:mm:ss';
       }
 
       return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
