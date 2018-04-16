@@ -1043,6 +1043,7 @@ div + .q-datetime-time {
 .q-datetime-link {
   cursor: pointer;
   opacity: 0.6;
+  outline: none;
 }
 .q-datetime-link.active {
   opacity: 1;
@@ -1193,6 +1194,9 @@ body.desktop .q-datetime-clock-position:not(.active):hover {
 }
 body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   color: #000;
+}
+body.desktop .q-datetime-link:focus {
+  outline: 1px dashed rgba(255,255,255,0.6);
 }
 .q-datetime-clock-position {
   position: absolute;
@@ -2393,6 +2397,7 @@ body.with-loading {
   overflow-y: auto;
   min-width: 280px;
   max-height: 80vh;
+  outline: none;
 }
 .modal {
   z-index: 5000;

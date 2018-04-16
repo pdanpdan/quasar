@@ -2700,6 +2700,7 @@ body.with-loading {
   overflow-y: auto;
   min-width: 280px;
   max-height: 80vh;
+  outline: none;
 }
 [dir] .modal-content {
   background: #fff;

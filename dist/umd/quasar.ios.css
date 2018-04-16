@@ -2087,6 +2087,7 @@ body.with-loading {
   min-width: 280px;
   max-height: 80vh;
   border-radius: 13px;
+  outline: none;
 }
 .modal {
   z-index: 5000;

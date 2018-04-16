@@ -1476,6 +1476,7 @@ div + .q-datetime-time
 .q-datetime-link
   cursor pointer
   opacity .6
+  outline none
   &.active
     opacity 1
 .q-datetime-clockstring
@@ -1589,10 +1590,14 @@ div + .q-datetime-time
   .q-datetime-days div
     &.q-datetime-day-active > span, &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
       color black
-body.desktop .q-datetime-clock-position:not(.active):hover
-  background $grey-2 !important
-body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover
-  color black
+body.desktop
+  .q-datetime-clock-position:not(.active):hover
+    background $grey-2 !important
+  .q-datetime-dark .q-datetime-clock-position:not(.active):hover
+    color black
+  .q-datetime-link
+    &:focus
+      outline 1px dashed rgba(255, 255, 255, .6)
 .q-datetime-clock-position
   position absolute
   min-height 32px
@@ -2320,6 +2325,7 @@ maximized-modal()
   overflow-y auto
   min-width 280px
   max-height 80vh
+  outline none
 .modal
   z-index $z-modal
   &.minimized, &.with-backdrop

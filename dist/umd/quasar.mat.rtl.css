@@ -1373,6 +1373,7 @@ input[type='search']::-webkit-search-decoration {
 }
 .q-datetime-link {
   opacity: 0.6;
+  outline: none;
 }
 [dir] .q-datetime-link {
   cursor: pointer;
@@ -1564,6 +1565,9 @@ input[type='search']::-webkit-search-decoration {
 }
 body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   color: #000;
+}
+body.desktop .q-datetime-link:focus {
+  outline: 1px dashed rgba(255,255,255,0.6);
 }
 .q-datetime-clock-position {
   position: absolute;
@@ -3020,6 +3024,7 @@ body.with-loading {
   overflow-y: auto;
   min-width: 280px;
   max-height: 80vh;
+  outline: none;
 }
 [dir] .modal-content {
   background: #fff;
