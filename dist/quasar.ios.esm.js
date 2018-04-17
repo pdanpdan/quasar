@@ -10442,7 +10442,7 @@ var QDialog = {
         show: function () {
           this$1.$emit('show');
 
-          if (!this$1.$q.platform.is.desktop || (!this$1.prompt && !this$1.options)) {
+          if (!this$1.$q.platform.is.desktop) {
             return
           }
 
@@ -11193,6 +11193,8 @@ Caret.prototype.is = function is (cmd, param) {
       return res === ("\"" + param + "\"") || res === param
     case 'fullscreen':
       return this.vm.inFullscreen
+    case void 0:
+      return false
     default:
       var state = document.queryCommandState(cmd);
       return param ? state === param : state
@@ -11536,6 +11538,7 @@ var QEditor = {
 
       if (!e.ctrlKey) {
         this.refreshToolbar();
+        this.$q.platform.is.ie && this.$nextTick(this.onInput);
         return
       }
 
@@ -11545,6 +11548,7 @@ var QEditor = {
         var param = target.param;
         stopAndPrevent(e);
         this.runCmd(cmd, param, false);
+        this.$q.platform.is.ie && this.$nextTick(this.onInput);
       }
     },
     runCmd: function runCmd (cmd, param, update) {
@@ -18483,6 +18487,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
     },
     abort: function abort () {
       this.xhrs.forEach(function (xhr) { xhr.abort(); });
+      this.uploading = false;
     },
     reset: function reset () {
       this.abort();
