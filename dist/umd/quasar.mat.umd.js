@@ -1539,6 +1539,7 @@ var QModal = {
       default: false
     },
     noRouteDismiss: Boolean,
+    noRefocus: Boolean,
     minimized: Boolean,
     maximized: Boolean
   },
@@ -1606,6 +1607,9 @@ var QModal = {
     __show: function __show () {
       var this$1 = this;
 
+      if (!this.noRefocus) {
+        this.__refocusTarget = document.activeElement;
+      }
       var body = document.body;
 
       body.appendChild(this.$el);
@@ -1638,6 +1642,9 @@ var QModal = {
       EscapeKey.pop();
       this.__preventScroll(false);
       this.__register(false);
+      if (!this.noRefocus && this.__refocusTarget) {
+        this.__refocusTarget.focus();
+      }
     },
     __stopPropagation: function __stopPropagation (e) {
       e.stopPropagation();
@@ -7653,7 +7660,7 @@ var QColorPicker = {
                 tabindex: this.editable ? 0 : -1
               },
               on: {
-                input: this.__onHexChange,
+                change: this.__onHexChange,
                 blur: function (evt) { return this$1.editable && this$1.__onHexChange(evt, true); }
               },
               staticClass: 'full-width text-center uppercase'
@@ -10382,6 +10389,7 @@ var QDialog = {
     preventClose: Boolean,
     noBackdropDismiss: Boolean,
     noEscDismiss: Boolean,
+    noRefocus: Boolean,
     position: String,
     color: {
       type: String,
@@ -10447,6 +10455,7 @@ var QDialog = {
         minimized: true,
         noBackdropDismiss: this.noBackdropDismiss || this.preventClose,
         noEscDismiss: this.noEscDismiss || this.preventClose,
+        noRefocus: this.noRefocus,
         position: this.position
       },
       on: {
