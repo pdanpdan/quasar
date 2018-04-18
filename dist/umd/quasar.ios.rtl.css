@@ -279,7 +279,6 @@ input[type='search']::-webkit-search-decoration {
 .q-btn {
   outline: 0;
   vertical-align: middle;
-  -webkit-appearance: button;
   font-size: 14px;
   text-decoration: none;
   color: inherit;
@@ -292,6 +291,14 @@ input[type='search']::-webkit-search-decoration {
   cursor: pointer;
   padding: 4px 16px;
   background: transparent;
+}
+button.q-btn {
+  -webkit-appearance: button;
+}
+a.q-btn {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
 }
 .q-btn .q-icon,
 .q-btn .q-spinner {
@@ -325,10 +332,11 @@ input[type='search']::-webkit-search-decoration {
   border-radius: 7px;
   border-bottom: 3px solid rgba(0,0,0,0.15);
 }
-.q-btn-push:active:not(.disabled) {
+.q-btn-push:active:not(.disabled),
+.q-btn-push.active:not(.disabled) {
   -webkit-transform: translateY(3px);
 }
-[dir] .q-btn-push:active:not(.disabled) {
+[dir] .q-btn-push:active:not(.disabled), [dir] .q-btn-push.active:not(.disabled) {
           transform: translateY(3px);
   border-bottom-color: transparent;
 }
@@ -452,17 +460,19 @@ input[type='search']::-webkit-search-decoration {
   -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
-.q-btn-group-push > .q-btn-push:active:not(.disabled) {
+.q-btn-group-push > .q-btn-push:active:not(.disabled),
+.q-btn-group-push > .q-btn-push.active:not(.disabled) {
   -webkit-transform: translateY(0);
 }
-[dir] .q-btn-group-push > .q-btn-push:active:not(.disabled) {
+[dir] .q-btn-group-push > .q-btn-push:active:not(.disabled), [dir] .q-btn-group-push > .q-btn-push.active:not(.disabled) {
   border-bottom-color: rgba(0,0,0,0.15);
           transform: translateY(0);
 }
-.q-btn-group-push > .q-btn-push:active:not(.disabled) .q-btn-inner {
+.q-btn-group-push > .q-btn-push:active:not(.disabled) .q-btn-inner,
+.q-btn-group-push > .q-btn-push.active:not(.disabled) .q-btn-inner {
   -webkit-transform: translateY(3px);
 }
-[dir] .q-btn-group-push > .q-btn-push:active:not(.disabled) .q-btn-inner {
+[dir] .q-btn-group-push > .q-btn-push:active:not(.disabled) .q-btn-inner, [dir] .q-btn-group-push > .q-btn-push.active:not(.disabled) .q-btn-inner {
           transform: translateY(3px);
 }
 [dir] .q-btn-group-rounded {
@@ -3093,6 +3103,7 @@ body.with-loading {
   overflow-y: auto;
   overflow-x: hidden;
   max-width: 100vw;
+  outline: none;
 }
 [dir] .q-popover {
           box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12);

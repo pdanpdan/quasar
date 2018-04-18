@@ -900,7 +900,6 @@ input[type='search']::-webkit-search-decoration
   border 0
   vertical-align middle
   cursor pointer
-  -webkit-appearance button
   padding $button-padding
   font-size $button-font-size
   text-decoration none
@@ -908,6 +907,10 @@ input[type='search']::-webkit-search-decoration
   background transparent
   transition $button-transition
   min-height 2.572em
+  button&
+    -webkit-appearance button
+  a&
+    display inline-flex
   .q-icon, .q-spinner
     font-size 1.4em
   
@@ -930,6 +933,7 @@ input[type='search']::-webkit-search-decoration
   border-radius $button-push-border-radius
   border-bottom 3px solid rgba(0, 0, 0, .15)
   &:active:not(.disabled)
+  &.active:not(.disabled)
     transform translateY(3px)
     border-bottom-color transparent
   .q-focus-helper, .q-ripple-container
@@ -992,6 +996,7 @@ input[type='search']::-webkit-search-decoration
     .q-btn-inner
       transition $button-transition
     &:active:not(.disabled)
+    &.active:not(.disabled)
       border-bottom-color rgba(0, 0, 0, .15)
       transform translateY(0)
       .q-btn-inner
@@ -2410,6 +2415,7 @@ maximized-modal()
   overflow-y auto
   overflow-x hidden
   max-width $popover-max-width
+  outline none
   > .q-list:only-child
     border none
 body div .q-popover

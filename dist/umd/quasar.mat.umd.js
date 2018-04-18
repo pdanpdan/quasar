@@ -2430,7 +2430,7 @@ var QActionSheet = {
           }
         }, obj[this$1.grid ? 'on' : 'nativeOn'] = {
             click: function () { return this$1.__onOk(action); },
-            keydown: function () { return this$1.__onOk(action); }
+            keyup: function (ev) { return [13, 32].includes(ev.keyCode) && this$1.__onOk(action); }
           }, obj), this$1.grid
           ? [
             action.icon ? h(QIcon, { props: { name: action.icon, color: action.color } }) : null,
@@ -2816,11 +2816,17 @@ var Ripple = {
         if (ctx.enabled) {
           showRipple(evt, el, modifiers.stop);
         }
+      },
+      keyup: function keyup (evt) {
+        if (ctx.enabled && evt.keyCode === 13) {
+          showRipple(evt, el, modifiers.stop);
+        }
       }
     };
 
     el.__qripple = ctx;
     el.addEventListener('click', ctx.click, false);
+    el.addEventListener('keyup', ctx.keyup, false);
   },
   update: function update (el, ref) {
     var value = ref.value;
@@ -2839,6 +2845,7 @@ var Ripple = {
     }
 
     el.removeEventListener('click', ctx.click, false);
+    el.removeEventListener('keyup', ctx.keyup, false);
     delete el.__qripple;
   }
 }
@@ -2889,6 +2896,7 @@ var BtnMixin = {
     Ripple: Ripple
   },
   props: {
+    type: String,
     loading: Boolean,
     disable: Boolean,
     label: [Number, String],
@@ -2962,6 +2970,9 @@ var BtnMixin = {
       }
       else {
         cls.push('q-focusable q-hoverable');
+        if (this.active) {
+          cls.push('active');
+        }
       }
 
       if (this.color) {
@@ -3142,15 +3153,19 @@ var QBtn = {
       var this$1 = this;
 
       return this.isDisabled || !this.repeatTimeout
-        ? { click: this.click }
+        ? {
+          click: this.click,
+          keydown: this.__onKeyDown,
+          keyup: this.__onKeyUp
+        }
         : {
           mousedown: this.__startRepeat,
           touchstart: this.__startRepeat,
-          keydown: function (e) { return [13, 32].includes(e.keyCode) && this$1.__startRepeat(e); },
+          keydown: function (e) { this$1.__onKeyUp(e, true); },
 
           mouseup: this.__endRepeat,
           touchend: this.__endRepeat,
-          keyup: function (e) { return [13, 32].includes(e.keyCode) && this$1.__endRepeat(e); },
+          keyup: function (e) { this$1.__onKeyUp(e, true); },
 
           mouseleave: this.__abortRepeat,
           touchmove: this.__abortRepeat,
@@ -3160,7 +3175,8 @@ var QBtn = {
   },
   data: function data () {
     return {
-      repeating: false
+      repeating: false,
+      active: false
     }
   },
   methods: {
@@ -3186,6 +3202,22 @@ var QBtn = {
     },
     __cleanup: function __cleanup () {
       clearTimeout(this.timer);
+    },
+    __onKeyDown: function __onKeyDown (e, repeat) {
+      if (e.keyCode !== 13) {
+        return
+      }
+      this.active = true;
+      if (repeat) {
+        this.__startRepeat(e);
+      }
+    },
+    __onKeyUp: function __onKeyUp (e, repeat) {
+      if (e.keyCode !== 13) {
+        return
+      }
+      this.active = false;
+      this[repeat ? '__endRepeat' : 'click'](e);
     },
     __startRepeat: function __startRepeat (e) {
       var this$1 = this;
@@ -3240,11 +3272,11 @@ var QBtn = {
     this.__cleanup();
   },
   render: function render (h) {
-    return h('button', {
+    return h(this.type ? 'button' : 'a', {
       staticClass: 'q-btn inline relative-position q-btn-item non-selectable',
       'class': this.classes,
       style: this.style,
-      attrs: { tabindex: this.computedTabIndex, type: 'button' },
+      attrs: { tabindex: this.computedTabIndex, type: this.type },
       on: this.events,
       directives: this.hasRipple
         ? [{
@@ -3593,6 +3625,8 @@ var QPopover = {
       type: Array,
       validator: offsetValidator
     },
+    noFocus: Boolean,
+    noRefocus: Boolean,
     disable: Boolean
   },
   watch: {
@@ -3611,6 +3645,8 @@ var QPopover = {
   render: function render (h) {
     return h('div', {
       staticClass: 'q-popover scroll',
+      ref: 'content',
+      attrs: { tabindex: -1 },
       on: {
         click: function click (e) { e.stopPropagation(); }
       }
@@ -3635,6 +3671,7 @@ var QPopover = {
       if (this$1.anchorClick) {
         this$1.anchorEl.classList.add('cursor-pointer');
         this$1.anchorEl.addEventListener('click', this$1.toggle);
+        this$1.anchorEl.addEventListener('keyup', this$1.__toggleKey);
       }
     });
     if (this.value) {
@@ -3644,12 +3681,16 @@ var QPopover = {
   beforeDestroy: function beforeDestroy () {
     if (this.anchorClick && this.anchorEl) {
       this.anchorEl.removeEventListener('click', this.toggle);
+      this.anchorEl.removeEventListener('keyup', this.__toggleKey);
     }
   },
   methods: {
     __show: function __show (evt) {
       var this$1 = this;
 
+      if (!this.noRefocus) {
+        this.__refocusTarget = document.activeElement;
+      }
       document.body.appendChild(this.$el);
       EscapeKey.register(function () { this$1.hide(); });
       this.scrollTarget = getScrollTarget(this.anchorEl);
@@ -3658,11 +3699,19 @@ var QPopover = {
       this.__updatePosition(0, evt, true);
 
       clearTimeout(this.timer);
+      if (!this.noFocus && this.$refs.content) {
+        this.$refs.content.focus();
+      }
       this.timer = setTimeout(function () {
         document.body.addEventListener('click', this$1.__bodyHide, true);
         document.body.addEventListener('touchstart', this$1.__bodyHide, true);
         this$1.showPromise && this$1.showPromiseResolve();
       }, 0);
+    },
+    __toggleKey: function __toggleKey (evt) {
+      if (evt.keyCode === 13) {
+        this.toggle(evt);
+      }
     },
     __bodyHide: function __bodyHide (evt) {
       if (
@@ -3685,6 +3734,9 @@ var QPopover = {
 
       document.body.removeChild(this.$el);
       this.hidePromise && this.hidePromiseResolve();
+      if (!this.noRefocus && this.__refocusTarget) {
+        this.__refocusTarget.focus();
+      }
     },
     reposition: function reposition (event, animate) {
       if (this.fit) {
@@ -3782,6 +3834,7 @@ var QBtnDropdown = {
       ),
       Btn = h(QBtn, {
         props: {
+          type: this.type,
           loading: this.loading,
           disable: this.disable,
           noCaps: this.noCaps,
@@ -3883,6 +3936,7 @@ var QBtnToggle = {
     value: {
       required: true
     },
+    type: String,
     // To avoid seeing the active raise shadow through the transparent button, give it a color (even white).
     color: String,
     textColor: String,
@@ -3949,6 +4003,7 @@ var QBtnToggle = {
         key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
         on: { click: function () { return this$1.set(opt.value, opt); } },
         props: {
+          type: opt.hasOwnProperty('type') ? opt.type : this$1.type,
           disable: this$1.disable,
           label: opt.label,
           // Colors come from the button specific options first, then from general props
@@ -4377,7 +4432,8 @@ var QAutocomplete = {
       'class': dark ? 'bg-dark' : null,
       props: {
         fit: true,
-        anchorClick: false
+        anchorClick: false,
+        noFocus: true
       },
       on: {
         show: function () {
@@ -6433,7 +6489,7 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
 
     return {
       input: '',
-      model: this.value,
+      model: this.value.slice(),
       watcher: null,
       shadow: {
         val: this.input,
@@ -6457,7 +6513,7 @@ var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   },
   watch: {
     value: function value (v) {
-      this.model = v;
+      this.model = v.slice();
     }
   },
   provide: function provide () {
@@ -6909,6 +6965,9 @@ var SliderMixin = {
     },
     computedDecimals: function computedDecimals () {
       return this.decimals !== void 0 ? this.decimals || 0 : (String(this.step).trim('0').split('.')[1] || '').length
+    },
+    computedStep: function computedStep () {
+      return this.decimals !== void 0 ? 1 / Math.pow(10, this.decimals || 0) : this.step
     }
   },
   methods: {
@@ -7100,6 +7159,28 @@ var QSlider = {
       this.model = getModel(percentage, this.min, this.max, this.step, this.computedDecimals);
       this.currentPercentage = (this.model - this.min) / (this.max - this.min);
     },
+    __onKeyDown: function __onKeyDown (ev) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      var
+        decimals = this.computedDecimals,
+        step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep,
+        offset = [37, 40].includes(keyCode) ? -step : step,
+        model = decimals ? parseFloat((this.model + offset).toFixed(decimals)) : (this.model + offset);
+
+      this.model = between(model, this.min, this.max);
+      this.currentPercentage = (this.model - this.min) / (this.max - this.min);
+      this.__update();
+    },
+    __onKeyUp: function __onKeyUp (ev) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      this.__update(true);
+    },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
         console.error('Range error: min >= max', this.$el, this.min, this.max);
@@ -7126,6 +7207,11 @@ var QSlider = {
           'class': {
             dragging: this.dragging,
             'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
+          },
+          attrs: { tabindex: this.editable ? 0 : -1 },
+          on: {
+            keydown: this.__onKeyDown,
+            keyup: this.__onKeyUp
           }
         }, [
           this.label || this.labelAlways
@@ -10481,7 +10567,7 @@ var QDialog = {
             return
           }
 
-          node = this$1.$refs.modal.$el.getElementsByTagName('BUTTON');
+          node = this$1.$refs.modal.$el.getElementsByClassName('q-btn');
           if (node.length) {
             node[node.length - 1].focus();
           }
@@ -11555,8 +11641,11 @@ var QEditor = {
   methods: {
     onInput: function onInput (e) {
       if (this.editWatcher) {
-        this.editWatcher = false;
-        this.$emit('input', this.$refs.content.innerHTML);
+        var val = this.$refs.content.innerHTML;
+        if (val !== this.value) {
+          this.editWatcher = false;
+          this.$emit('input', val);
+        }
       }
     },
     onKeydown: function onKeydown (e) {
@@ -12187,6 +12276,9 @@ var QKnob = {
     },
     computedDecimals: function computedDecimals () {
       return this.decimals !== void 0 ? this.decimals || 0 : (String(this.step).trim('0').split('.')[1] || '').length
+    },
+    computedStep: function computedStep () {
+      return this.decimals !== void 0 ? 1 / Math.pow(10, this.decimals || 0) : this.step
     }
   },
   data: function data () {
@@ -12267,8 +12359,23 @@ var QKnob = {
       }, 100);
       this.__onInput(ev, this.centerPosition, true);
     },
+    __onKeyDown: function __onKeyDown (ev) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      var step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep;
+      var offset$$1 = [37, 40].includes(keyCode) ? -step : step;
+      this.__onInputValue(between(this.model + offset$$1, this.min, this.max));
+    },
+    __onKeyUp: function __onKeyUp (ev) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      this.__emitChange();
+    },
     __onInput: function __onInput (ev, center, emitChange) {
-      var this$1 = this;
       if ( center === void 0 ) center = this.__getCenter();
 
       if (!this.editable) {
@@ -12280,8 +12387,9 @@ var QKnob = {
         distance = Math.sqrt(
           Math.pow(Math.abs(pos.top - center.top), 2) +
           Math.pow(Math.abs(pos.left - center.left), 2)
-        ),
-        angle = Math.asin(height$$1 / distance) * (180 / Math.PI);
+        );
+
+      var angle = Math.asin(height$$1 / distance) * (180 / Math.PI);
 
       if (pos.top < center.top) {
         angle = center.left < pos.left ? 90 - angle : 270 + angle;
@@ -12303,7 +12411,9 @@ var QKnob = {
         this.min,
         this.max
       );
-
+      this.__onInputValue(value, emitChange);
+    },
+    __onInputValue: function __onInputValue (value, emitChange) {
       if (this.computedDecimals) {
         value = parseFloat(value.toFixed(this.computedDecimals));
       }
@@ -12317,12 +12427,18 @@ var QKnob = {
 
       this.$emit('input', value);
       if (emitChange) {
-        this.$nextTick(function () {
-          if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
-            this$1.$emit('change', value);
-          }
-        });
+        this.__emitChange(value);
       }
+    },
+    __emitChange: function __emitChange (value) {
+      var this$1 = this;
+      if ( value === void 0 ) value = this.model;
+
+      this.$nextTick(function () {
+        if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
+          this$1.$emit('change', value);
+        }
+      });
     },
     __getCenter: function __getCenter () {
       var knobOffset = offset(this.$el);
@@ -12381,7 +12497,14 @@ var QKnob = {
         ]),
 
         h('div', {
-          staticClass: 'q-knob-label row flex-center content-center'
+          staticClass: 'q-knob-label row flex-center content-center',
+          attrs: {
+            tabindex: this.editable ? 0 : -1
+          },
+          on: {
+            keydown: this.__onKeyDown,
+            keyup: this.__onKeyUp
+          }
         }, [
           this.$slots.default
             ? this.$slots.default
@@ -14437,6 +14560,29 @@ var QRange = {
       this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
       this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
     },
+    __onKeyDown: function __onKeyDown (ev, type) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      var
+        decimals = this.computedDecimals,
+        step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep,
+        offset = [37, 40].includes(keyCode) ? -step : step,
+        model = decimals ? parseFloat((this.model[type] + offset).toFixed(decimals)) : (this.model[type] + offset);
+
+      this.model[type] = between(model, type === 'min' ? this.min : this.model.min, type === 'max' ? this.max : this.model.max);
+      this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
+      this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
+      this.__update();
+    },
+    __onKeyUp: function __onKeyUp (ev, type) {
+      var keyCode = ev.keyCode;
+      if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
+        return
+      }
+      this.__update(true);
+    },
     __validateProps: function __validateProps () {
       if (this.min >= this.max) {
         console.error('Range error: min >= max', this.$el, this.min, this.max);
@@ -14453,6 +14599,7 @@ var QRange = {
     },
 
     __getHandle: function __getHandle (h, lower, upper, edge, percentage, color, label) {
+      var this$1 = this;
       var obj;
 
       return h('div', {
@@ -14462,7 +14609,12 @@ var QRange = {
         'class': [
           edge ? 'handle-at-minimum' : null,
           { dragging: this.dragging }
-        ]
+        ],
+        attrs: { tabindex: this.editable ? 0 : -1 },
+        on: {
+          keydown: function (ev) { return this$1.__onKeyDown(ev, lower); },
+          keyup: function (ev) { return this$1.__onKeyUp(ev, lower); }
+        }
       }, [
         this.label || this.labelAlways
           ? h(QChip, {
@@ -14999,7 +15151,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
   name: 'QSelect',
   mixins: [FrameMixin, KeyboardSelectionMixin],
   components: {
@@ -15017,7 +15169,6 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   props: {
     filter: [Function, Boolean],
     filterPlaceholder: String,
-    autofocusFilter: Boolean,
     radio: Boolean,
     placeholder: String,
     separator: Boolean,
@@ -15148,7 +15299,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     reposition: function reposition () {
       var popover = this.$refs.popover;
       if (popover.showing) {
-        popover.reposition();
+        this.$nextTick(function () { return popover.reposition(); });
       }
     },
 
@@ -15209,7 +15360,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         return
       }
       this.__onFocus();
-      if (this.filter && this.autofocusFilter) {
+      if (this.filter) {
         this.$refs.filter.focus();
       }
     },
@@ -18343,9 +18494,7 @@ var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _
                 this$1.__computeTotalSize();
                 resolve(true);
               };
-              reader.onerror = function (e) {
-                reject(e);
-              };
+              reader.onerror = function (e) { reject(e); };
             });
 
             reader.readAsDataURL(file);
@@ -18759,6 +18908,11 @@ var backToTop = {
       },
       goToTop: function goToTop () {
         setScrollPosition(ctx.scrollTarget, 0, ctx.animate ? ctx.duration : 0);
+      },
+      goToTopKey: function goToTopKey (evt) {
+        if (evt.keyCode === 13) {
+          setScrollPosition(ctx.scrollTarget, 0, ctx.animate ? ctx.duration : 0);
+        }
       }
     };
     ctx.update = debounce(ctx.updateNow, 25);
@@ -18773,6 +18927,7 @@ var backToTop = {
     ctx.scrollTarget.addEventListener('scroll', ctx.update, listenOpts.passive);
     window.addEventListener('resize', ctx.update, listenOpts.passive);
     el.addEventListener('click', ctx.goToTop);
+    el.addEventListener('keyup', ctx.goToTopKey);
   },
   update: function update (el, binding) {
     if (JSON.stringify(binding.oldValue) !== JSON.stringify(binding.value)) {
@@ -18790,6 +18945,7 @@ var backToTop = {
     ctx.scrollTarget.removeEventListener('scroll', ctx.update, listenOpts.passive);
     window.removeEventListener('resize', ctx.update, listenOpts.passive);
     el.removeEventListener('click', ctx.goToTop);
+    el.removeEventListener('keyup', ctx.goToTopKey);
     delete el.__qbacktotop;
   }
 }
@@ -18797,23 +18953,31 @@ var backToTop = {
 var closeOverlay = {
   name: 'close-overlay',
   bind: function bind (el, binding, vnode) {
-    var handler = function (ev) {
-      var vm = vnode.componentInstance;
-      while ((vm = vm.$parent)) {
-        var name = vm.$options.name;
-        if (name === 'QPopover' || name === 'QModal') {
-          vm.hide(ev);
-          break
+    var
+      handler = function (ev) {
+        var vm = vnode.componentInstance;
+        while ((vm = vm.$parent)) {
+          var name = vm.$options.name;
+          if (name === 'QPopover' || name === 'QModal') {
+            vm.hide(ev);
+            break
+          }
         }
-      }
-    };
-    el.__qclose = { handler: handler };
+      },
+      handlerKey = function (ev) {
+        if (ev.keyCode === 13) {
+          handler(ev);
+        }
+      };
+    el.__qclose = { handler: handler, handlerKey: handlerKey };
     el.addEventListener('click', handler);
+    el.addEventListener('keyup', handlerKey);
   },
   unbind: function unbind (el) {
     var ctx = el.__qclose;
     if (!ctx) { return }
     el.removeEventListener('click', ctx.handler);
+    el.removeEventListener('keyup', ctx.handlerKey);
     delete el.__qclose;
   }
 }
@@ -18836,9 +19000,15 @@ var goBack = {
         vnode.context.$router.replace(ctx.value);
       };
     }
+    ctx.goBackKey = function (ev) {
+      if (ev.keyCode === 13) {
+        ctx.goBack(ev);
+      }
+    };
 
     el.__qgoback = ctx;
     el.addEventListener('click', ctx.goBack);
+    el.addEventListener('keyup', ctx.goBackKey);
   },
   update: function update (el, binding) {
     if (binding.oldValue !== binding.value) {
@@ -18849,6 +19019,7 @@ var goBack = {
     var ctx = el.__qgoback;
     if (!ctx) { return }
     el.removeEventListener('click', ctx.goBack);
+    el.removeEventListener('keyup', ctx.goBackKey);
     delete el.__qgoback;
   }
 }
