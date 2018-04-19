@@ -1752,8 +1752,10 @@ body.desktop .q-datetime-link:focus {
   transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .q-if {
-  min-height: 32px;
+  min-height: 27px;
   outline: 0;
+}
+.q-if:not(.q-if-hide-underline):not(.q-if-inverted) {
   padding-bottom: 8px;
 }
 .q-if:not(.q-if-hide-underline):not(.q-if-inverted):before,
@@ -1786,22 +1788,18 @@ body.desktop .q-datetime-link:focus {
 .q-if .group {
   margin: -5px;
 }
-.q-if .group:not(:first-child) {
-  margin-top: 0;
-}
 .q-if-hide-underline:not(.q-if-inverted) {
-  min-height: 24px;
-  padding-bottom: 0;
+  min-height: 21px;
 }
 .q-if-focusable {
   outline: 0;
   cursor: pointer;
 }
 .q-if-inner {
-  min-height: 24px !important;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  min-height: 19px !important;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
 }
 .q-if-has-label {
   min-height: 41px;
@@ -1816,7 +1814,7 @@ body.desktop .q-datetime-link:focus {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  top: 15px;
+  top: 17px;
   left: 0;
   right: 0;
   -webkit-transform-origin: left top 0;
@@ -1844,8 +1842,9 @@ body.desktop .q-datetime-link:focus {
 .q-if-control {
   cursor: pointer;
   font-size: 24px;
-  -ms-flex-item-align: end;
-      align-self: flex-end;
+  -webkit-transform: translateY(3px);
+          transform: translateY(3px);
+  margin-top: -5px;
 }
 .q-if-control.q-icon {
   cursor: pointer;
@@ -1863,7 +1862,7 @@ body.desktop .q-datetime-link:focus {
   color: #979797;
 }
 .q-if-inverted {
-  min-height: 38px;
+  min-height: 35px;
   border-radius: 2px;
   padding: 8px;
   -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 1px rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12);
@@ -1947,7 +1946,7 @@ div.q-input-target {
   outline: 0;
   padding: 0;
   background: transparent;
-  min-height: 18px;
+  min-height: 19px;
   font-size: inherit;
   resize: none;
   display: -webkit-box;
@@ -1982,11 +1981,17 @@ div.q-input-target {
           box-shadow: inherit;
 }
 input.q-input-target {
-  height: 19px;
   outline: 0;
 }
 .q-input-chips {
   min-height: 36px !important;
+}
+.q-input-chips > .q-chip {
+  -webkit-transform: translateY(4px);
+          transform: translateY(4px);
+}
+.q-input-area {
+  margin-top: 5px;
 }
 .q-if .q-input-target-placeholder {
   color: #979797 !important;
@@ -3537,6 +3542,12 @@ body.mobile .q-tabs-scroller {
 }
 .q-table-bottom .q-table-control {
   min-height: 24px;
+}
+.q-table-bottom .q-table-control > .q-if {
+  padding-bottom: 2px;
+}
+.q-table-bottom .q-table-control > .q-if > .q-if-inner {
+  padding-bottom: 2px;
 }
 .q-table-control {
   display: -webkit-box;
@@ -8797,12 +8808,6 @@ dl.horizontal dt {
 dl.horizontal dd {
   margin-left: 30%;
 }
-.no-margin {
-  margin: 0 !important;
-}
-.no-padding {
-  padding: 0 !important;
-}
 .no-border {
   border: 0 !important;
 }
@@ -9031,16 +9036,31 @@ body.ios .q-hoverable:active .q-focus-helper {
   opacity: 0.3;
 }
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-  .absolute .q-if-inner,
-  .fixed .q-if-inner,
-  .absolute .q-input-target,
-  .fixed .q-input-target {
+  .absolute > .q-if > .q-if-inner,
+  .fixed > .q-if > .q-if-inner,
+  .absolute > .q-if > .q-if-inner > .q-input-target,
+  .fixed > .q-if > .q-if-inner > .q-input-target {
     min-width: auto;
     -ms-flex-preferred-size: auto;
         flex-basis: auto;
   }
   .q-if-inner {
-    min-height: 21px;
+    min-width: auto;
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-if-inner .q-input-target {
+    line-height: 1.22em;
+  }
+  .q-if-has-label .q-input-target {
+    padding-top: calc(24px - 1.22em);
+  }
+  .q-input-chips.group input.q-input-target {
+    margin-bottom: 4px;
+  }
+  .q-input-chips.group input.q-input-target:first-child {
+    margin-top: 8px;
+    margin-bottom: -1px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
@@ -9049,16 +9069,27 @@ body.ios .q-hoverable:active .q-focus-helper {
   .q-slider-handle > .q-chip.inline.row {
     display: -ms-inline-grid;
   }
-  .q-btn:active .q-btn-inner {
+  .q-btn .q-btn-inner {
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-btn:not(.q-btn-round) {
+    height: 1px;
+  }
+  .q-btn:active .q-btn-inner,
+  .q-btn.active .q-btn-inner {
     margin: -1px 1px 1px -1px;
   }
-  .q-btn:active.q-btn-push .q-btn-inner {
-    margin: 0 1px 0 -1px;
+  .q-btn:active.q-btn-push .q-btn-inner,
+  .q-btn.active.q-btn-push .q-btn-inner {
+    margin: 1px 0 -1px 0;
   }
-  .q-btn:active.q-btn-push.disabled .q-btn-inner {
+  .q-btn:active.q-btn-push.disabled .q-btn-inner,
+  .q-btn.active.q-btn-push.disabled .q-btn-inner {
     margin: -1px 1px 1px -1px;
   }
-  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner {
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner,
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled).active .q-btn-inner {
     margin: 0;
   }
   .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main {
@@ -9080,16 +9111,31 @@ body.ios .q-hoverable:active .q-focus-helper {
   }
 }
 @supports (-ms-ime-align: auto) {
-  .absolute .q-if-inner,
-  .fixed .q-if-inner,
-  .absolute .q-input-target,
-  .fixed .q-input-target {
+  .absolute > .q-if > .q-if-inner,
+  .fixed > .q-if > .q-if-inner,
+  .absolute > .q-if > .q-if-inner > .q-input-target,
+  .fixed > .q-if > .q-if-inner > .q-input-target {
     min-width: auto;
     -ms-flex-preferred-size: auto;
         flex-basis: auto;
   }
   .q-if-inner {
-    min-height: 21px;
+    min-width: auto;
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-if-inner .q-input-target {
+    line-height: 1.22em;
+  }
+  .q-if-has-label .q-input-target {
+    padding-top: calc(24px - 1.22em);
+  }
+  .q-input-chips.group input.q-input-target {
+    margin-bottom: 4px;
+  }
+  .q-input-chips.group input.q-input-target:first-child {
+    margin-top: 8px;
+    margin-bottom: -1px;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
@@ -9098,16 +9144,27 @@ body.ios .q-hoverable:active .q-focus-helper {
   .q-slider-handle > .q-chip.inline.row {
     display: -ms-inline-grid;
   }
-  .q-btn:active .q-btn-inner {
+  .q-btn .q-btn-inner {
+    -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+  }
+  .q-btn:not(.q-btn-round) {
+    height: 1px;
+  }
+  .q-btn:active .q-btn-inner,
+  .q-btn.active .q-btn-inner {
     margin: -1px 1px 1px -1px;
   }
-  .q-btn:active.q-btn-push .q-btn-inner {
-    margin: 0 1px 0 -1px;
+  .q-btn:active.q-btn-push .q-btn-inner,
+  .q-btn.active.q-btn-push .q-btn-inner {
+    margin: 1px 0 -1px 0;
   }
-  .q-btn:active.q-btn-push.disabled .q-btn-inner {
+  .q-btn:active.q-btn-push.disabled .q-btn-inner,
+  .q-btn.active.q-btn-push.disabled .q-btn-inner {
     margin: -1px 1px 1px -1px;
   }
-  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner {
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner,
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled).active .q-btn-inner {
     margin: 0;
   }
   .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main {

@@ -1882,10 +1882,10 @@ qfield-horizontal()
 .q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-frame-transition
 .q-if
-  min-height 32px
+  min-height 27px
   outline 0
-  padding-bottom 8px
   &:not(.q-if-hide-underline):not(.q-if-inverted)
+    padding-bottom 8px
     &:before, &:after
       content ''
   &:before, &:after
@@ -1907,17 +1907,14 @@ qfield-horizontal()
     color black
   .group
     margin -5px
-    &:not(:first-child)
-      margin-top 0
 .q-if-hide-underline:not(.q-if-inverted)
-  min-height 24px
-  padding-bottom 0
+  min-height 21px
 .q-if-focusable
   outline 0
   cursor pointer
 .q-if-inner
-  min-height 24px !important
-  align-items center
+  min-height 19px !important
+  align-items flex-end
 .q-if-has-label
   min-height 41px
   .q-if-inner
@@ -1926,7 +1923,7 @@ qfield-horizontal()
 .q-if-label
   pointer-events none
   user-select none
-  top 15px
+  top 17px
   left 0
   right 0
   transform-origin left top 0
@@ -1945,7 +1942,8 @@ qfield-horizontal()
 .q-if-control
   cursor pointer
   font-size 24px
-  align-self flex-end
+  transform translateY(3px);
+  margin-top -5px
   &.q-icon
     cursor pointer
   &:hover
@@ -1956,7 +1954,7 @@ qfield-horizontal()
 .q-if-label, .q-if-addon, .q-if-control
   color $form-dark
 .q-if-inverted
-  min-height 38px
+  min-height 35px
   border-radius 2px
   padding 8px
   box-shadow $shadow-1
@@ -2019,7 +2017,7 @@ div.q-input-target
   outline 0
   padding 0
   background transparent
-  min-height 18px
+  min-height 19px
   font-size inherit
   resize none
   display flex
@@ -2038,10 +2036,13 @@ div.q-input-target
   &:invalid
     box-shadow inherit
 input.q-input-target
-  height 19px
   outline 0
 .q-input-chips
   min-height 36px !important
+  > .q-chip
+    transform translateY(4px);
+.q-input-area
+  margin-top 5px
 .q-if
   .q-input-target-placeholder
     color $form-dark !important
@@ -3140,6 +3141,10 @@ body.mobile .q-tabs-scroller
   font-size 12px
   .q-table-control
     min-height 24px
+    > .q-if
+      padding-bottom 2px
+      > .q-if-inner
+        padding-bottom 2px
 .q-table-control
   display flex
   align-items center
@@ -5507,10 +5512,6 @@ dl
       white-space nowrap
     dd
       margin-left 30%
-.no-margin
-  margin 0 !important
-.no-padding
-  padding 0 !important
 .no-border
   border 0 !important
 .no-border-radius
@@ -5618,11 +5619,24 @@ body
 ie_style = @block
   
   .absolute, .fixed
-    .q-if-inner, .q-input-target
-      min-width auto
-      flex-basis auto
+    > .q-if
+      > .q-if-inner
+      > .q-if-inner > .q-input-target
+        min-width auto
+        flex-basis auto
   .q-if-inner
-    min-height 21px
+    min-width auto
+    flex-basis auto
+    .q-input-target
+      line-height 1.22em
+  .q-if-has-label
+    .q-input-target
+      padding-top calc(24px - 1.22em)
+  .q-input-chips.group input.q-input-target
+    margin-bottom 4px
+    &:first-child
+      margin-top 8px
+      margin-bottom -1px
   
   .row > .col
     &.q-alert-content
@@ -5633,17 +5647,24 @@ ie_style = @block
       display -ms-inline-grid
   
   .q-btn
+    .q-btn-inner
+      flex-basis auto
+    &:not(.q-btn-round)
+      height 1px
     &:active
+    &.active
       .q-btn-inner
         margin -1px 1px 1px -1px
       &.q-btn-push
         .q-btn-inner
-          margin 0 1px 0 -1px
+          margin 1px 0 -1px 0
         &.disabled
           .q-btn-inner
             margin -1px 1px 1px -1px
-  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner
-    margin 0
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled)
+    &:active .q-btn-inner
+    &.active .q-btn-inner
+      margin 0
   
   .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main
     line-height $chip-height
