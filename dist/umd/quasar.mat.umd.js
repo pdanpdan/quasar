@@ -6418,7 +6418,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
     addonClass: function addonClass () {
       return {
         'q-if-addon-visible': !this.hasLabel || this.labelIsAbove,
-        'self-start': this.topAddons
+        'q-if-addon-top': this.topAddons
       }
     },
     classes: function classes () {

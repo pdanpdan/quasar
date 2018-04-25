@@ -1317,8 +1317,11 @@ a.q-btn {
 .q-field-label-hint {
   padding-left: 8px;
 }
-.q-field-content .q-if {
-  padding-top: 0;
+.q-field-content .q-if-has-label {
+  margin-top: 3px;
+}
+.q-field-content .q-if-has-label .q-if-inverted {
+  margin-top: 5px;
 }
 .q-field-bottom {
   font-size: 12px;
@@ -1369,13 +1372,16 @@ a.q-btn {
   padding-top: 8px;
 }
 .q-field-vertical.q-field-floating.q-field-no-label .q-field-margin {
-  margin-top: calc(0.75em + 1px);
+  margin-top: calc(0.75em - 5px);
 }
 .q-field-vertical.q-field-no-label .q-field-label {
   display: none;
 }
 .q-field-horizontal.q-field-floating .q-field-margin {
-  margin-top: calc(0.75em + 1px);
+  margin-top: calc(0.75em - 5px);
+}
+.q-field-horizontal.q-field-floating .q-field-label {
+  padding-top: 10px;
 }
 .q-field-horizontal .q-field-label + .q-field-content {
   padding-top: 0;
@@ -1385,7 +1391,7 @@ a.q-btn {
     padding-top: 8px;
   }
   .q-field-responsive.q-field-floating.q-field-no-label .q-field-margin {
-    margin-top: calc(0.75em + 1px);
+    margin-top: calc(0.75em - 5px);
   }
   .q-field-responsive.q-field-no-label .q-field-label {
     display: none;
@@ -1393,7 +1399,10 @@ a.q-btn {
 }
 @media (min-width: 576px) {
   .q-field-responsive.q-field-floating .q-field-margin {
-    margin-top: calc(0.75em + 1px);
+    margin-top: calc(0.75em - 5px);
+  }
+  .q-field-responsive.q-field-floating .q-field-label {
+    padding-top: 10px;
   }
   .q-field-responsive .q-field-label + .q-field-content {
     padding-top: 0;
@@ -1448,10 +1457,6 @@ a.q-btn {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  padding-top: 16px;
-}
-.q-if.q-if-dense {
-  padding-top: 8px;
 }
 .q-if.q-if-dense .q-input-target {
   font-size: 13px;
@@ -1653,13 +1658,19 @@ a.q-btn {
 .q-if-addon {
   pointer-events: none;
   opacity: 0;
-  padding-bottom: 0.5px;
+  padding-bottom: 3.2px;
+  line-height: 0.85;
 }
 .q-if-addon-left {
   padding-right: 1px;
 }
 .q-if-addon-right {
   padding-left: 1px;
+}
+.q-if-addon-top {
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+  padding-top: 5px;
 }
 .q-if-addon-visible {
   opacity: 1;
