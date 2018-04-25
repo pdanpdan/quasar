@@ -1944,7 +1944,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   top: 100%;
   left: 0;
   right: 0;
-  line-height: 0.85;
+  line-height: 0.9;
   height: 1em;
   -webkit-transform-origin: left top 0;
           transform-origin: left top 0;
@@ -1974,7 +1974,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   pointer-events: none;
   opacity: 0;
   padding-bottom: 3.2px;
-  line-height: 0.85;
+  line-height: 0.9;
 }
 .q-if-addon-left {
   padding-right: 1px;

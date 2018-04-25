@@ -2153,7 +2153,7 @@ a.q-btn {
       -ms-user-select: none;
           user-select: none;
   top: 100%;
-  line-height: 0.85;
+  line-height: 0.9;
   height: 1em;
   -webkit-transform: scale(1) translate(0, -100%);
 }
@@ -2200,7 +2200,7 @@ a.q-btn {
 .q-if-addon {
   pointer-events: none;
   opacity: 0;
-  line-height: 0.85;
+  line-height: 0.9;
 }
 [dir] .q-if-addon {
   padding-bottom: 3.2px;
