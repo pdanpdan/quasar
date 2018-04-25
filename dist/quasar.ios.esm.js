@@ -482,8 +482,8 @@ var langEn = {
     loading: 'Loading...',
     selectedRows: function (rows) {
       return rows === 1
-        ? '1 selected row.'
-        : (rows === 0 ? 'No' : rows) + ' selected rows.'
+        ? '1 row selected.'
+        : (rows === 0 ? 'No' : rows) + ' rows selected.'
     },
     rowsPerPage: 'Rows per page:',
     allRows: 'All',
@@ -2912,12 +2912,12 @@ var sizes = {
   md: 14,
   lg: 20,
   xl: 24,
-  form: 10.5,
-  'form-label': 17.11,
-  'form-hide-underline': 8.1,
-  'form-label-hide-underline': 14,
-  'form-inverted': 13.555,
-  'form-label-inverted': 20.22
+  form: 12.444,
+  'form-label': 17.42,
+  'form-hide-underline': 9.332,
+  'form-label-hide-underline': 14.31,
+  'form-inverted': 15.555,
+  'form-label-inverted': 20.53
 };
 
 var BtnMixin = {
@@ -4437,7 +4437,9 @@ var QAutocomplete = {
       this.__inputDebounce.setChildDebounce(true);
     }
     this.$nextTick(function () {
-      this$1.inputEl = this$1.__input.getEl();
+      if (this$1.__input) {
+        this$1.inputEl = this$1.__input.getEl();
+      }
       this$1.inputEl.addEventListener('keydown', this$1.__keyboardHandleKey);
       this$1.inputEl.addEventListener('blur', this$1.blurHide);
     });
@@ -6226,6 +6228,7 @@ var FrameMixin = {
     suffix: String,
     stackLabel: String,
     floatLabel: String,
+    placeholder: String,
     error: Boolean,
     warning: Boolean,
     disable: Boolean,
@@ -6243,6 +6246,9 @@ var FrameMixin = {
     after: marginal,
     inverted: Boolean,
     invertedLight: Boolean,
+    dense: Boolean,
+    box: Boolean,
+    fullWidth: Boolean,
     hideUnderline: Boolean,
     clearValue: {
       default: null
@@ -6306,7 +6312,6 @@ var InputMixin = {
   props: {
     autofocus: [Boolean, String],
     maxHeight: Number,
-    placeholder: String,
     loading: Boolean
   },
   data: function data () {
@@ -6401,6 +6406,14 @@ var ParentFieldMixin = {
   props: {
     noParentField: Boolean
   },
+  watch: {
+    noParentField: function noParentField (val) {
+      if (!this.field) {
+        return
+      }
+      this.field[val ? '__registerInput' : '__unregisterInput'](this);
+    }
+  },
   beforeMount: function beforeMount () {
     if (!this.noParentField && this.field) {
       this.field.__registerInput(this);
@@ -6413,7 +6426,7 @@ var ParentFieldMixin = {
   }
 }
 
-var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap items-end relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_vm._t("after")],2)},staticRenderFns: [],
+var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:[item.class, {hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)}],attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_vm._t("after")],2)},staticRenderFns: [],
   name: 'QInputFrame',
   mixins: [FrameMixin, ParentFieldMixin],
   props: {
@@ -6440,6 +6453,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
       }
     },
     classes: function classes () {
+      var isFullWidth = !this.isInverted && !this.box && this.fullWidth;
       var cls = [{
         'q-if-has-label': this.label,
         'q-if-focused': this.focused,
@@ -6451,7 +6465,10 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
         'q-if-inverted-light': this.isInvertedLight,
         'q-if-light-color': this.lightColor,
         'q-if-dark': this.dark,
-        'q-if-hide-underline': !this.isInverted && this.hideUnderline
+        'q-if-dense': this.dense,
+        'q-if-box': this.box,
+        'q-if-full-width': isFullWidth,
+        'q-if-hide-underline': !this.isInverted && (this.hideUnderline || isFullWidth)
       }];
 
       var color = this.hasError ? 'negative' : (this.hasWarning ? 'warning' : this.color);
@@ -6497,7 +6514,7 @@ var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var
   }
 }
 
-var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target self-end",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","dense":_vm.dense,"closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'QChipsInput',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -8034,7 +8051,6 @@ var QColor = {
       validator: function (v) { return ['auto', 'hex', 'rgb', 'hexa', 'rgba'].includes(v); }
     },
     displayValue: String,
-    placeholder: String,
     okLabel: String,
     cancelLabel: String
   },
@@ -8240,6 +8256,9 @@ var QColor = {
         inverted: this.inverted,
         invertedLight: this.invertedLight,
         dark: this.dark,
+        dense: this.dense,
+        box: this.box,
+        fullWidth: this.fullWidth,
         hideUnderline: this.hideUnderline,
         before: this.before,
         after: this.after,
@@ -8514,7 +8533,6 @@ var inline = {
 
 var input = {
   format: String,
-  placeholder: String,
   okLabel: String,
   cancelLabel: String,
   displayValue: String
@@ -9723,6 +9741,9 @@ var QDatetime = {
         inverted: this.inverted,
         invertedLight: this.invertedLight,
         dark: this.dark,
+        dense: this.dense,
+        box: this.box,
+        fullWidth: this.fullWidth,
         hideUnderline: this.hideUnderline,
         before: this.before,
         after: this.after,
@@ -9986,7 +10007,7 @@ var QWindowResizeObservable = {
   }
 }
 
-var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClasses,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
   name: 'QInput',
   mixins: [FrameMixin, InputMixin],
   components: {
@@ -10012,7 +10033,12 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
 
     decimals: Number,
     step: Number,
-    upperCase: Boolean
+    upperCase: Boolean,
+
+    rows: {
+      type: Number,
+      default: 1
+    }
   },
   data: function data () {
     var this$1 = this;
@@ -10097,6 +10123,16 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     },
     computedStep: function computedStep () {
       return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
+    },
+    textClasses: function textClasses () {
+      var classes = [];
+      if (this.isTextarea) {
+        classes.push('q-if-text');
+        if (this.maxHeight || this.rows > 1) {
+          classes.push('q-if-textarea');
+        }
+      }
+      return classes
     }
   },
   methods: {
@@ -10177,8 +10213,10 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
       var shadow = this.$refs.shadow;
       if (shadow) {
         var h = shadow.scrollHeight;
-        var minHeight = between(h, 19, this.maxHeight || h);
-        this.$refs.input.style.minHeight = (minHeight + 19) + "px";
+        var minHeight = between(h, 0, this.maxHeight || h);
+        var overflow = this.maxHeight && this.maxHeight < h ? 'scroll' : 'hidden';
+        this.$refs.input.style.minHeight = minHeight + "px";
+        this.$refs.input.style.overflowY = overflow;
       }
     },
     __watcher: function __watcher (value) {
@@ -13745,7 +13783,7 @@ var QPagination = {
 
     if (this.input) {
       contentMiddle.push(h(QInput, {
-        staticClass: 'inline q-py-xs',
+        staticClass: 'inline q-pt-none q-pb-xs',
         style: {
           width: ((this.inputPlaceholder.length) + "rem")
         },
@@ -14993,7 +15031,6 @@ var QSearch = {
       default: 300
     },
     icon: String,
-    placeholder: String,
     noIcon: Boolean
   },
   data: function data () {
@@ -15095,6 +15132,9 @@ var QSearch = {
         inverted: this.inverted,
         invertedLight: this.invertedLight,
         dark: this.dark,
+        dense: this.dense,
+        box: this.box,
+        fullWidth: this.fullWidth,
         hideUnderline: this.hideUnderline,
         color: this.color,
         before: this.controlBefore,
@@ -15124,7 +15164,7 @@ function defaultFilterFn (terms, obj) {
   return obj.label.toLowerCase().indexOf(terms) > -1
 }
 
-var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.clear},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
+var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","dense":_vm.dense,"closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
   name: 'QSelect',
   mixins: [FrameMixin, KeyboardSelectionMixin],
   components: {
@@ -15143,7 +15183,6 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     filter: [Function, Boolean],
     filterPlaceholder: String,
     radio: Boolean,
-    placeholder: String,
     separator: Boolean,
     value: { required: true },
     multiple: Boolean,
@@ -18243,7 +18282,7 @@ var
   selectDialogOpened,
   selectDialogTimer;
 
-var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
+var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
   name: 'QUploader',
   mixins: [FrameMixin],
   components: {
