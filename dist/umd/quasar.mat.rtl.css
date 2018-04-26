@@ -2270,7 +2270,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
           align-items: center;
 }
 .q-if.q-if-dense .q-input-target {
-  font-size: 13px;
+  font-size: 81.25%;
 }
 [dir] .q-if.q-if-full-width {
   padding: 19px 16px;
@@ -2468,12 +2468,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 [dir] .q-if-has-label.q-if-dense .q-if-inner {
   padding-top: calc(0.75em + 4px);
 }
-[dir] .q-if-textarea.q-if-has-label .q-if-inner {
-  padding-top: calc(0.75em + 4px);
-}
-[dir] .q-if-textarea.q-if-has-label.q-if-dense .q-if-inner {
-  padding-top: 0.5em;
-}
 .q-if-label {
   pointer-events: none;
   -webkit-user-select: none;
@@ -2531,7 +2525,16 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   line-height: 0.9;
 }
 [dir] .q-if-addon {
-  padding-bottom: 3.2px;
+  padding-bottom: 2.5px;
+}
+.q-if-dense .q-if-addon {
+  font-size: 81.25%;
+}
+[dir] .q-if-dense .q-if-addon {
+  padding-bottom: 3px;
+}
+[dir] .q-if-inverted:not(.q-if-has-label):not(.q-if-dense) .q-if-addon {
+  padding-bottom: 1px;
 }
 [dir=ltr] .q-if-addon-left {
   padding-right: 1px;
@@ -2548,9 +2551,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-addon-top {
   -ms-flex-item-align: start;
       align-self: flex-start;
-}
-[dir] .q-if-addon-top {
-  padding-top: 5px;
 }
 .q-if-addon-visible {
   opacity: 1;
@@ -2742,6 +2742,16 @@ div.q-input-target {
 [dir] .q-input-target:invalid, [dir] .q-input-shadow:invalid {
           box-shadow: inherit;
 }
+.q-input-area-holder {
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+}
+[dir] .q-input-area-holder {
+  margin-top: -3px;
+}
+[dir] .q-if-dense .q-input-area-holder {
+  margin-top: -2px;
+}
 input.q-input-target {
   outline: 0;
   height: 1.05em;
@@ -2770,9 +2780,6 @@ textarea.q-input-target {
 }
 [dir] .q-input-chips > .q-input-target {
   margin-bottom: 0;
-}
-[dir] .q-input-area {
-  margin-top: 5px;
 }
 .q-if .q-input-target-placeholder {
   color: #979797 !important;

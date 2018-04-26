@@ -1774,7 +1774,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
           align-items: center;
 }
 .q-if.q-if-dense .q-input-target {
-  font-size: 13px;
+  font-size: 81.25%;
 }
 .q-if.q-if-full-width {
   padding: 19px 16px;
@@ -1929,12 +1929,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-has-label.q-if-dense .q-if-inner {
   padding-top: calc(0.75em + 4px);
 }
-.q-if-textarea.q-if-has-label .q-if-inner {
-  padding-top: calc(0.75em + 4px);
-}
-.q-if-textarea.q-if-has-label.q-if-dense .q-if-inner {
-  padding-top: 0.5em;
-}
 .q-if-label {
   pointer-events: none;
   -webkit-user-select: none;
@@ -1973,8 +1967,15 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-addon {
   pointer-events: none;
   opacity: 0;
-  padding-bottom: 3.2px;
+  padding-bottom: 2.5px;
   line-height: 0.9;
+}
+.q-if-dense .q-if-addon {
+  font-size: 81.25%;
+  padding-bottom: 3px;
+}
+.q-if-inverted:not(.q-if-has-label):not(.q-if-dense) .q-if-addon {
+  padding-bottom: 1px;
 }
 .q-if-addon-left {
   padding-right: 1px;
@@ -1985,7 +1986,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-addon-top {
   -ms-flex-item-align: start;
       align-self: flex-start;
-  padding-top: 5px;
 }
 .q-if-addon-visible {
   opacity: 1;
@@ -2145,6 +2145,14 @@ div.q-input-target {
   -webkit-box-shadow: inherit;
           box-shadow: inherit;
 }
+.q-input-area-holder {
+  margin-top: -3px;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+}
+.q-if-dense .q-input-area-holder {
+  margin-top: -2px;
+}
 input.q-input-target {
   outline: 0;
   height: 1.05em;
@@ -2167,9 +2175,6 @@ textarea.q-input-target {
   margin-bottom: 0;
   -ms-flex-item-align: end;
       align-self: flex-end;
-}
-.q-input-area {
-  margin-top: 5px;
 }
 .q-if .q-input-target-placeholder {
   color: #979797 !important;

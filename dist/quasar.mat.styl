@@ -670,6 +670,12 @@ $table-dark-color               ?= $grey-3
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
+$input-height ?= 1.05em
+$input-line-height ?= .85
+$input-padding-bottom ?= 3.2px
+$input-text-line-height ?= .9
+$input-text-padding-bottom ?= 2.5px
+$input-text-padding-bottom-dense ?= 3px
 $input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
 $input-frame-transition-after-in ?= $input-frame-transition, border-right-width .45s cubic-bezier(1, -1, 1, -1)
 $input-frame-transition-after-out ?= $input-frame-transition, border-right-width .45s cubic-bezier(0, 2, 0, 2)
@@ -1897,7 +1903,7 @@ qfield-horizontal()
   align-items center
   &.q-if-dense
     .q-input-target
-      font-size 13px
+      font-size 81.25%
   &.q-if-full-width
     padding 19px 16px
     border-top 1px solid $light
@@ -2010,19 +2016,13 @@ qfield-horizontal()
   &.q-if-dense
     .q-if-inner
       padding-top calc(0.75em + 4px)
-.q-if-textarea.q-if-has-label
-  .q-if-inner
-    padding-top calc(0.75em + 4px)
-  &.q-if-dense
-    .q-if-inner
-      padding-top 0.5em
 .q-if-label
   pointer-events none
   user-select none
   top 100%
   left 0
   right 0
-  line-height .9
+  line-height $input-text-line-height
   height 1em
   transform-origin left top 0
   transform scale(1) translate(0, -100%)
@@ -2042,15 +2042,19 @@ qfield-horizontal()
 .q-if-addon
   pointer-events none
   opacity 0
-  padding-bottom 3.2px
-  line-height 0.9
+  padding-bottom $input-text-padding-bottom
+  line-height $input-text-line-height
+.q-if-dense .q-if-addon
+  font-size 81.25%
+  padding-bottom $input-text-padding-bottom-dense
+.q-if-inverted:not(.q-if-has-label):not(.q-if-dense) .q-if-addon
+  padding-bottom 1px
 .q-if-addon-left
   padding-right 1px
 .q-if-addon-right
   padding-left 1px
 .q-if-addon-top
   align-self flex-start
-  padding-top 5px
 .q-if-addon-visible
   opacity 1
 .q-if-control
@@ -2133,7 +2137,7 @@ div.q-input-target
 .q-input-target, .q-input-shadow
   border 0
   outline 0
-  padding: 0 0 3.2px 0
+  padding: 0 0 $input-padding-bottom 0
   margin 0
   background transparent
   font-size inherit
@@ -2141,9 +2145,9 @@ div.q-input-target
   display flex
   align-items center
   color black
-  line-height 0.85
+  line-height $input-line-height
   &.col
-    min-height 1.05em
+    min-height $input-height
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -2156,9 +2160,14 @@ div.q-input-target
     height 0
   &:invalid
     box-shadow inherit
+.q-input-area-holder
+  margin-top -3px
+  align-self flex-start
+.q-if-dense .q-input-area-holder
+  margin-top -2px
 input.q-input-target
   outline 0
-  height 1.05em
+  height $input-height
   display inline-block
   -webkit-appearance none
 textarea.q-input-target
@@ -2173,8 +2182,6 @@ textarea.q-input-target
   > .q-input-target
     margin-bottom 0
     align-self flex-end
-.q-input-area
-  margin-top 5px
 .q-if
   .q-input-target-placeholder
     color $form-dark !important
