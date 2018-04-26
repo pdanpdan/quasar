@@ -937,6 +937,7 @@ a.q-btn {
 }
 .q-chip-pointing {
   position: relative;
+  z-index: 0;
 }
 .q-chip-pointing:before {
   content: '';
