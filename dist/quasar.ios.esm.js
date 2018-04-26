@@ -7,7 +7,7 @@
 var version = "0.15.10";
 
 function offset (el) {
-  if (el === window) {
+  if (!el || el === window) {
     return {top: 0, left: 0}
   }
   var ref = el.getBoundingClientRect();
@@ -81,14 +81,14 @@ function cssTransform (val) {
 }
 
 var dom = /*#__PURE__*/Object.freeze({
-  offset: offset,
-  style: style,
-  height: height,
-  width: width,
-  css: css,
-  viewport: viewport,
-  ready: ready,
-  cssTransform: cssTransform
+offset: offset,
+style: style,
+height: height,
+width: width,
+css: css,
+viewport: viewport,
+ready: ready,
+cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1298,16 +1298,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-  listenOpts: listenOpts,
-  leftClick: leftClick,
-  middleClick: middleClick,
-  rightClick: rightClick,
-  getEventKey: getEventKey,
-  position: position,
-  targetElement: targetElement,
-  getEventPath: getEventPath,
-  getMouseWheelDistance: getMouseWheelDistance,
-  stopAndPrevent: stopAndPrevent
+listenOpts: listenOpts,
+leftClick: leftClick,
+middleClick: middleClick,
+rightClick: rightClick,
+getEventKey: getEventKey,
+position: position,
+targetElement: targetElement,
+getEventPath: getEventPath,
+getMouseWheelDistance: getMouseWheelDistance,
+stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1411,13 +1411,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-  getScrollTarget: getScrollTarget,
-  getScrollHeight: getScrollHeight,
-  getScrollPosition: getScrollPosition,
-  animScrollTo: animScrollTo,
-  setScrollPosition: setScrollPosition,
-  getScrollbarWidth: getScrollbarWidth,
-  hasScrollbar: hasScrollbar
+getScrollTarget: getScrollTarget,
+getScrollHeight: getScrollHeight,
+getScrollPosition: getScrollPosition,
+animScrollTo: animScrollTo,
+setScrollPosition: setScrollPosition,
+getScrollbarWidth: getScrollbarWidth,
+hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -1640,7 +1640,7 @@ var QModal = {
           el.scrollTop = 0;
         });
       });
-      this.$nextTick(function () { return content.focus(); });
+      this.$nextTick(function () { return content && content.focus(); });
     },
     __hide: function __hide () {
       EscapeKey.pop();
@@ -2441,7 +2441,7 @@ var QActionSheet = {
       return this.$refs.modal.show()
     },
     hide: function hide () {
-      return this.$refs.modal.hide()
+      return this.$refs.modal ? this.$refs.modal.hide() : Promise.resolve()
     },
     __getActions: function __getActions (h) {
       var this$1 = this;
@@ -2546,11 +2546,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-  humanStorageSize: humanStorageSize,
-  capitalize: capitalize,
-  between: between,
-  normalizeToInterval: normalizeToInterval,
-  pad: pad
+humanStorageSize: humanStorageSize,
+capitalize: capitalize,
+between: between,
+normalizeToInterval: normalizeToInterval,
+pad: pad
 });
 
 var
@@ -3810,7 +3810,7 @@ var QBtnDropdown = {
   },
   watch: {
     value: function value (val) {
-      this.$refs.popover[val ? 'show' : 'hide']();
+      this.$refs.popover && this.$refs.popover[val ? 'show' : 'hide']();
     }
   },
   render: function render (h) {
@@ -3937,13 +3937,13 @@ var QBtnDropdown = {
   },
   methods: {
     toggle: function toggle () {
-      return this.$refs.popover.toggle()
+      return this.$refs.popover ? this.$refs.popover.toggle() : Promise.resolve()
     },
     show: function show () {
-      return this.$refs.popover.show()
+      return this.$refs.popover ? this.$refs.popover.show() : Promise.resolve()
     },
     hide: function hide () {
-      return this.$refs.popover.hide()
+      return this.$refs.popover ? this.$refs.popover.hide() : Promise.resolve()
     }
   },
   mounted: function mounted () {
@@ -3951,7 +3951,7 @@ var QBtnDropdown = {
 
     this.$nextTick(function () {
       if (this$1.value) {
-        this$1.$refs.popover.show();
+        this$1.$refs.popover && this$1.$refs.popover.show();
       }
     });
   }
@@ -4976,27 +4976,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-  linear: linear,
-  easeInQuad: easeInQuad,
-  easeOutQuad: easeOutQuad,
-  easeInOutQuad: easeInOutQuad,
-  easeInCubic: easeInCubic,
-  easeOutCubic: easeOutCubic,
-  easeInOutCubic: easeInOutCubic,
-  easeInQuart: easeInQuart,
-  easeOutQuart: easeOutQuart,
-  easeInOutQuart: easeInOutQuart,
-  easeInQuint: easeInQuint,
-  easeOutQuint: easeOutQuint,
-  easeInOutQuint: easeInOutQuint,
-  easeInCirc: easeInCirc,
-  easeOutCirc: easeOutCirc,
-  easeInOutCirc: easeInOutCirc,
-  overshoot: overshoot,
-  standard: standard,
-  decelerate: decelerate,
-  accelerate: accelerate,
-  sharp: sharp
+linear: linear,
+easeInQuad: easeInQuad,
+easeOutQuad: easeOutQuad,
+easeInOutQuad: easeInOutQuad,
+easeInCubic: easeInCubic,
+easeOutCubic: easeOutCubic,
+easeInOutCubic: easeInOutCubic,
+easeInQuart: easeInQuart,
+easeOutQuart: easeOutQuart,
+easeInOutQuart: easeInOutQuart,
+easeInQuint: easeInQuint,
+easeOutQuint: easeOutQuint,
+easeInOutQuint: easeInOutQuint,
+easeInCirc: easeInCirc,
+easeOutCirc: easeOutCirc,
+easeInOutCirc: easeInOutCirc,
+overshoot: overshoot,
+standard: standard,
+decelerate: decelerate,
+accelerate: accelerate,
+sharp: sharp
 });
 
 var ids = {};
@@ -5065,8 +5065,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-  start: start,
-  stop: stop
+start: start,
+stop: stop
 });
 
 var FullscreenMixin = {
@@ -6323,7 +6323,7 @@ var InputMixin = {
       }
     },
     blur: function blur () {
-      this.$refs.input.blur();
+      this.$refs.input && this.$refs.input.blur();
     },
     select: function select () {
       this.$refs.input.select();
@@ -7548,15 +7548,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-  rgbToHex: rgbToHex,
-  hexToRgb: hexToRgb,
-  hsvToRgb: hsvToRgb,
-  rgbToHsv: rgbToHsv,
-  textToRgb: textToRgb,
-  lighten: lighten,
-  luminosity: luminosity,
-  setBrand: setBrand,
-  getBrand: getBrand
+rgbToHex: rgbToHex,
+hexToRgb: hexToRgb,
+hsvToRgb: hsvToRgb,
+rgbToHsv: rgbToHsv,
+textToRgb: textToRgb,
+lighten: lighten,
+luminosity: luminosity,
+setBrand: setBrand,
+getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -7833,8 +7833,11 @@ var QColorPicker = {
     },
 
     __onSaturationChange: function __onSaturationChange (left, top, change) {
+      var panel = this.$refs.saturation;
+      if (!panel) {
+        return
+      }
       var
-        panel = this.$refs.saturation,
         width = panel.clientWidth,
         height = panel.clientHeight,
         rect = panel.getBoundingClientRect();
@@ -8082,6 +8085,9 @@ var QColor = {
   },
   methods: {
     toggle: function toggle () {
+      if (!this.$refs.popup) {
+        return
+      }
       this[this.$refs.popup.showing ? 'hide' : 'show']();
     },
     show: function show () {
@@ -8091,7 +8097,7 @@ var QColor = {
       }
     },
     hide: function hide () {
-      return this.$refs.popup.hide()
+      return this.$refs.popup ? this.$refs.popup.hide() : Promise.resolve()
     },
 
     __handleKeyDown: function __handleKeyDown (e) {
@@ -8343,9 +8349,7 @@ var ContextMenuDesktop = {
   },
   methods: {
     hide: function hide (evt) {
-      if (this.$refs.popover) {
-        return this.$refs.popover.hide(evt)
-      }
+      return this.$refs.popover ? this.$refs.popover.hide(evt) : Promise.resolve()
     },
     show: function show (evt) {
       var this$1 = this;
@@ -8397,8 +8401,8 @@ var ContextMenuMobile = {
   },
   methods: {
     hide: function hide (evt) {
-      this.target.classList.remove('non-selectable');
-      return this.$refs.dialog.hide(evt)
+      this.target && this.target.classList.remove('non-selectable');
+      return this.$refs.dialog ? this.$refs.dialog.hide(evt) : Promise.resolve()
     },
     show: function show (evt) {
       if (!this.disable && this.$refs.dialog) {
@@ -9088,29 +9092,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-  isValid: isValid,
-  buildDate: buildDate,
-  getDayOfWeek: getDayOfWeek,
-  getWeekOfYear: getWeekOfYear,
-  isBetweenDates: isBetweenDates,
-  addToDate: addToDate,
-  subtractFromDate: subtractFromDate,
-  adjustDate: adjustDate,
-  startOfDate: startOfDate,
-  endOfDate: endOfDate,
-  getMaxDate: getMaxDate,
-  getMinDate: getMinDate,
-  getDateDiff: getDateDiff,
-  getDayOfYear: getDayOfYear,
-  inferDateFormat: inferDateFormat,
-  convertDateToFormat: convertDateToFormat,
-  getDateBetween: getDateBetween,
-  isSameDate: isSameDate,
-  daysInMonth: daysInMonth,
-  formatter: formatter,
-  formatDate: formatDate,
-  matchFormat: matchFormat,
-  clone: clone$1
+isValid: isValid,
+buildDate: buildDate,
+getDayOfWeek: getDayOfWeek,
+getWeekOfYear: getWeekOfYear,
+isBetweenDates: isBetweenDates,
+addToDate: addToDate,
+subtractFromDate: subtractFromDate,
+adjustDate: adjustDate,
+startOfDate: startOfDate,
+endOfDate: endOfDate,
+getMaxDate: getMaxDate,
+getMinDate: getMinDate,
+getDateDiff: getDateDiff,
+getDayOfYear: getDayOfYear,
+inferDateFormat: inferDateFormat,
+convertDateToFormat: convertDateToFormat,
+getDateBetween: getDateBetween,
+isSameDate: isSameDate,
+daysInMonth: daysInMonth,
+formatter: formatter,
+formatDate: formatDate,
+matchFormat: matchFormat,
+clone: clone$1
 });
 
 var DateMixin = {
@@ -9544,6 +9548,9 @@ var QDatetime = {
   },
   methods: {
     toggle: function toggle () {
+      if (!this.$refs.popup) {
+        return
+      }
       this[this.$refs.popup.showing ? 'hide' : 'show']();
     },
     show: function show () {
@@ -9553,7 +9560,7 @@ var QDatetime = {
       }
     },
     hide: function hide () {
-      return this.$refs.popup.hide()
+      return this.$refs.popup ? this.$refs.popup.hide() : Promise.resolve()
     },
 
     __handleKeyDown: function __handleKeyDown (e) {
@@ -9631,7 +9638,7 @@ var QDatetime = {
     __resetView: function __resetView () {
       // go back to initial entry point for that type of control
       // if it has defaultView it's going to be reapplied anyway on focus
-      if (!this.defaultView) {
+      if (!this.defaultView && this.$refs.target) {
         this.$refs.target.setView();
       }
     },
@@ -10635,14 +10642,7 @@ var QDialog = {
     hide: function hide () {
       var this$1 = this;
 
-      var data;
-
-      return this.$refs.modal.hide().then(function () {
-        if (this$1.hasForm) {
-          data = clone(this$1.__getData());
-        }
-        return data
-      })
+      return this.$refs.modal ? this.$refs.modal.hide().then(function () { return this$1.hasForm ? clone(this$1.__getData()) : void 0; }) : Promise.resolve()
     },
     __getPrompt: function __getPrompt (h) {
       var this$1 = this;
@@ -10989,7 +10989,7 @@ function getDropdown (h, vm, btn) {
             click: function click (e) {
               if (disable) { return }
               closeDropdown();
-              vm.$refs.content.focus();
+              vm.$refs.content && vm.$refs.content.focus();
               vm.caret.restore();
               run(e, btn, vm);
             }
@@ -11704,8 +11704,10 @@ var QEditor = {
     var this$1 = this;
 
     this.$nextTick(function () {
-      this$1.caret = new Caret(this$1.$refs.content, this$1);
-      this$1.$refs.content.innerHTML = this$1.value;
+      if (this$1.$refs.content) {
+        this$1.caret = new Caret(this$1.$refs.content, this$1);
+        this$1.$refs.content.innerHTML = this$1.value;
+      }
       this$1.$nextTick(this$1.refreshToolbar);
     });
   },
@@ -12942,7 +12944,7 @@ var QLayoutDrawer = {
         });
         return
       }
-      css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
+      this.$refs.content && css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
     },
     applyBackdrop: function applyBackdrop (x) {
       this.$refs.backdrop && css(this.$refs.backdrop, { backgroundColor: ("rgba(0,0,0," + (x * 0.4) + ")") });
@@ -15212,6 +15214,9 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
 
       if (this.$refs.popover.showing && this.keyboardMoveDirection && val > -1) {
         this.$nextTick(function () {
+          if (!this$1.$refs.popover) {
+            return
+          }
           var selected = this$1.$refs.popover.$el.querySelector('.q-select-highlight');
           if (selected && selected.scrollIntoView) {
             if (selected.scrollIntoViewIfNeeded) {
@@ -15291,6 +15296,9 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
   },
   methods: {
     togglePopup: function togglePopup () {
+      if (!this.$refs.popover) {
+        return
+      }
       this[this.$refs.popover.showing ? 'hide' : 'show']();
     },
     show: function show () {
@@ -15298,12 +15306,12 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
       return this.$refs.popover.show()
     },
     hide: function hide () {
-      return this.$refs.popover.hide()
+      return this.$refs.popover ? this.$refs.popover.hide() : Promise.resolve()
     },
     reposition: function reposition () {
       var popover = this.$refs.popover;
-      if (popover.showing) {
-        this.$nextTick(function () { return popover.reposition(); });
+      if (popover && popover.showing) {
+        this.$nextTick(function () { return popover && popover.reposition(); });
       }
     },
 
@@ -15364,7 +15372,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
         return
       }
       this.__onFocus();
-      if (this.filter) {
+      if (this.filter && this.$refs.filter) {
         this.$refs.filter.focus();
       }
     },
@@ -15439,7 +15447,7 @@ var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=
     __setModel: function __setModel (val, forceUpdate) {
       this.model = val || (this.multiple ? [] : null);
       this.$emit('input', this.model);
-      if (forceUpdate || !this.$refs.popover.showing) {
+      if (forceUpdate || !this.$refs.popover || !this.$refs.popover.showing) {
         this.__onClose();
       }
     },

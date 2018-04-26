@@ -2138,7 +2138,7 @@ div.q-input-target
 .q-input-target, .q-input-shadow
   border 0
   outline 0
-  padding: 0 0 $input-padding-bottom 0
+  padding 0 0 $input-text-padding-bottom 0
   margin 0
   background transparent
   font-size inherit
@@ -2146,7 +2146,7 @@ div.q-input-target
   display flex
   align-items center
   color black
-  line-height $input-line-height
+  line-height $input-text-line-height
   &.col
     min-height $input-height
   &:-webkit-autofill
@@ -2168,6 +2168,8 @@ div.q-input-target
   margin-top -2px
 input.q-input-target
   outline 0
+  padding-bottom $input-padding-bottom
+  line-height $input-line-height
   height $input-height
   display inline-block
   -webkit-appearance none

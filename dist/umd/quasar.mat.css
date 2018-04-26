@@ -2105,7 +2105,7 @@ div.q-input-target {
 .q-input-shadow {
   border: 0;
   outline: 0;
-  padding: 0 0 3.2px 0;
+  padding: 0 0 2.5px 0;
   margin: 0;
   background: transparent;
   font-size: inherit;
@@ -2117,7 +2117,7 @@ div.q-input-target {
       -ms-flex-align: center;
           align-items: center;
   color: #000;
-  line-height: 0.85;
+  line-height: 0.9;
 }
 .q-input-target.col,
 .q-input-shadow.col {
@@ -2156,6 +2156,8 @@ div.q-input-target {
 }
 input.q-input-target {
   outline: 0;
+  padding-bottom: 3.2px;
+  line-height: 0.85;
   height: 1.05em;
   display: inline-block;
   -webkit-appearance: none;
