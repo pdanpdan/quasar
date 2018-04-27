@@ -81,14 +81,14 @@ function cssTransform (val) {
 }
 
 var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-viewport: viewport,
-ready: ready,
-cssTransform: cssTransform
+  offset: offset,
+  style: style,
+  height: height,
+  width: width,
+  css: css,
+  viewport: viewport,
+  ready: ready,
+  cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1298,16 +1298,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getEventPath: getEventPath,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+  listenOpts: listenOpts,
+  leftClick: leftClick,
+  middleClick: middleClick,
+  rightClick: rightClick,
+  getEventKey: getEventKey,
+  position: position,
+  targetElement: targetElement,
+  getEventPath: getEventPath,
+  getMouseWheelDistance: getMouseWheelDistance,
+  stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1411,13 +1411,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth,
-hasScrollbar: hasScrollbar
+  getScrollTarget: getScrollTarget,
+  getScrollHeight: getScrollHeight,
+  getScrollPosition: getScrollPosition,
+  animScrollTo: animScrollTo,
+  setScrollPosition: setScrollPosition,
+  getScrollbarWidth: getScrollbarWidth,
+  hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -2546,11 +2546,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+  humanStorageSize: humanStorageSize,
+  capitalize: capitalize,
+  between: between,
+  normalizeToInterval: normalizeToInterval,
+  pad: pad
 });
 
 var
@@ -4087,7 +4087,9 @@ var QAlert = {
   render: function render (h) {
     var this$1 = this;
 
-    var side = [];
+    var
+      side = [],
+      detail = this.$slots.detail || this.detail;
 
     if (this.avatar) {
       side.push(
@@ -4117,7 +4119,7 @@ var QAlert = {
           staticClass: 'q-alert-content col self-center'
         }, [
           h('div', this.$slots.default || this.message),
-          this.detail ? h('div', { staticClass: 'q-alert-detail' }, [ this.detail ]) : null
+          detail ? h('div', { staticClass: 'q-alert-detail' }, [ detail ]) : null
         ]),
         this.actions && this.actions.length
           ? h('div', {
@@ -4976,27 +4978,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+  linear: linear,
+  easeInQuad: easeInQuad,
+  easeOutQuad: easeOutQuad,
+  easeInOutQuad: easeInOutQuad,
+  easeInCubic: easeInCubic,
+  easeOutCubic: easeOutCubic,
+  easeInOutCubic: easeInOutCubic,
+  easeInQuart: easeInQuart,
+  easeOutQuart: easeOutQuart,
+  easeInOutQuart: easeInOutQuart,
+  easeInQuint: easeInQuint,
+  easeOutQuint: easeOutQuint,
+  easeInOutQuint: easeInOutQuint,
+  easeInCirc: easeInCirc,
+  easeOutCirc: easeOutCirc,
+  easeInOutCirc: easeInOutCirc,
+  overshoot: overshoot,
+  standard: standard,
+  decelerate: decelerate,
+  accelerate: accelerate,
+  sharp: sharp
 });
 
 var ids = {};
@@ -5065,8 +5067,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+  start: start,
+  stop: stop
 });
 
 var FullscreenMixin = {
@@ -7548,15 +7550,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+  rgbToHex: rgbToHex,
+  hexToRgb: hexToRgb,
+  hsvToRgb: hsvToRgb,
+  rgbToHsv: rgbToHsv,
+  textToRgb: textToRgb,
+  lighten: lighten,
+  luminosity: luminosity,
+  setBrand: setBrand,
+  getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -9092,29 +9094,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+  isValid: isValid,
+  buildDate: buildDate,
+  getDayOfWeek: getDayOfWeek,
+  getWeekOfYear: getWeekOfYear,
+  isBetweenDates: isBetweenDates,
+  addToDate: addToDate,
+  subtractFromDate: subtractFromDate,
+  adjustDate: adjustDate,
+  startOfDate: startOfDate,
+  endOfDate: endOfDate,
+  getMaxDate: getMaxDate,
+  getMinDate: getMinDate,
+  getDateDiff: getDateDiff,
+  getDayOfYear: getDayOfYear,
+  inferDateFormat: inferDateFormat,
+  convertDateToFormat: convertDateToFormat,
+  getDateBetween: getDateBetween,
+  isSameDate: isSameDate,
+  daysInMonth: daysInMonth,
+  formatter: formatter,
+  formatDate: formatDate,
+  matchFormat: matchFormat,
+  clone: clone$1
 });
 
 var DateMixin = {
@@ -11940,15 +11942,6 @@ var QField = {
     hasWarning: function hasWarning () {
       return !this.hasError && (this.input.warning || this.warning)
     },
-    hasBottom: function hasBottom () {
-      return (this.hasError && this.errorLabel) ||
-        (this.hasWarning && this.warningLabel) ||
-        this.helper ||
-        this.count
-    },
-    hasLabel: function hasLabel () {
-      return this.label || this.$slots.label || ['label', 'full'].includes(this.inset)
-    },
     childHasLabel: function childHasLabel () {
       return this.input.floatLabel || this.input.stackLabel
     },
@@ -12006,6 +11999,9 @@ var QField = {
         prop.color = this.iconColor;
       }
       return prop
+    },
+    insetHasLabel: function insetHasLabel () {
+      return ['label', 'full'].includes(this.inset)
     }
   },
   provide: function provide () {
@@ -12023,19 +12019,29 @@ var QField = {
       }
     },
     __getBottomContent: function __getBottomContent (h) {
-      if (this.hasError && this.errorLabel) {
-        return h('div', { staticClass: 'q-field-error col' }, this.errorLabel)
+      var label;
+
+      if (this.hasError && (label = this.$slots['error-label'] || this.errorLabel)) {
+        return h('div', { staticClass: 'q-field-error col' }, label)
       }
-      if (this.hasWarning && this.warningLabel) {
-        return h('div', { staticClass: 'q-field-warning col' }, this.warningLabel)
+      if (this.hasWarning && (label = this.$slots['warning-label'] || this.warningLabel)) {
+        return h('div', { staticClass: 'q-field-warning col' }, label)
       }
-      if (this.helper) {
-        return h('div', { staticClass: 'q-field-helper col' }, this.helper)
+      if ((label = this.$slots.helper || this.helper)) {
+        return h('div', { staticClass: 'q-field-helper col' }, label)
       }
       return h('div', { staticClass: 'col' })
+    },
+    __hasBottom: function __hasBottom () {
+      return (this.hasError && (this.$slots['error-label'] || this.errorLabel)) ||
+        (this.hasWarning && (this.$slots['warning-label'] || this.warningLabel)) ||
+        (this.$slots.helper || this.helper) ||
+        this.count
     }
   },
   render: function render (h) {
+    var label = this.$slots.label || this.label;
+
     return h('div', {
       staticClass: 'q-field row no-wrap items-start',
       'class': this.classes
@@ -12048,14 +12054,13 @@ var QField = {
         : (this.insetIcon ? h('div', { staticClass: 'q-field-icon' }) : null),
 
       h('div', { staticClass: 'row col' }, [
-        this.hasLabel
+        label || this.insetHasLabel
           ? h('div', {
             staticClass: 'q-field-label q-field-margin',
             'class': this.labelClasses
           }, [
             h('div', { staticClass: 'q-field-label-inner row items-center' }, [
-              this.label,
-              this.$slots.label
+              this.$slots.label || this.label
             ])
           ])
           : null,
@@ -12065,7 +12070,7 @@ var QField = {
           'class': this.inputClasses
         }, [
           this.$slots.default,
-          this.hasBottom
+          this.__hasBottom()
             ? h('div', {
               staticClass: 'q-field-bottom row no-wrap',
               'class': { 'q-field-no-input': this.hasNoInput }
@@ -15836,7 +15841,7 @@ var QStepperNavigation = {
   name: 'QStepperNavigation',
   render: function render (h) {
     return h('div', {
-      staticClass: 'q-stepper-nav order-last row no-wrap items-center'
+      staticClass: 'q-stepper-nav order-last row items-center'
     }, [
       this.$slots.left,
       h('div', { staticClass: 'col' }),

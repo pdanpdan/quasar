@@ -567,9 +567,9 @@ $min-line-height            ?= 1.19
 $action-sheet-background       ?= white
 $action-sheet-border-radius    ?= 13px
 $action-sheet-hover-background ?= #d0d0d0
-$alert-padding        ?= 12px
-$alert-border-radius  ?= $generic-border-radius
-$alert-min-width      ?= 200px
+$alert-padding       ?= 12px
+$alert-border-radius ?= $generic-border-radius
+$alert-min-width     ?= 200px
 $button-border-radius         ?= $generic-border-radius
 $button-padding               ?= 4px 16px
 $button-dense-padding         ?= .285em
@@ -678,8 +678,7 @@ $input-text-padding-top-dense ?= .25px
 $input-text-padding-bottom ?= 1px
 $input-text-padding-bottom-dense ?= 1.25px
 $input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
-$input-frame-transition-after-in ?= $input-frame-transition, border-right-width .45s cubic-bezier(1, -1, 1, -1)
-$input-frame-transition-after-out ?= $input-frame-transition, border-right-width .45s cubic-bezier(0, 2, 0, 2)
+$input-frame-transition-textarea ?= $input-frame-transition, border-left-width 0s ease .45s, border-right-width 0s ease .45s
 $toolbar-min-height          ?= 50px
 $toolbar-padding             ?= 4px 10px
 $toolbar-title-font-size     ?= 16px
@@ -1767,7 +1766,7 @@ qfield-horizontal()
   background $light-dimmed-background
   &.dark
     background $dimmed-background
-.q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
+.q-if, .q-if:before, .q-if.q-if-focused:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-frame-transition
 .q-if
   outline 0
@@ -1811,6 +1810,12 @@ qfield-horizontal()
     border-radius 4px
     &.q-if-has-label
       padding-top 10px
+      .q-if-label
+        top -3px
+        transform scale(1) translate(0, 150%)
+      &.q-if-dense .q-if-label
+        top -4px
+        transform scale(1) translate(0, 100%)
     &:before, &:after
       border-radius 4px
       top 0
@@ -1825,10 +1830,9 @@ qfield-horizontal()
       border-width 2px
     &:after
       border-width 0
-      transition $input-frame-transition-after-out
     &.q-if-focused:after
       border-width 2px
-      transition $input-frame-transition-after-in
+      transition $input-frame-transition-textarea
   &:not(.q-if-hide-underline)
     padding-bottom 8px
     &:not(.q-if-inverted)
@@ -1846,7 +1850,9 @@ qfield-horizontal()
     color var(--q-color-light)
     transform scaleY(1)
   &:after
-    width 0
+    width 100%
+    transform-origin center bottom 0
+    transform scaleX(0)
     height 2px
     color currentColor
   &:hover:before
@@ -1914,8 +1920,8 @@ qfield-horizontal()
       top calc(50% + 1px)
       transform scale(1) translate(0, -50%)
     .q-if-label-above
-      top 0
-      transform scale(.75) translate(0, 0)
+      top 0 !important
+      transform scale(.75) translate(0, 0) !important
 .q-if-addon
   pointer-events none
   opacity 0
@@ -1975,7 +1981,7 @@ div.q-input-target
     color #656565
 .q-if-focused
   &:after
-    width 100%
+    transform scaleX(1)
   .q-if-label, .q-if-addon, .q-if-control
     color currentColor !important
 .q-if-error
@@ -2904,10 +2910,6 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
         display none
 .q-stepper-step-content
   color black
-.q-stepper-nav
-  height 48px
-  .q-btn + .q-btn
-    margin-left 8px
 .q-stepper-horizontal
   .q-stepper-step-inner
     padding 24px
