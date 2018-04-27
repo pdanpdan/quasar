@@ -638,7 +638,7 @@ $collapsible-padding             ?= 8px 16px
 $collapsible-indent-left-padding ?= ($item-primary-size + $item-gutter)
 $collapsible-active-color        ?= $item-active-color
 $collapsible-menu-left-padding   ?= 48px
-$datetime-range-space    ?= 10px
+$datetime-range-space     ?= 10px
 $datetime-input-min-width ?= 70px
 $dot-color             ?= $red
 $dot-opacity           ?= .8
@@ -669,12 +669,14 @@ $table-dark-color               ?= white
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
-$input-height ?= 1.05em
+$input-height ?= 1em
 $input-line-height ?= .85
-$input-padding-bottom ?= 3.2px
+$input-padding-bottom ?= 1.9px
 $input-text-line-height ?= .9
-$input-text-padding-bottom ?= 2.5px
-$input-text-padding-bottom-dense ?= 3px
+$input-text-padding-top ?= 1px
+$input-text-padding-top-dense ?= .25px
+$input-text-padding-bottom ?= 1px
+$input-text-padding-bottom-dense ?= 1.25px
 $input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
 $input-frame-transition-after-in ?= $input-frame-transition, border-right-width .45s cubic-bezier(1, -1, 1, -1)
 $input-frame-transition-after-out ?= $input-frame-transition, border-right-width .45s cubic-bezier(0, 2, 0, 2)
@@ -1790,9 +1792,8 @@ qfield-horizontal()
     background rgba(0, 0, 0, .06)
     &.q-if-dark
       background rgba(255, 255, 255, .1)
-    &:not(.q-if-text)
-      padding-top 8px
     &:not(.q-if-textarea)
+      padding-top 8px
       &:not(.q-if-disabled)
         &:before, &:after
           border-radius 4px
@@ -1855,18 +1856,18 @@ qfield-horizontal()
     margin -15px 0 0 -5px
     > .q-chip
       margin-top 0
-      margin-bottom 5.8px
+      margin-bottom 5px
     .q-input-target:first-child
       margin-top 15px
   &.q-if-dense
     .group
       margin-top -11px
       > .q-chip
-        margin-bottom 6.65px
+        margin-bottom 6px
       .q-input-target:first-child
         margin-top 12px
     &.q-chips-input .group > .q-chip
-      margin-bottom 7.6px
+      margin-bottom 7px
 .q-if-focusable
   outline 0
   cursor pointer
@@ -1875,6 +1876,11 @@ qfield-horizontal()
   align-self flex-end
   &.col
     min-height 24px
+.q-if-text:not(.q-if-has-label)
+  .q-if-inner.col
+    padding-top 7.5px
+  &.q-if-dense .q-if-inner.col
+    padding-top 9px
 .q-if-has-label
   .q-if-inner
     padding-top calc(0.75em + 8px)
@@ -1885,6 +1891,8 @@ qfield-horizontal()
   &.q-if-dense
     .q-if-inner
       padding-top calc(0.75em + 4px)
+    &.q-if-text .q-if-inner
+      padding-top calc(0.75em + 2px)
 .q-if-label
   pointer-events none
   user-select none
@@ -1911,10 +1919,12 @@ qfield-horizontal()
 .q-if-addon
   pointer-events none
   opacity 0
+  padding-top $input-text-padding-top
   padding-bottom $input-text-padding-bottom
   line-height $input-text-line-height
 .q-if-dense .q-if-addon
   font-size 81.25%
+  padding-top $input-text-padding-top-dense
   padding-bottom $input-text-padding-bottom-dense
 .q-if-inverted:not(.q-if-has-label):not(.q-if-dense) .q-if-addon
   padding-bottom 1px
@@ -2006,7 +2016,7 @@ div.q-input-target
 .q-input-target, .q-input-shadow
   border 0
   outline 0
-  padding 0 0 $input-text-padding-bottom 0
+  padding 0
   margin 0
   background transparent
   font-size inherit
@@ -2015,8 +2025,6 @@ div.q-input-target
   align-items center
   color black
   line-height $input-text-line-height
-  &.col
-    min-height $input-height
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -2029,11 +2037,21 @@ div.q-input-target
     height 0
   &:invalid
     box-shadow inherit
+.q-input-target
+  padding-top $input-text-padding-top
+  padding-bottom $input-text-padding-bottom
+  &:before
+    content '|'
+    line-height $input-text-line-height
+    width 0
+    color transparent
 .q-input-area-holder
-  margin-top -3px
-  align-self flex-start
-.q-if-dense .q-input-area-holder
   margin-top -2px
+  align-self flex-start
+.q-if-dense
+  .q-input-target
+    padding-top $input-text-padding-top-dense
+    padding-bottom $input-text-padding-bottom-dense
 input.q-input-target
   outline 0
   padding-bottom $input-padding-bottom
@@ -3153,7 +3171,7 @@ body.mobile .q-tabs-scroller
     > .q-if
       padding-bottom 4px
       > .q-if-inner
-        padding-bottom 2px
+        padding-bottom 3px
 .q-table-control
   display flex
   align-items center
