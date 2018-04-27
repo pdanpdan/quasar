@@ -18936,7 +18936,7 @@
       }
       else {
         setTimeout(function () {
-          el.__qbacktotop.updateNow();
+          el.__qbacktotop && el.__qbacktotop.updateNow();
         }, 0);
       }
     },
