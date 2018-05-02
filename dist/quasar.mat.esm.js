@@ -3192,19 +3192,22 @@ var QBtn = {
       clearTimeout(this.timer);
     },
     __onKeyDown: function __onKeyDown (e, repeat) {
-      if (e.keyCode !== 13) {
+      if (this.isDisabled || e.keyCode !== 13) {
         return
       }
       this.active = true;
+      if (this.type) {
+        return
+      }
       if (repeat) {
         this.__startRepeat(e);
       }
     },
     __onKeyUp: function __onKeyUp (e, repeat) {
-      if (e.keyCode !== 13) {
+      this.active = false;
+      if (this.type || this.isDisabled || e.keyCode !== 13) {
         return
       }
-      this.active = false;
       this[repeat ? '__endRepeat' : 'click'](e);
     },
     __startRepeat: function __startRepeat (e) {
