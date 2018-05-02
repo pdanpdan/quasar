@@ -3158,8 +3158,8 @@
         return this.isDisabled || !this.repeatTimeout
           ? {
             click: this.click,
-            keydown: this.__onKeyDown,
-            keyup: this.__onKeyUp
+            keydown: function (e) { this$1.__onKeyDown(e); },
+            keyup: function (e) { this$1.__onKeyUp(e); }
           }
           : {
             mousedown: this.__startRepeat,
