@@ -670,16 +670,7 @@ $table-dark-color               ?= $grey-3
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
-$input-height ?= 1em
-$input-line-height ?= .85
-$input-padding-bottom ?= 1.9px
-$input-text-line-height ?= .9
-$input-text-padding-top ?= 1px
-$input-text-padding-top-dense ?= .25px
-$input-text-padding-bottom ?= 1px
-$input-text-padding-bottom-dense ?= 1.25px
 $input-frame-transition ?= all .45s cubic-bezier(.23, 1, .32, 1)
-$input-frame-transition-textarea ?= $input-frame-transition, border-left-width 0s ease .45s, border-right-width 0s ease .45s
 $toolbar-min-height          ?= 50px
 $toolbar-padding             ?= 4px 12px
 $toolbar-title-font-size     ?= 18px
@@ -1818,17 +1809,10 @@ for $pos in 0..23
   min-height $field-icon-size
 .q-field-label-hint
   padding-left 8px
-.q-field-content
-  .q-if-has-label
-    margin-top 3px
-    .q-if-inverted
-      margin-top 5px
 .q-field-bottom
   font-size 12px
   padding-top 8px
   color $form-dark
-  .q-if-dense + &
-    padding-top 4px
 .q-field-no-input
   margin-top 8px
   border-top 1px solid rgba(0, 0, 0, .12)
@@ -1859,17 +1843,15 @@ qfield-vertical()
     padding-top 8px
   &.q-field-floating.q-field-no-label
     .q-field-margin
-      margin-top calc(.75em - 5px)
+      margin-top 12px
   &.q-field-no-label .q-field-label
     display none
 qfield-horizontal()
   &.q-field-floating
     .q-field-margin
-      margin-top calc(.75em - 5px)
-    .q-field-label
-      padding-top 10px
+      margin-top 12px
   .q-field-label + .q-field-content
-      padding-top 0
+    padding-top 0
 .q-field-vertical
   qfield-vertical()
 .q-field-horizontal
@@ -1898,78 +1880,15 @@ qfield-horizontal()
   background $light-dimmed-background
   &.dark
     background $dimmed-background
-.q-if, .q-if:before, .q-if.q-if-focused:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
+.q-if, .q-if:before, .q-if:after, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-frame-transition
 .q-if
+  min-height 32px
   outline 0
-  align-items center
-  &.q-if-dense
-    .q-input-target
-      font-size 81.25%
-  &.q-if-full-width
-    padding 19px 16px
-    border-top 1px solid $light
-    border-bottom 1px solid $light
-    border-top 1px solid var(--q-color-light)
-    border-bottom 1px solid var(--q-color-light)
-    + .q-if-full-width
-      margin-top -1px
-    &.q-if-dense
-      padding 15px
-  &.q-if-box
-    padding-left 16px
-    padding-right 16px
-    border-radius 4px
-    background rgba(0, 0, 0, .06)
-    &.q-if-dark
-      background rgba(255, 255, 255, .1)
-    &:not(.q-if-textarea)
-      padding-top 8px
-      &:not(.q-if-disabled)
-        &:before, &:after
-          border-radius 4px
-          top 0
-          height auto
-          border-bottom 2px solid currentColor
-          background transparent
-          clip-path polygon(0 calc(100% - 2px), 100% calc(100% - 2px), 100% 100%, 0 100%)
-      &.q-if-disabled:before
-        height 0 !important
-  &.q-if-textarea
-    padding-left 16px
-    padding-right 16px
-    padding-top 8px
-    border-radius 4px
-    &.q-if-has-label
-      padding-top 10px
-      .q-if-label
-        top -3px
-        transform scale(1) translate(0, 150%)
-      &.q-if-dense .q-if-label
-        top -4px
-        transform scale(1) translate(0, 100%)
+  padding-bottom 8px
+  &:not(.q-if-hide-underline):not(.q-if-inverted)
     &:before, &:after
-      border-radius 4px
-      top 0
-      height auto !important
-      border 1px solid currentColor
-      background transparent
-      pointer-events none
-    &.q-if-disabled:before
-      border-color $light !important
-      border-color var(--q-color-light) !important
-    &:not(.q-if-disabled):hover:before
-      border-width 2px
-    &:after
-      border-width 0
-    &.q-if-focused:after
-      border-width 2px
-      transition $input-frame-transition-textarea
-  &:not(.q-if-hide-underline)
-    padding-bottom 8px
-    &:not(.q-if-inverted)
-      &:before, &:after
-        content ''
+      content ''
   &:before, &:after
     position absolute
     bottom 0
@@ -1982,123 +1901,69 @@ qfield-horizontal()
     color var(--q-color-light)
     transform scaleY(1)
   &:after
-    width 100%
-    transform-origin center bottom 0
-    transform scaleX(0)
+    width 0
     height 2px
     color currentColor
   &:hover:before
     color black
-    height 2px
   .group
-    margin -15px 0 0 -5px
-    > .q-chip
+    margin -5px
+    &:not(:first-child)
       margin-top 0
-      margin-bottom 5px
-    .q-input-target:first-child
-      margin-top 15px
-  &.q-if-dense
-    .group
-      margin-top -11px
-      > .q-chip
-        margin-bottom 6px
-      .q-input-target:first-child
-        margin-top 12px
-    &.q-chips-input .group > .q-chip
-      margin-bottom 7px
+.q-if-hide-underline:not(.q-if-inverted)
+  min-height 24px
+  padding-bottom 0
 .q-if-focusable
   outline 0
   cursor pointer
 .q-if-inner
-  align-items flex-end
-  align-self flex-end
-  &.col
-    min-height 24px
-.q-if-text:not(.q-if-has-label)
-  .q-if-inner.col
-    padding-top 7.5px
-  &.q-if-dense .q-if-inner.col
-    padding-top 9px
+  min-height 24px !important
+  align-items center
 .q-if-has-label
+  min-height 41px
   .q-if-inner
-    padding-top calc(0.75em + 8px)
-  .q-if-inner.col
-    min-height 1px
-  .q-if-control
-    align-self center
-  &.q-if-dense
-    .q-if-inner
-      padding-top calc(0.75em + 4px)
-    &.q-if-text .q-if-inner
-      padding-top calc(0.75em + 2px)
+    min-height 36px !important
+    padding-top 12px
 .q-if-label
   pointer-events none
   user-select none
-  top 100%
+  top 15px
   left 0
   right 0
-  line-height $input-text-line-height
-  height 1em
   transform-origin left top 0
-  transform scale(1) translate(0, -100%)
+  transform scale(1) translate(0, 0)
 .q-if-label-above
-  top 0
-  transform scale(.75) translate(0, 0)
-.q-if-inverted
-.q-if-box
-.q-if-textarea
-  &.q-if-has-label
-    .q-if-label
-      top calc(50% + 1px)
-      transform scale(1) translate(0, -50%)
-    .q-if-label-above
-      top 0 !important
-      transform scale(.75) translate(0, 0) !important
+  transform scale(.75) translate(0, -22px)
 .q-if-addon
   pointer-events none
   opacity 0
-  padding-top $input-text-padding-top
-  padding-bottom $input-text-padding-bottom
-  line-height $input-text-line-height
-.q-if-dense .q-if-addon
-  font-size 81.25%
-  padding-top $input-text-padding-top-dense
-  padding-bottom $input-text-padding-bottom-dense
-.q-if-inverted:not(.q-if-has-label):not(.q-if-dense) .q-if-addon
-  padding-bottom 1px
 .q-if-addon-left
   padding-right 1px
 .q-if-addon-right
   padding-left 1px
-.q-if-addon-top
-  align-self flex-start
 .q-if-addon-visible
   opacity 1
 .q-if-control
   cursor pointer
   font-size 24px
-  &:hover
-    opacity .7
-  &.q-icon
-    cursor pointer
-.q-if:not(.q-if-inverted):not(.q-if-text):not(.q-if-box) .q-if-control
   align-self flex-end
   &.q-icon
-    transform translateY(2px)
+    cursor pointer
+  &:hover
+    opacity .7
 .q-if-control-before
   margin-left 0
   margin-right 4px
 .q-if-label, .q-if-addon, .q-if-control
   color $form-dark
 .q-if-inverted
+  min-height 38px
   border-radius 2px
   padding 8px
   box-shadow $shadow-1
-  &:not(.q-if-has-label) .q-if-inner
-    align-items center
   .q-input-target
     color inherit
-  .q-if-label, .q-if-addon, .q-if-control
+  .q-if-label, .q-if-addon,  .q-if-control
     color #ddd
 div.q-input-target
   min-width 35px
@@ -2109,11 +1974,11 @@ div.q-input-target
     .q-input-target
       color white
 .q-if-inverted-light
-  .q-if-label, .q-if-addon, .q-if-control
+  .q-if-label, .q-if-addon,  .q-if-control
     color #656565
 .q-if-focused
   &:after
-    transform scaleX(1)
+    width 100%
   .q-if-label, .q-if-addon, .q-if-control
     color currentColor !important
 .q-if-error
@@ -2135,15 +2000,14 @@ div.q-input-target
   .q-if-label, .q-if-control, .q-input-target, .q-chip
     opacity .6
     cursor not-allowed !important
-  &:not(.q-if-box):not(.q-if-textarea)
-    &:before
-      background-image linear-gradient(90deg, rgba(0, 0, 0, .38) 0, rgba(0, 0, 0, .38) 33%, transparent 0)
-      background-color transparent
-      background-position bottom
-      background-size 3px 1px
-      background-repeat repeat-x
-    &.q-if-dark:before
-      background-image linear-gradient(90deg, rgba(255, 255, 255, .7) 0, rgba(255, 255, 255, .7) 33%, transparent 0)
+  &:before
+    background-image linear-gradient(90deg, rgba(0, 0, 0, .38) 0, rgba(0, 0, 0, .38) 33%, transparent 0)
+    background-color transparent
+    background-position bottom
+    background-size 3px 1px
+    background-repeat repeat-x
+  &.q-if-dark:before
+    background-image linear-gradient(90deg, rgba(255, 255, 255, .7) 0, rgba(255, 255, 255, .7) 33%, transparent 0)
 @keyframes webkit-autofill-on
   to
     background transparent
@@ -2155,14 +2019,13 @@ div.q-input-target
   border 0
   outline 0
   padding 0
-  margin 0
   background transparent
+  min-height 18px
   font-size inherit
   resize none
   display flex
   align-items center
   color black
-  line-height $input-text-line-height
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -2175,40 +2038,11 @@ div.q-input-target
     height 0
   &:invalid
     box-shadow inherit
-.q-input-target
-  padding-top $input-text-padding-top
-  padding-bottom $input-text-padding-bottom
-  &:before
-    content '|'
-    line-height $input-text-line-height
-    width 0
-    color transparent
-.q-input-area-holder
-  margin-top -2px
-  align-self flex-start
-.q-if-dense
-  .q-input-target
-    padding-top $input-text-padding-top-dense
-    padding-bottom $input-text-padding-bottom-dense
 input.q-input-target
+  height 19px
   outline 0
-  padding-bottom $input-padding-bottom
-  line-height $input-line-height
-  height $input-height
-  display inline-block
-  -webkit-appearance none
-textarea.q-input-target
-textarea.q-input-shadow
-  padding 0
-  line-height 1.2
-textarea.q-input-target
-  overflow-y hidden
 .q-input-chips
-  > .q-chip
-    transform translateY(9px);
-  > .q-input-target
-    margin-bottom 0
-    align-self flex-end
+  min-height 36px !important
 .q-if
   .q-input-target-placeholder
     color $form-dark !important
@@ -2832,8 +2666,6 @@ $radio-size = 21px
     opacity 0 !important
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
-.q-search.q-if-inverted:not(.q-if-has-label) .q-input-target
-  padding-top 1px
 body.desktop .q-select-highlight
   background rgba(0, 0, 0, .2) !important
 $slider-height              = 28px
@@ -3305,15 +3137,9 @@ body.mobile .q-tabs-scroller
   font-size 12px
   .q-table-control
     min-height 24px
-    > .q-if
-      padding-bottom 4px
-      > .q-if-inner
-        padding-bottom 3px
 .q-table-control
   display flex
   align-items center
-  > .q-if
-    padding-top 0
 .q-table-sort-icon
   transition $table-transition
   will-change opacity, transform
@@ -5678,6 +5504,10 @@ dl
       white-space nowrap
     dd
       margin-left 30%
+.no-margin
+  margin 0 !important
+.no-padding
+  padding 0 !important
 .no-border
   border 0 !important
 .no-border-radius
@@ -5785,19 +5615,11 @@ body
 ie_style = @block
   
   .absolute, .fixed
-    > .q-if
-      > .q-if-inner
-      > .q-if-inner > .q-input-target
-        min-width auto
-        flex-basis auto
-  .q-if:not(.q-if-has-label)
-    .q-if-inner.col
-      height 1px
+    .q-if-inner, .q-input-target
+      min-width auto
+      flex-basis auto
   .q-if-inner
-  .q-input-target
-    min-width auto
-    flex-basis auto
-    width 1px !important
+    min-height 21px
   
   .row > .col
     &.q-alert-content
@@ -5808,24 +5630,17 @@ ie_style = @block
       display -ms-inline-grid
   
   .q-btn
-    .q-btn-inner
-      flex-basis auto
-    &:not(.q-btn-round)
-      height 1px
     &:active
-    &.active
       .q-btn-inner
         margin -1px 1px 1px -1px
       &.q-btn-push
         .q-btn-inner
-          margin 1px 0 -1px 0
+          margin 0 1px 0 -1px
         &.disabled
           .q-btn-inner
             margin -1px 1px 1px -1px
-  .q-btn-group > .q-btn.q-btn-push:not(.disabled)
-    &:active .q-btn-inner
-    &.active .q-btn-inner
-      margin 0
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled):active .q-btn-inner
+    margin 0
   
   .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main
     line-height $chip-height
