@@ -3192,8 +3192,8 @@ var QBtn = {
       return this.isDisabled || !this.repeatTimeout
         ? {
           click: this.click,
-          keydown: function (e) { this$1.__onKeyDown(e); },
-          keyup: function (e) { this$1.__onKeyUp(e); }
+          keydown: this.__onKeyDown,
+          keyup: this.__onKeyUp
         }
         : {
           mousedown: this.__startRepeat,
@@ -3241,20 +3241,20 @@ var QBtn = {
       clearTimeout(this.timer);
     },
     __onKeyDown: function __onKeyDown (e, repeat) {
-      if (this.isDisabled || e.keyCode !== 13) {
+      if (this.type || this.isDisabled || e.keyCode !== 13) {
         return
       }
       this.active = true;
-      if (this.type) {
-        return
-      }
       if (repeat) {
         this.__startRepeat(e);
       }
     },
     __onKeyUp: function __onKeyUp (e, repeat) {
+      if (!this.active) {
+        return
+      }
       this.active = false;
-      if (this.type || this.isDisabled || e.keyCode !== 13) {
+      if (this.isDisabled || e.keyCode !== 13) {
         return
       }
       this[repeat ? '__endRepeat' : 'click'](e);
