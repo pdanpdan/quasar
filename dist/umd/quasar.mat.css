@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.10
+ * Quasar Framework v0.15.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1137,8 +1137,8 @@ div + .q-datetime-time {
 }
 .q-datetime-clock-circle {
   position: relative;
-  -webkit-animation: q-pop-in 0.5s;
-          animation: q-pop-in 0.5s;
+  -webkit-animation: q-pop 0.5s /* rtl:ignore */;
+          animation: q-pop 0.5s /* rtl:ignore */;
 }
 .q-datetime-clock-center {
   height: 6px;
@@ -1157,8 +1157,8 @@ div + .q-datetime-time {
   width: 1px;
   height: 50%;
   margin: 0 auto;
-  -webkit-transform-origin: top center;
-          transform-origin: top center;
+  -webkit-transform-origin: top center /* rtl:ignore */;
+          transform-origin: top center /* rtl:ignore */;
   min-height: 0;
   position: absolute;
   left: 0;
@@ -3252,17 +3252,17 @@ body.desktop .q-select-highlight {
   vertical-align: middle;
 }
 .q-spinner-mat {
-  -webkit-animation: q-spin 2s linear infinite;
-          animation: q-spin 2s linear infinite;
-  -webkit-transform-origin: center center;
-          transform-origin: center center;
+  -webkit-animation: q-spin 2s linear infinite /* rtl:ignore */;
+          animation: q-spin 2s linear infinite /* rtl:ignore */;
+  -webkit-transform-origin: center center /* rtl:ignore */;
+          transform-origin: center center /* rtl:ignore */;
 }
 .q-spinner-mat .path {
   stroke-dasharray: 1, 200;
   stroke-dashoffset: 0;
   stroke-linecap: round;
-  -webkit-animation: q-mat-dash 1.5s ease-in-out infinite;
-          animation: q-mat-dash 1.5s ease-in-out infinite;
+  -webkit-animation: q-mat-dash 1.5s ease-in-out infinite /* rtl:ignore */;
+          animation: q-mat-dash 1.5s ease-in-out infinite /* rtl:ignore */;
 }
 .q-stepper {
   border-radius: 2px;
@@ -8128,8 +8128,8 @@ img.avatar {
   margin: 0;
 }
 .highlight-and-fade {
-  -webkit-animation: q-highlight 2s;
-          animation: q-highlight 2s;
+  -webkit-animation: q-highlight 2s /* rtl:ignore */;
+          animation: q-highlight 2s /* rtl:ignore */;
 }
 .transition-generic {
   -webkit-transition: all 0.3s;
@@ -8137,31 +8137,31 @@ img.avatar {
 }
 .animate-spin,
 .animate-spin-reverse {
-  -webkit-animation: q-spin 2s infinite linear;
-          animation: q-spin 2s infinite linear;
+  -webkit-animation: q-spin 2s infinite linear /* rtl:ignore */;
+          animation: q-spin 2s infinite linear /* rtl:ignore */;
 }
 .animate-spin-reverse {
   animation-direction: reverse;
 }
 .animate-blink {
-  -webkit-animation: q-blink 1s steps(5, start) infinite;
-          animation: q-blink 1s steps(5, start) infinite;
+  -webkit-animation: q-blink 1s steps(5, start) infinite /* rtl:ignore */;
+          animation: q-blink 1s steps(5, start) infinite /* rtl:ignore */;
 }
 .animate-pop {
-  -webkit-animation: q-pop 0.2s;
-          animation: q-pop 0.2s;
+  -webkit-animation: q-pop 0.2s /* rtl:ignore */;
+          animation: q-pop 0.2s /* rtl:ignore */;
 }
 .animate-scale {
-  -webkit-animation: q-scale 0.2s;
-          animation: q-scale 0.2s;
+  -webkit-animation: q-scale 0.2s /* rtl:ignore */;
+          animation: q-scale 0.2s /* rtl:ignore */;
 }
 .animate-fade {
-  -webkit-animation: q-fade 0.2s;
-          animation: q-fade 0.2s;
+  -webkit-animation: q-fade 0.2s /* rtl:ignore */;
+          animation: q-fade 0.2s /* rtl:ignore */;
 }
 .animate-bounce {
-  -webkit-animation: q-bounce 2s infinite;
-          animation: q-bounce 2s infinite;
+  -webkit-animation: q-bounce 2s infinite /* rtl:ignore */;
+          animation: q-bounce 2s infinite /* rtl:ignore */;
 }
 .animate-popup-up,
 .animate-popup-down {
@@ -8169,16 +8169,16 @@ img.avatar {
           animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 .animate-popup-down {
-  -webkit-animation: q-popup-down 0.42s;
-          animation: q-popup-down 0.42s;
-  -webkit-transform-origin: left top 0px;
-          transform-origin: left top 0px;
+  -webkit-animation: q-popup-down 0.42s /* rtl:ignore */;
+          animation: q-popup-down 0.42s /* rtl:ignore */;
+  -webkit-transform-origin: left top 0px /* rtl:ignore */;
+          transform-origin: left top 0px /* rtl:ignore */;
 }
 .animate-popup-up {
-  -webkit-animation: q-popup-up 0.42s;
-          animation: q-popup-up 0.42s;
-  -webkit-transform-origin: left bottom 0px;
-          transform-origin: left bottom 0px;
+  -webkit-animation: q-popup-up 0.42s /* rtl:ignore */;
+          animation: q-popup-up 0.42s /* rtl:ignore */;
+  -webkit-transform-origin: left bottom 0px /* rtl:ignore */;
+          transform-origin: left bottom 0px /* rtl:ignore */;
 }
 .animated {
   -webkit-animation-duration: 1s;

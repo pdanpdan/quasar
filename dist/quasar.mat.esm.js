@@ -1,10 +1,10 @@
 /*!
- * Quasar Framework v0.15.10
+ * Quasar Framework v0.15.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
 
-var version = "0.15.10";
+var version = "0.15.11";
 
 function offset (el) {
   if (!el || el === window) {
@@ -327,6 +327,9 @@ var History = {
       document.addEventListener('backbutton', function () {
         if (this$1.__history.length) {
           this$1.__history.pop().handler();
+        }
+        else if (window.location.hash === '#/') {
+          navigator.app.exitApp();
         }
         else {
           window.history.back();
@@ -12190,7 +12193,6 @@ var QInfiniteScroll = {
     var this$1 = this;
 
     this.$nextTick(function () {
-      this$1.poll = debounce(this$1.poll, 50);
       this$1.element = this$1.$refs.content;
 
       this$1.scrollContainer = this$1.inline ? this$1.$el : getScrollTarget(this$1.$el);
@@ -12199,6 +12201,7 @@ var QInfiniteScroll = {
       }
 
       this$1.poll();
+      this$1.poll = debounce(this$1.poll, 50);
     });
   },
   beforeDestroy: function beforeDestroy () {
@@ -12462,6 +12465,9 @@ var QKnob = {
       if (this.model !== value) {
         this.model = value;
       }
+
+      this.$emit('drag-value', value);
+
       if (this.value === value) {
         return
       }
