@@ -23,14 +23,14 @@ function style (el, property) {
 
 function height (el) {
   if (el === window) {
-    return viewport().height
+    return window.innerHeight
   }
   return parseFloat(style(el, 'height'))
 }
 
 function width (el) {
   if (el === window) {
-    return viewport().width
+    return window.innerWidth
   }
   return parseFloat(style(el, 'width'))
 }
@@ -44,18 +44,9 @@ function css (element, css) {
 }
 
 function viewport () {
-  var
-    e = window,
-    a = 'inner';
-
-  if (!('innerWidth' in window)) {
-    a = 'client';
-    e = document.documentElement || document.body;
-  }
-
   return {
-    width: e[a + 'Width'],
-    height: e[a + 'Height']
+    width: window.innerWidth,
+    height: window.innerHeight
   }
 }
 
@@ -81,14 +72,14 @@ function cssTransform (val) {
 }
 
 var dom = /*#__PURE__*/Object.freeze({
-  offset: offset,
-  style: style,
-  height: height,
-  width: width,
-  css: css,
-  viewport: viewport,
-  ready: ready,
-  cssTransform: cssTransform
+offset: offset,
+style: style,
+height: height,
+width: width,
+css: css,
+viewport: viewport,
+ready: ready,
+cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1301,16 +1292,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-  listenOpts: listenOpts,
-  leftClick: leftClick,
-  middleClick: middleClick,
-  rightClick: rightClick,
-  getEventKey: getEventKey,
-  position: position,
-  targetElement: targetElement,
-  getEventPath: getEventPath,
-  getMouseWheelDistance: getMouseWheelDistance,
-  stopAndPrevent: stopAndPrevent
+listenOpts: listenOpts,
+leftClick: leftClick,
+middleClick: middleClick,
+rightClick: rightClick,
+getEventKey: getEventKey,
+position: position,
+targetElement: targetElement,
+getEventPath: getEventPath,
+getMouseWheelDistance: getMouseWheelDistance,
+stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1414,13 +1405,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-  getScrollTarget: getScrollTarget,
-  getScrollHeight: getScrollHeight,
-  getScrollPosition: getScrollPosition,
-  animScrollTo: animScrollTo,
-  setScrollPosition: setScrollPosition,
-  getScrollbarWidth: getScrollbarWidth,
-  hasScrollbar: hasScrollbar
+getScrollTarget: getScrollTarget,
+getScrollHeight: getScrollHeight,
+getScrollPosition: getScrollPosition,
+animScrollTo: animScrollTo,
+setScrollPosition: setScrollPosition,
+getScrollbarWidth: getScrollbarWidth,
+hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -1516,8 +1507,21 @@ var QModal = {
   name: 'QModal',
   mixins: [ModelToggleMixin, PreventScroll],
   provide: function provide () {
+    var this$1 = this;
+
     return {
-      __qmodal: true
+      __qmodal: {
+        register: function (layout) {
+          if (this$1.layout !== layout) {
+            this$1.layout = layout;
+          }
+        },
+        unregister: function (layout) {
+          if (this$1.layout === layout) {
+            this$1.layout = null;
+          }
+        }
+      }
     }
   },
   props: {
@@ -1550,6 +1554,11 @@ var QModal = {
     minimized: Boolean,
     maximized: Boolean
   },
+  data: function data () {
+    return {
+      layout: null
+    }
+  },
   watch: {
     $route: function $route () {
       if (!this.noRouteDismiss) {
@@ -1569,6 +1578,12 @@ var QModal = {
         return ['minimized', cls]
       }
       return cls
+    },
+    contentClassesCalc: function contentClassesCalc () {
+      if (this.layout) {
+        return [this.contentClasses, 'column no-wrap']
+      }
+      return this.contentClasses
     },
     transitionProps: function transitionProps () {
       if (this.position) {
@@ -1720,9 +1735,9 @@ var QModal = {
       }, [
         h('div', {
           ref: 'content',
-          staticClass: 'modal-content scroll',
+          staticClass: 'modal-content',
           style: this.modalCss,
-          'class': this.contentClasses,
+          'class': this.contentClassesCalc,
           attrs: { tabindex: -1 },
           on: {
             click: this.__stopPropagation,
@@ -1752,6 +1767,18 @@ var QModalLayout = {
 
     footerStyle: [String, Object, Array],
     footerClass: [String, Object, Array]
+  },
+  watch: {
+    __qmodal: function __qmodal (newModal, oldModal) {
+      oldModal && oldModal.register(this);
+      newModal && newModal.register(this);
+    }
+  },
+  mounted: function mounted () {
+    this.__qmodal && this.__qmodal.register(this);
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.__qmodal && this.__qmodal.unregister(this);
   },
   render: function render (h) {
     var child = [];
@@ -1787,7 +1814,7 @@ var QModalLayout = {
     }
 
     return h('div', {
-      staticClass: 'q-modal-layout column absolute-full'
+      staticClass: 'q-modal-layout column no-wrap'
     }, child)
   }
 }
@@ -2557,11 +2584,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-  humanStorageSize: humanStorageSize,
-  capitalize: capitalize,
-  between: between,
-  normalizeToInterval: normalizeToInterval,
-  pad: pad
+humanStorageSize: humanStorageSize,
+capitalize: capitalize,
+between: between,
+normalizeToInterval: normalizeToInterval,
+pad: pad
 });
 
 var
@@ -3785,7 +3812,7 @@ var QPopover = {
       }
       var ref = this.anchorEl.getBoundingClientRect();
       var top = ref.top;
-      var ref$1 = viewport();
+      var ref$1 = window.innerHeight;
       var height$$1 = ref$1.height;
 
       if (top < 0 || top > height$$1) {
@@ -4992,27 +5019,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-  linear: linear,
-  easeInQuad: easeInQuad,
-  easeOutQuad: easeOutQuad,
-  easeInOutQuad: easeInOutQuad,
-  easeInCubic: easeInCubic,
-  easeOutCubic: easeOutCubic,
-  easeInOutCubic: easeInOutCubic,
-  easeInQuart: easeInQuart,
-  easeOutQuart: easeOutQuart,
-  easeInOutQuart: easeInOutQuart,
-  easeInQuint: easeInQuint,
-  easeOutQuint: easeOutQuint,
-  easeInOutQuint: easeInOutQuint,
-  easeInCirc: easeInCirc,
-  easeOutCirc: easeOutCirc,
-  easeInOutCirc: easeInOutCirc,
-  overshoot: overshoot,
-  standard: standard,
-  decelerate: decelerate,
-  accelerate: accelerate,
-  sharp: sharp
+linear: linear,
+easeInQuad: easeInQuad,
+easeOutQuad: easeOutQuad,
+easeInOutQuad: easeInOutQuad,
+easeInCubic: easeInCubic,
+easeOutCubic: easeOutCubic,
+easeInOutCubic: easeInOutCubic,
+easeInQuart: easeInQuart,
+easeOutQuart: easeOutQuart,
+easeInOutQuart: easeInOutQuart,
+easeInQuint: easeInQuint,
+easeOutQuint: easeOutQuint,
+easeInOutQuint: easeInOutQuint,
+easeInCirc: easeInCirc,
+easeOutCirc: easeOutCirc,
+easeInOutCirc: easeInOutCirc,
+overshoot: overshoot,
+standard: standard,
+decelerate: decelerate,
+accelerate: accelerate,
+sharp: sharp
 });
 
 var ids = {};
@@ -5081,8 +5108,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-  start: start,
-  stop: stop
+start: start,
+stop: stop
 });
 
 var FullscreenMixin = {
@@ -7564,15 +7591,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-  rgbToHex: rgbToHex,
-  hexToRgb: hexToRgb,
-  hsvToRgb: hsvToRgb,
-  rgbToHsv: rgbToHsv,
-  textToRgb: textToRgb,
-  lighten: lighten,
-  luminosity: luminosity,
-  setBrand: setBrand,
-  getBrand: getBrand
+rgbToHex: rgbToHex,
+hexToRgb: hexToRgb,
+hsvToRgb: hsvToRgb,
+rgbToHsv: rgbToHsv,
+textToRgb: textToRgb,
+lighten: lighten,
+luminosity: luminosity,
+setBrand: setBrand,
+getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -9108,29 +9135,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-  isValid: isValid,
-  buildDate: buildDate,
-  getDayOfWeek: getDayOfWeek,
-  getWeekOfYear: getWeekOfYear,
-  isBetweenDates: isBetweenDates,
-  addToDate: addToDate,
-  subtractFromDate: subtractFromDate,
-  adjustDate: adjustDate,
-  startOfDate: startOfDate,
-  endOfDate: endOfDate,
-  getMaxDate: getMaxDate,
-  getMinDate: getMinDate,
-  getDateDiff: getDateDiff,
-  getDayOfYear: getDayOfYear,
-  inferDateFormat: inferDateFormat,
-  convertDateToFormat: convertDateToFormat,
-  getDateBetween: getDateBetween,
-  isSameDate: isSameDate,
-  daysInMonth: daysInMonth,
-  formatter: formatter,
-  formatDate: formatDate,
-  matchFormat: matchFormat,
-  clone: clone$1
+isValid: isValid,
+buildDate: buildDate,
+getDayOfWeek: getDayOfWeek,
+getWeekOfYear: getWeekOfYear,
+isBetweenDates: isBetweenDates,
+addToDate: addToDate,
+subtractFromDate: subtractFromDate,
+adjustDate: adjustDate,
+startOfDate: startOfDate,
+endOfDate: endOfDate,
+getMaxDate: getMaxDate,
+getMinDate: getMinDate,
+getDateDiff: getDateDiff,
+getDayOfYear: getDayOfYear,
+inferDateFormat: inferDateFormat,
+convertDateToFormat: convertDateToFormat,
+getDateBetween: getDateBetween,
+isSameDate: isSameDate,
+daysInMonth: daysInMonth,
+formatter: formatter,
+formatDate: formatDate,
+matchFormat: matchFormat,
+clone: clone$1
 });
 
 var DateMixin = {
@@ -9869,8 +9896,8 @@ var QResizeObservable = {
       this.size = size;
       this.$emit('resize', this.size);
     },
-    trigger: function trigger () {
-      if (this.debounce === 0) {
+    trigger: function trigger (immediately) {
+      if (immediately || this.debounce === 0) {
         this.onResize();
       }
       else if (!this.timer) {
@@ -9895,7 +9922,7 @@ var QResizeObservable = {
       on: {
         load: function () {
           this$1.$el.contentDocument.defaultView.addEventListener('resize', this$1.trigger, listenOpts.passive);
-          this$1.trigger();
+          this$1.trigger(true);
         }
       }
     })
@@ -9915,7 +9942,7 @@ var QResizeObservable = {
       return
     }
 
-    this.trigger();
+    this.trigger(true);
 
     if (this.$q.platform.is.ie) {
       this.url = 'about:blank';
@@ -10007,7 +10034,10 @@ var QWindowResizeObservable = {
     },
     emit: function emit () {
       this.timer = null;
-      this.$emit('resize', viewport());
+      this.$emit('resize', {
+        height: window.innerHeight,
+        width: window.innerWidth
+      });
     }
   },
   created: function created () {
@@ -12555,13 +12585,9 @@ var QLayout = {
     }
   },
   data: function data () {
-    var ref = viewport();
-    var height$$1 = ref.height;
-    var width$$1 = ref.width;
-
     return {
-      height: height$$1, // window height
-      width: width$$1, // window width
+      height: window.innerHeight,
+      width: window.innerWidth,
 
       header: {
         size: 0,
@@ -12647,16 +12673,16 @@ var QLayout = {
       this.$emit('scrollHeight', this.scrollHeight);
     },
     __onWindowResize: function __onWindowResize (ref) {
-      var height$$1 = ref.height;
-      var width$$1 = ref.width;
+      var height = ref.height;
+      var width = ref.width;
 
-      if (this.height !== height$$1) {
-        this.height = height$$1;
+      if (this.height !== height) {
+        this.height = height;
       }
-      if (this.width !== width$$1) {
-        this.width = width$$1;
+      if (this.width !== width) {
+        this.width = width;
       }
-      this.$emit('resize', { height: height$$1, width: width$$1 });
+      this.$emit('resize', { height: height, width: width });
     }
   }
 }
@@ -12684,6 +12710,11 @@ var QLayoutDrawer = {
       type: String,
       default: 'left',
       validator: function (v) { return ['left', 'right'].includes(v); }
+    },
+    mini: Boolean,
+    miniWidth: {
+      type: String,
+      default: '60px'
     },
     breakpoint: {
       type: Number,
@@ -12719,7 +12750,6 @@ var QLayoutDrawer = {
       ),
       largeScreenState: largeScreenState,
       mobileOpened: false,
-
       size: 300
     }
   },
@@ -12782,6 +12812,9 @@ var QLayoutDrawer = {
     },
     '$q.i18n.rtl': function $q_i18n_rtl () {
       this.applyPosition();
+    },
+    mini: function mini () {
+      this.layout.__animate();
     }
   },
   computed: {
@@ -12831,12 +12864,15 @@ var QLayoutDrawer = {
         'fixed': true,
         'on-top': true,
         'q-layout-drawer-delimiter': this.fixed && this.showing,
+        'q-layout-drawer-mobile': true,
         'top-padding': true
       }
     },
     aboveClass: function aboveClass () {
       return {
         'fixed': this.fixed || !this.onLayout,
+        'q-layout-drawer-mini': this.isMini,
+        'q-layout-drawer-normal': !this.isMini,
         'q-layout-drawer-delimiter': this.fixed && this.showing,
         'top-padding': this.headerSlot
       }
@@ -12862,6 +12898,10 @@ var QLayoutDrawer = {
         }
       }
 
+      if (this.isMini) {
+        css$$1.width = this.miniWidth;
+      }
+
       return css$$1
     },
     computedStyle: function computedStyle () {
@@ -12872,6 +12912,9 @@ var QLayoutDrawer = {
     },
     stateDirection: function stateDirection () {
       return (this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1)
+    },
+    isMini: function isMini () {
+      return this.mini && !this.mobileView
     }
   },
   render: function render (h) {
@@ -12910,7 +12953,7 @@ var QLayoutDrawer = {
         'class': this.computedClass,
         style: this.computedStyle,
         attrs: this.$attrs,
-        listeners: this.$listeners,
+        on: !this.mobileView ? this.$listeners : null,
         directives: this.mobileView && !this.noSwipeClose ? [{
           name: 'touch-pan',
           modifiers: { horizontal: true },
@@ -12921,7 +12964,9 @@ var QLayoutDrawer = {
           props: { debounce: 0 },
           on: { resize: this.__onResize }
         }),
-        this.$slots.default
+        this.mini && this.$slots.mini && !this.mobileView
+          ? this.$slots.mini
+          : this.$slots.default
       ])
     ]))
   },
@@ -13998,7 +14043,7 @@ var QParallax = {
       }
 
       if (this.scrollTarget === window) {
-        this.viewportHeight = viewport().height;
+        this.viewportHeight = window.innerHeight;
       }
       this.imageHeight = height(this.image);
       this.__updatePos();
@@ -17078,7 +17123,7 @@ function fixPagination (p) {
     p.page = 1;
   }
   if (p.rowsPerPage !== void 0 && p.rowsPerPage < 1) {
-    p.rowsPerPage = 5;
+    p.rowsPerPage = 0;
   }
   return p
 }
@@ -18935,7 +18980,7 @@ var scrollFire = {
 
         if (ctx.scrollTarget === window) {
           elementBottom = el.getBoundingClientRect().bottom;
-          fire = elementBottom < viewport().height;
+          fire = elementBottom < window.innerHeight;
         }
         else {
           containerBottom = offset(ctx.scrollTarget).top + height(ctx.scrollTarget);
@@ -19778,6 +19823,93 @@ var notify = {
   }
 }
 
+var screen = {
+  width: 1024,
+
+  sizes: {
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200
+  },
+
+  lt: {
+    xl: true
+  },
+  gt: {
+    xs: true,
+    sm: true,
+    md: true
+  },
+  lg: true,
+
+  __installed: false,
+  install: function install (ref) {
+    var this$1 = this;
+    var $q = ref.$q;
+    var Vue = ref.Vue;
+
+    if (this.__installed) { return }
+    this.__installed = true;
+
+    if (isSSR) {
+      this.$q.screen = this;
+      return
+    }
+
+    var style = getComputedStyle(document.body);
+
+    // if css props available
+    if (style.getPropertyValue('--q-size-sm')) {
+      ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+        this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
+      });
+    }
+
+    var update = function () {
+      var
+        w = window.innerWidth,
+        s = this$1.sizes;
+
+      if (w === this$1.width) {
+        return
+      }
+
+      this$1.width = w;
+
+      this$1.gt.xs = w >= s.sm;
+      this$1.gt.sm = w >= s.md;
+      this$1.gt.md = w >= s.lg;
+      this$1.gt.lg = w >= s.xl;
+      this$1.lt.sm = w < s.sm;
+      this$1.lt.md = w < s.md;
+      this$1.lt.lg = w < s.lg;
+      this$1.lt.xl = w < s.xl;
+      this$1.xs = this$1.lt.sm;
+      this$1.sm = this$1.gt.xs && this$1.lt.md;
+      this$1.md = this$1.gt.sm && this$1.lt.lg;
+      this$1.lg = this$1.gt.md && this$1.lt.xl;
+      this$1.xl = w > s.xl;
+    };
+
+    update();
+    update = debounce(update, 100);
+
+    window.addEventListener('resize', update, listenOpts.passive);
+
+    this.setSizes = function (sizes) {
+      ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+        if (sizes[name]) {
+          this$1.sizes[name] = sizes[name];
+        }
+      });
+      update();
+    };
+
+    Vue.util.defineReactive($q, 'screen', this);
+  }
+}
+
 function encode$1 (value) {
   if (Object.prototype.toString.call(value) === '[object Date]') {
     return '__q_date|' + value.toUTCString()
@@ -19968,4 +20100,4 @@ var index_esm = {
 }
 
 export default index_esm;
-export { QActionSheet, QAjaxBar, QAlert, QAutocomplete, QBreadcrumbs, QBreadcrumbsEl, QBtn, QBtnGroup, QBtnDropdown, QBtnToggle, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QColor, QColorPicker, QContextMenu, QDatetime, QDatetimePicker, QDialog, QEditor, QFab, QFabAction, QField, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, DefaultSpinner as QSpinnerIos, QSpinner_mat as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QTimeline, QTimelineEntry, QToggle, QToolbar, QToolbarTitle, QTooltip, QTree, QUploader, QVideo, backToTop as BackToTop, closeOverlay as CloseOverlay, goBack as GoBack, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, actionSheet as ActionSheet, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, dialog as Dialog, Loading, notify as Notify, Platform, LocalStorage, SessionStorage, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
+export { QActionSheet, QAjaxBar, QAlert, QAutocomplete, QBreadcrumbs, QBreadcrumbsEl, QBtn, QBtnGroup, QBtnDropdown, QBtnToggle, QCard, QCardTitle, QCardMain, QCardActions, QCardMedia, QCardSeparator, QCarousel, QCarouselSlide, QCarouselControl, QChatMessage, QCheckbox, QChip, QChipsInput, QCollapsible, QColor, QColorPicker, QContextMenu, QDatetime, QDatetimePicker, QDialog, QEditor, QFab, QFabAction, QField, QIcon, QInfiniteScroll, QInnerLoading, QInput, QInputFrame, QKnob, QLayout, QLayoutDrawer, QLayoutFooter, QLayoutHeader, QPage, QPageContainer, QPageSticky, QItem, QItemSeparator, QItemMain, QItemSide, QItemTile, QItemWrapper, QList, QListHeader, QModal, QModalLayout, QResizeObservable, QScrollObservable, QWindowResizeObservable, QOptionGroup, QPagination, QParallax, QPopover, QProgress, QPullToRefresh, QRadio, QRange, QRating, QScrollArea, QSearch, QSelect, QSlideTransition, QSlider, QSpinner, audio as QSpinnerAudio, ball as QSpinnerBall, bars as QSpinnerBars, circles as QSpinnerCircles, comment as QSpinnerComment, cube as QSpinnerCube, dots as QSpinnerDots, facebook as QSpinnerFacebook, gears as QSpinnerGears, grid as QSpinnerGrid, hearts as QSpinnerHearts, hourglass as QSpinnerHourglass, infinity as QSpinnerInfinity, DefaultSpinner as QSpinnerIos, QSpinner_mat as QSpinnerMat, oval as QSpinnerOval, pie as QSpinnerPie, puff as QSpinnerPuff, radio as QSpinnerRadio, rings as QSpinnerRings, tail as QSpinnerTail, QStep, QStepper, QStepperNavigation, QRouteTab, QTab, QTabPane, QTabs, QTable, QTh, QTr, QTd, QTableColumns, QTimeline, QTimelineEntry, QToggle, QToolbar, QToolbarTitle, QTooltip, QTree, QUploader, QVideo, backToTop as BackToTop, closeOverlay as CloseOverlay, goBack as GoBack, Ripple, scrollFire as ScrollFire, scroll$1 as Scroll, touchHold as TouchHold, TouchPan, TouchSwipe, actionSheet as ActionSheet, addressbarColor as AddressbarColor, appFullscreen as AppFullscreen, appVisibility as AppVisibility, cookies as Cookies, dialog as Dialog, Loading, notify as Notify, Platform, screen as Screen, LocalStorage, SessionStorage, animate, clone, colors, date, debounce, frameDebounce, dom, easing, event, extend, filter, format, noop, openUrl as openURL, scroll, throttle, uid };
