@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.11
+ * Quasar Framework v0.15.13
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1119,6 +1119,40 @@ input[type='search']::-webkit-search-decoration
     opacity .5
     .q-icon
       font-size $carousel-quick-nav-icon-inactive-font-size !important
+.q-carousel-thumbnails
+  will-change transform
+  transition transform .3s
+  transform translateY(105%)
+  width 100%
+  height auto
+  max-height 60%
+  overflow auto
+  background black
+  padding .5rem
+  text-align center
+  box-shadow 0 -3px 6px rgba(0, 0, 0, .16), 0 -5px 6px rgba(0, 0, 0, .23)
+  &.active
+    transform translateY(0)
+  img
+    height auto
+    width 100%
+    display block
+    opacity .5
+    will-change opacity
+    transition opacity .3s
+    cursor pointer
+    border 1px solid black
+  > div > div
+    flex 0 0 108px
+    &.active img, img.active
+      opacity 1
+      border-color white
+.q-carousel-thumbnail-btn
+  background $carousel-quick-nav-background
+  top 5px
+  right 5px
+body.desktop .q-carousel-thumbnails img:hover
+  opacity 1
 .q-message-name, .q-message-stamp, .q-message-label
   font-size small
 .q-message-name
@@ -2383,11 +2417,9 @@ maximized-modal()
   background $modal-background
   box-shadow $popover-box-shadow
   overflow-y auto
-  will-change scroll-position
   min-width 280px
   max-height 80vh
   border-radius $modal-border-radius
-  -webkit-backface-visibility hidden
   outline none
 .modal
   z-index $z-modal
@@ -4935,42 +4967,6 @@ for $z in 1..24
   z-index $z-notify
 .z-fullscreen
   z-index $z-fullscreen
-fr(selector, name, i = '')
-  unquote(replace(unquote('<i>'), unquote(i), replace(unquote('<name>'), unquote(name), unquote(selector))))
-fe(selector, name, noProc, i = '')
-  if noProc
-    return fr(selector, name, i)
-  return unquote(join(',', fr(selector, '', i) fr(selector, name, i)))
-fg($name, $size)
-  @media (min-width $size)
-    {fe('.col<name>', $name, $size > 0)}
-      &, &-auto, &-grow
-        height auto
-        min-height 0
-        max-height 100%
-        width auto
-        min-width 0
-        max-width 100%
-      &
-        flex 10**4 1 0%
-      &-auto
-        flex 0 0 auto
-      &-grow
-        flex 1 0 auto
-    for $i in (0..$flex-cols)
-      $ic = s('%s', $i)
-      {fe('.col<name>-<i>', $name, $size > 0, $ic)}
-        @extend .col{$name}-auto
-      .row
-        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
-          height auto
-          width (round($i / $flex-cols * 100, 4))%
-        {fe('> .offset<name>-<i>', $name, $size > 0, $ic)}
-          margin-left (round($i / $flex-cols * 100, 4))%
-      .column
-        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
-          height (round($i / $flex-cols * 100, 4))%
-          width auto
 .row, .column, .flex
   display flex
   flex-wrap wrap
@@ -4988,13 +4984,38 @@ fg($name, $size)
   flex-wrap nowrap
 .reverse-wrap
   flex-wrap wrap-reverse
-.order-
-  &first
-    order -10000
-  &last
-    order 10000
-  &none
-    order 0
+.col
+  flex-basis 0
+  flex-grow 1
+  min-height 1px
+  min-width 0
+.row
+  > .col
+    max-width 100%
+    width 100%
+for $name, $size in $sizes
+  .row > .col-{$name}
+    width 100%
+  .col-{$name}
+    min-height 1px
+  for $i in (1..$flex-cols)
+    .row > .col-{$name}-{$i}
+      width 100%
+    .col-{$name}-{$i}
+      min-height 1px
+.row > .col-auto
+  width auto
+.col-auto
+  flex 0 0 auto
+  min-width 0
+.col-grow
+  flex 1 1 auto
+.order-first
+  order -10000
+.order-last
+  order 10000
+.order-none
+  order 0
 .justify-
   &start
     justify-content flex-start
@@ -5044,22 +5065,43 @@ fg($name, $size)
 .flex-center
   @extend .items-center
   @extend .justify-center
+for $i in (0..$flex-cols)
+  .col-{$i}
+    flex 0 0 (round($i / $flex-cols * 100, 4))%
+  .row > .col-{$i}
+    max-width (round($i / $flex-cols * 100, 4))%
+  .offset-{$i}
+    margin-left (round($i / $flex-cols * 100, 4))%
 for $name, $size in $flex-gutter
-  .gutter-
-    &x-{$name}
-      margin-left (- $size)
-      > div
-        padding-left $size
-    &y-{$name}
-      margin-top (- $size)
-      > div
-        padding-top $size
-    &{$name}
-      @extends .gutter-x-{$name}, .gutter-y-{$name}
-      > div
-        @extends .gutter-x-{$name} > div, .gutter-y-{$name} > div
+  .gutter-x-{$name}
+    margin-left (- $size)
+    > div
+      padding-left $size
+  .gutter-y-{$name}
+    margin-top (- $size)
+    > div
+      padding-top $size
+  .gutter-{$name}
+    @extends .gutter-x-{$name}, .gutter-y-{$name}
+    > div
+      @extends .gutter-x-{$name} > div, .gutter-y-{$name} > div
 for $name, $size in $sizes
-  fg(s('-%s', unquote($name)), $size)
+  @media (min-width $size)
+    .col-{$name}
+      max-width 100%
+      flex-basis 0
+      flex-grow 1
+    .col-{$name}-auto
+      flex 0 0 auto
+      .row > &
+        width auto
+    for $i in (0..$flex-cols)
+      .col-{$name}-{$i}
+        flex 0 0 (round($i / $flex-cols * 100, 4))%
+      .row > .col-{$name}-{$i}
+        max-width (round($i / $flex-cols * 100, 4))%
+      .offset-{$name}-{$i}
+        margin-left (round($i / $flex-cols * 100, 4))%
 .backdrop
   display none
   position fixed
@@ -5325,153 +5367,6 @@ for $name, $size in $sizes
   margin-right 12px
 .on-right
   margin-left 12px
-fr(selector, name, i = '')
-  unquote(replace(unquote('<i>'), unquote(i), replace(unquote('<name>'), unquote(name), unquote(selector))))
-fe(selector, name, noProc, i = '')
-  if noProc
-    return fr(selector, name, i)
-  return unquote(join(',', fr(selector, '', i) fr(selector, name, i)))
-fg($name, $size)
-  @media (min-width $size)
-    {fe('.flex<name>-', $name, $size > 0)}
-      &block
-        display block
-      &inline
-        display inline-block
-    .row, .column, .flex
-      {fe('&<name>', $name, $size > 0)}
-        display flex
-        flex-wrap wrap
-        {fe('&.inline<name>', $name, $size > 0)} 
-          display inline-flex
-    .row
-      {fe('&<name>', $name, $size > 0)}
-        flex-direction row
-        {fe('&.reverse<name>', $name, $size > 0)} 
-          flex-direction row-reverse
-    .column
-      {fe('&<name>', $name, $size > 0)}
-        flex-direction column
-        {fe('&.reverse<name>', $name, $size > 0)} 
-          flex-direction column-reverse
-    {fe('.wrap<name>', $name, $size > 0)}
-      flex-wrap wrap
-    {fe('.no-wrap<name>', $name, $size > 0)}
-      flex-wrap nowrap
-    {fe('.reverse-wrap<name>', $name, $size > 0)}
-      flex-wrap wrap-reverse
-    {fe('.order<name>-', $name, $size > 0)}
-      &first
-        order -10000
-      &last
-        order 10000
-      &none
-        order 0
-    {fe('.justify<name>-', $name, $size > 0)}
-      &start
-        justify-content flex-start
-      &end
-        justify-content flex-end
-      &center
-        justify-content center
-      &between
-        justify-content space-between
-      &around
-        justify-content space-around
-    {fe('.items<name>-', $name, $size > 0)}
-      &start
-        align-items flex-start
-      &end
-        align-items flex-end
-      &center
-        align-items center
-      &baseline
-        align-items baseline
-      &stretch
-        align-items stretch
-    {fe('.content<name>-', $name, $size > 0)}
-      &start
-        align-content flex-start
-      &end
-        align-content flex-end
-      &center
-        align-content center
-      &between
-        align-content space-between
-      &around
-        align-content space-around
-    {fe('.self<name>-', $name, $size > 0)}
-      &start
-        align-self flex-start
-      &end
-        align-self flex-end
-      &center
-        align-self center
-      &baseline
-        align-self baseline
-      &stretch
-        align-self stretch
-    {fe('.flex<name>-center', $name, $size > 0)}
-      @extend .items{$name}-center
-      @extend .justify{$name}-center
-    for $gname, $gsize in $flex-gutter
-      {fe('.gutter<name>-', $name, $size > 0)}
-        &x-{$gname}
-          margin-left (- $gsize)
-          > div
-            padding-left $gsize
-        &y-{$gname}
-          margin-top (- $gsize)
-          > div
-            padding-top $gsize
-        &{$gname}
-          @extends .gutter{$name}-x-{$gname}, .gutter{$name}-y-{$gname}
-          > div
-            @extends .gutter{$name}-x-{$gname} > div, .gutter{$name}-y-{$gname} > div
-    {fe('.col<name>', $name, $size > 0)}
-      &, &-auto, &-grow
-        height auto
-        min-height 0
-        max-height 100%
-        width auto
-        min-width 0
-        max-width 100%
-      &
-        flex 10**4 1 0%
-      &-auto
-        flex 0 0 auto
-      &-grow
-        flex 1 0 auto
-    for $i in (0..$flex-cols)
-      $ic = s('%s', $i)
-      {fe('.col<name>-<i>', $name, $size > 0, $ic)}
-        @extend .col{$name}-auto
-      {fe('.row<name>', $name, $size > 0)}
-        > .col-{$i}
-          height auto
-          width (round($i / $flex-cols * 100, 4))%
-        > .offset-{$i}
-          margin-left (round($i / $flex-cols * 100, 4))%
-      {fe('.column<name>', $name, $size > 0)}
-        > .col-{$i}
-          height (round($i / $flex-cols * 100, 4))%
-          width auto
-    for $name2, $size2 in $sizes
-      if $size <= $size2
-        $name2c = s('-%s', unquote($name2))
-        for $i in (0..$flex-cols)
-          {fe('.row<name>', $name, false)}
-            > .col{$name2c}-{$i}
-              height auto
-              width (round($i / $flex-cols * 100, 4))%
-            > .offset{$name2c}-{$i}
-              margin-left (round($i / $flex-cols * 100, 4))%
-          {fe('.column<name>', $name, false)}
-            > .col{$name2c}-{$i}
-              height (round($i / $flex-cols * 100, 4))%
-              width auto
-for $name, $size in $sizes
-  fg(s('-%s', unquote($name)), $size)
 .q-ripple
   &-container
     color inherit
@@ -5825,6 +5720,7 @@ ie_style = @block
   .q-input-target
     min-width auto
     flex-basis auto
+    width 1px !important
   
   .row > .col
     &.q-alert-content
@@ -5869,13 +5765,6 @@ ie_style = @block
   
   .q-item-main
     min-width 1px
-  
-  .modal-content
-    height 100%
-  .q-modal-layout
-    flex 1 1 auto
-  .q-layout-header, .q-layout-footer
-    display flex
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
   {ie_style}
 @supports (-ms-ime-align:auto)

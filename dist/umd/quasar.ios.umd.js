@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.11
+ * Quasar Framework v0.15.13
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
 Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-var version = "0.15.11";
+var version = "0.15.13";
 
 function offset (el) {
   if (!el || el === window) {
@@ -598,7 +598,7 @@ var i18n = {
 }
 
 var materialIcons = {
-  name: 'material',
+  name: 'material-icons',
   type: {
     positive: 'check_circle',
     negative: 'warning',
@@ -628,7 +628,8 @@ var materialIcons = {
   carousel: {
     left: 'chevron_left',
     right: 'chevron_right',
-    quickNav: 'lens'
+    quickNav: 'lens',
+    thumbnails: 'view_carousel'
   },
   checkbox: {
     checked: {
@@ -1515,21 +1516,8 @@ var QModal = {
   name: 'QModal',
   mixins: [ModelToggleMixin, PreventScroll],
   provide: function provide () {
-    var this$1 = this;
-
     return {
-      __qmodal: {
-        register: function (layout) {
-          if (this$1.layout !== layout) {
-            this$1.layout = layout;
-          }
-        },
-        unregister: function (layout) {
-          if (this$1.layout === layout) {
-            this$1.layout = null;
-          }
-        }
-      }
+      __qmodal: true
     }
   },
   props: {
@@ -1562,11 +1550,6 @@ var QModal = {
     minimized: Boolean,
     maximized: Boolean
   },
-  data: function data () {
-    return {
-      layout: null
-    }
-  },
   watch: {
     $route: function $route () {
       if (!this.noRouteDismiss) {
@@ -1586,12 +1569,6 @@ var QModal = {
         return ['minimized', cls]
       }
       return cls
-    },
-    contentClassesCalc: function contentClassesCalc () {
-      if (this.layout) {
-        return [this.contentClasses, 'column no-wrap']
-      }
-      return this.contentClasses
     },
     transitionProps: function transitionProps () {
       if (this.position) {
@@ -1743,9 +1720,9 @@ var QModal = {
       }, [
         h('div', {
           ref: 'content',
-          staticClass: 'modal-content',
+          staticClass: 'modal-content scroll',
           style: this.modalCss,
-          'class': this.contentClassesCalc,
+          'class': this.contentClasses,
           attrs: { tabindex: -1 },
           on: {
             click: this.__stopPropagation,
@@ -1775,18 +1752,6 @@ var QModalLayout = {
 
     footerStyle: [String, Object, Array],
     footerClass: [String, Object, Array]
-  },
-  watch: {
-    __qmodal: function __qmodal (newModal, oldModal) {
-      oldModal && oldModal.register(this);
-      newModal && newModal.register(this);
-    }
-  },
-  mounted: function mounted () {
-    this.__qmodal && this.__qmodal.register(this);
-  },
-  beforeDestroy: function beforeDestroy () {
-    this.__qmodal && this.__qmodal.unregister(this);
   },
   render: function render (h) {
     var child = [];
@@ -1822,7 +1787,7 @@ var QModalLayout = {
     }
 
     return h('div', {
-      staticClass: 'q-modal-layout column no-wrap'
+      staticClass: 'q-modal-layout column absolute-full'
     }, child)
   }
 }
@@ -3820,10 +3785,9 @@ var QPopover = {
       }
       var ref = this.anchorEl.getBoundingClientRect();
       var top = ref.top;
-      var ref$1 = window.innerHeight;
-      var height$$1 = ref$1.height;
+      var bottom = ref.bottom;
 
-      if (top < 0 || top > height$$1) {
+      if (bottom < 0 || top > window.innerHeight) {
         return this.hide()
       }
 
@@ -5208,7 +5172,13 @@ var QCarousel = {
       default: 'bottom',
       validator: function (v) { return ['top', 'bottom'].includes(v); }
     },
-    quickNavIcon: String
+    quickNavIcon: String,
+    thumbnails: {
+      type: Array,
+      default: function () { return ([]); }
+    },
+    thumbnailsIcon: String,
+    thumbnailsHorizontal: Boolean
   },
   provide: function provide () {
     return {
@@ -5221,7 +5191,8 @@ var QCarousel = {
       slide: 0,
       positionSlide: 0,
       slidesNumber: 0,
-      animUid: false
+      animUid: false,
+      viewThumbnails: false
     }
   },
   watch: {
@@ -5289,6 +5260,9 @@ var QCarousel = {
         canGoToNext: this.canGoToNext,
         canGoToPrevious: this.canGoToPrevious
       }
+    },
+    computedThumbnailIcon: function computedThumbnailIcon () {
+      return this.thumbnailsIcon || this.$q.icon.carousel.thumbnails
     }
   },
   methods: {
@@ -5518,9 +5492,7 @@ var QCarousel = {
               color: this$1.color
             },
             on: {
-              click: function () {
-                this$1.goToSlide(i);
-              }
+              click: function () { this$1.goToSlide(i); }
             }
           }));
         };
@@ -5532,6 +5504,63 @@ var QCarousel = {
         staticClass: 'q-carousel-quick-nav scroll text-center',
         'class': [("text-" + (this.color)), ("absolute-" + (this.quickNavPosition))]
       }, items)
+    },
+    __getThumbnails: function __getThumbnails (h) {
+      var this$1 = this;
+
+      var slides = this.thumbnails.map(function (img, index) {
+        if (!img) {
+          return
+        }
+
+        return h('div', {
+          on: {
+            click: function () { this$1.goToSlide(index); }
+          }
+        }, [
+          h('img', {
+            attrs: { src: img },
+            'class': { active: this$1.slide === index }
+          })
+        ])
+      });
+
+      var nodes = [
+        h(QBtn, {
+          staticClass: 'q-carousel-thumbnail-btn absolute',
+          props: {
+            icon: this.computedThumbnailIcon,
+            fabMini: true,
+            flat: true,
+            color: this.color
+          },
+          on: {
+            click: function () {
+              this$1.viewThumbnails = !this$1.viewThumbnails;
+            }
+          }
+        }),
+        h('div', {
+          staticClass: 'q-carousel-thumbnails scroll absolute-bottom',
+          'class': { active: this.viewThumbnails }
+        }, [h('div', {
+          staticClass: 'row gutter-xs',
+          'class': this.thumbnailsHorizontal ? 'no-wrap' : 'justify-center'
+        }, slides)])
+      ];
+
+      if (this.viewThumbnails) {
+        nodes.unshift(
+          h('div', {
+            staticClass: 'absolute-full',
+            on: {
+              click: function () { this$1.viewThumbnails = false; }
+            }
+          })
+        );
+      }
+
+      return nodes
     }
   },
   render: function render (h) {
@@ -5582,6 +5611,9 @@ var QCarousel = {
       }) : null,
       this.__getQuickNav(h),
       this.__getScopedSlots(h),
+      this.thumbnails.length
+        ? this.__getThumbnails(h)
+        : null,
       this.$slots.control
     ])
   },
@@ -6813,6 +6845,8 @@ var QSlideTransition = {
     appear: Boolean
   },
   render: function render (h) {
+    var this$1 = this;
+
     return h('transition', {
       props: {
         mode: 'out-in',
@@ -6820,11 +6854,17 @@ var QSlideTransition = {
         appear: this.appear
       },
       on: {
-        enter: function enter (el, done) {
-          toggleSlide(el, true, done);
+        enter: function (el, done) {
+          toggleSlide(el, true, function () {
+            this$1.$emit('show');
+            done();
+          });
         },
-        leave: function leave (el, done) {
-          toggleSlide(el, false, done);
+        leave: function (el, done) {
+          toggleSlide(el, false, function () {
+            this$1.$emit('hide');
+            done();
+          });
         }
       }
     }, this.$slots.default)
@@ -8343,7 +8383,7 @@ var QColor = {
           },
           on: {
             show: this.__onFocus,
-            hide: function (val) { return this$1.__onHide(true, true); }
+            hide: function () { return this$1.__onHide(true, true); }
           }
         }, this.__getPicker(h))
         : h(QModal, {
@@ -14365,14 +14405,16 @@ var QPullToRefresh = {
       h('div', {
         staticClass: 'pull-to-refresh-container',
         style: this.style,
-        directives: this.disable ? [] : [{
-          name: 'touch-pan',
-          modifiers: {
-            vertical: true,
-            mightPrevent: true
-          },
-          value: this.__pull
-        }]
+        directives: this.disable
+          ? null
+          : [{
+            name: 'touch-pan',
+            modifiers: {
+              vertical: true,
+              mightPrevent: true
+            },
+            value: this.__pull
+          }]
       }, [
         h('div', {
           staticClass: 'pull-to-refresh-message row flex-center',
@@ -17111,19 +17153,19 @@ var Filter = {
       var this$1 = this;
 
       this.$nextTick(function () {
-        this$1.setPagination({ page: 1 });
+        this$1.setPagination({ page: 1 }, true);
       });
     }
   }
 }
 
-function paginationChanged (oldPag, newPag) {
+function samePagination (oldPag, newPag) {
   for (var prop in newPag) {
     if (newPag[prop] !== oldPag[prop]) {
-      return true
+      return false
     }
   }
-  return false
+  return true
 }
 
 function fixPagination (p) {
@@ -17210,17 +17252,24 @@ var Pagination = {
     }
   },
   methods: {
-    setPagination: function setPagination (val) {
+    __sendServerRequest: function __sendServerRequest (pagination) {
+      this.requestServerInteraction({
+        pagination: pagination,
+        filter: this.filter
+      });
+    },
+    setPagination: function setPagination (val, forceServerRequest) {
       var newPagination = fixPagination(extend({}, this.computedPagination, val));
 
-      if (!paginationChanged(this.computedPagination, newPagination)) {
+      if (samePagination(this.computedPagination, newPagination)) {
+        if (this.isServerSide && forceServerRequest) {
+          this.__sendServerRequest(newPagination);
+        }
         return
       }
 
       if (this.isServerSide) {
-        this.requestServerInteraction({
-          pagination: newPagination
-        });
+        this.__sendServerRequest(newPagination);
         return
       }
 
@@ -19998,6 +20047,7 @@ var screen = {
 
     if (isSSR) {
       this.$q.screen = this;
+      this.setSizes = this.setDebounce = function () {};
       return
     }
 
@@ -20037,9 +20087,9 @@ var screen = {
     };
 
     update();
-    update = debounce(update, 100);
+    var updateEvt = debounce(update, 100);
 
-    window.addEventListener('resize', update, listenOpts.passive);
+    window.addEventListener('resize', updateEvt, listenOpts.passive);
 
     this.setSizes = function (sizes) {
       ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
@@ -20048,6 +20098,13 @@ var screen = {
         }
       });
       update();
+    };
+    this.setDebounce = function (delay) {
+      window.removeEventListener('resize', updateEvt, listenOpts.passive);
+      updateEvt = delay > 0
+        ? debounce(update, delay)
+        : update;
+      window.addEventListener('resize', updateEvt, listenOpts.passive);
     };
 
     Vue$$1.util.defineReactive($q, 'screen', this);
