@@ -1813,7 +1813,8 @@
 
       return h(this.tag, {
         staticClass: 'q-modal-layout col column no-wrap',
-        attrs: this.$attrs
+        attrs: this.$attrs,
+        on: this.events
       }, child)
     }
   }
