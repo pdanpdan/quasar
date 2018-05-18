@@ -1767,7 +1767,11 @@ var QModalLayout = {
     contentClass: [String, Object, Array],
 
     footerStyle: [String, Object, Array],
-    footerClass: [String, Object, Array]
+    footerClass: [String, Object, Array],
+    tag: {
+      type: String,
+      default: 'div'
+    }
   },
   watch: {
     __qmodal: function __qmodal (newModal, oldModal) {
@@ -1814,8 +1818,9 @@ var QModalLayout = {
       ]));
     }
 
-    return h('div', {
-      staticClass: 'q-modal-layout column no-wrap'
+    return h(this.tag, {
+      staticClass: 'q-modal-layout col column no-wrap',
+      attrs: this.$attrs
     }, child)
   }
 }
@@ -2042,7 +2047,7 @@ var QItemMain = {
     }
   },
   render: function render (h) {
-    return h('div', {
+    return h(this.tag, {
       staticClass: 'q-item-main q-item-section',
       'class': {
         'q-item-main-inset': this.inset
@@ -6997,7 +7002,7 @@ var QCollapsible = {
     this.$root.$off(eventName, this.__eventHandler);
   },
   render: function render (h) {
-    return h('div', {
+    return h(this.tag, {
       staticClass: 'q-collapsible q-item-division relative-position',
       'class': this.classes
     }, [
