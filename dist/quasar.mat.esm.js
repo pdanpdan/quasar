@@ -1,10 +1,10 @@
 /*!
- * Quasar Framework v0.15.13
+ * Quasar Framework v0.15.15
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
 
-var version = "0.15.13";
+var version = "0.15.15";
 
 function offset (el) {
   if (!el || el === window) {
@@ -19953,13 +19953,15 @@ var screen = {
       return
     }
 
-    var style = getComputedStyle(document.body);
+    if (document && document.body) {
+      var style = getComputedStyle(document.body);
 
-    // if css props available
-    if (style.getPropertyValue('--q-size-sm')) {
-      ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
-        this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
-      });
+      // if css props available
+      if (style.getPropertyValue('--q-size-sm')) {
+        ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+          this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
+        });
+      }
     }
 
     var update = function () {
