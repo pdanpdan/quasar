@@ -72,14 +72,14 @@ function cssTransform (val) {
 }
 
 var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-viewport: viewport,
-ready: ready,
-cssTransform: cssTransform
+  offset: offset,
+  style: style,
+  height: height,
+  width: width,
+  css: css,
+  viewport: viewport,
+  ready: ready,
+  cssTransform: cssTransform
 });
 
 /* eslint-disable no-useless-escape */
@@ -1293,16 +1293,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getEventPath: getEventPath,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+  listenOpts: listenOpts,
+  leftClick: leftClick,
+  middleClick: middleClick,
+  rightClick: rightClick,
+  getEventKey: getEventKey,
+  position: position,
+  targetElement: targetElement,
+  getEventPath: getEventPath,
+  getMouseWheelDistance: getMouseWheelDistance,
+  stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1406,13 +1406,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth,
-hasScrollbar: hasScrollbar
+  getScrollTarget: getScrollTarget,
+  getScrollHeight: getScrollHeight,
+  getScrollPosition: getScrollPosition,
+  animScrollTo: animScrollTo,
+  setScrollPosition: setScrollPosition,
+  getScrollbarWidth: getScrollbarWidth,
+  hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -1493,8 +1493,21 @@ var QModal = {
   name: 'QModal',
   mixins: [ModelToggleMixin, PreventScroll],
   provide: function provide () {
+    var this$1 = this;
+
     return {
-      __qmodal: true
+      __qmodal: {
+        register: function (layout) {
+          if (this$1.layout !== layout) {
+            this$1.layout = layout;
+          }
+        },
+        unregister: function (layout) {
+          if (this$1.layout === layout) {
+            this$1.layout = null;
+          }
+        }
+      }
     }
   },
   props: {
@@ -1527,6 +1540,11 @@ var QModal = {
     minimized: Boolean,
     maximized: Boolean
   },
+  data: function data () {
+    return {
+      layout: null
+    }
+  },
   watch: {
     $route: function $route () {
       if (!this.noRouteDismiss) {
@@ -1546,6 +1564,12 @@ var QModal = {
         return ['minimized', cls]
       }
       return cls
+    },
+    contentClassesCalc: function contentClassesCalc () {
+      if (this.layout) {
+        return [this.contentClasses, 'column no-wrap']
+      }
+      return this.contentClasses
     },
     transitionProps: function transitionProps () {
       if (this.position) {
@@ -1697,9 +1721,9 @@ var QModal = {
       }, [
         h('div', {
           ref: 'content',
-          staticClass: 'modal-content scroll',
+          staticClass: 'modal-content',
           style: this.modalCss,
-          'class': this.contentClasses,
+          'class': this.contentClassesCalc,
           attrs: { tabindex: -1 },
           on: {
             click: this.__stopPropagation,
@@ -1729,6 +1753,18 @@ var QModalLayout = {
 
     footerStyle: [String, Object, Array],
     footerClass: [String, Object, Array]
+  },
+  watch: {
+    __qmodal: function __qmodal (newModal, oldModal) {
+      oldModal && oldModal.register(this);
+      newModal && newModal.register(this);
+    }
+  },
+  mounted: function mounted () {
+    this.__qmodal && this.__qmodal.register(this);
+  },
+  beforeDestroy: function beforeDestroy () {
+    this.__qmodal && this.__qmodal.unregister(this);
   },
   render: function render (h) {
     var child = [];
@@ -1764,7 +1800,7 @@ var QModalLayout = {
     }
 
     return h('div', {
-      staticClass: 'q-modal-layout column absolute-full'
+      staticClass: 'q-modal-layout column no-wrap'
     }, child)
   }
 }
@@ -2332,6 +2368,11 @@ var QActionSheet = {
     contentCss: function contentCss () {
     }
   },
+  watch: {
+    $route: function $route () {
+      this.hide();
+    }
+  },
   render: function render (h) {
     var this$1 = this;
 
@@ -2507,11 +2548,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+  humanStorageSize: humanStorageSize,
+  capitalize: capitalize,
+  between: between,
+  normalizeToInterval: normalizeToInterval,
+  pad: pad
 });
 
 var
@@ -3151,7 +3192,7 @@ var QBtn = {
         : {
           mousedown: this.__startRepeat,
           touchstart: this.__startRepeat,
-          keydown: function (e) { this$1.__onKeyUp(e, true); },
+          keydown: function (e) { this$1.__onKeyDown(e, true); },
 
           mouseup: this.__endRepeat,
           touchend: this.__endRepeat,
@@ -4943,27 +4984,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+  linear: linear,
+  easeInQuad: easeInQuad,
+  easeOutQuad: easeOutQuad,
+  easeInOutQuad: easeInOutQuad,
+  easeInCubic: easeInCubic,
+  easeOutCubic: easeOutCubic,
+  easeInOutCubic: easeInOutCubic,
+  easeInQuart: easeInQuart,
+  easeOutQuart: easeOutQuart,
+  easeInOutQuart: easeInOutQuart,
+  easeInQuint: easeInQuint,
+  easeOutQuint: easeOutQuint,
+  easeInOutQuint: easeInOutQuint,
+  easeInCirc: easeInCirc,
+  easeOutCirc: easeOutCirc,
+  easeInOutCirc: easeInOutCirc,
+  overshoot: overshoot,
+  standard: standard,
+  decelerate: decelerate,
+  accelerate: accelerate,
+  sharp: sharp
 });
 
 var ids = {};
@@ -5032,8 +5073,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+  start: start,
+  stop: stop
 });
 
 var FullscreenMixin = {
@@ -7591,15 +7632,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+  rgbToHex: rgbToHex,
+  hexToRgb: hexToRgb,
+  hsvToRgb: hsvToRgb,
+  rgbToHsv: rgbToHsv,
+  textToRgb: textToRgb,
+  lighten: lighten,
+  luminosity: luminosity,
+  setBrand: setBrand,
+  getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -7722,8 +7763,7 @@ var QColorPicker = {
           ? [{
             name: 'touch-pan',
             modifiers: {
-              prevent: true,
-              stop: true
+              mightPrevent: true
             },
             value: this.__saturationPan
           }]
@@ -9133,29 +9173,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+  isValid: isValid,
+  buildDate: buildDate,
+  getDayOfWeek: getDayOfWeek,
+  getWeekOfYear: getWeekOfYear,
+  isBetweenDates: isBetweenDates,
+  addToDate: addToDate,
+  subtractFromDate: subtractFromDate,
+  adjustDate: adjustDate,
+  startOfDate: startOfDate,
+  endOfDate: endOfDate,
+  getMaxDate: getMaxDate,
+  getMinDate: getMinDate,
+  getDateDiff: getDateDiff,
+  getDayOfYear: getDayOfYear,
+  inferDateFormat: inferDateFormat,
+  convertDateToFormat: convertDateToFormat,
+  getDateBetween: getDateBetween,
+  isSameDate: isSameDate,
+  daysInMonth: daysInMonth,
+  formatter: formatter,
+  formatDate: formatDate,
+  matchFormat: matchFormat,
+  clone: clone$1
 });
 
 var DateMixin = {
@@ -10603,6 +10643,11 @@ var QDialog = {
       default: 'primary'
     }
   },
+  watch: {
+    $route: function $route () {
+      this.hide();
+    }
+  },
   render: function render (h) {
     var this$1 = this;
 
@@ -11898,8 +11943,13 @@ var QFab = {
   name: 'QFab',
   mixins: [FabMixin, ModelToggleMixin],
   provide: function provide () {
+    var this$1 = this;
+
     return {
-      __qFabClose: this.hide
+      __qFabClose: function (evt) { return this$1.hide(evt).then(function () {
+        this$1.$refs.trigger && this$1.$refs.trigger.$el && this$1.$refs.trigger.$el.focus();
+        return evt
+      }); }
     }
   },
   props: {
@@ -11927,6 +11977,7 @@ var QFab = {
       }
     }, [
       h(QBtn, {
+        ref: 'trigger',
         props: {
           fab: true,
           outline: this.outline,
@@ -11954,9 +12005,7 @@ var QFab = {
       h('div', {
         staticClass: 'q-fab-actions flex no-wrap inline items-center',
         'class': ("q-fab-" + (this.direction))
-      }, [
-        this.$slots.default
-      ])
+      }, this.showing ? [ this.$slots.default ] : null)
     ])
   }
 }
@@ -16000,7 +16049,8 @@ var TabMixin = {
     },
     alert: Boolean,
     count: [Number, String],
-    color: String
+    color: String,
+    tabindex: Number
   },
   inject: {
     data: {
@@ -16045,6 +16095,9 @@ var TabMixin = {
       if (!this.active || !this.data.highlight) {
         return 'display: none;'
       }
+    },
+    computedTabIndex: function computedTabIndex () {
+      return this.disable || this.active ? -1 : this.tabindex || 0
     }
   },
   methods: {
@@ -16085,6 +16138,11 @@ var TabMixin = {
           style: this.barStyle
         }));
       }
+
+      child.push(h('div', {
+        staticClass: 'q-tab-focus-helper absolute-full',
+        attrs: { tabindex: this.computedTabIndex }
+      }));
 
       return child
     }
@@ -16131,6 +16189,8 @@ var QRouteTab = {
     this.checkIfSelected();
   },
   render: function render (h) {
+    var this$1 = this;
+
     return h('router-link', {
       props: {
         tag: 'div',
@@ -16143,7 +16203,8 @@ var QRouteTab = {
         exactActiveClass: 'q-router-link-exact-active'
       },
       nativeOn: {
-        click: this.select
+        click: this.select,
+        keyup: function (e) { return e.keyCode === 13 && this$1.select(e); }
       },
       staticClass: 'q-tab column flex-center relative-position',
       'class': this.classes,
@@ -16172,11 +16233,14 @@ var QTab = {
     }
   },
   render: function render (h) {
+    var this$1 = this;
+
     return h('div', {
       staticClass: 'q-tab column flex-center relative-position',
       'class': this.classes,
       on: {
-        click: this.select
+        click: this.select,
+        keyup: function (e) { return e.keyCode === 13 && this$1.select(e); }
       },
       directives: [{ name: 'ripple' }]
     }, this.__getTabContent(h))

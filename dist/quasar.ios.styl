@@ -2417,6 +2417,7 @@ maximized-modal()
   background $modal-background
   box-shadow $popover-box-shadow
   overflow-y auto
+  will-change scroll-position
   min-width 280px
   max-height 80vh
   border-radius $modal-border-radius
@@ -3080,6 +3081,13 @@ body.desktop .q-stepper-tab.step-navigation:hover
   font-size $tabs-big-font-size
 .q-tab-icon
   font-size $tabs-icon-font-size
+.q-tab-focus-helper
+  z-index -1
+  outline none
+  &:focus
+    z-index unset
+    background currentColor
+    opacity .1
 @media (max-width $breakpoint-sm-max)
   .q-tab
     &.hide-icon .q-tab-icon,
@@ -4967,6 +4975,42 @@ for $z in 1..24
   z-index $z-notify
 .z-fullscreen
   z-index $z-fullscreen
+fr(selector, name, i = '')
+  unquote(replace(unquote('<i>'), unquote(i), replace(unquote('<name>'), unquote(name), unquote(selector))))
+fe(selector, name, noProc, i = '')
+  if noProc
+    return fr(selector, name, i)
+  return unquote(join(',', fr(selector, '', i) fr(selector, name, i)))
+fg($name, $size)
+  @media (min-width $size)
+    {fe('.col<name>', $name, $size > 0)}
+      &, &-auto, &-grow
+        height auto
+        min-height 0
+        max-height 100%
+        width auto
+        min-width 0
+        max-width 100%
+      &
+        flex 10**4 1 0%
+      &-auto
+        flex 0 0 auto
+      &-grow
+        flex 1 0 auto
+    for $i in (0..$flex-cols)
+      $ic = s('%s', $i)
+      {fe('.col<name>-<i>', $name, $size > 0, $ic)}
+        @extend .col{$name}-auto
+      .row
+        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
+          height auto
+          width (round($i / $flex-cols * 100, 4))%
+        {fe('> .offset<name>-<i>', $name, $size > 0, $ic)}
+          margin-left (round($i / $flex-cols * 100, 4))%
+      .column
+        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
+          height (round($i / $flex-cols * 100, 4))%
+          width auto
 .row, .column, .flex
   display flex
   flex-wrap wrap
@@ -4984,38 +5028,13 @@ for $z in 1..24
   flex-wrap nowrap
 .reverse-wrap
   flex-wrap wrap-reverse
-.col
-  flex-basis 0
-  flex-grow 1
-  min-height 1px
-  min-width 0
-.row
-  > .col
-    max-width 100%
-    width 100%
-for $name, $size in $sizes
-  .row > .col-{$name}
-    width 100%
-  .col-{$name}
-    min-height 1px
-  for $i in (1..$flex-cols)
-    .row > .col-{$name}-{$i}
-      width 100%
-    .col-{$name}-{$i}
-      min-height 1px
-.row > .col-auto
-  width auto
-.col-auto
-  flex 0 0 auto
-  min-width 0
-.col-grow
-  flex 1 1 auto
-.order-first
-  order -10000
-.order-last
-  order 10000
-.order-none
-  order 0
+.order-
+  &first
+    order -10000
+  &last
+    order 10000
+  &none
+    order 0
 .justify-
   &start
     justify-content flex-start
@@ -5065,43 +5084,22 @@ for $name, $size in $sizes
 .flex-center
   @extend .items-center
   @extend .justify-center
-for $i in (0..$flex-cols)
-  .col-{$i}
-    flex 0 0 (round($i / $flex-cols * 100, 4))%
-  .row > .col-{$i}
-    max-width (round($i / $flex-cols * 100, 4))%
-  .offset-{$i}
-    margin-left (round($i / $flex-cols * 100, 4))%
 for $name, $size in $flex-gutter
-  .gutter-x-{$name}
-    margin-left (- $size)
-    > div
-      padding-left $size
-  .gutter-y-{$name}
-    margin-top (- $size)
-    > div
-      padding-top $size
-  .gutter-{$name}
-    @extends .gutter-x-{$name}, .gutter-y-{$name}
-    > div
-      @extends .gutter-x-{$name} > div, .gutter-y-{$name} > div
+  .gutter-
+    &x-{$name}
+      margin-left (- $size)
+      > div
+        padding-left $size
+    &y-{$name}
+      margin-top (- $size)
+      > div
+        padding-top $size
+    &{$name}
+      @extends .gutter-x-{$name}, .gutter-y-{$name}
+      > div
+        @extends .gutter-x-{$name} > div, .gutter-y-{$name} > div
 for $name, $size in $sizes
-  @media (min-width $size)
-    .col-{$name}
-      max-width 100%
-      flex-basis 0
-      flex-grow 1
-    .col-{$name}-auto
-      flex 0 0 auto
-      .row > &
-        width auto
-    for $i in (0..$flex-cols)
-      .col-{$name}-{$i}
-        flex 0 0 (round($i / $flex-cols * 100, 4))%
-      .row > .col-{$name}-{$i}
-        max-width (round($i / $flex-cols * 100, 4))%
-      .offset-{$name}-{$i}
-        margin-left (round($i / $flex-cols * 100, 4))%
+  fg(s('-%s', unquote($name)), $size)
 .backdrop
   display none
   position fixed
@@ -5720,7 +5718,6 @@ ie_style = @block
   .q-input-target
     min-width auto
     flex-basis auto
-    width 1px !important
   
   .row > .col
     &.q-alert-content
@@ -5765,6 +5762,13 @@ ie_style = @block
   
   .q-item-main
     min-width 1px
+  
+  .modal-content
+    height 100%
+  .q-modal-layout
+    flex 1 1 auto
+  .q-layout-header, .q-layout-footer
+    display flex
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
   {ie_style}
 @supports (-ms-ime-align:auto)
