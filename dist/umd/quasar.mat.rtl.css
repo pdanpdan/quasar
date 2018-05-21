@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.15.15
+ * Quasar Framework v0.16.0
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2647,6 +2647,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-control {
   font-size: 24px;
+  width: 24px;
 }
 [dir] .q-if-control {
   cursor: pointer;
@@ -10865,6 +10866,7 @@ body.ios .q-hoverable:active .q-focus-helper {
     min-width: auto;
     -ms-flex-preferred-size: auto;
         flex-basis: auto;
+    width: 1px !important;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;
@@ -10947,6 +10949,7 @@ body.ios .q-hoverable:active .q-focus-helper {
     min-width: auto;
     -ms-flex-preferred-size: auto;
         flex-basis: auto;
+    width: 1px !important;
   }
   .row > .col.q-alert-content {
     -ms-flex-preferred-size: auto;

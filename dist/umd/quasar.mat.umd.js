@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.15.15
+ * Quasar Framework v0.16.0
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
   Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-  var version = "0.15.15";
+  var version = "0.16.0";
 
   function offset (el) {
     if (!el || el === window) {
@@ -51,13 +51,6 @@
     });
   }
 
-  function viewport () {
-    return {
-      width: window.innerWidth,
-      height: window.innerHeight
-    }
-  }
-
   function ready (fn) {
     if (typeof fn !== 'function') {
       return
@@ -85,7 +78,6 @@
     height: height,
     width: width,
     css: css,
-    viewport: viewport,
     ready: ready,
     cssTransform: cssTransform
   });
@@ -1129,32 +1121,22 @@
   });
 
   function leftClick (e) {
-    if ( e === void 0 ) e = window.event;
-
     return e.button === 0
   }
 
   function middleClick (e) {
-    if ( e === void 0 ) e = window.event;
-
     return e.button === 1
   }
 
   function rightClick (e) {
-    if ( e === void 0 ) e = window.event;
-
     return e.button === 2
   }
 
   function getEventKey (e) {
-    if ( e === void 0 ) e = window.event;
-
     return e.which || e.keyCode
   }
 
   function position (e) {
-    if ( e === void 0 ) e = window.event;
-
     var posx, posy;
 
     if (e.touches && e.touches[0]) {
@@ -1185,8 +1167,6 @@
   }
 
   function targetElement (e) {
-    if ( e === void 0 ) e = window.event;
-
     var target;
 
     if (e.target) {
@@ -1205,8 +1185,6 @@
   }
 
   function getEventPath (e) {
-    if ( e === void 0 ) e = window.event;
-
     if (e.path) {
       return e.path
     }
@@ -1237,8 +1215,6 @@
     PAGE_HEIGHT = 800;
 
   function getMouseWheelDistance (e) {
-    if ( e === void 0 ) e = window.event;
-
     var
       sX = 0, sY = 0, // spinX, spinY
       pX = 0, pY = 0; // pixelX, pixelY
@@ -1291,11 +1267,6 @@
   }
 
   function stopAndPrevent (e) {
-    if ( e === void 0 ) e = window.event;
-
-    if (!e) {
-      return
-    }
     e.preventDefault();
     e.stopPropagation();
   }
@@ -1760,11 +1731,7 @@
       contentClass: [String, Object, Array],
 
       footerStyle: [String, Object, Array],
-      footerClass: [String, Object, Array],
-      tag: {
-        type: String,
-        default: 'div'
-      }
+      footerClass: [String, Object, Array]
     },
     watch: {
       __qmodal: function __qmodal (newModal, oldModal) {
@@ -1811,49 +1778,40 @@
         ]));
       }
 
-      return h(this.tag, {
-        staticClass: 'q-modal-layout col column no-wrap',
-        attrs: this.$attrs,
-        on: this.events
+      return h('div', {
+        staticClass: 'q-modal-layout col column no-wrap'
       }, child)
     }
   }
+
+  var prefix$1 = 'md';
 
   var QIcon = {
     name: 'QIcon',
     props: {
       name: String,
-      mat: String,
-      ios: String,
       color: String,
       size: String
     },
     computed: {
-      icon: function icon () {
-        return this.mat && "mat" === 'mat'
-          ? this.mat
-          : (this.ios && "mat" === 'ios' ? this.ios : this.name)
-      },
       classes: function classes () {
         var cls;
-        var icon = this.icon;
+        var icon = this.name;
 
         if (!icon) {
-          cls = '';
+          return ''
         }
-        else if (icon.startsWith('fa-')) {
-          // Fontawesome 4
-          cls = "fa " + icon;
-        }
-        else if (/^fa[s|r|l|b]{0,1} /.test(icon)) {
-          // Fontawesome 5
+        else if (/^fa[s|r|l|b]{0,1} /.test(icon) || icon.startsWith('icon-')) {
           cls = icon;
         }
         else if (icon.startsWith('bt-')) {
           cls = "bt " + icon;
         }
-        else if (icon.startsWith('ion-') || icon.startsWith('icon-')) {
-          cls = "" + icon;
+        else if (/^ion-(md|ios|logo)/.test(icon)) {
+          cls = "ionicons " + icon;
+        }
+        else if (icon.startsWith('ion-')) {
+          cls = "ionicons ion-" + prefix$1 + (icon.substr(3));
         }
         else if (icon.startsWith('mdi-')) {
           cls = "mdi " + icon;
@@ -1868,7 +1826,7 @@
       },
       content: function content () {
         return this.classes.startsWith('material-icons')
-          ? this.icon.replace(/ /g, '_')
+          ? this.name.replace(/ /g, '_')
           : ' '
       },
       style: function style () {
@@ -2380,11 +2338,6 @@
     },
     computed: {
       contentCss: function contentCss () {
-      }
-    },
-    watch: {
-      $route: function $route () {
-        this.hide();
       }
     },
     render: function render (h) {
@@ -3185,7 +3138,9 @@
       percentage: Number,
       darkPercentage: Boolean,
       waitForRipple: Boolean,
-      repeatTimeout: [Number, Function]
+      repeatTimeout: [Number, Function],
+      to: [Object, String],
+      replace: Boolean
     },
     computed: {
       hasPercentage: function hasPercentage () {
@@ -3236,6 +3191,10 @@
           }
 
           this$1.$emit('click', e);
+
+          if (this$1.to !== void 0) {
+            this$1.$router[this$1.replace ? 'replace' : 'push'](this$1.to);
+          }
         };
 
         if (this.waitForRipple && this.hasRipple) {
@@ -5975,12 +5934,8 @@
         if (this.disable || this.readonly) {
           return
         }
-        if (evt) {
-          stopAndPrevent(evt);
-        }
-        if (blur) {
-          this.$el.blur();
-        }
+        evt && stopAndPrevent(evt);
+        blur && this.$el.blur();
 
         var val;
 
@@ -6382,7 +6337,7 @@
         if (!this.editable) {
           return
         }
-        stopAndPrevent(evt);
+        evt && stopAndPrevent(evt);
         var val = this.clearValue;
         if (this.__setModel) {
           this.__setModel(val, true);
@@ -8510,7 +8465,7 @@
 
         this.target.classList.add('non-selectable');
         this.touchTimer = setTimeout(function () {
-          stopAndPrevent(evt);
+          evt && stopAndPrevent(evt);
           setTimeout(function () {
             this$1.__cleanup();
             this$1.show(evt);
@@ -10438,12 +10393,8 @@
         if (this.disable || this.readonly) {
           return
         }
-        if (evt) {
-          stopAndPrevent(evt);
-        }
-        if (blur) {
-          this.$el.blur();
-        }
+        evt && stopAndPrevent(evt);
+        blur && this.$el.blur();
 
         if (!this.isTrue) {
           this.__update(this.val);
@@ -10655,11 +10606,6 @@
       color: {
         type: String,
         default: 'primary'
-      }
-    },
-    watch: {
-      $route: function $route () {
-        this.hide();
       }
     },
     render: function render (h) {
@@ -11945,11 +11891,7 @@
       flat: Boolean,
       color: String,
       textColor: String,
-      glossy: Boolean,
-      icon: {
-        type: String,
-        required: true
-      }
+      glossy: Boolean
     }
   }
 
@@ -11967,6 +11909,7 @@
       }
     },
     props: {
+      icon: String,
       activeIcon: String,
       direction: {
         type: String,
@@ -12027,6 +11970,12 @@
   var QFabAction = {
     name: 'QFabAction',
     mixins: [FabMixin],
+    props: {
+      icon: {
+        type: String,
+        required: true
+      }
+    },
     inject: {
       __qFabClose: {
         default: function default$1 () {
@@ -12939,7 +12888,9 @@
         this.applyPosition();
       },
       mini: function mini () {
-        this.layout.__animate();
+        if (this.value) {
+          this.layout.__animate();
+        }
       }
     },
     computed: {
