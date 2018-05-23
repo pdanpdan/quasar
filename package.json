@@ -1,6 +1,6 @@
 {
   "name": "quasar-framework",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "Build responsive websites, PWAs, hybrid mobile apps and Electron apps, all simultaneously using same codebase",
   "files": [
     "dist",
@@ -80,7 +80,7 @@
     "postcss-loader": "^2.1.1",
     "postcss-rtl": "^1.2.3",
     "progress-bar-webpack-plugin": "^1.11.0",
-    "quasar-extras": "^2.0.0",
+    "quasar-extras": "^2.0.1",
     "raw-loader": "^0.5.1",
     "rollup": "^0.57.0",
     "rollup-plugin-babel": "^3.0.3",

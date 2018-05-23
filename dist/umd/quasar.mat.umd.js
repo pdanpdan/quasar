@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.16.0
+ * Quasar Framework v0.16.1
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 
   Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
-  var version = "0.16.0";
+  var version = "0.16.1";
 
   function offset (el) {
     if (!el || el === window) {
@@ -88,10 +88,6 @@
 
   var isSSR = typeof window === 'undefined';
 
-  function getUserAgent () {
-    return (navigator.userAgent || navigator.vendor || window.opera).toLowerCase()
-  }
-
   function getMatch (userAgent, platformMatch) {
     var match = /(edge)\/([\w.]+)/.exec(userAgent) ||
       /(opr)[\/]([\w.]+)/.exec(userAgent) ||
@@ -133,12 +129,13 @@
       []
   }
 
-  function getPlatform () {
+  function getPlatform (userAgent) {
+    userAgent = (userAgent || navigator.userAgent || navigator.vendor || window.opera).toLowerCase();
+
     var
-      userAgent = getUserAgent(),
       platformMatch = getPlatformMatch(userAgent),
       matched = getMatch(userAgent, platformMatch),
-      browser = {};
+      browser = { ssr: isSSR };
 
     if (matched.browser) {
       browser[matched.browser] = true;
@@ -252,12 +249,17 @@
     __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
+      var cfg = ref.cfg;
 
       if (this.__installed) { return }
       this.__installed = true;
 
       if (isSSR) {
-        Platform.is = { ssr: true };
+        if (!cfg.platform || !cfg.platform.userAgent) {
+          console.error('[quasar ssr]: cfg > platform > userAgent required');
+          return
+        }
+        Platform.is = getPlatform(cfg.platform.userAgent);
         Platform.has = {
           touch: false,
           webStorage: false
@@ -806,13 +808,15 @@
     }
     this.__installed = true;
 
-    var $q = {
-      version: version,
-      theme: "mat"
-    };
+    var
+      cfg = opts.cfg || {},
+      $q = {
+        version: version,
+        theme: "mat"
+      };
 
     // required plugins
-    Platform.install({ $q: $q });
+    Platform.install({ $q: $q, cfg: cfg });
     History.install();
     i18n.install({ $q: $q, Vue: _Vue, lang: opts.i18n });
     icons.install({ $q: $q, Vue: _Vue, iconSet: opts.iconSet });
@@ -843,7 +847,7 @@
       Object.keys(opts.plugins).forEach(function (key) {
         var p = opts.plugins[key];
         if (typeof p.install === 'function') {
-          p.install({ $q: $q, Vue: _Vue });
+          p.install({ $q: $q, Vue: _Vue, cfg: cfg });
         }
       });
     }
@@ -19899,6 +19903,7 @@
     var this$1 = this;
     var $q = ref.$q;
     var Vue$$1 = ref.Vue;
+    var defaults = ref.cfg.notify; if ( defaults === void 0 ) defaults = {};
 
     if (!document.body) {
       ready(function () {
@@ -19933,16 +19938,14 @@
             console.error('Notify: parameter required');
             return false
           }
-          var notif;
-          if (typeof config === 'string') {
-            notif = {
-              message: config,
-              position: 'bottom'
-            };
-          }
-          else {
-            notif = clone(config);
-          }
+
+          var notif = Object.assign(
+            {},
+            defaults,
+            typeof config === 'string'
+              ? { message: config }
+              : clone(config)
+          );
 
           if (notif.position) {
             if (!positionList.includes(notif.position)) {
@@ -19969,12 +19972,14 @@
               var
                 handler = item.handler,
                 action = clone(item);
+
               action.handler = typeof handler === 'function'
                 ? function () {
                   handler();
                   !item.noDismiss && close();
                 }
                 : function () { return close(); };
+
               return action
             });
           }
@@ -20113,7 +20118,7 @@
       this.__installed = true;
 
       if (isSSR) {
-        this.$q.screen = this;
+        $q.screen = this;
         this.setSizes = this.setDebounce = function () {};
         return
       }
