@@ -687,8 +687,6 @@ $toolbar-subtitle-font-size  ?= 12px
 $toolbar-title-font-weight   ?= 500
 $toolbar-title-padding       ?= 0 12px
 $layout-aside-background   ?= white
-$layout-aside-left-width   ?= 300px
-$layout-aside-right-width  ?= 300px
 $layout-header-shadow      ?= $shadow-4
 $layout-footer-shadow      ?= $shadow-up-4
 $layout-aside-shadow       ?= $shadow-8
@@ -2320,11 +2318,9 @@ $layout-transition = all .12s ease-in
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
-  width $layout-aside-left-width
 .q-layout-drawer-right
   right 0
   transform translateX(100%)
-  width $layout-aside-right-width
 .q-layout, .q-layout-header, .q-layout-footer, .q-layout-page
   position relative
 .q-layout-header, .q-layout-footer

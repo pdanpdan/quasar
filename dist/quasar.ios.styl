@@ -686,8 +686,6 @@ $toolbar-subtitle-font-size  ?= 12px
 $toolbar-title-font-weight   ?= 600
 $toolbar-title-padding       ?= 0 5px
 $layout-aside-background   ?= white
-$layout-aside-left-width   ?= 280px
-$layout-aside-right-width  ?= 280px
 $layout-border-color       ?= $item-separator-color
 $layout-border             ?= 1px solid $layout-border-color
 $loading-background ?= $dimmed-background
@@ -1884,6 +1882,7 @@ qfield-horizontal()
     color var(--q-color-light)
     transform scaleY(1)
   &:after
+    opacity 0
     width 100%
     transform-origin center bottom 0
     transform scaleX(0)
@@ -2016,6 +2015,7 @@ div.q-input-target
     color #656565
 .q-if-focused
   &:after
+    opacity 1
     transform scaleX(1)
   .q-if-label, .q-if-addon, .q-if-control
     color currentColor !important
@@ -2186,13 +2186,11 @@ $layout-transition = all .12s ease-in
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
-  width $layout-aside-left-width
   &.fixed
     border-right $layout-border
 .q-layout-drawer-right
   right 0
   transform translateX(100%)
-  width $layout-aside-right-width
   &.fixed
     border-left $layout-border
 .q-layout, .q-layout-header, .q-layout-footer, .q-layout-page

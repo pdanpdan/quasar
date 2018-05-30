@@ -2151,6 +2151,7 @@ body.desktop .q-carousel-thumbnails img:hover {
           transform: scaleY(1);
 }
 .q-if:after {
+  opacity: 0;
   width: 100%;
   -webkit-transform: scaleX(0);
   height: 2px;
@@ -2395,6 +2396,7 @@ div.q-input-target {
   color: #656565;
 }
 .q-if-focused:after {
+  opacity: 1;
   -webkit-transform: scaleX(1);
 }
 [dir] .q-if-focused:after {
@@ -2667,9 +2669,6 @@ textarea.q-input-target {
 .q-layout-drawer.on-top {
   z-index: 3000;
 }
-.q-layout-drawer-left {
-  width: 280px;
-}
 [dir=ltr] .q-layout-drawer-left {
   left: 0;
   -webkit-transform: translateX(-100%);
@@ -2685,9 +2684,6 @@ textarea.q-input-target {
 }
 [dir=rtl] .q-layout-drawer-left.fixed {
   border-left: 1px solid #e0e0e0;
-}
-.q-layout-drawer-right {
-  width: 280px;
 }
 [dir=ltr] .q-layout-drawer-right {
   right: 0;

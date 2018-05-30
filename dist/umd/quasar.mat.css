@@ -2363,13 +2363,11 @@ textarea.q-input-target {
   left: 0;
   -webkit-transform: translateX(-100%);
           transform: translateX(-100%);
-  width: 300px;
 }
 .q-layout-drawer-right {
   right: 0;
   -webkit-transform: translateX(100%);
           transform: translateX(100%);
-  width: 300px;
 }
 .q-layout,
 .q-layout-header,

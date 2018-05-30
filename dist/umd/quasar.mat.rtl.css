@@ -3001,9 +3001,6 @@ textarea.q-input-target {
 [dir] .q-layout-drawer-delimiter {
           box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
 }
-.q-layout-drawer-left {
-  width: 300px;
-}
 [dir=ltr] .q-layout-drawer-left {
   left: 0;
   -webkit-transform: translateX(-100%);
@@ -3013,9 +3010,6 @@ textarea.q-input-target {
   right: 0;
   -webkit-transform: translateX(100%);
   transform: translateX(100%);
-}
-.q-layout-drawer-right {
-  width: 300px;
 }
 [dir=ltr] .q-layout-drawer-right {
   right: 0;

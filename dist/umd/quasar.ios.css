@@ -1617,6 +1617,7 @@ body.desktop .q-carousel-thumbnails img:hover {
           transform: scaleY(1);
 }
 .q-if:after {
+  opacity: 0;
   width: 100%;
   -webkit-transform-origin: center bottom 0;
           transform-origin: center bottom 0;
@@ -1812,6 +1813,7 @@ div.q-input-target {
   color: #656565;
 }
 .q-if-focused:after {
+  opacity: 1;
   -webkit-transform: scaleX(1);
           transform: scaleX(1);
 }
@@ -2042,7 +2044,6 @@ textarea.q-input-target {
   left: 0;
   -webkit-transform: translateX(-100%);
           transform: translateX(-100%);
-  width: 280px;
 }
 .q-layout-drawer-left.fixed {
   border-right: 1px solid #e0e0e0;
@@ -2051,7 +2052,6 @@ textarea.q-input-target {
   right: 0;
   -webkit-transform: translateX(100%);
           transform: translateX(100%);
-  width: 280px;
 }
 .q-layout-drawer-right.fixed {
   border-left: 1px solid #e0e0e0;

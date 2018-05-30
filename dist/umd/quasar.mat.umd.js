@@ -255,11 +255,12 @@
       this.__installed = true;
 
       if (isSSR) {
-        if (!cfg.platform || !cfg.platform.userAgent) {
-          console.error('[quasar ssr]: cfg > platform > userAgent required');
+        if (!cfg.ssr || !cfg.ssr.req || !cfg.ssr.res) {
+          console.error('[quasar-ssr]: cfg.ssr.(req & res) required');
           return
         }
-        Platform.is = getPlatform(cfg.platform.userAgent);
+
+        Platform.is = getPlatform(cfg.ssr.req.headers['user-agent']);
         Platform.has = {
           touch: false,
           webStorage: false
@@ -544,6 +545,7 @@
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
       var lang = ref.lang;
+      var cfg = ref.cfg;
 
       if (this.__installed) { return }
       this.__installed = true;
@@ -555,7 +557,16 @@
         lang.getLocale = this$1.getLocale;
         lang.rtl = lang.rtl || false;
 
-        if (!isSSR) {
+        if (isSSR) {
+          var fn = cfg.ssr.setHtmlAttrs;
+          if (typeof fn === 'function') {
+            fn({
+              dir: lang.rtl ? 'rtl' : 'ltr',
+              lang: lang.lang
+            });
+          }
+        }
+        else {
           ready(function () {
             var el = document.documentElement;
             el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr');
@@ -775,9 +786,9 @@
     }
   }
 
-  function bodyInit () {
+  function getBodyClasses () {
     var cls = [
-      "mat",
+      'mat',
       Platform.is.desktop ? 'desktop' : 'mobile',
       Platform.has.touch ? 'touch' : 'no-touch',
       ("platform-" + (Platform.is.ios ? 'ios' : 'mat'))
@@ -786,6 +797,12 @@
     Platform.within.iframe && cls.push('within-iframe');
     Platform.is.cordova && cls.push('cordova');
     Platform.is.electron && cls.push('electron');
+
+    return cls
+  }
+
+  function bodyInit () {
+    var cls = getBodyClasses();
 
     if (Platform.is.ie && Platform.is.versionNumber === 11) {
       cls.forEach(function (c) { return document.body.classList.add(c); });
@@ -812,16 +829,21 @@
       cfg = opts.cfg || {},
       $q = {
         version: version,
-        theme: "mat"
+        theme: 'mat'
       };
 
     // required plugins
     Platform.install({ $q: $q, cfg: cfg });
     History.install();
-    i18n.install({ $q: $q, Vue: _Vue, lang: opts.i18n });
+    i18n.install({ $q: $q, Vue: _Vue, cfg: cfg, lang: opts.i18n });
     icons.install({ $q: $q, Vue: _Vue, iconSet: opts.iconSet });
 
-    if (!isSSR) {
+    if (isSSR) {
+      if (typeof cfg.ssr.setBodyClasses === 'function') {
+        cfg.ssr.setBodyClasses(getBodyClasses());
+      }
+    }
+    else {
       ready(bodyInit);
     }
 
@@ -1752,7 +1774,7 @@
     render: function render (h) {
       var child = [];
 
-      if (this.$slots.header || ("mat" !== 'ios' && this.$slots.navigation)) {
+      if (this.$slots.header || (this.$slots.navigation)) {
         child.push(h('div', {
           staticClass: 'q-layout-header',
           style: this.headerStyle,
@@ -1771,7 +1793,7 @@
         this.$slots.default
       ]));
 
-      if (this.$slots.footer || ("mat" === 'ios' && this.$slots.navigation)) {
+      if (this.$slots.footer || ('mat' === 'ios')) {
         child.push(h('div', {
           staticClass: 'q-layout-footer',
           style: this.footerStyle,
@@ -2429,7 +2451,7 @@
                   this$1.__onOk(action);
                 }
               }
-            }, obj), this$1.grid
+            }, obj ), this$1.grid
             ? [
               action.icon ? h(QIcon, { props: { name: action.icon, color: action.color } }) : null,
               action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
@@ -2731,14 +2753,10 @@
       highjackAjax(this.start, this.stop);
     },
     beforeDestroy: function beforeDestroy () {
-      if (!isSSR) {
-        clearTimeout(this.timer);
-        restoreAjax();
-      }
+      clearTimeout(this.timer);
+      restoreAjax();
     },
     render: function render (h) {
-      if (isSSR) { return }
-
       return h('div', {
         staticClass: 'q-loading-bar shadow-4',
         'class': this.classes,
@@ -2797,8 +2815,8 @@
     var ios = ref.ios;
 
     return (
-      (mat && "mat" !== 'mat') ||
-      (ios && "mat" !== 'ios')
+      (mat && 'mat' !== 'mat') ||
+      (ios && 'mat' !== 'ios')
     )
   }
 
@@ -2942,7 +2960,7 @@
         return this.disable || this.loading
       },
       hasRipple: function hasRipple () {
-        return "mat" === 'mat' && !this.noRipple && !this.isDisabled
+        return !this.noRipple && !this.isDisabled
       },
       computedTabIndex: function computedTabIndex () {
         return this.isDisabled ? -1 : this.tabindex || 0
@@ -3296,7 +3314,7 @@
           }]
           : null
       }, [
-        "mat" === 'ios' || this.$q.platform.is.desktop
+        this.$q.platform.is.desktop
           ? h('div', { staticClass: 'q-focus-helper' })
           : null,
 
@@ -3592,9 +3610,9 @@
   }
 
   function frameDebounce (fn) {
-    var wait = false;
+    var wait = false, frame;
 
-    return function () {
+    function debounced () {
       var this$1 = this;
       var args = [], len = arguments.length;
       while ( len-- ) args[ len ] = arguments[ len ];
@@ -3602,16 +3620,37 @@
       if (wait) { return }
 
       wait = true;
-      window.requestAnimationFrame(function () {
+      frame = window.requestAnimationFrame(function () {
         fn.apply(this$1, args);
         wait = false;
       });
+    }
+
+    debounced.cancel = function () {
+      window.cancelAnimationFrame(frame);
+      wait = false;
+    };
+
+    return debounced
+  }
+
+  // using it to manage SSR rendering with best performance
+
+  var CanRenderMixin = {
+    data: function data () {
+      var is = this.$q.platform.is;
+      return {
+        canRender: is.cordova || is.electron
+      }
+    },
+    mounted: function mounted () {
+      this.canRender = true;
     }
   }
 
   var QPopover = {
     name: 'QPopover',
-    mixins: [ModelToggleMixin],
+    mixins: [ModelToggleMixin, CanRenderMixin],
     props: {
       anchor: {
         type: String,
@@ -3654,6 +3693,8 @@
       }
     },
     render: function render (h) {
+      if (!this.canRender) { return }
+
       return h('div', {
         staticClass: 'q-popover scroll',
         ref: 'content',
@@ -3665,14 +3706,10 @@
         this.$slots.default
       ])
     },
-    created: function created () {
-      var this$1 = this;
-
-      this.__updatePosition = frameDebounce(function (_, event, animate) { return this$1.reposition(event, animate); });
-    },
     mounted: function mounted () {
       var this$1 = this;
 
+      this.__updatePosition = frameDebounce(function (_, event, animate) { return this$1.reposition(event, animate); });
       this.$nextTick(function () {
         this$1.anchorEl = this$1.$el.parentNode;
         this$1.anchorEl.removeChild(this$1.$el);
@@ -5104,7 +5141,7 @@
         this.inFullscreen = false;
       }
     },
-    created: function created () {
+    beforeMount: function beforeMount () {
       this.fullscreenFillerNode = document.createElement('span');
     },
     beforeDestroy: function beforeDestroy () {
@@ -5562,9 +5599,9 @@
               'infinite-right': this.infiniteRight
             }
           }, [
-            h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%"), directives: [{ name: 'show', value: this.infiniteRight }] }),
+            this.infiniteRight ? h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%") }) : null,
             this.$slots.default,
-            h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%"), directives: [{ name: 'show', value: this.infiniteLeft }] })
+            this.infiniteLeft ? h('div', { staticClass: 'q-carousel-slide', style: ("flex: 0 0 " + (100) + "%") }) : null
           ])
         ]),
         this.arrows ? h(QBtn, {
@@ -6121,17 +6158,17 @@
         return [
           h(QIcon, {
             staticClass: 'q-checkbox-icon cursor-pointer',
-            props: { name: this.uncheckedIcon || this.$q.icon.checkbox.unchecked["mat"] },
+            props: { name: this.uncheckedIcon || this.$q.icon.checkbox.unchecked['mat'] },
             style: this.uncheckedStyle
           }),
           h(QIcon, {
             staticClass: 'q-checkbox-icon cursor-pointer absolute-full',
-            props: { name: this.indeterminateIcon || this.$q.icon.checkbox.indeterminate["mat"] },
+            props: { name: this.indeterminateIcon || this.$q.icon.checkbox.indeterminate['mat'] },
             style: this.indeterminateStyle
           }),
           h(QIcon, {
             staticClass: 'q-checkbox-icon cursor-pointer absolute-full',
-            props: { name: this.checkedIcon || this.$q.icon.checkbox.checked["mat"] },
+            props: { name: this.checkedIcon || this.$q.icon.checkbox.checked['mat'] },
             style: this.checkedStyle
           }),
           h('div', { ref: 'ripple', staticClass: 'q-radial-ripple' })
@@ -6557,7 +6594,7 @@
     }
   }
 
-  var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","dense":_vm.dense,"closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+  var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","dense":_vm.dense,"closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
     name: 'QChipsInput',
     mixins: [FrameMixin, InputMixin],
     components: {
@@ -7302,7 +7339,7 @@
           }),
           h('div', {
             staticClass: 'q-slider-handle',
-            style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj),
+            style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj ),
             'class': {
               dragging: this.dragging,
               'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
@@ -7699,7 +7736,7 @@
 
         return ( obj = {
           top: ((101 - this.model.v) + "%")
-        }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj)
+        }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj )
       },
       inputsArray: function inputsArray () {
         var inp = ['r', 'g', 'b'];
@@ -8354,7 +8391,7 @@
             staticClass: 'with-backdrop',
             props: {
               contentCss: contentCss,
-              minimized: "mat" === 'mat',
+              minimized: 'mat' === 'mat',
               position: null,
               transition: this.transition
             },
@@ -8381,102 +8418,84 @@
     }
   }
 
-  var ContextMenuDesktop = {
+  var QContextMenu = {
     name: 'QContextMenu',
-    components: {
-      QPopover: QPopover
-    },
     props: {
       disable: Boolean
     },
-    render: function render (h) {
-      return h(QPopover, {
-        ref: 'popover',
-        props: {
-          anchorClick: false
-        },
-        on: {
-          show: this.__onShow,
-          hide: this.__onHide
-        }
-      }, this.$slots.default)
+    data: function data () {
+      return {
+        mobile: this.$q.platform.is.mobile
+      }
     },
     methods: {
       hide: function hide (evt) {
-        return this.$refs.popover ? this.$refs.popover.hide(evt) : Promise.resolve()
+        if (this.$refs.popup) {
+          this.mobile && this.target.classList.remove('non-selectable');
+          return this.$refs.popup.hide(evt)
+        }
       },
       show: function show (evt) {
         var this$1 = this;
 
-        if (!evt || this.disable) {
+        if (this.disable) {
           return
         }
+
+        if (this.mobile) {
+          if (this.$refs.popup) {
+            this.event = evt;
+            this.$refs.popup.show(evt);
+          }
+          return
+        }
+
+        if (!evt) {
+          return
+        }
+
         stopAndPrevent(evt);
         /*
           Opening with a timeout for
           Firefox workaround
          */
         setTimeout(function () {
-          if (this$1.$refs.popover) {
+          if (this$1.$refs.popup) {
             this$1.event = evt;
-            this$1.$refs.popover.show(evt);
+            this$1.$refs.popup.show(evt);
           }
         }, 100);
       },
-      __bodyHide: function __bodyHide (evt) {
+
+      __desktopBodyHide: function __desktopBodyHide (evt) {
         if (!this.$el.contains(evt.target)) {
           this.hide(evt);
         }
       },
-      __onShow: function __onShow () {
-        document.body.addEventListener('contextmenu', this.__bodyHide, true);
-        document.body.addEventListener('click', this.__bodyHide, true);
+      __desktopOnShow: function __desktopOnShow () {
+        document.body.addEventListener('contextmenu', this.__desktopBodyHide, true);
+        document.body.addEventListener('click', this.__desktopBodyHide, true);
         this.$emit('show', this.event);
       },
-      __onHide: function __onHide (evt) {
-        document.body.removeEventListener('contextmenu', this.__bodyHide, true);
-        document.body.removeEventListener('click', this.__bodyHide, true);
+      __desktopOnHide: function __desktopOnHide (evt) {
+        document.body.removeEventListener('contextmenu', this.__desktopBodyHide, true);
+        document.body.removeEventListener('click', this.__desktopBodyHide, true);
         this.$emit('hide', this.event, evt);
-      }
-    },
-    mounted: function mounted () {
-      this.target = this.$refs.popover.$el.parentNode;
-      this.target.addEventListener('contextmenu', this.show);
-    },
-    beforeDestroy: function beforeDestroy () {
-      this.target.removeEventListener('contextmenu', this.show);
-    }
-  }
+      },
 
-  var ContextMenuMobile = {
-    name: 'QContextMenu',
-    props: {
-      disable: Boolean
-    },
-    methods: {
-      hide: function hide (evt) {
-        this.target && this.target.classList.remove('non-selectable');
-        return this.$refs.dialog ? this.$refs.dialog.hide(evt) : Promise.resolve()
-      },
-      show: function show (evt) {
-        if (!this.disable && this.$refs.dialog) {
-          this.event = evt;
-          this.$refs.dialog.show(evt);
-        }
-      },
-      __touchStartHandler: function __touchStartHandler (evt) {
+      __mobileTouchStartHandler: function __mobileTouchStartHandler (evt) {
         var this$1 = this;
 
         this.target.classList.add('non-selectable');
         this.touchTimer = setTimeout(function () {
           evt && stopAndPrevent(evt);
           setTimeout(function () {
-            this$1.__cleanup();
+            this$1.__mobileCleanup();
             this$1.show(evt);
           }, 10);
         }, 600);
       },
-      __cleanup: function __cleanup () {
+      __mobileCleanup: function __mobileCleanup () {
         this.target.classList.remove('non-selectable');
         clearTimeout(this.touchTimer);
       }
@@ -8484,47 +8503,59 @@
     render: function render (h) {
       var this$1 = this;
 
-      return h(QModal, {
-        ref: 'dialog',
+      if (this.mobile) {
+        return h(QModal, {
+          ref: 'popup',
+          props: {
+            minimized: true
+          },
+          on: {
+            show: function () { this$1.$emit('show', this$1.event); },
+            hide: function (evt) { this$1.$emit('hide', this$1.event, evt); }
+          }
+        }, this.$slots.default)
+      }
+
+      return h(QPopover, {
+        ref: 'popup',
         props: {
-          minimized: true
+          anchorClick: false
         },
         on: {
-          show: function () { this$1.$emit('show', this$1.event); },
-          hide: function (evt) { this$1.$emit('hide', this$1.event, evt); }
+          show: this.__desktopOnShow,
+          hide: this.__desktopOnHide
         }
       }, this.$slots.default)
     },
     mounted: function mounted () {
       var this$1 = this;
 
-      this.$nextTick(function () {
-        this$1.target = this$1.$el.parentNode;
-        this$1.target.addEventListener('touchstart', this$1.__touchStartHandler)
-        ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
-          this$1.target.addEventListener(evt, this$1.__cleanup);
+      if (this.mobile) {
+        this.$nextTick(function () {
+          this$1.target = this$1.$el.parentNode;
+          this$1.target.addEventListener('touchstart', this$1.__mobileTouchStartHandler)
+          ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
+            this$1.target.addEventListener(evt, this$1.__mobileCleanup);
+          });
         });
-      });
+      }
+      else {
+        this.target = this.$el.parentNode;
+        this.target.addEventListener('contextmenu', this.show);
+      }
     },
     beforeDestroy: function beforeDestroy () {
       var this$1 = this;
 
-      this.target.removeEventListener('touchstart', this.__touchStartHandler)
-      ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
-        this$1.target.removeEventListener(evt, this$1.__cleanup);
-      });
-    }
-  }
-
-  var QContextMenu = {
-    name: 'QContextMenu',
-    functional: true,
-    render: function render (h, ctx) {
-      return h(
-        Platform.is.mobile ? ContextMenuMobile : ContextMenuDesktop,
-        ctx.data,
-        ctx.children
-      )
+      if (this.mobile) {
+        this.target.removeEventListener('touchstart', this.__mobileTouchStartHandler)
+        ;['touchcancel', 'touchmove', 'touchend'].forEach(function (evt) {
+          this$1.target.removeEventListener(evt, this$1.__mobileCleanup);
+        });
+      }
+      else {
+        this.target.removeEventListener('contextmenu', this.show);
+      }
     }
   }
 
@@ -9294,7 +9325,7 @@
     return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
   }
 
-  var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setDay(_vm.day + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.hour)+" ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" AM ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" PM ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeatTimeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': _vm.isValid && monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
+  var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setDay(_vm.day + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.hour)+" ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" AM ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" PM ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': _vm.isValid && monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
     name: 'QDatetimePicker',
     mixins: [DateMixin, ParentFieldMixin],
     props: {
@@ -9772,7 +9803,7 @@
             ref: 'target',
             staticClass: 'no-border',
             'class': {
-              'datetime-ios-modal': "mat" === 'ios' && modal
+              'datetime-ios-modal': 'mat' === 'ios'
             },
             props: {
               type: this.type,
@@ -9906,7 +9937,7 @@
             staticClass: 'with-backdrop',
             props: {
               contentCss: contentCss$1,
-              minimized: "mat" === 'mat',
+              minimized: 'mat' === 'mat',
               position: null,
               transition: this.transition
             },
@@ -10130,7 +10161,7 @@
     }
   }
 
-  var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClasses,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position q-input-area-holder"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+  var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClasses,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position q-input-area-holder"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
     name: 'QInput',
     mixins: [FrameMixin, InputMixin],
     components: {
@@ -10409,13 +10440,13 @@
           h(QIcon, {
             staticClass: 'q-radio-unchecked cursor-pointer absolute-full',
             props: {
-              name: this.uncheckedIcon || this.$q.icon.radio.unchecked["mat"]
+              name: this.uncheckedIcon || this.$q.icon.radio.unchecked['mat']
             }
           }),
           h(QIcon, {
             staticClass: 'q-radio-checked cursor-pointer absolute-full',
             props: {
-              name: this.checkedIcon || this.$q.icon.radio.checked["mat"]
+              name: this.checkedIcon || this.$q.icon.radio.checked['mat']
             }
           }),
           h('div', { ref: 'ripple', staticClass: 'q-radial-ripple' })
@@ -10849,7 +10880,7 @@
 
   var QTooltip = {
     name: 'QTooltip',
-    mixins: [ModelToggleMixin],
+    mixins: [ModelToggleMixin, CanRenderMixin],
     props: {
       anchor: {
         type: String,
@@ -10933,16 +10964,15 @@
       }
     },
     render: function render (h) {
-      return h('span', {
-        staticClass: 'q-tooltip animate-popup',
-        style: this.transformCSS
-      }, [
+      if (!this.canRender) { return }
+
+      return h('span', { staticClass: 'q-tooltip animate-popup' }, [
         h('div', [
           this.$slots.default
         ])
       ])
     },
-    created: function created () {
+    beforeMount: function beforeMount () {
       var this$1 = this;
 
       this.__debouncedUpdatePosition = debounce(function () {
@@ -12789,10 +12819,14 @@
         default: 'left',
         validator: function (v) { return ['left', 'right'].includes(v); }
       },
+      width: {
+        type: Number,
+        default: 300
+      },
       mini: Boolean,
       miniWidth: {
-        type: String,
-        default: '60px'
+        type: Number,
+        default: 60
       },
       breakpoint: {
         type: Number,
@@ -12827,8 +12861,7 @@
           (this.behavior !== 'desktop' && this.breakpoint >= this.layout.width)
         ),
         largeScreenState: largeScreenState,
-        mobileOpened: false,
-        size: 300
+        mobileOpened: false
       }
     },
     watch: {
@@ -12885,8 +12918,9 @@
       rightSide: function rightSide () {
         this.applyPosition();
       },
-      size: function size () {
+      size: function size (val) {
         this.applyPosition();
+        this.__update('size', val);
       },
       '$q.i18n.rtl': function $q_i18n_rtl () {
         this.applyPosition();
@@ -12906,6 +12940,9 @@
           ? this.size
           : 0
       },
+      size: function size () {
+        return this.isMini ? this.miniWidth : this.width
+      },
       fixed: function fixed () {
         return this.overlay || this.layout.view.indexOf(this.rightSide ? 'R' : 'L') > -1
       },
@@ -12917,7 +12954,7 @@
       },
       backdropClass: function backdropClass () {
         return {
-          'no-pointer-events': !this.showing
+          'no-pointer-events': !this.showing || !this.mobileView
         }
       },
       mobileView: function mobileView () {
@@ -12978,14 +13015,10 @@
           }
         }
 
-        if (this.isMini) {
-          css$$1.width = this.miniWidth;
-        }
-
         return css$$1
       },
       computedStyle: function computedStyle () {
-        return [this.contentStyle, this.mobileView ? '' : this.aboveStyle]
+        return [this.contentStyle, { width: ((this.size) + "px") }, this.mobileView ? '' : this.aboveStyle]
       },
       computedClass: function computedClass () {
         return [this.contentClass, this.mobileView ? this.belowClass : this.aboveClass]
@@ -12995,84 +13028,17 @@
       },
       isMini: function isMini () {
         return this.mini && !this.mobileView
-      }
-    },
-    render: function render (h) {
-      var child = [];
+      },
+      onNativeEvents: function onNativeEvents () {
+        var this$1 = this;
 
-      if (this.mobileView) {
-        if (!this.noSwipeOpen) {
-          child.push(h('div', {
-            staticClass: ("q-layout-drawer-opener fixed-" + (this.side)),
-            directives: [{
-              name: 'touch-pan',
-              modifiers: { horizontal: true },
-              value: this.__openByTouch
-            }]
-          }));
+        if (!this.mobileView) {
+          return {
+            '!click': function (e) { this$1.$emit('click', e); },
+            mouseover: function (e) { this$1.$emit('mouseover', e); },
+            mouseout: function (e) { this$1.$emit('mouseout', e); }
+          }
         }
-        child.push(h('div', {
-          ref: 'backdrop',
-          staticClass: 'fullscreen q-layout-backdrop',
-          'class': this.backdropClass,
-          on: { click: this.hide },
-          directives: [{
-            name: 'touch-pan',
-            modifiers: { horizontal: true },
-            value: this.__closeByTouch
-          }]
-        }));
-      }
-
-      return h('div', {
-        staticClass: 'q-drawer-container'
-      }, child.concat([
-        h('aside', {
-          ref: 'content',
-          staticClass: ("q-layout-drawer q-layout-transition q-layout-drawer-" + (this.side) + " scroll"),
-          'class': this.computedClass,
-          style: this.computedStyle,
-          attrs: this.$attrs,
-          on: !this.mobileView ? this.$listeners : null,
-          directives: this.mobileView && !this.noSwipeClose ? [{
-            name: 'touch-pan',
-            modifiers: { horizontal: true },
-            value: this.__closeByTouch
-          }] : null
-        }, [
-          h(QResizeObservable, {
-            props: { debounce: 0 },
-            on: { resize: this.__onResize }
-          }),
-          this.mini && this.$slots.mini && !this.mobileView
-            ? this.$slots.mini
-            : this.$slots.default
-        ])
-      ]))
-    },
-    created: function created () {
-      var this$1 = this;
-
-      this.layout.instances[this.side] = this;
-      this.__update('space', this.onLayout);
-      this.__update('offset', this.offset);
-
-      this.$nextTick(function () {
-        this$1.animateOverlay = true;
-      });
-    },
-    mounted: function mounted () {
-      if (this.showing) {
-        this.applyPosition(0);
-      }
-    },
-    beforeDestroy: function beforeDestroy () {
-      clearTimeout(this.timer);
-      if (this.layout.instances[this.side] === this) {
-        this.layout.instances[this.side] = null;
-        this.__update('size', 0);
-        this.__update('offset', 0);
-        this.__update('space', false);
       }
     },
     methods: {
@@ -13224,12 +13190,6 @@
         }, duration);
       },
 
-      __onResize: function __onResize (ref) {
-        var width$$1 = ref.width;
-
-        this.__update('size', width$$1);
-        this.__updateLocal('size', width$$1);
-      },
       __update: function __update (prop, val) {
         if (this.layout[this.side][prop] !== val) {
           this.layout[this.side][prop] = val;
@@ -13240,6 +13200,73 @@
           this[prop] = val;
         }
       }
+    },
+    created: function created () {
+      this.layout.instances[this.side] = this;
+      this.__update('size', this.size);
+      this.__update('space', this.onLayout);
+      this.__update('offset', this.offset);
+    },
+    mounted: function mounted () {
+      if (this.showing) {
+        this.applyPosition(0);
+      }
+    },
+    beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.timer);
+      if (this.layout.instances[this.side] === this) {
+        this.layout.instances[this.side] = null;
+        this.__update('size', 0);
+        this.__update('offset', 0);
+        this.__update('space', false);
+      }
+    },
+    render: function render (h) {
+      var child = [
+        this.mobileView && !this.noSwipeOpen
+          ? h('div', {
+            staticClass: ("q-layout-drawer-opener fixed-" + (this.side)),
+            directives: [{
+              name: 'touch-pan',
+              modifiers: { horizontal: true },
+              value: this.__openByTouch
+            }]
+          })
+          : null,
+        h('div', {
+          ref: 'backdrop',
+          staticClass: 'fullscreen q-layout-backdrop q-layout-transition',
+          'class': this.backdropClass,
+          on: { click: this.hide },
+          directives: [{
+            name: 'touch-pan',
+            modifiers: { horizontal: true },
+            value: this.__closeByTouch
+          }]
+        })
+      ];
+
+      return h('div', {
+        staticClass: 'q-drawer-container'
+      }, child.concat([
+        h('aside', {
+          ref: 'content',
+          staticClass: ("q-layout-drawer q-layout-transition q-layout-drawer-" + (this.side) + " scroll"),
+          'class': this.computedClass,
+          style: this.computedStyle,
+          attrs: this.$attrs,
+          on: this.onNativeEvents,
+          directives: this.mobileView && !this.noSwipeClose ? [{
+            name: 'touch-pan',
+            modifiers: { horizontal: true },
+            value: this.__closeByTouch
+          }] : null
+        }, [
+          this.isMini && this.$slots.mini
+            ? this.$slots.mini
+            : this.$slots.default
+        ])
+      ]))
     }
   }
 
@@ -13321,10 +13348,10 @@
           css = {};
 
         if (view[0] === 'l' && this.layout.left.space) {
-          css[("margin" + (this.$q.i18n.rtl ? 'Right' : 'Left'))] = (this.layout.left.size) + "px";
+          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.left.size) + "px";
         }
         if (view[2] === 'r' && this.layout.right.space) {
-          css[("margin" + (this.$q.i18n.rtl ? 'Left' : 'Right'))] = (this.layout.right.size) + "px";
+          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.right.size) + "px";
         }
 
         return css
@@ -13473,10 +13500,10 @@
           css = {};
 
         if (view[0] === 'l' && this.layout.left.space) {
-          css[("margin" + (this.$q.i18n.rtl ? 'Right' : 'Left'))] = (this.layout.left.size) + "px";
+          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.left.size) + "px";
         }
         if (view[2] === 'r' && this.layout.right.space) {
-          css[("margin" + (this.$q.i18n.rtl ? 'Left' : 'Right'))] = (this.layout.right.size) + "px";
+          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.right.size) + "px";
         }
 
         return css
@@ -13846,9 +13873,6 @@
         this.model = this.newPage;
         this.newPage = null;
       },
-      __repeatTimeout: function __repeatTimeout (count) {
-        return Math.max(100, 300 - count * count * 10)
-      },
       __getBool: function __getBool (val, otherwise) {
         return [true, false].includes(val)
           ? val
@@ -13900,8 +13924,7 @@
           key: 'bdp',
           props: {
             disable: this.disable || this.value <= this.min,
-            icon: this.icons[1],
-            repeatTimeout: this.__repeatTimeout
+            icon: this.icons[1]
           },
           on: {
             click: function () { return this$1.setByOffset(-1); }
@@ -13911,8 +13934,7 @@
           key: 'bdn',
           props: {
             disable: this.disable || this.value >= this.max,
-            icon: this.icons[2],
-            repeatTimeout: this.__repeatTimeout
+            icon: this.icons[2]
           },
           on: {
             click: function () { return this$1.setByOffset(1); }
@@ -14021,8 +14043,7 @@
             style: style,
             props: {
               disable: this.disable,
-              label: '…',
-              repeatTimeout: this.__repeatTimeout
+              label: '…'
             },
             on: {
               click: function () { return this$1.set(pgFrom - 1); }
@@ -14035,8 +14056,7 @@
             style: style,
             props: {
               disable: this.disable,
-              label: '…',
-              repeatTimeout: this.__repeatTimeout
+              label: '…'
             },
             on: {
               click: function () { return this$1.set(pgTo + 1); }
@@ -14186,7 +14206,7 @@
         ])
       ])
     },
-    created: function created () {
+    beforeMount: function beforeMount () {
       this.__setPos = frameDebounce(this.__setPos);
     },
     mounted: function mounted () {
@@ -14757,7 +14777,7 @@
         return h('div', {
           ref: ("handle" + upper),
           staticClass: ("q-slider-handle q-slider-handle-" + lower),
-          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj),
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj ),
           'class': [
             edge ? 'handle-at-minimum' : null,
             { dragging: this.dragging }
@@ -14789,7 +14809,7 @@
         return [
           h('div', {
             staticClass: 'q-slider-track active-track',
-            style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj),
+            style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj ),
             'class': {
               dragging: this.dragging,
               'track-draggable': this.dragRange || this.dragOnlyRange
@@ -15305,7 +15325,7 @@
     return obj.label.toLowerCase().indexOf(terms) > -1
   }
 
-  var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","dense":_vm.dense,"closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"iconRight":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
+  var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","dense":_vm.dense,"closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"icon-right":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
     name: 'QSelect',
     mixins: [FrameMixin, KeyboardSelectionMixin],
     components: {
@@ -15450,7 +15470,9 @@
       },
       show: function show () {
         this.__keyboardCalcIndex();
-        return this.$refs.popover.show()
+        if (this.$refs.popover) {
+          return this.$refs.popover.show()
+        }
       },
       hide: function hide () {
         return this.$refs.popover ? this.$refs.popover.hide() : Promise.resolve()
@@ -15676,7 +15698,7 @@
         on: {
           click: this.__select
         },
-        directives: "mat" === 'mat' && this.hasNavigation
+        directives: this.hasNavigation
           ? [{
             name: 'ripple',
             value: this.vm.done
@@ -16154,7 +16176,7 @@
         });
       }
     },
-    created: function created () {
+    mounted: function mounted () {
       this.checkIfSelected();
     },
     render: function render (h) {
@@ -17920,7 +17942,7 @@
     },
     computed: {
       hasRipple: function hasRipple () {
-        return "mat" === 'mat' && !this.noRipple
+        return !this.noRipple
       },
       classes: function classes () {
         return [
@@ -18325,7 +18347,7 @@
               disabled: meta.disabled
             },
             on: { click: function () { this$1.__onClick(node, meta); } },
-            directives: "mat" === 'mat' && meta.selectable
+            directives: meta.selectable
               ? [{ name: 'ripple' }]
               : null
           }, [
@@ -18475,7 +18497,7 @@
     selectDialogOpened,
     selectDialogTimer;
 
-  var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"invertedLight":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
+  var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
     name: 'QUploader',
     mixins: [FrameMixin],
     components: {
@@ -18504,6 +18526,7 @@
         type: Function,
         required: false
       },
+      uploadFactory: Function,
       additionalFields: {
         type: Array,
         default: function () { return []; }
@@ -18705,7 +18728,7 @@
 
         if (this.uploading && !done) {
           this.$emit('remove:abort', file, file.xhr);
-          file.xhr.abort();
+          file.xhr && file.xhr.abort();
           this.uploadedSize -= file.__uploaded;
         }
         else {
@@ -18718,6 +18741,11 @@
 
         file.__removed = true;
         this.files = this.files.filter(function (obj) { return obj.name !== name; });
+
+        if (!this.files.length) {
+          this.uploading = false;
+        }
+
         this.__computeTotalSize();
       },
       __pick: function __pick () {
@@ -18757,6 +18785,35 @@
       __getUploadPromise: function __getUploadPromise (file) {
         var this$1 = this;
 
+        initFile(file);
+
+        if (this.uploadFactory) {
+          var updateProgress = function (percentage) {
+            var uploaded = percentage * file.size;
+            this$1.uploadedSize += uploaded - file.__uploaded;
+            file.__uploaded = uploaded;
+            file.__progress = Math.min(99, parseInt(percentage * 100, 10));
+            this$1.$forceUpdate();
+          };
+
+          return new Promise(function (resolve, reject) {
+            this$1.uploadFactory(file, updateProgress)
+              .then(function (file) {
+                file.__doneUploading = true;
+                file.__progress = 100;
+                this$1.$emit('uploaded', file);
+                this$1.$forceUpdate();
+                resolve(file);
+              })
+              .catch(function (error) {
+                file.__failed = true;
+                this$1.$emit('fail', file);
+                this$1.$forceUpdate();
+                reject(error);
+              });
+          })
+        }
+
         var
           form = new FormData(),
           xhr = new XMLHttpRequest();
@@ -18772,7 +18829,6 @@
           return
         }
 
-        initFile(file);
         file.xhr = xhr;
         return new Promise(function (resolve, reject) {
           xhr.upload.addEventListener('progress', function (e) {
@@ -18868,6 +18924,7 @@
       abort: function abort () {
         this.xhrs.forEach(function (xhr) { xhr.abort(); });
         this.uploading = false;
+        this.$emit('abort');
       },
       reset: function reset () {
         this.abort();
@@ -19226,19 +19283,18 @@
     bind: function bind (el, binding) {
       var ctx = {
         scroll: debounce(function () {
-          var containerBottom, elementBottom, fire;
+          var containerBottom, elBottom;
 
           if (ctx.scrollTarget === window) {
-            elementBottom = el.getBoundingClientRect().bottom;
-            fire = elementBottom < window.innerHeight;
+            elBottom = el.getBoundingClientRect().bottom;
+            containerBottom = window.innerHeight;
           }
           else {
+            elBottom = offset(el).top + height(el);
             containerBottom = offset(ctx.scrollTarget).top + height(ctx.scrollTarget);
-            elementBottom = offset(el).top + height(el);
-            fire = elementBottom < containerBottom;
           }
 
-          if (fire) {
+          if (elBottom > 0 && elBottom < containerBottom) {
             ctx.scrollTarget.removeEventListener('scroll', ctx.scroll, listenOpts.passive);
             ctx.handler(el);
           }
@@ -19407,10 +19463,12 @@
 
   function modalFn (Component, Vue$$1) {
     return function (props, resolver) {
-      var node = document.createElement('div');
-      document.body.appendChild(node);
-
       return new Promise(function (resolve, reject) {
+        if (isSSR) { return }
+
+        var node = document.createElement('div');
+        document.body.appendChild(node);
+
         var vm = new Vue$$1({
           el: node,
           data: function data () {
@@ -19512,37 +19570,44 @@
       if (this.__installed) { return }
       this.__installed = true;
 
+      this.set = Platform.is.mobile && !isSSR && (
+        Platform.is.cordova ||
+        Platform.is.winphone || Platform.is.safari ||
+        Platform.is.webkit || Platform.is.vivaldi
+      )
+        ? function (hexColor) {
+          ready(function () {
+            var val = hexColor || getBrand('primary');
+
+            if (Platform.is.cordova) {
+              window.StatusBar && window.StatusBar.backgroundColorByHexString(val);
+            }
+            else {
+              setColor(val);
+            }
+          });
+        }
+        : function () {};
+
       $q.addressbarColor = this;
-    },
-
-    set: function set (hexColor) {
-      if (!Platform.is.mobile || Platform.is.cordova || isSSR) {
-        return
-      }
-      if (!Platform.is.winphone && !Platform.is.safari && !Platform.is.webkit && !Platform.is.vivaldi) {
-        return
-      }
-
-      ready(function () {
-        setColor(hexColor || getBrand('primary'));
-      });
     }
   }
+
+  var prefixes = {};
 
   var appFullscreen = {
     isCapable: false,
     isActive: false,
-    __prefixes: {},
 
     request: function request (target) {
       if (this.isCapable && !this.isActive) {
         target = target || document.documentElement;
-        target[this.__prefixes.request]();
+        target[prefixes.request]();
       }
     },
     exit: function exit () {
       if (this.isCapable && this.isActive) {
-        document[this.__prefixes.exit]();
+        document[prefixes.exit]();
       }
     },
     toggle: function toggle (target) {
@@ -19565,30 +19630,23 @@
 
       $q.fullscreen = this;
 
-      if (isSSR) {
-        return
-      }
+      if (isSSR) { return }
 
-      var request = [
+      prefixes.request = [
         'requestFullscreen',
         'msRequestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen'
       ].find(function (request) { return document.documentElement[request]; });
 
-      this.isCapable = request !== undefined;
+      this.isCapable = prefixes.request !== undefined;
       if (!this.isCapable) {
         // it means the browser does NOT support it
         return
       }
 
-      var exit = [
+      prefixes.exit = [
         'exitFullscreen',
         'msExitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen'
       ].find(function (exit) { return document[exit]; });
-
-      this.__prefixes = {
-        request: request,
-        exit: exit
-      };
 
       this.isActive = !!(document.fullscreenElement ||
         document.mozFullScreenElement ||
@@ -19653,6 +19711,10 @@
     }
   }
 
+  var
+    cookieSource,
+    ssrRes;
+
   function encode (string) {
     return encodeURIComponent(string)
   }
@@ -19698,19 +19760,34 @@
       time.setMilliseconds(time.getMilliseconds() + opts.expires * 864e+5);
     }
 
-    document.cookie = [
-      encode(key), '=', stringifyCookieValue(val),
+    var keyValue = (encode(key)) + "=" + (stringifyCookieValue(val));
+
+    var cookie = [
+      keyValue,
       time ? '; expires=' + time.toUTCString() : '', // use expires attribute, max-age is not supported by IE
       opts.path ? '; path=' + opts.path : '',
       opts.domain ? '; domain=' + opts.domain : '',
       opts.secure ? '; secure' : ''
     ].join('');
+
+    if (isSSR) {
+      ssrRes.setHeader('Set-Cookie', cookie);
+
+      // make temporary update so future get()
+      // within same SSR timeframe would return the set value
+      cookieSource.cookie = cookieSource.cookie
+        ? (keyValue + "; " + (cookieSource.cookie))
+        : cookie;
+    }
+    else {
+      document.cookie = cookie;
+    }
   }
 
   function get (key) {
     var
       result = key ? undefined : {},
-      cookies = document.cookie ? document.cookie.split('; ') : [],
+      cookies = cookieSource.cookie ? cookieSource.cookie.split('; ') : [],
       i = 0,
       l = cookies.length,
       parts,
@@ -19754,17 +19831,17 @@
     __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
+      var cfg = ref.cfg;
 
       if (this.__installed) { return }
       this.__installed = true;
 
       if (isSSR) {
-        var noop = function () {};
-        this.get = noop;
-        this.set = noop;
-        this.has = noop;
-        this.remove = noop;
-        this.all = noop;
+        cookieSource = cfg.ssr.req.headers;
+        ssrRes = cfg.ssr.res;
+      }
+      else {
+        cookieSource = document;
       }
 
       $q.cookies = this;
@@ -19780,43 +19857,38 @@
       if (this.__installed) { return }
       this.__installed = true;
 
-      this.create = $q.dialog = isSSR
-        ? function () { return new Promise(); }
-        : modalFn(QDialog, Vue$$1);
+      this.create = $q.dialog = modalFn(QDialog, Vue$$1);
     }
   }
 
   var
     vm,
     timeout,
-    props = {};
+    props = {},
+    defaults = {
+      delay: 500,
+      message: false,
+      spinnerSize: 80,
+      spinnerColor: 'white',
+      messageColor: 'white',
+      spinner: QSpinner,
+      customClass: false
+    };
 
   var staticClass = 'q-loading animate-fade fullscreen column flex-center z-max';
 
-  var Loading = {
+  var loading = {
     isActive: false,
 
-    show: function show (ref) {
+    show: function show (opts) {
       var this$1 = this;
-      if ( ref === void 0 ) ref = {};
-      var delay = ref.delay; if ( delay === void 0 ) delay = 500;
-      var message = ref.message; if ( message === void 0 ) message = false;
-      var spinnerSize = ref.spinnerSize; if ( spinnerSize === void 0 ) spinnerSize = 80;
-      var spinnerColor = ref.spinnerColor; if ( spinnerColor === void 0 ) spinnerColor = 'white';
-      var messageColor = ref.messageColor; if ( messageColor === void 0 ) messageColor = 'white';
-      var spinner = ref.spinner; if ( spinner === void 0 ) spinner = QSpinner;
-      var customClass = ref.customClass; if ( customClass === void 0 ) customClass = false;
 
       if (isSSR) { return }
 
-      props.spinner = spinner;
-      props.message = message;
-      props.spinnerSize = spinnerSize;
-      props.spinnerColor = spinnerColor;
-      props.messageColor = messageColor;
+      props = Object.assign({}, defaults, opts);
 
-      if (typeof customClass === 'string') {
-        props.customClass = customClass.trim();
+      if (typeof props.customClass === 'string') {
+        props.customClass = props.customClass.trim();
       }
 
       if (this.isActive) {
@@ -19845,7 +19917,7 @@
                   size: props.spinnerSize
                 }
               }),
-              message
+              props.message
                 ? h('div', {
                   'class': ("text-" + (props.messageColor)),
                   domProps: {
@@ -19856,7 +19928,7 @@
             ])
           }
         });
-      }, delay);
+      }, props.delay);
 
       this.isActive = true;
     },
@@ -19878,20 +19950,28 @@
 
       this.isActive = false;
     },
+    setDefaults: function setDefaults (opts) {
+      Object.assign(defaults, opts);
+    },
 
     __Vue: null,
     __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
+      var loading = ref.cfg.loading;
 
       if (this.__installed) { return }
       this.__installed = true;
 
-      $q.loading = Loading;
+      loading && this.setDefaults(loading);
+
+      $q.loading = this;
       this.__Vue = Vue$$1;
     }
-  };
+  }
+
+  var defaults$1;
 
   var positionList = [
     'top-left', 'top-right',
@@ -19903,7 +19983,6 @@
     var this$1 = this;
     var $q = ref.$q;
     var Vue$$1 = ref.Vue;
-    var defaults = ref.cfg.notify; if ( defaults === void 0 ) defaults = {};
 
     if (!document.body) {
       ready(function () {
@@ -19941,7 +20020,7 @@
 
           var notif = Object.assign(
             {},
-            defaults,
+            defaults$1,
             typeof config === 'string'
               ? { message: config }
               : clone(config)
@@ -20064,16 +20143,19 @@
     create: function create (opts) {
       var this$1 = this;
 
-      if (!isSSR) {
-        if (!document.body) {
-          ready(function () { // here we won't return the dismiss function (we can return a promise)
-            this$1.create(opts);
-          });
-        }
-        else {
-          return this.__vm.add(opts)
-        }
+      if (isSSR) { return }
+
+      if (!document.body) {
+        ready(function () { // here we won't return the dismiss function (we can return a promise)
+          this$1.create(opts);
+        });
       }
+      else {
+        return this.__vm.add(opts)
+      }
+    },
+    setDefaults: function setDefaults (opts) {
+      Object.assign(defaults$1, opts);
     },
 
     __installed: false,
@@ -20084,7 +20166,11 @@
       if (!isSSR) {
         init.call(this, args);
       }
+
+      args.cfg.notify && this.setDefaults(args.cfg.notify);
+
       args.$q.notify = this.create.bind(this);
+      args.$q.notify.setDefaults = this.setDefaults;
     }
   }
 
@@ -20253,7 +20339,7 @@
   }
 
   function getEmptyStorage () {
-    var fn = function () { return null; };
+    var fn = function () {};
 
     return {
       has: fn,
@@ -20319,7 +20405,7 @@
       if ($q.platform.has.webStorage) {
         var storage = getStorage('local');
         $q.localStorage = storage;
-        extend(true, this, storage);
+        Object.assign(this, storage);
       }
       else {
         $q.localStorage = getEmptyStorage();
@@ -20338,7 +20424,7 @@
       if ($q.platform.has.webStorage) {
         var storage = getStorage('session');
         $q.sessionStorage = storage;
-        extend(true, this, storage);
+        Object.assign(this, storage);
       }
       else {
         $q.sessionStorage = getEmptyStorage();
@@ -20355,7 +20441,7 @@
     AppVisibility: appVisibility,
     Cookies: cookies,
     Dialog: dialog,
-    Loading: Loading,
+    Loading: loading,
     Notify: notify,
     Platform: Platform,
     Screen: screen,
@@ -20416,7 +20502,7 @@
 
   var index_umd = {
     version: version,
-    theme: "mat",
+    theme: 'mat',
 
     i18n: i18n,
     icons: icons,
