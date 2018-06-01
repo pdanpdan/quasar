@@ -1265,7 +1265,8 @@ body.desktop .q-carousel-thumbnails img:hover {
   -webkit-box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 2px rgba(0,0,0,0.4);
 }
 [dir] .q-color-saturation-circle {
-  cursor: head;
+  cursor: -webkit-grab;
+  cursor: grab;
           box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 2px rgba(0,0,0,0.4);
   border-radius: 50%;
 }

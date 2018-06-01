@@ -4,76 +4,6 @@
  * Released under the MIT License.
  */
 
-var version = "0.16.1";
-
-function offset (el) {
-  if (!el || el === window) {
-    return {top: 0, left: 0}
-  }
-  var ref = el.getBoundingClientRect();
-  var top = ref.top;
-  var left = ref.left;
-
-  return {top: top, left: left}
-}
-
-function style (el, property) {
-  return window.getComputedStyle(el).getPropertyValue(property)
-}
-
-function height (el) {
-  if (el === window) {
-    return window.innerHeight
-  }
-  return parseFloat(style(el, 'height'))
-}
-
-function width (el) {
-  if (el === window) {
-    return window.innerWidth
-  }
-  return parseFloat(style(el, 'width'))
-}
-
-function css (element, css) {
-  var style = element.style;
-
-  Object.keys(css).forEach(function (prop) {
-    style[prop] = css[prop];
-  });
-}
-
-function ready (fn) {
-  if (typeof fn !== 'function') {
-    return
-  }
-
-  if (document.readyState === 'complete') {
-    return fn()
-  }
-
-  document.addEventListener('DOMContentLoaded', fn, false);
-}
-
-var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
-function cssTransform (val) {
-  var o = {transform: val};
-  prefix.forEach(function (p) {
-    o[p + 'transform'] = val;
-  });
-  return o
-}
-
-var dom = /*#__PURE__*/Object.freeze({
-  offset: offset,
-  style: style,
-  height: height,
-  width: width,
-  css: css,
-  ready: ready,
-  cssTransform: cssTransform
-});
-
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-mixed-operators */
@@ -246,8 +176,12 @@ var Platform = {
     if (this.__installed) { return }
     this.__installed = true;
 
+    $q.platform = Platform;
+
     if (isSSR) {
       if (!cfg.ssr || !cfg.ssr.req || !cfg.ssr.res) {
+        Platform.is = Platform.has = Platform.within = {};
+        cfg.ssr = { req: {}, res: {} };
         console.error('[quasar-ssr]: cfg.ssr.(req & res) required');
         return
       }
@@ -280,52 +214,53 @@ var Platform = {
         iframe: window.self !== window.top
       };
     }
-
-    $q.platform = Platform;
   }
 };
 
-var History = {
-  __history: [],
-  add: function () {},
-  remove: function () {},
+/* eslint-disable no-extend-native, one-var, no-self-compare */
 
-  __installed: false,
-  install: function install () {
-    var this$1 = this;
+function assign (target, firstSource) {
+  var arguments$1 = arguments;
 
-    if (this.__installed || !Platform.is.cordova || isSSR) {
-      return
+  if (target === undefined || target === null) {
+    throw new TypeError('Cannot convert first argument to object')
+  }
+
+  var to = Object(target);
+  for (var i = 1; i < arguments.length; i++) {
+    var nextSource = arguments$1[i];
+    if (nextSource === undefined || nextSource === null) {
+      continue
     }
 
-    this.__installed = true;
-    this.add = function (definition) {
-      this$1.__history.push(definition);
-    };
-    this.remove = function (definition) {
-      var index = this$1.__history.indexOf(definition);
-      if (index >= 0) {
-        this$1.__history.splice(index, 1);
+    var keysArray = Object.keys(Object(nextSource));
+    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+      var nextKey = keysArray[nextIndex];
+      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+      if (desc !== undefined && desc.enumerable) {
+        to[nextKey] = nextSource[nextKey];
       }
-    };
-
-    document.addEventListener('deviceready', function () {
-      document.addEventListener('backbutton', function () {
-        if (this$1.__history.length) {
-          this$1.__history.pop().handler();
-        }
-        else if (window.location.hash === '#/') {
-          navigator.app.exitApp();
-        }
-        else {
-          window.history.back();
-        }
-      }, false);
-    });
+    }
   }
+  return to
 }
 
-/* eslint-disable no-extend-native, one-var, no-self-compare */
+if (!Object.assign) {
+  Object.defineProperty(Object, 'assign', {
+    enumerable: false,
+    configurable: true,
+    writable: true,
+    value: assign
+  });
+}
+
+if (!Number.isInteger) {
+  Number.isInteger = function (value) {
+    return typeof value === 'number' &&
+      isFinite(value) &&
+      Math.floor(value) === value
+  };
+}
 
 if (!Array.prototype.includes) {
   Array.prototype.includes = function (searchEl, startFrom) {
@@ -432,6 +367,116 @@ if (!Array.prototype.find) {
       return undefined
     }
   });
+}
+
+var version = "0.16.1";
+
+function offset (el) {
+  if (!el || el === window) {
+    return {top: 0, left: 0}
+  }
+  var ref = el.getBoundingClientRect();
+  var top = ref.top;
+  var left = ref.left;
+
+  return {top: top, left: left}
+}
+
+function style (el, property) {
+  return window.getComputedStyle(el).getPropertyValue(property)
+}
+
+function height (el) {
+  if (el === window) {
+    return window.innerHeight
+  }
+  return parseFloat(style(el, 'height'))
+}
+
+function width (el) {
+  if (el === window) {
+    return window.innerWidth
+  }
+  return parseFloat(style(el, 'width'))
+}
+
+function css (element, css) {
+  var style = element.style;
+
+  Object.keys(css).forEach(function (prop) {
+    style[prop] = css[prop];
+  });
+}
+
+function ready (fn) {
+  if (typeof fn !== 'function') {
+    return
+  }
+
+  if (document.readyState === 'complete') {
+    return fn()
+  }
+
+  document.addEventListener('DOMContentLoaded', fn, false);
+}
+
+var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
+function cssTransform (val) {
+  var o = {transform: val};
+  prefix.forEach(function (p) {
+    o[p + 'transform'] = val;
+  });
+  return o
+}
+
+var dom = /*#__PURE__*/Object.freeze({
+offset: offset,
+style: style,
+height: height,
+width: width,
+css: css,
+ready: ready,
+cssTransform: cssTransform
+});
+
+var History = {
+  __history: [],
+  add: function () {},
+  remove: function () {},
+
+  __installed: false,
+  install: function install () {
+    var this$1 = this;
+
+    if (this.__installed || !Platform.is.cordova || isSSR) {
+      return
+    }
+
+    this.__installed = true;
+    this.add = function (definition) {
+      this$1.__history.push(definition);
+    };
+    this.remove = function (definition) {
+      var index = this$1.__history.indexOf(definition);
+      if (index >= 0) {
+        this$1.__history.splice(index, 1);
+      }
+    };
+
+    document.addEventListener('deviceready', function () {
+      document.addEventListener('backbutton', function () {
+        if (this$1.__history.length) {
+          this$1.__history.pop().handler();
+        }
+        else if (window.location.hash === '#/') {
+          navigator.app.exitApp();
+        }
+        else {
+          window.history.back();
+        }
+      }, false);
+    });
+  }
 }
 
 var langEn = {
@@ -1290,16 +1335,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-  listenOpts: listenOpts,
-  leftClick: leftClick,
-  middleClick: middleClick,
-  rightClick: rightClick,
-  getEventKey: getEventKey,
-  position: position,
-  targetElement: targetElement,
-  getEventPath: getEventPath,
-  getMouseWheelDistance: getMouseWheelDistance,
-  stopAndPrevent: stopAndPrevent
+listenOpts: listenOpts,
+leftClick: leftClick,
+middleClick: middleClick,
+rightClick: rightClick,
+getEventKey: getEventKey,
+position: position,
+targetElement: targetElement,
+getEventPath: getEventPath,
+getMouseWheelDistance: getMouseWheelDistance,
+stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1403,13 +1448,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-  getScrollTarget: getScrollTarget,
-  getScrollHeight: getScrollHeight,
-  getScrollPosition: getScrollPosition,
-  animScrollTo: animScrollTo,
-  setScrollPosition: setScrollPosition,
-  getScrollbarWidth: getScrollbarWidth,
-  hasScrollbar: hasScrollbar
+getScrollTarget: getScrollTarget,
+getScrollHeight: getScrollHeight,
+getScrollPosition: getScrollPosition,
+animScrollTo: animScrollTo,
+setScrollPosition: setScrollPosition,
+getScrollbarWidth: getScrollbarWidth,
+hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -1781,7 +1826,7 @@ var QModalLayout = {
   render: function render (h) {
     var child = [];
 
-    if (this.$slots.header || ('ios' !== 'ios')) {
+    if (this.$slots.header || ('ios' !== 'ios' && this.$slots.navigation)) {
       child.push(h('div', {
         staticClass: 'q-layout-header',
         style: this.headerStyle,
@@ -1800,7 +1845,7 @@ var QModalLayout = {
       this.$slots.default
     ]));
 
-    if (this.$slots.footer || (this.$slots.navigation)) {
+    if (this.$slots.footer || ('ios' === 'ios' && this.$slots.navigation)) {
       child.push(h('div', {
         staticClass: 'q-layout-footer',
         style: this.footerStyle,
@@ -2485,7 +2530,7 @@ var QActionSheet = {
                 this$1.__onOk(action);
               }
             }
-          }, obj ), this$1.grid
+          }, obj), this$1.grid
           ? [
             action.icon ? h(QIcon, { props: { name: action.icon, color: action.color } }) : null,
             action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
@@ -2575,11 +2620,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-  humanStorageSize: humanStorageSize,
-  capitalize: capitalize,
-  between: between,
-  normalizeToInterval: normalizeToInterval,
-  pad: pad
+humanStorageSize: humanStorageSize,
+capitalize: capitalize,
+between: between,
+normalizeToInterval: normalizeToInterval,
+pad: pad
 });
 
 var
@@ -2838,7 +2883,10 @@ function showRipple (evt, el, stopPropagation) {
     setTimeout(function () {
       animNode.classList.remove('q-ripple-animation-visible');
       setTimeout(function () {
-        animNode.parentNode.remove();
+        var el = animNode.parentNode;
+        if (el && el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
       }, 300);
     }, 400);
   }, 25);
@@ -2994,7 +3042,7 @@ var BtnMixin = {
       return this.disable || this.loading
     },
     hasRipple: function hasRipple () {
-      return 'ios' === 'mat'
+      return 'ios' === 'mat' && !this.noRipple && !this.isDisabled
     },
     computedTabIndex: function computedTabIndex () {
       return this.isDisabled ? -1 : this.tabindex || 0
@@ -5030,27 +5078,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-  linear: linear,
-  easeInQuad: easeInQuad,
-  easeOutQuad: easeOutQuad,
-  easeInOutQuad: easeInOutQuad,
-  easeInCubic: easeInCubic,
-  easeOutCubic: easeOutCubic,
-  easeInOutCubic: easeInOutCubic,
-  easeInQuart: easeInQuart,
-  easeOutQuart: easeOutQuart,
-  easeInOutQuart: easeInOutQuart,
-  easeInQuint: easeInQuint,
-  easeOutQuint: easeOutQuint,
-  easeInOutQuint: easeInOutQuint,
-  easeInCirc: easeInCirc,
-  easeOutCirc: easeOutCirc,
-  easeInOutCirc: easeInOutCirc,
-  overshoot: overshoot,
-  standard: standard,
-  decelerate: decelerate,
-  accelerate: accelerate,
-  sharp: sharp
+linear: linear,
+easeInQuad: easeInQuad,
+easeOutQuad: easeOutQuad,
+easeInOutQuad: easeInOutQuad,
+easeInCubic: easeInCubic,
+easeOutCubic: easeOutCubic,
+easeInOutCubic: easeInOutCubic,
+easeInQuart: easeInQuart,
+easeOutQuart: easeOutQuart,
+easeInOutQuart: easeInOutQuart,
+easeInQuint: easeInQuint,
+easeOutQuint: easeOutQuint,
+easeInOutQuint: easeInOutQuint,
+easeInCirc: easeInCirc,
+easeOutCirc: easeOutCirc,
+easeInOutCirc: easeInOutCirc,
+overshoot: overshoot,
+standard: standard,
+decelerate: decelerate,
+accelerate: accelerate,
+sharp: sharp
 });
 
 var ids = {};
@@ -5119,8 +5167,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-  start: start,
-  stop: stop
+start: start,
+stop: stop
 });
 
 var FullscreenMixin = {
@@ -7371,7 +7419,7 @@ var QSlider = {
         }),
         h('div', {
           staticClass: 'q-slider-handle',
-          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj ),
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj),
           'class': {
             dragging: this.dragging,
             'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
@@ -7674,15 +7722,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-  rgbToHex: rgbToHex,
-  hexToRgb: hexToRgb,
-  hsvToRgb: hsvToRgb,
-  rgbToHsv: rgbToHsv,
-  textToRgb: textToRgb,
-  lighten: lighten,
-  luminosity: luminosity,
-  setBrand: setBrand,
-  getBrand: getBrand
+rgbToHex: rgbToHex,
+hexToRgb: hexToRgb,
+hsvToRgb: hsvToRgb,
+rgbToHsv: rgbToHsv,
+textToRgb: textToRgb,
+lighten: lighten,
+luminosity: luminosity,
+setBrand: setBrand,
+getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -7768,7 +7816,7 @@ var QColorPicker = {
 
       return ( obj = {
         top: ((101 - this.model.v) + "%")
-      }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj )
+      }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj)
     },
     inputsArray: function inputsArray () {
       var inp = ['r', 'g', 'b'];
@@ -9211,29 +9259,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-  isValid: isValid,
-  buildDate: buildDate,
-  getDayOfWeek: getDayOfWeek,
-  getWeekOfYear: getWeekOfYear,
-  isBetweenDates: isBetweenDates,
-  addToDate: addToDate,
-  subtractFromDate: subtractFromDate,
-  adjustDate: adjustDate,
-  startOfDate: startOfDate,
-  endOfDate: endOfDate,
-  getMaxDate: getMaxDate,
-  getMinDate: getMinDate,
-  getDateDiff: getDateDiff,
-  getDayOfYear: getDayOfYear,
-  inferDateFormat: inferDateFormat,
-  convertDateToFormat: convertDateToFormat,
-  getDateBetween: getDateBetween,
-  isSameDate: isSameDate,
-  daysInMonth: daysInMonth,
-  formatter: formatter,
-  formatDate: formatDate,
-  matchFormat: matchFormat,
-  clone: clone$1
+isValid: isValid,
+buildDate: buildDate,
+getDayOfWeek: getDayOfWeek,
+getWeekOfYear: getWeekOfYear,
+isBetweenDates: isBetweenDates,
+addToDate: addToDate,
+subtractFromDate: subtractFromDate,
+adjustDate: adjustDate,
+startOfDate: startOfDate,
+endOfDate: endOfDate,
+getMaxDate: getMaxDate,
+getMinDate: getMinDate,
+getDateDiff: getDateDiff,
+getDayOfYear: getDayOfYear,
+inferDateFormat: inferDateFormat,
+convertDateToFormat: convertDateToFormat,
+getDateBetween: getDateBetween,
+isSameDate: isSameDate,
+daysInMonth: daysInMonth,
+formatter: formatter,
+formatDate: formatDate,
+matchFormat: matchFormat,
+clone: clone$1
 });
 
 var DateMixin = {
@@ -9698,6 +9746,7 @@ var QDatetime = {
       if (this.disable || this.focused) {
         return
       }
+      
       this.model = clone$1(this.computedValue);
       this.focused = true;
       this.$emit('focus');
@@ -9769,7 +9818,7 @@ var QDatetime = {
           ref: 'target',
           staticClass: 'no-border',
           'class': {
-            'datetime-ios-modal': modal
+            'datetime-ios-modal': 'ios' === 'ios' && modal
           },
           props: {
             type: this.type,
@@ -10438,7 +10487,7 @@ var QToggle = {
       return 'dark'
     },
     baseClass: function baseClass () {
-      if (this.dark) {
+      if ('ios' === 'ios' && this.dark) {
         return "q-toggle-base-dark"
       }
     }
@@ -10935,7 +10984,7 @@ var QTooltip = {
   render: function render (h) {
     if (!this.canRender) { return }
 
-    return h('span', { staticClass: 'q-tooltip animate-popup' }, [
+    return h('div', { staticClass: 'q-tooltip animate-popup' }, [
       h('div', [
         this.$slots.default
       ])
@@ -14746,7 +14795,7 @@ var QRange = {
       return h('div', {
         ref: ("handle" + upper),
         staticClass: ("q-slider-handle q-slider-handle-" + lower),
-        style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj ),
+        style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj),
         'class': [
           edge ? 'handle-at-minimum' : null,
           { dragging: this.dragging }
@@ -14778,7 +14827,7 @@ var QRange = {
       return [
         h('div', {
           staticClass: 'q-slider-track active-track',
-          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj ),
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj),
           'class': {
             dragging: this.dragging,
             'track-draggable': this.dragRange || this.dragOnlyRange
@@ -17889,7 +17938,7 @@ var QTree = {
   },
   computed: {
     hasRipple: function hasRipple () {
-      return 'ios' === 'mat'
+      return 'ios' === 'mat' && !this.noRipple
     },
     classes: function classes () {
       return [
