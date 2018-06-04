@@ -466,9 +466,7 @@ function invokeCallback(settled, promise, callback, detail) {
     succeeded = true;
   }
 
-  if (promise._state !== PENDING) {
-    // noop
-  } else if (hasCallback && succeeded) {
+  if (promise._state !== PENDING) ; else if (hasCallback && succeeded) {
     resolve(promise, value);
   } else if (failed) {
     reject(promise, error);

@@ -430,13 +430,13 @@ function cssTransform (val) {
 }
 
 var dom = /*#__PURE__*/Object.freeze({
-offset: offset,
-style: style,
-height: height,
-width: width,
-css: css,
-ready: ready,
-cssTransform: cssTransform
+  offset: offset,
+  style: style,
+  height: height,
+  width: width,
+  css: css,
+  ready: ready,
+  cssTransform: cssTransform
 });
 
 var History = {
@@ -823,23 +823,37 @@ var icons = {
   }
 }
 
-function getBodyClasses () {
+function getBodyClasses (cfg) {
+  var is = Platform.is;
   var cls = [
     'mat',
-    Platform.is.desktop ? 'desktop' : 'mobile',
+    is.desktop ? 'desktop' : 'mobile',
     Platform.has.touch ? 'touch' : 'no-touch',
-    ("platform-" + (Platform.is.ios ? 'ios' : 'mat'))
+    ("platform-" + (is.ios ? 'ios' : 'mat'))
   ];
 
+  if (is.cordova) {
+    cls.push('cordova');
+
+    if (is.ios && (cfg.cordova === void 0 || cfg.cordova.iosStatusBarPadding !== false)) {
+      var
+        ratio = window.devicePixelRatio || 1,
+        width$$1 = window.screen.width * ratio,
+        height$$1 = window.screen.height * ratio;
+
+      if (width$$1 !== 1125 && height$$1 !== 2001 /* 2436 for iPhoneX fullscreen */) {
+        cls.push('q-ios-statusbar-padding');
+      }
+    }
+  }
   Platform.within.iframe && cls.push('within-iframe');
-  Platform.is.cordova && cls.push('cordova');
-  Platform.is.electron && cls.push('electron');
+  is.electron && cls.push('electron');
 
   return cls
 }
 
-function bodyInit () {
-  var cls = getBodyClasses();
+function bodyInit (cfg) {
+  var cls = getBodyClasses(cfg);
 
   if (Platform.is.ie && Platform.is.versionNumber === 11) {
     cls.forEach(function (c) { return document.body.classList.add(c); });
@@ -877,11 +891,13 @@ function install (_Vue, opts) {
 
   if (isSSR) {
     if (typeof cfg.ssr.setBodyClasses === 'function') {
-      cfg.ssr.setBodyClasses(getBodyClasses());
+      cfg.ssr.setBodyClasses(getBodyClasses(cfg));
     }
   }
   else {
-    ready(bodyInit);
+    ready(function () {
+      bodyInit(cfg);
+    });
   }
 
   if (opts.directives) {
@@ -1335,16 +1351,16 @@ function stopAndPrevent (e) {
 }
 
 var event = /*#__PURE__*/Object.freeze({
-listenOpts: listenOpts,
-leftClick: leftClick,
-middleClick: middleClick,
-rightClick: rightClick,
-getEventKey: getEventKey,
-position: position,
-targetElement: targetElement,
-getEventPath: getEventPath,
-getMouseWheelDistance: getMouseWheelDistance,
-stopAndPrevent: stopAndPrevent
+  listenOpts: listenOpts,
+  leftClick: leftClick,
+  middleClick: middleClick,
+  rightClick: rightClick,
+  getEventKey: getEventKey,
+  position: position,
+  targetElement: targetElement,
+  getEventPath: getEventPath,
+  getMouseWheelDistance: getMouseWheelDistance,
+  stopAndPrevent: stopAndPrevent
 });
 
 function getScrollTarget (el) {
@@ -1448,13 +1464,13 @@ function hasScrollbar (el) {
 }
 
 var scroll = /*#__PURE__*/Object.freeze({
-getScrollTarget: getScrollTarget,
-getScrollHeight: getScrollHeight,
-getScrollPosition: getScrollPosition,
-animScrollTo: animScrollTo,
-setScrollPosition: setScrollPosition,
-getScrollbarWidth: getScrollbarWidth,
-hasScrollbar: hasScrollbar
+  getScrollTarget: getScrollTarget,
+  getScrollHeight: getScrollHeight,
+  getScrollPosition: getScrollPosition,
+  animScrollTo: animScrollTo,
+  setScrollPosition: setScrollPosition,
+  getScrollbarWidth: getScrollbarWidth,
+  hasScrollbar: hasScrollbar
 });
 
 var registered = 0;
@@ -1811,7 +1827,7 @@ var QModalLayout = {
   render: function render (h) {
     var child = [];
 
-    if (this.$slots.header || ('mat' !== 'ios' && this.$slots.navigation)) {
+    if (this.$slots.header || (this.$slots.navigation)) {
       child.push(h('div', {
         staticClass: 'q-layout-header',
         style: this.headerStyle,
@@ -1830,7 +1846,7 @@ var QModalLayout = {
       this.$slots.default
     ]));
 
-    if (this.$slots.footer || ('mat' === 'ios' && this.$slots.navigation)) {
+    if (this.$slots.footer || ('mat' === 'ios')) {
       child.push(h('div', {
         staticClass: 'q-layout-footer',
         style: this.footerStyle,
@@ -2488,7 +2504,7 @@ var QActionSheet = {
                 this$1.__onOk(action);
               }
             }
-          }, obj), this$1.grid
+          }, obj ), this$1.grid
           ? [
             action.icon ? h(QIcon, { props: { name: action.icon, color: action.color } }) : null,
             action.avatar ? h('img', { domProps: { src: action.avatar }, staticClass: 'avatar' }) : null,
@@ -2578,11 +2594,11 @@ function pad (v, length, char) {
 }
 
 var format = /*#__PURE__*/Object.freeze({
-humanStorageSize: humanStorageSize,
-capitalize: capitalize,
-between: between,
-normalizeToInterval: normalizeToInterval,
-pad: pad
+  humanStorageSize: humanStorageSize,
+  capitalize: capitalize,
+  between: between,
+  normalizeToInterval: normalizeToInterval,
+  pad: pad
 });
 
 var
@@ -3000,7 +3016,7 @@ var BtnMixin = {
       return this.disable || this.loading
     },
     hasRipple: function hasRipple () {
-      return 'mat' === 'mat' && !this.noRipple && !this.isDisabled
+      return !this.noRipple && !this.isDisabled
     },
     computedTabIndex: function computedTabIndex () {
       return this.isDisabled ? -1 : this.tabindex || 0
@@ -3354,7 +3370,7 @@ var QBtn = {
         }]
         : null
     }, [
-      'mat' === 'ios' || this.$q.platform.is.desktop
+      this.$q.platform.is.desktop
         ? h('div', { staticClass: 'q-focus-helper' })
         : null,
 
@@ -5038,27 +5054,27 @@ var accelerate = easeInCubic;
 var sharp = easeInOutQuad;
 
 var easing = /*#__PURE__*/Object.freeze({
-linear: linear,
-easeInQuad: easeInQuad,
-easeOutQuad: easeOutQuad,
-easeInOutQuad: easeInOutQuad,
-easeInCubic: easeInCubic,
-easeOutCubic: easeOutCubic,
-easeInOutCubic: easeInOutCubic,
-easeInQuart: easeInQuart,
-easeOutQuart: easeOutQuart,
-easeInOutQuart: easeInOutQuart,
-easeInQuint: easeInQuint,
-easeOutQuint: easeOutQuint,
-easeInOutQuint: easeInOutQuint,
-easeInCirc: easeInCirc,
-easeOutCirc: easeOutCirc,
-easeInOutCirc: easeInOutCirc,
-overshoot: overshoot,
-standard: standard,
-decelerate: decelerate,
-accelerate: accelerate,
-sharp: sharp
+  linear: linear,
+  easeInQuad: easeInQuad,
+  easeOutQuad: easeOutQuad,
+  easeInOutQuad: easeInOutQuad,
+  easeInCubic: easeInCubic,
+  easeOutCubic: easeOutCubic,
+  easeInOutCubic: easeInOutCubic,
+  easeInQuart: easeInQuart,
+  easeOutQuart: easeOutQuart,
+  easeInOutQuart: easeInOutQuart,
+  easeInQuint: easeInQuint,
+  easeOutQuint: easeOutQuint,
+  easeInOutQuint: easeInOutQuint,
+  easeInCirc: easeInCirc,
+  easeOutCirc: easeOutCirc,
+  easeInOutCirc: easeInOutCirc,
+  overshoot: overshoot,
+  standard: standard,
+  decelerate: decelerate,
+  accelerate: accelerate,
+  sharp: sharp
 });
 
 var ids = {};
@@ -5127,8 +5143,8 @@ function stop (id) {
 }
 
 var animate = /*#__PURE__*/Object.freeze({
-start: start,
-stop: stop
+  start: start,
+  stop: stop
 });
 
 var FullscreenMixin = {
@@ -7379,7 +7395,7 @@ var QSlider = {
         }),
         h('div', {
           staticClass: 'q-slider-handle',
-          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj),
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = this.percentage, obj.borderRadius = this.square ? '0' : '50%', obj ),
           'class': {
             dragging: this.dragging,
             'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
@@ -7682,15 +7698,15 @@ function getBrand (color, element) {
 }
 
 var colors = /*#__PURE__*/Object.freeze({
-rgbToHex: rgbToHex,
-hexToRgb: hexToRgb,
-hsvToRgb: hsvToRgb,
-rgbToHsv: rgbToHsv,
-textToRgb: textToRgb,
-lighten: lighten,
-luminosity: luminosity,
-setBrand: setBrand,
-getBrand: getBrand
+  rgbToHex: rgbToHex,
+  hexToRgb: hexToRgb,
+  hsvToRgb: hsvToRgb,
+  rgbToHsv: rgbToHsv,
+  textToRgb: textToRgb,
+  lighten: lighten,
+  luminosity: luminosity,
+  setBrand: setBrand,
+  getBrand: getBrand
 });
 
 var QColorPicker = {
@@ -7776,7 +7792,7 @@ var QColorPicker = {
 
       return ( obj = {
         top: ((101 - this.model.v) + "%")
-      }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj)
+      }, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.model.s) + "%"), obj )
     },
     inputsArray: function inputsArray () {
       var inp = ['r', 'g', 'b'];
@@ -9217,29 +9233,29 @@ function clone$1 (value) {
 }
 
 var date = /*#__PURE__*/Object.freeze({
-isValid: isValid,
-buildDate: buildDate,
-getDayOfWeek: getDayOfWeek,
-getWeekOfYear: getWeekOfYear,
-isBetweenDates: isBetweenDates,
-addToDate: addToDate,
-subtractFromDate: subtractFromDate,
-adjustDate: adjustDate,
-startOfDate: startOfDate,
-endOfDate: endOfDate,
-getMaxDate: getMaxDate,
-getMinDate: getMinDate,
-getDateDiff: getDateDiff,
-getDayOfYear: getDayOfYear,
-inferDateFormat: inferDateFormat,
-convertDateToFormat: convertDateToFormat,
-getDateBetween: getDateBetween,
-isSameDate: isSameDate,
-daysInMonth: daysInMonth,
-formatter: formatter,
-formatDate: formatDate,
-matchFormat: matchFormat,
-clone: clone$1
+  isValid: isValid,
+  buildDate: buildDate,
+  getDayOfWeek: getDayOfWeek,
+  getWeekOfYear: getWeekOfYear,
+  isBetweenDates: isBetweenDates,
+  addToDate: addToDate,
+  subtractFromDate: subtractFromDate,
+  adjustDate: adjustDate,
+  startOfDate: startOfDate,
+  endOfDate: endOfDate,
+  getMaxDate: getMaxDate,
+  getMinDate: getMinDate,
+  getDateDiff: getDateDiff,
+  getDayOfYear: getDayOfYear,
+  inferDateFormat: inferDateFormat,
+  convertDateToFormat: convertDateToFormat,
+  getDateBetween: getDateBetween,
+  isSameDate: isSameDate,
+  daysInMonth: daysInMonth,
+  formatter: formatter,
+  formatDate: formatDate,
+  matchFormat: matchFormat,
+  clone: clone$1
 });
 
 var DateMixin = {
@@ -9365,9 +9381,9 @@ function convertToAmPm (hour) {
   return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
 }
 
-var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setDay(_vm.day + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.hour)+" ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" AM ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" PM ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': _vm.isValid && monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)])},staticRenderFns: [],
+var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.canRender)?_c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setDay(_vm.day + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.hour)+" ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" AM ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" PM ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': _vm.isValid && monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)]):_vm._e()},staticRenderFns: [],
   name: 'QDatetimePicker',
-  mixins: [DateMixin, ParentFieldMixin],
+  mixins: [DateMixin, ParentFieldMixin, CanRenderMixin],
   props: {
     defaultValue: [String, Number, Date],
     disable: Boolean,
@@ -9661,7 +9677,11 @@ var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement
     }
   },
   mounted: function mounted () {
-    this.__scrollView();
+    var this$1 = this;
+
+    this.$nextTick(function () {
+      this$1.__scrollView();
+    });
   }
 }
 
@@ -9672,7 +9692,7 @@ var contentCss$1 = {
 
 var QDatetime = {
   name: 'QDatetime',
-  mixins: [FrameMixin, DisplayModeMixin],
+  mixins: [FrameMixin, DisplayModeMixin, CanRenderMixin],
   props: extend(
     input,
     inline
@@ -9685,19 +9705,25 @@ var QDatetime = {
     }
   },
   data: function data () {
-    var data = this.isPopover ? {} : {
-      transition: 'q-modal'
-    };
-    data.focused = false;
-    data.model = clone$1(this.computedValue);
-    return data
+    return {
+      transition: null,
+      model: null,
+      focused: false
+    }
+  },
+  created: function created () {
+    this.model = clone$1(this.computedValue);
+
+    if (!this.isPopover) {
+      this.transition = 'q-modal';
+    }
   },
   computed: {
     actualValue: function actualValue () {
       if (this.displayValue) {
         return this.displayValue
       }
-      if (!isValid(this.value)) {
+      if (!isValid(this.value) || !this.canRender) {
         return ''
       }
 
@@ -9843,7 +9869,7 @@ var QDatetime = {
           ref: 'target',
           staticClass: 'no-border',
           'class': {
-            'datetime-ios-modal': 'mat' === 'ios' && modal
+            'datetime-ios-modal': 'mat' === 'ios'
           },
           props: {
             type: this.type,
@@ -10228,6 +10254,7 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
     decimals: Number,
     step: Number,
     upperCase: Boolean,
+    lowerCase: Boolean,
 
     rows: {
       type: Number,
@@ -10388,6 +10415,9 @@ var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_
         if (Number.isInteger(this.decimals)) {
           val = parseFloat(val.toFixed(this.decimals));
         }
+      }
+      else if (this.lowerCase) {
+        val = val.toLowerCase();
       }
       else if (this.upperCase) {
         val = val.toUpperCase();
@@ -11882,8 +11912,10 @@ var QEditor = {
     }
   },
   created: function created () {
-    document.execCommand('defaultParagraphSeparator', false, 'div');
-    this.defaultFont = window.getComputedStyle(document.body).fontFamily;
+    if (!isSSR) {
+      document.execCommand('defaultParagraphSeparator', false, 'div');
+      this.defaultFont = window.getComputedStyle(document.body).fontFamily;
+    }
   },
   mounted: function mounted () {
     var this$1 = this;
@@ -11943,6 +11975,9 @@ var QEditor = {
             style: this.innerStyle,
             class: this.innerClass,
             attrs: { contenteditable: this.editable },
+            domProps: isSSR
+              ? { innerHTML: this.value }
+              : undefined,
             on: {
               input: this.onInput,
               keydown: this.onKeydown,
@@ -14817,7 +14852,7 @@ var QRange = {
       return h('div', {
         ref: ("handle" + upper),
         staticClass: ("q-slider-handle q-slider-handle-" + lower),
-        style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj),
+        style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((percentage * 100) + "%"), obj.borderRadius = this.square ? '0' : '50%', obj ),
         'class': [
           edge ? 'handle-at-minimum' : null,
           { dragging: this.dragging }
@@ -14849,7 +14884,7 @@ var QRange = {
       return [
         h('div', {
           staticClass: 'q-slider-track active-track',
-          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj),
+          style: ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = ((this.percentageMin * 100) + "%"), obj.width = this.activeTrackWidth, obj ),
           'class': {
             dragging: this.dragging,
             'track-draggable': this.dragRange || this.dragOnlyRange
@@ -15738,7 +15773,7 @@ var StepTab = {
       on: {
         click: this.__select
       },
-      directives: 'mat' === 'mat' && this.hasNavigation
+      directives: this.hasNavigation
         ? [{
           name: 'ripple',
           value: this.vm.done
@@ -17982,7 +18017,7 @@ var QTree = {
   },
   computed: {
     hasRipple: function hasRipple () {
-      return 'mat' === 'mat' && !this.noRipple
+      return !this.noRipple
     },
     classes: function classes () {
       return [
@@ -18387,7 +18422,7 @@ var QTree = {
             disabled: meta.disabled
           },
           on: { click: function () { this$1.__onClick(node, meta); } },
-          directives: 'mat' === 'mat' && meta.selectable
+          directives: meta.selectable
             ? [{ name: 'ripple' }]
             : null
         }, [

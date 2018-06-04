@@ -1637,6 +1637,9 @@ body.desktop .q-carousel-thumbnails img:hover {
 [dir] .q-editor-toolbar-padding {
   padding: 4px;
 }
+.q-editor-toolbar {
+  min-height: 37px;
+}
 [dir] .q-editor-toolbar {
   border-bottom: 1px solid #ccc;
   background: #e0e0e0;
@@ -2753,12 +2756,12 @@ textarea.q-input-target {
 .q-page-sticky-shrink > span {
   pointer-events: auto;
 }
-body.cordova.platform-ios .q-layout-header > .q-toolbar:nth-child(2),
-body.cordova.platform-ios .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
-body.cordova.platform-ios .q-layout-drawer.top-padding {
+body.q-ios-statusbar-padding .q-layout-header > .q-toolbar:nth-child(2),
+body.q-ios-statusbar-padding .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
+body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
   min-height: 70px;
 }
-[dir] body.cordova.platform-ios .q-layout-header > .q-toolbar:nth-child(2), [dir] body.cordova.platform-ios .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head, [dir] body.cordova.platform-ios .q-layout-drawer.top-padding {
+[dir] body.q-ios-statusbar-padding .q-layout-header > .q-toolbar:nth-child(2), [dir] body.q-ios-statusbar-padding .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head, [dir] body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
   padding-top: 20px;
 }
 .q-layout-animate .q-layout-transition {
