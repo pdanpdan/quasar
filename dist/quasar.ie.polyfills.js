@@ -1,10 +1,46 @@
 /*!
- * Quasar Framework v0.16.1
+ * Quasar Framework v0.17.0-beta.3
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
 
 /* eslint-disable no-extend-native */
+
+typeof window !== 'undefined' && (function (window) {
+  try {
+    new MouseEvent('test'); // eslint-disable-line no-new, no-use-before-define
+    return
+  }
+  catch (e) {}
+
+  var MouseEvent = function (eventType, params) {
+    params = params || {};
+    var mouseEvent = document.createEvent('MouseEvent');
+    mouseEvent.initMouseEvent(
+      eventType,
+      params.bubbles || false,
+      params.cancelable || false,
+      params.view || window,
+      params.detail || 0,
+      params.screenX || 0,
+      params.screenY || 0,
+      params.clientX || 0,
+      params.clientY || 0,
+      params.ctrlKey || false,
+      params.altKey || false,
+      params.shiftKey || false,
+      params.metaKey || false,
+      params.button || 0,
+      params.relatedTarget || null
+    );
+
+    return mouseEvent
+  };
+
+  MouseEvent.prototype = Event.prototype;
+
+  window.MouseEvent = MouseEvent;
+}(window));
 
 if (!Array.prototype.findIndex) {
   Object.defineProperty(Array.prototype, 'findIndex', {

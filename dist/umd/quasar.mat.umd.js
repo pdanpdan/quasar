@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.16.1
+ * Quasar Framework v0.17.0-beta.3
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -17,6 +17,8 @@
   /* eslint-disable no-mixed-operators */
 
   var isSSR = typeof window === 'undefined';
+  var fromSSR = false;
+  var onSSR = isSSR;
 
   function getMatch (userAgent, platformMatch) {
     var match = /(edge)\/([\w.]+)/.exec(userAgent) ||
@@ -65,7 +67,7 @@
     var
       platformMatch = getPlatformMatch(userAgent),
       matched = getMatch(userAgent, platformMatch),
-      browser = { ssr: isSSR };
+      browser = {};
 
     if (matched.browser) {
       browser[matched.browser] = true;
@@ -170,57 +172,84 @@
       else if (window._cordovaNative || window.cordova) {
         browser.cordova = true;
       }
+
+      fromSSR = browser.cordova === void 0 &&
+        browser.electron === void 0 &&
+        !!document.querySelector('[data-server-rendered]');
+
+      fromSSR && (onSSR = true);
     }
 
     return browser
   }
 
+  var webStorage;
+
+  function hasWebStorage () {
+    if (webStorage !== void 0) {
+      return webStorage
+    }
+
+    try {
+      if (window.localStorage) {
+        webStorage = true;
+        return true
+      }
+    }
+    catch (e) {}
+
+    webStorage = false;
+    return false
+  }
+
+  function getClientProperties () {
+    return {
+      has: {
+        touch: (function () { return !!('ontouchstart' in document.documentElement) || window.navigator.msMaxTouchPoints > 0; })(),
+        webStorage: hasWebStorage()
+      },
+      within: {
+        iframe: window.self !== window.top
+      }
+    }
+  }
+
   var Platform = {
-    __installed: false,
-    install: function install (ref) {
-      var $q = ref.$q;
-      var cfg = ref.cfg;
+    has: {
+      touch: false,
+      webStorage: false
+    },
+    within: {
+      iframe: false
+    },
 
-      if (this.__installed) { return }
-      this.__installed = true;
-
-      $q.platform = Platform;
-
+    install: function install ($q, queues, Vue$$1) {
       if (isSSR) {
-        if (!cfg.ssr || !cfg.ssr.req || !cfg.ssr.res) {
-          Platform.is = Platform.has = Platform.within = {};
-          cfg.ssr = { req: {}, res: {} };
-          console.error('[quasar-ssr]: cfg.ssr.(req & res) required');
-          return
-        }
+        queues.server.push(function (q, ctx) {
+          q.platform = {
+            is: getPlatform(ctx.ssr.req.headers['user-agent']),
+            has: {
+              touch: false,
+              webStorage: false
+            },
+            within: { iframe: false }
+          };
+        });
+        return
+      }
 
-        Platform.is = getPlatform(cfg.ssr.req.headers['user-agent']);
-        Platform.has = {
-          touch: false,
-          webStorage: false
-        };
-        Platform.within = { iframe: false };
+      this.is = getPlatform();
+
+      if (fromSSR) {
+        queues.takeover.push(function (q) {
+          onSSR = fromSSR = false;
+          Object.assign(q.platform, getClientProperties());
+        });
+        Vue$$1.util.defineReactive($q, 'platform', this);
       }
       else {
-        var webStorage;
-
-        try {
-          if (window.localStorage) {
-            webStorage = true;
-          }
-        }
-        catch (e) {
-          webStorage = false;
-        }
-
-        Platform.is = getPlatform();
-        Platform.has = {
-          touch: (function () { return !!('ontouchstart' in document.documentElement) || window.navigator.msMaxTouchPoints > 0; })(),
-          webStorage: webStorage
-        };
-        Platform.within = {
-          iframe: window.self !== window.top
-        };
+        Object.assign(this, getClientProperties());
+        $q.platform = this;
       }
     }
   };
@@ -377,90 +406,20 @@
     });
   }
 
-  var version = "0.16.1";
-
-  function offset (el) {
-    if (!el || el === window) {
-      return {top: 0, left: 0}
-    }
-    var ref = el.getBoundingClientRect();
-    var top = ref.top;
-    var left = ref.left;
-
-    return {top: top, left: left}
-  }
-
-  function style (el, property) {
-    return window.getComputedStyle(el).getPropertyValue(property)
-  }
-
-  function height (el) {
-    if (el === window) {
-      return window.innerHeight
-    }
-    return parseFloat(style(el, 'height'))
-  }
-
-  function width (el) {
-    if (el === window) {
-      return window.innerWidth
-    }
-    return parseFloat(style(el, 'width'))
-  }
-
-  function css (element, css) {
-    var style = element.style;
-
-    Object.keys(css).forEach(function (prop) {
-      style[prop] = css[prop];
-    });
-  }
-
-  function ready (fn) {
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    if (document.readyState === 'complete') {
-      return fn()
-    }
-
-    document.addEventListener('DOMContentLoaded', fn, false);
-  }
-
-  var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
-  function cssTransform (val) {
-    var o = {transform: val};
-    prefix.forEach(function (p) {
-      o[p + 'transform'] = val;
-    });
-    return o
-  }
-
-  var dom = /*#__PURE__*/Object.freeze({
-    offset: offset,
-    style: style,
-    height: height,
-    width: width,
-    css: css,
-    ready: ready,
-    cssTransform: cssTransform
-  });
+  var version = "0.17.0-beta.3";
 
   var History = {
     __history: [],
     add: function () {},
     remove: function () {},
 
-    __installed: false,
-    install: function install () {
+    install: function install ($q, cfg) {
       var this$1 = this;
 
-      if (this.__installed || !Platform.is.cordova || isSSR) {
+      if (isSSR || !$q.platform.is.cordova) {
         return
       }
 
-      this.__installed = true;
       this.add = function (definition) {
         this$1.__history.push(definition);
       };
@@ -471,12 +430,14 @@
         }
       };
 
+      var exit = cfg.cordova === void 0 || cfg.cordova.backButtonExit !== false;
+
       document.addEventListener('deviceready', function () {
         document.addEventListener('backbutton', function () {
           if (this$1.__history.length) {
             this$1.__history.pop().handler();
           }
-          else if (window.location.hash === '#/') {
+          else if (exit && window.location.hash === '#/') {
             navigator.app.exitApp();
           }
           else {
@@ -485,7 +446,7 @@
         }, false);
       });
     }
-  }
+  };
 
   var langEn = {
     lang: 'en-us',
@@ -581,19 +542,91 @@
       noNodes: 'No nodes available',
       noResults: 'No matching nodes found'
     }
+  };
+
+  function offset (el) {
+    if (!el || el === window) {
+      return {top: 0, left: 0}
+    }
+    var ref = el.getBoundingClientRect();
+    var top = ref.top;
+    var left = ref.left;
+
+    return {top: top, left: left}
   }
 
-  var i18n = {
-    __installed: false,
-    install: function install (ref) {
-      var this$1 = this;
-      var $q = ref.$q;
-      var Vue$$1 = ref.Vue;
-      var lang = ref.lang;
-      var cfg = ref.cfg;
+  function style (el, property) {
+    return window.getComputedStyle(el).getPropertyValue(property)
+  }
 
-      if (this.__installed) { return }
-      this.__installed = true;
+  function height (el) {
+    if (el === window) {
+      return window.innerHeight
+    }
+    return parseFloat(style(el, 'height'))
+  }
+
+  function width (el) {
+    if (el === window) {
+      return window.innerWidth
+    }
+    return parseFloat(style(el, 'width'))
+  }
+
+  function css (element, css) {
+    var style = element.style;
+
+    Object.keys(css).forEach(function (prop) {
+      style[prop] = css[prop];
+    });
+  }
+
+  function ready (fn) {
+    if (typeof fn !== 'function') {
+      return
+    }
+
+    if (document.readyState !== 'loading') {
+      return fn()
+    }
+
+    document.addEventListener('DOMContentLoaded', fn, false);
+  }
+
+  var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
+  function cssTransform (val) {
+    var o = {transform: val};
+    prefix.forEach(function (p) {
+      o[p + 'transform'] = val;
+    });
+    return o
+  }
+
+  var dom = /*#__PURE__*/Object.freeze({
+    offset: offset,
+    style: style,
+    height: height,
+    width: width,
+    css: css,
+    ready: ready,
+    cssTransform: cssTransform
+  });
+
+  var i18n = {
+    install: function install ($q, queues, Vue$$1, lang) {
+      var this$1 = this;
+
+      if (isSSR) {
+        queues.server.push(function (q, ctx) {
+          var fn = ctx.ssr.setHtmlAttrs;
+          if (typeof fn === 'function') {
+            fn({
+              lang: q.i18n.lang,
+              dir: q.i18n.rtl ? 'rtl' : 'ltr'
+            });
+          }
+        });
+      }
 
       this.set = function (lang) {
         if ( lang === void 0 ) lang = langEn;
@@ -602,16 +635,7 @@
         lang.getLocale = this$1.getLocale;
         lang.rtl = lang.rtl || false;
 
-        if (isSSR) {
-          var fn = cfg.ssr.setHtmlAttrs;
-          if (typeof fn === 'function') {
-            fn({
-              dir: lang.rtl ? 'rtl' : 'ltr',
-              lang: lang.lang
-            });
-          }
-        }
-        else {
+        if (!isSSR) {
           ready(function () {
             var el = document.documentElement;
             el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr');
@@ -619,7 +643,7 @@
           });
         }
 
-        if ($q.i18n) {
+        if (isSSR || $q.i18n) {
           $q.i18n = lang;
         }
         else {
@@ -634,6 +658,8 @@
     },
 
     getLocale: function getLocale () {
+      if (isSSR) { return }
+
       var val =
         navigator.language ||
         navigator.languages[0] ||
@@ -645,7 +671,338 @@
         return val.toLowerCase()
       }
     }
+  };
+
+  function rgbToHex (ref) {
+    var r = ref.r;
+    var g = ref.g;
+    var b = ref.b;
+    var a = ref.a;
+
+    var alpha = a !== void 0;
+
+    r = Math.round(r);
+    g = Math.round(g);
+    b = Math.round(b);
+
+    if (
+      r > 255 ||
+      g > 255 ||
+      b > 255 ||
+      (alpha && a > 100)
+    ) {
+      throw new TypeError('Expected 3 numbers below 256 (and optionally one below 100)')
+    }
+
+    a = alpha
+      ? (Math.round(255 * a / 100) | 1 << 8).toString(16).slice(1)
+      : '';
+
+    return '#' + ((b | g << 8 | r << 16) | 1 << 24).toString(16).slice(1) + a
   }
+
+  function hexToRgb (hex) {
+    if (typeof hex !== 'string') {
+      throw new TypeError('Expected a string')
+    }
+
+    hex = hex.replace(/^#/, '');
+
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    else if (hex.length === 4) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+
+    var num = parseInt(hex, 16);
+
+    return hex.length > 6
+      ? {r: num >> 24 & 255, g: num >> 16 & 255, b: num >> 8 & 255, a: Math.round((num & 255) / 2.55)}
+      : {r: num >> 16, g: num >> 8 & 255, b: num & 255}
+  }
+
+  function hsvToRgb (ref) {
+    var h = ref.h;
+    var s = ref.s;
+    var v = ref.v;
+    var a = ref.a;
+
+    var r, g, b, i, f, p, q, t;
+    s = s / 100;
+    v = v / 100;
+
+    h = h / 360;
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+      case 0:
+        r = v;
+        g = t;
+        b = p;
+        break
+      case 1:
+        r = q;
+        g = v;
+        b = p;
+        break
+      case 2:
+        r = p;
+        g = v;
+        b = t;
+        break
+      case 3:
+        r = p;
+        g = q;
+        b = v;
+        break
+      case 4:
+        r = t;
+        g = p;
+        b = v;
+        break
+      case 5:
+        r = v;
+        g = p;
+        b = q;
+        break
+    }
+
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255),
+      a: a
+    }
+  }
+
+  function rgbToHsv (ref) {
+    var r = ref.r;
+    var g = ref.g;
+    var b = ref.b;
+    var a = ref.a;
+
+    var
+      max = Math.max(r, g, b), min = Math.min(r, g, b),
+      d = max - min,
+      h,
+      s = (max === 0 ? 0 : d / max),
+      v = max / 255;
+
+    switch (max) {
+      case min:
+        h = 0;
+        break
+      case r:
+        h = (g - b) + d * (g < b ? 6 : 0);
+        h /= 6 * d;
+        break
+      case g:
+        h = (b - r) + d * 2;
+        h /= 6 * d;
+        break
+      case b:
+        h = (r - g) + d * 4;
+        h /= 6 * d;
+        break
+    }
+
+    return {
+      h: Math.round(h * 360),
+      s: Math.round(s * 100),
+      v: Math.round(v * 100),
+      a: a
+    }
+  }
+
+  var reRGBA = /^\s*rgb(a)?\s*\((\s*(\d+)\s*,\s*?){2}(\d+)\s*,?\s*([01]?\.?\d*?)?\s*\)\s*$/;
+
+  function textToRgb (color) {
+    if (typeof color !== 'string') {
+      throw new TypeError('Expected a string')
+    }
+
+    var m = reRGBA.exec(color);
+    if (m) {
+      var rgb = {
+        r: Math.max(255, parseInt(m[2], 10)),
+        g: Math.max(255, parseInt(m[3], 10)),
+        b: Math.max(255, parseInt(m[4], 10))
+      };
+      if (m[1]) {
+        rgb.a = Math.max(1, parseFloat(m[5]));
+      }
+      return rgb
+    }
+    return hexToRgb(color)
+  }
+
+  /* works as darken if percent < 0 */
+  function lighten (color, percent) {
+    if (typeof color !== 'string') {
+      throw new TypeError('Expected a string as color')
+    }
+    if (typeof percent !== 'number') {
+      throw new TypeError('Expected a numeric percent')
+    }
+
+    var rgb = textToRgb(color),
+      t = percent < 0 ? 0 : 255,
+      p = Math.abs(percent) / 100,
+      R = rgb.r,
+      G = rgb.g,
+      B = rgb.b;
+
+    return '#' + (
+      0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 +
+      (Math.round((t - G) * p) + G) * 0x100 +
+      (Math.round((t - B) * p) + B)
+    ).toString(16).slice(1)
+  }
+
+  function luminosity (color) {
+    if (typeof color !== 'string' && (!color || color.r === void 0)) {
+      throw new TypeError('Expected a string or a {r, g, b} object as color')
+    }
+
+    var
+      rgb = typeof color === 'string' ? textToRgb(color) : color,
+      r = rgb.r / 255,
+      g = rgb.g / 255,
+      b = rgb.b / 255,
+      R = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4),
+      G = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4),
+      B = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B
+  }
+
+  function setBrand (color, value, element) {
+    if ( element === void 0 ) element = document.body;
+
+    if (typeof color !== 'string') {
+      throw new TypeError('Expected a string as color')
+    }
+    if (typeof value !== 'string') {
+      throw new TypeError('Expected a string as value')
+    }
+    if (!(element instanceof Element)) {
+      throw new TypeError('Expected a DOM element')
+    }
+
+    element.style.setProperty(("--q-color-" + color), value);
+    switch (color) {
+      case 'negative':
+      case 'warning':
+        element.style.setProperty(("--q-color-" + color + "-l"), lighten(value, 46));
+        break
+      case 'light':
+        element.style.setProperty(("--q-color-" + color + "-d"), lighten(value, -10));
+    }
+  }
+
+  function getBrand (color, element) {
+    if ( element === void 0 ) element = document.body;
+
+    if (typeof color !== 'string') {
+      throw new TypeError('Expected a string as color')
+    }
+    if (!(element instanceof Element)) {
+      throw new TypeError('Expected a DOM element')
+    }
+
+    return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
+  }
+
+  var colors = /*#__PURE__*/Object.freeze({
+    rgbToHex: rgbToHex,
+    hexToRgb: hexToRgb,
+    hsvToRgb: hsvToRgb,
+    rgbToHsv: rgbToHsv,
+    textToRgb: textToRgb,
+    lighten: lighten,
+    luminosity: luminosity,
+    setBrand: setBrand,
+    getBrand: getBrand
+  });
+
+  function getBodyClasses (ref, cfg) {
+    var is = ref.is;
+    var has = ref.has;
+    var within = ref.within;
+
+    var cls = [
+      'mat',
+      is.desktop ? 'desktop' : 'mobile',
+      has.touch ? 'touch' : 'no-touch',
+      ("platform-" + (is.ios ? 'ios' : 'mat'))
+    ];
+
+    if (is.cordova) {
+      cls.push('cordova');
+
+      if (is.ios && (cfg.cordova === void 0 || cfg.cordova.iosStatusBarPadding !== false)) {
+        var
+          ratio = window.devicePixelRatio || 1,
+          width$$1 = window.screen.width * ratio,
+          height$$1 = window.screen.height * ratio;
+
+        if (width$$1 !== 1125 && height$$1 !== 2001 /* 2436 for iPhoneX fullscreen */) {
+          cls.push('q-ios-statusbar-padding');
+        }
+      }
+    }
+    within.iframe && cls.push('within-iframe');
+    is.electron && cls.push('electron');
+
+    return cls
+  }
+
+  function bodyInit (Platform$$1, cfg) {
+    var cls = getBodyClasses(Platform$$1, cfg);
+
+    if (Platform$$1.is.ie && Platform$$1.is.versionNumber === 11) {
+      cls.forEach(function (c) { return document.body.classList.add(c); });
+    }
+    else {
+      document.body.classList.add.apply(document.body.classList, cls);
+    }
+
+    if (Platform$$1.is.ios) {
+      // needed for iOS button active state
+      document.body.addEventListener('touchstart', function () {});
+    }
+  }
+
+  function setColors (brand) {
+    for (var color in brand) {
+      setBrand(color, brand[color]);
+    }
+  }
+
+  var Body = {
+    install: function install ($q, queues, cfg) {
+      if (isSSR) {
+        queues.server.push(function (q, ctx) {
+          var update = ctx.ssr.setBodyClasses;
+          if (typeof update === 'function') {
+            update(getBodyClasses(q.platform, cfg));
+          }
+        });
+        return
+      }
+
+      var init = cfg.brand && document.body;
+      init && setColors(cfg.brand);
+      ready(function () {
+        !init && setColors(cfg.brand);
+        bodyInit($q.platform, cfg);
+      });
+    }
+  };
 
   var materialIcons = {
     name: 'material-icons',
@@ -798,25 +1155,19 @@
       expand: 'keyboard_arrow_down',
       file: 'insert_drive_file'
     }
-  }
+  };
 
-  var icons = {
+  var Icons = {
     __installed: false,
-    install: function install (ref) {
+    install: function install ($q, Vue$$1, iconSet) {
       var this$1 = this;
-      var $q = ref.$q;
-      var Vue$$1 = ref.Vue;
-      var iconSet = ref.iconSet;
-
-      if (this.__installed) { return }
-      this.__installed = true;
 
       this.set = function (iconDef) {
         if ( iconDef === void 0 ) iconDef = materialIcons;
 
         iconDef.set = this$1.set;
 
-        if ($q.icon) {
+        if (isSSR || $q.icon) {
           $q.icon = iconDef;
         }
         else {
@@ -829,90 +1180,49 @@
 
       this.set(iconSet);
     }
-  }
+  };
 
-  function getBodyClasses (cfg) {
-    var is = Platform.is;
-    var cls = [
-      'mat',
-      is.desktop ? 'desktop' : 'mobile',
-      Platform.has.touch ? 'touch' : 'no-touch',
-      ("platform-" + (is.ios ? 'ios' : 'mat'))
-    ];
+  var queues = {
+    server: [], // on SSR update
+    takeover: [] // on client takeover
+  };
 
-    if (is.cordova) {
-      cls.push('cordova');
+  var $q = {
+    version: version,
+    theme: 'mat'
+  };
 
-      if (is.ios && (cfg.cordova === void 0 || cfg.cordova.iosStatusBarPadding !== false)) {
-        var
-          ratio = window.devicePixelRatio || 1,
-          width$$1 = window.screen.width * ratio,
-          height$$1 = window.screen.height * ratio;
-
-        if (width$$1 !== 1125 && height$$1 !== 2001 /* 2436 for iPhoneX fullscreen */) {
-          cls.push('q-ios-statusbar-padding');
-        }
-      }
-    }
-    Platform.within.iframe && cls.push('within-iframe');
-    is.electron && cls.push('electron');
-
-    return cls
-  }
-
-  function bodyInit (cfg) {
-    var cls = getBodyClasses(cfg);
-
-    if (Platform.is.ie && Platform.is.versionNumber === 11) {
-      cls.forEach(function (c) { return document.body.classList.add(c); });
-    }
-    else {
-      document.body.classList.add.apply(document.body.classList, cls);
-    }
-
-    if (Platform.is.ios) {
-      // needed for iOS button active state
-      document.body.addEventListener('touchstart', function () {});
-    }
-  }
-
-  function install (_Vue, opts) {
+  function install (Vue$$1, opts) {
     if ( opts === void 0 ) opts = {};
 
-    if (this.__installed) {
-      return
-    }
+    if (this.__installed) { return }
     this.__installed = true;
 
-    var
-      cfg = opts.cfg || {},
-      $q = {
-        version: version,
-        theme: 'mat'
-      };
+    var cfg = opts.config || {};
 
     // required plugins
-    Platform.install({ $q: $q, cfg: cfg });
-    History.install();
-    i18n.install({ $q: $q, Vue: _Vue, cfg: cfg, lang: opts.i18n });
-    icons.install({ $q: $q, Vue: _Vue, iconSet: opts.iconSet });
+    Platform.install($q, queues, Vue$$1);
+    Body.install($q, queues, cfg);
+    History.install($q, cfg);
+    i18n.install($q, queues, Vue$$1, opts.i18n);
+    Icons.install($q, Vue$$1, opts.iconSet);
 
     if (isSSR) {
-      if (typeof cfg.ssr.setBodyClasses === 'function') {
-        cfg.ssr.setBodyClasses(getBodyClasses(cfg));
-      }
+      Vue$$1.mixin({
+        beforeCreate: function beforeCreate () {
+          this.$q = this.$root.$options.$q;
+        }
+      });
     }
     else {
-      ready(function () {
-        bodyInit(cfg);
-      });
+      Vue$$1.prototype.$q = $q;
     }
 
     if (opts.directives) {
       Object.keys(opts.directives).forEach(function (key) {
         var d = opts.directives[key];
         if (d.name !== undefined && d.unbind !== void 0) {
-          _Vue.directive(d.name, d);
+          Vue$$1.directive(d.name, d);
         }
       });
     }
@@ -921,21 +1231,20 @@
       Object.keys(opts.components).forEach(function (key) {
         var c = opts.components[key];
         if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
-          _Vue.component(c.name, c);
+          Vue$$1.component(c.name, c);
         }
       });
     }
 
     if (opts.plugins) {
+      var param = { $q: $q, queues: queues, Vue: Vue$$1, cfg: cfg };
       Object.keys(opts.plugins).forEach(function (key) {
         var p = opts.plugins[key];
-        if (typeof p.install === 'function') {
-          p.install({ $q: $q, Vue: _Vue, cfg: cfg });
+        if (typeof p.install === 'function' && p !== Platform) {
+          p.install(param);
         }
       });
     }
-
-    _Vue.prototype.$q = $q;
   }
 
   var handlers = [];
@@ -970,7 +1279,7 @@
         handlers.pop();
       }
     }
-  }
+  };
 
   var
     toString = Object.prototype.toString,
@@ -1178,7 +1487,7 @@
         this.__hide && this.__hide();
       }
     }
-  }
+  };
 
   var listenOpts = {};
   Object.defineProperty(listenOpts, 'passive', {
@@ -1372,7 +1681,7 @@
   });
 
   function getScrollTarget (el) {
-    return el.closest('.scroll') || window
+    return el.closest('.scroll,.scroll-y') || window
   }
 
   function getScrollHeight (el) {
@@ -1393,8 +1702,8 @@
 
     var pos = getScrollPosition(el);
 
-    window.requestAnimationFrame(function () {
-      setScroll(el, pos + (to - pos) / duration * 16);
+    requestAnimationFrame(function () {
+      setScroll(el, pos + (to - pos) / Math.max(16, duration) * 16);
       if (el.scrollTop !== to) {
         animScrollTo(el, to, duration - 16);
       }
@@ -1527,7 +1836,7 @@
         }
       }
     }
-  }
+  };
 
   var positions = {
     top: 'items-start justify-center with-backdrop',
@@ -1713,11 +2022,13 @@
         this.$nextTick(function () { return content && content.focus(); });
       },
       __hide: function __hide () {
+        var this$1 = this;
+
         EscapeKey.pop();
         this.__preventScroll(false);
         this.__register(false);
-        if (!this.noRefocus && this.__refocusTarget) {
-          this.__refocusTarget.focus();
+        if (!this.noRefocus) {
+          setTimeout(function () { return this$1.__refocusTarget && this$1.__refocusTarget.focus(); }, 300);
         }
       },
       __stopPropagation: function __stopPropagation (e) {
@@ -1795,11 +2106,11 @@
               click: this.__stopPropagation,
               touchstart: this.__stopPropagation
             }
-          }, [ this.$slots.default ])
+          }, this.$slots.default)
         ])
       ])
     }
-  }
+  };
 
   var QModalLayout = {
     name: 'QModalLayout',
@@ -1822,7 +2133,7 @@
     },
     watch: {
       __qmodal: function __qmodal (newModal, oldModal) {
-        oldModal && oldModal.register(this);
+        oldModal && oldModal.unregister(this);
         newModal && newModal.register(this);
       }
     },
@@ -1850,9 +2161,7 @@
         staticClass: 'q-modal-layout-content col scroll',
         style: this.contentStyle,
         'class': this.contentClass
-      }, [
-        this.$slots.default
-      ]));
+      }, this.$slots.default));
 
       if (this.$slots.footer || ('mat' === 'ios')) {
         child.push(h('div', {
@@ -1869,7 +2178,7 @@
         staticClass: 'q-modal-layout col column no-wrap'
       }, child)
     }
-  }
+  };
 
   var prefix$1 = 'md';
 
@@ -1933,7 +2242,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   function textStyle (n) {
     return n === void 0 || n < 2
@@ -1988,7 +2297,7 @@
         }
       }
     }
-  }
+  };
 
   var routerLinkEventName = 'qrouterlinkclick';
 
@@ -2005,16 +2314,18 @@
     }
   }
 
+  var routerLinkProps = {
+    to: [String, Object],
+    exact: Boolean,
+    append: Boolean,
+    replace: Boolean,
+    event: [String, Array],
+    activeClass: String,
+    exactActiveClass: String
+  };
+
   var RouterLinkMixin = {
-    props: {
-      to: [String, Object],
-      exact: Boolean,
-      append: Boolean,
-      replace: Boolean,
-      event: [String, Array],
-      activeClass: String,
-      exactActiveClass: String
-    },
+    props: routerLinkProps,
     data: function data () {
       return {
         routerLinkEventName: routerLinkEventName
@@ -2026,7 +2337,7 @@
     name: 'QItem',
     mixins: [
       ItemMixin,
-      { props: RouterLinkMixin.props }
+      { props: routerLinkProps }
     ],
     props: {
       active: Boolean,
@@ -2036,16 +2347,25 @@
       classes: function classes () {
         var cls = this.itemClasses;
         return this.to !== void 0
-          ? cls
+          ? ['q-link', cls]
           : [{active: this.active}, cls]
       }
     },
     render: function render (h) {
-      return this.to !== void 0
-        ? h('router-link', { props: this.$props, 'class': this.classes }, [ this.$slots.default ])
-        : h(this.tag, { 'class': this.classes }, [ this.$slots.default ])
+      if (this.to !== void 0) {
+        return h('router-link', {
+          props: Object.assign({}, this.$props, { tag: 'a' }),
+          'class': this.classes
+        }, this.$slots.default)
+      }
+
+      return h(
+        this.tag,
+        { 'class': this.classes },
+        this.$slots.default
+      )
     }
-  }
+  };
 
   var QItemSeparator = {
     name: 'QItemSeparator',
@@ -2058,11 +2378,9 @@
         'class': {
           'q-item-separator-inset-component': this.inset
         }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   function text (h, name, val, n) {
     n = parseInt(n, 10);
@@ -2097,7 +2415,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   var QItemSide = {
     name: 'QItemSide',
@@ -2193,7 +2511,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   var QItemTile = {
     name: 'QItemTile',
@@ -2268,15 +2586,15 @@
       if (this.icon) {
         if (this.inverted) {
           return h(this.tag, data, [
-            h(QIcon, { props: { name: this.icon } }, [ this.$slots.default ])
+            h(QIcon, { props: { name: this.icon } }, this.$slots.default)
           ])
         }
         data.props = { name: this.icon };
       }
 
-      return h(this.icon ? QIcon : this.tag, data, [ this.$slots.default ])
+      return h(this.icon ? QIcon : this.tag, data, this.$slots.default)
     }
-  }
+  };
 
   function push (child, h, name, slot, replace, conf) {
     var defaultProps = { props: { right: conf.right } };
@@ -2353,7 +2671,7 @@
         props: cfg
       }, child)
     }
-  }
+  };
 
   var QList = {
     name: 'QList',
@@ -2391,11 +2709,9 @@
       return h('div', {
         staticClass: 'q-list',
         'class': this.classes
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QListHeader = {
     name: 'QListHeader',
@@ -2408,11 +2724,9 @@
         'class': {
           'q-list-header-inset': this.inset
         }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QActionSheet = {
     name: 'QActionSheet',
@@ -2452,7 +2766,7 @@
                 ? h('div', { staticClass: 'q-actionsheet-grid row wrap items-center justify-between' }, this.__getActions(h))
                 : h(QList, { staticClass: 'no-border', props: { link: true } }, this.__getActions(h))
             ]
-            : [ this.$slots.default ]
+            : this.$slots.default
         )
       );
 
@@ -2550,7 +2864,7 @@
         }
       }
     }
-  }
+  };
 
   var units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
 
@@ -2583,12 +2897,12 @@
 
     var size = (max - min + 1);
 
-    var index = v % size;
+    var index = min + (v - min) % size;
     if (index < min) {
       index = size + index;
     }
 
-    return index
+    return index === 0 ? 0 : index // fix for (-a % a) => -0
   }
 
   function pad (v, length, char) {
@@ -2611,7 +2925,9 @@
 
   var
     xhr = isSSR ? null : XMLHttpRequest,
-    send = isSSR ? null : xhr.prototype.send;
+    send = isSSR ? null : xhr.prototype.send,
+    stack = { start: [], stop: [] };
+
   var highjackCount = 0;
 
   function translate (ref) {
@@ -2627,19 +2943,18 @@
     if (horiz) {
       if (reverse) { x = -1; }
       if (pos === 'bottom') { y = -1; }
-      return cssTransform(("translate3d(" + (x * (p - 100)) + "%, " + (active ? 0 : y * -200) + "%, 0)"))
+      return cssTransform(("translate3d(" + (x * (p - 100)) + "%," + (active ? 0 : y * -200) + "%,0)"))
     }
 
     if (reverse) { y = -1; }
     if (pos === 'right') { x = -1; }
-
-    return cssTransform(("translate3d(" + (active ? 0 : dir * x * -200) + "%, " + (y * (p - 100)) + "%, 0)"))
+    return cssTransform(("translate3d(" + (active ? 0 : dir * x * -200) + "%," + (y * (p - 100)) + "%,0)"))
   }
 
   function inc (p, amount) {
     if (typeof amount !== 'number') {
       if (p < 25) {
-        amount = Math.random() * (5 - 3 + 1) + 3;
+        amount = Math.random() * 3 + 3;
       }
       else if (p < 65) {
         amount = Math.random() * 3;
@@ -2648,7 +2963,7 @@
         amount = Math.random() * 2;
       }
       else if (p < 99) {
-        amount = 0.5;
+        amount = 0.6;
       }
       else {
         amount = 0;
@@ -2657,27 +2972,38 @@
     return between(p + amount, 0, 100)
   }
 
-  function highjackAjax (startHandler, endHandler) {
+  function highjackAjax (start, stop) {
+    stack.start.push(start);
+    stack.stop.push(stop);
+
+    highjackCount++;
+
+    if (highjackCount > 1) { return }
+
+    function endHandler () {
+      stack.stop.map(function (fn) { fn(); });
+    }
+
     xhr.prototype.send = function () {
       var this$1 = this;
       var args = [], len = arguments.length;
       while ( len-- ) args[ len ] = arguments[ len ];
 
-      startHandler();
+      stack.start.map(function (fn) { fn(); });
 
       this.addEventListener('abort', endHandler, false);
       this.addEventListener('readystatechange', function () {
-        if (this$1.readyState === 4) {
-          endHandler();
-        }
+        if (this$1.readyState === 4) { endHandler(); }
       }, false);
 
       send.apply(this, args);
     };
-    highjackCount += 1;
   }
 
-  function restoreAjax () {
+  function restoreAjax (start, stop) {
+    stack.start = stack.start.filter(function (fn) { return fn !== start; });
+    stack.stop = stack.stop.filter(function (fn) { return fn !== stop; });
+
     highjackCount = Math.max(0, highjackCount - 1);
     if (!highjackCount) {
       xhr.prototype.send = send;
@@ -2696,53 +3022,48 @@
       },
       size: {
         type: String,
-        default: '4px'
+        default: '2px'
       },
       color: {
         type: String,
         default: 'red'
       },
-      speed: {
-        type: Number,
-        default: 250
-      },
-      delay: {
-        type: Number,
-        default: 1000
-      },
+      skipHijack: Boolean,
       reverse: Boolean
     },
     data: function data () {
       return {
-        animate: false,
-        active: false,
+        calls: 0,
         progress: 0,
-        calls: 0
+        onScreen: false,
+        animate: true
       }
     },
     computed: {
       classes: function classes () {
         return [
           this.position,
+          ("bg-" + (this.color)),
           this.animate ? '' : 'no-transition'
         ]
       },
-      innerClasses: function innerClasses () {
-        return ("bg-" + (this.color))
-      },
       style: function style$$1 () {
-        var reverse = this.$q.i18n.rtl && ['top', 'bottom'].includes(this.position)
-          ? !this.reverse
-          : this.reverse;
+        var active = this.onScreen;
+
         var o = translate({
           p: this.progress,
           pos: this.position,
-          active: this.active,
+          active: active,
           horiz: this.horizontal,
-          reverse: reverse,
+          reverse: this.$q.i18n.rtl && ['top', 'bottom'].includes(this.position)
+            ? !this.reverse
+            : this.reverse,
           dir: this.$q.i18n.rtl ? -1 : 1
         });
+
         o[this.sizeProp] = this.size;
+        o.opacity = active ? 1 : 0;
+
         return o
       },
       horizontal: function horizontal () {
@@ -2753,125 +3074,132 @@
       }
     },
     methods: {
-      start: function start () {
+      start: function start (speed) {
         var this$1 = this;
+        if ( speed === void 0 ) speed = 300;
 
         this.calls++;
-        if (!this.active) {
-          this.progress = 0;
-          this.active = true;
-          this.animate = false;
-          this.$emit('start');
-          this.timer = setTimeout(function () {
-            this$1.animate = true;
-            this$1.move();
-          }, this.delay);
-        }
-        else if (this.closing) {
-          this.closing = false;
-          clearTimeout(this.timer);
-          this.progress = 0;
-          this.move();
-        }
+        if (this.calls > 1) { return }
+
+        clearTimeout(this.timer);
+        this.$emit('start');
+
+        if (this.onScreen) { return }
+
+        this.progress = 0;
+        this.onScreen = true;
+        this.animate = false;
+        this.timer = setTimeout(function () {
+          this$1.animate = true;
+          this$1.__work(speed);
+        }, 100);
       },
       increment: function increment (amount) {
-        if (this.active) {
-          this.progress = inc(this.progress, amount);
-        }
+        this.calls > 0 && (this.progress = inc(this.progress, amount));
       },
       stop: function stop () {
         var this$1 = this;
 
         this.calls = Math.max(0, this.calls - 1);
-        if (this.calls > 0) {
-          return
-        }
+        if (this.calls > 0) { return }
 
         clearTimeout(this.timer);
-
-        if (!this.animate) {
-          this.active = false;
-          return
-        }
-        this.closing = true;
-        this.progress = 100;
         this.$emit('stop');
-        this.timer = setTimeout(function () {
-          this$1.closing = false;
-          this$1.active = false;
-        }, 1050);
+
+        var end = function () {
+          this$1.animate = true;
+          this$1.progress = 100;
+          this$1.timer = setTimeout(function () {
+            this$1.onScreen = false;
+          }, 1000);
+        };
+
+        if (this.progress === 0) {
+          this.timer = setTimeout(end, 1);
+        }
+        else {
+          end();
+        }
       },
-      move: function move () {
+
+      __work: function __work (speed) {
         var this$1 = this;
 
-        this.timer = setTimeout(function () {
-          this$1.increment();
-          this$1.move();
-        }, this.speed);
+        if (this.progress < 100) {
+          this.timer = setTimeout(function () {
+            this$1.increment();
+            this$1.__work(speed);
+          }, speed);
+        }
       }
     },
     mounted: function mounted () {
-      highjackAjax(this.start, this.stop);
+      if (!this.skipHijack) {
+        this.hijacked = true;
+        highjackAjax(this.start, this.stop);
+      }
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
-      restoreAjax();
+      this.hijacked && restoreAjax(this.start, this.stop);
     },
     render: function render (h) {
       return h('div', {
-        staticClass: 'q-loading-bar shadow-4',
+        staticClass: 'q-loading-bar',
         'class': this.classes,
         style: this.style
-      }, [
-        h('div', {
-          staticClass: 'q-loading-bar-inner',
-          'class': this.innerClasses
-        })
-      ])
+      })
     }
-  }
+  };
 
-  function showRipple (evt, el, stopPropagation) {
-    if (stopPropagation) {
+  function showRipple (evt, el, ref) {
+    var stop = ref.stop;
+    var center = ref.center;
+
+    if (stop) {
       evt.stopPropagation();
     }
 
     var
       container = document.createElement('span'),
-      animNode = document.createElement('span');
+      animNode = document.createElement('span'),
+      size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight,
+      unit = (center ? size : size * 2) + "px",
+      offset$$1 = el.getBoundingClientRect();
 
     container.appendChild(animNode);
     container.className = 'q-ripple-container';
-
-    var size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight;
-    size = (size * 2) + "px";
     animNode.className = 'q-ripple-animation';
-    css(animNode, { width: size, height: size });
+    animNode.style.width = unit;
+    animNode.style.height = unit;
 
     el.appendChild(container);
 
-    var
-      offset$$1 = el.getBoundingClientRect(),
-      pos = position(evt),
-      x = pos.left - offset$$1.left,
-      y = pos.top - offset$$1.top;
+    var x, y;
 
-    animNode.classList.add('q-ripple-animation-enter', 'q-ripple-animation-visible');
-    css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px) scale(.001)")));
+    if (center) {
+      x = y = 0;
+    }
+    else {
+      var pos = position(evt);
+      x = pos.left - offset$$1.left - size;
+      y = pos.top - offset$$1.top - size;
+    }
+
+    animNode.classList.add('q-ripple-animation-enter');
+    animNode.classList.add('q-ripple-animation-visible');
+    css(animNode, cssTransform(("translate(" + x + "px, " + y + "px) scale3d(0, 0, 0)")));
 
     setTimeout(function () {
       animNode.classList.remove('q-ripple-animation-enter');
-      css(animNode, cssTransform(("translate(-50%, -50%) translate(" + x + "px, " + y + "px)")));
+      css(animNode, cssTransform(("translate(" + x + "px, " + y + "px) scale3d(1, 1, 1)")));
       setTimeout(function () {
         animNode.classList.remove('q-ripple-animation-visible');
         setTimeout(function () {
-          var el = animNode.parentNode;
-          if (el && el.parentNode) {
-            el.parentNode.removeChild(el);
-          }
+          container.parentNode && el.removeChild(container);
         }, 300);
-      }, 400);
-    }, 25);
+      }, 300);
+    }, 10);
   }
 
   function shouldAbort (ref) {
@@ -2896,14 +3224,18 @@
 
       var ctx = {
         enabled: value !== false,
+        modifiers: {
+          stop: modifiers.stop,
+          center: modifiers.center
+        },
         click: function click (evt) {
-          if (ctx.enabled) {
-            showRipple(evt, el, modifiers.stop);
+          if (ctx.enabled && evt.detail !== -1) {
+            showRipple(evt, el, ctx.modifiers);
           }
         },
         keyup: function keyup (evt) {
           if (ctx.enabled && evt.keyCode === 13) {
-            showRipple(evt, el, modifiers.stop);
+            showRipple(evt, el, ctx.modifiers);
           }
         }
       };
@@ -2914,25 +3246,27 @@
     },
     update: function update (el, ref) {
       var value = ref.value;
-      var oldValue = ref.oldValue;
+      var ref_modifiers = ref.modifiers;
+      var stop = ref_modifiers.stop;
+      var center = ref_modifiers.center;
 
-      if (el.__qripple && value !== oldValue) {
-        el.__qripple.enabled = value !== false;
+      var ctx = el.__qripple;
+      if (ctx) {
+        ctx.enabled = value !== false;
+        ctx.modifiers = { stop: stop, center: center };
       }
     },
     unbind: function unbind (el, ref) {
       var modifiers = ref.modifiers;
 
       var ctx = el.__qripple;
-      if (!ctx || shouldAbort(modifiers)) {
-        return
+      if (ctx && !shouldAbort(modifiers)) {
+        el.removeEventListener('click', ctx.click, false);
+        el.removeEventListener('keyup', ctx.keyup, false);
+        delete el.__qripple;
       }
-
-      el.removeEventListener('click', ctx.click, false);
-      el.removeEventListener('keyup', ctx.keyup, false);
-      delete el.__qripple;
     }
-  }
+  };
 
   var alignMap = {
     left: 'start',
@@ -2955,7 +3289,7 @@
         return ("justify-" + (alignMap[this.align]))
       }
     }
-  }
+  };
 
   var sizes = {
     xs: 8,
@@ -2964,11 +3298,9 @@
     lg: 20,
     xl: 24,
     form: 12.444,
-    'form-label': 17.1,
-    'form-hide-underline': 9.332,
-    'form-label-hide-underline': 14,
-    'form-inverted': 15.555,
-    'form-label-inverted': 20.22
+    'form-label': 18.666,
+    'form-inverted': 12.444,
+    'form-label-inverted': 21.777
   };
 
   var BtnMixin = {
@@ -3001,7 +3333,9 @@
       glossy: Boolean,
       dense: Boolean,
       noRipple: Boolean,
-      tabindex: Number
+      tabindex: Number,
+      to: [Object, String],
+      replace: Boolean
     },
     computed: {
       style: function style () {
@@ -3029,6 +3363,19 @@
       computedTabIndex: function computedTabIndex () {
         return this.isDisabled ? -1 : this.tabindex || 0
       },
+      isLink: function isLink () {
+        return this.type === 'a' || this.to !== void 0
+      },
+      attrs: function attrs () {
+        var att = { tabindex: this.computedTabIndex };
+        if (this.type !== 'a') {
+          att.type = this.type;
+        }
+        if (this.to !== void 0) {
+          att.href = this.$router.resolve(this.to).href;
+        }
+        return att
+      },
       classes: function classes () {
         var cls = [ this.shape ];
 
@@ -3054,9 +3401,7 @@
         }
         else {
           cls.push('q-focusable q-hoverable');
-          if (this.active) {
-            cls.push('active');
-          }
+          this.active && cls.push('active');
         }
 
         if (this.color) {
@@ -3088,7 +3433,7 @@
         return classes
       }
     }
-  }
+  };
 
   var mixin = {
     props: {
@@ -3105,112 +3450,2184 @@
         }
       }
     }
-  }
+  };
 
-  var DefaultSpinner = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner q-spinner-mat",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"25 25 50 50"}},[_c('circle',{staticClass:"path",attrs:{"cx":"50","cy":"50","r":"20","fill":"none","stroke":"currentColor","stroke-width":"3","stroke-miterlimit":"10"}})])},staticRenderFns: [],
+  var DefaultSpinner = {
     name: 'QSpinnerMat',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner q-spinner-mat',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '25 25 50 50'
+        }
+      }, [
+        h('circle', {
+          staticClass: 'path',
+          attrs: {
+            'cx': '50',
+            'cy': '50',
+            'r': '20',
+            'fill': 'none',
+            'stroke': 'currentColor',
+            'stroke-width': '3',
+            'stroke-miterlimit': '10'
+          }
+        })
+      ])
+    }
+  };
 
-  var audio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 55 80","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"matrix(1 0 0 -1 0 80)"}},[_c('rect',{attrs:{"width":"10","height":"20","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"4.3s","values":"20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"15","width":"10","height":"80","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"80;55;33;5;75;23;73;33;12;14;60;80","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","width":"10","height":"50","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1.4s","values":"50;34;78;23;56;23;34;76;80;54;21;50","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"45","width":"10","height":"30","rx":"3"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"2s","values":"30;45;13;80;56;72;45;76;34;23;67;30","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  var audio = {
     name: 'QSpinnerAudio',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 55 80',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'matrix(1 0 0 -1 0 80)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'width': '10',
+              'height': '20',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '4.3s',
+                'values': '20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '15',
+              'width': '10',
+              'height': '80',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '2s',
+                'values': '80;55;33;5;75;23;73;33;12;14;60;80',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '30',
+              'width': '10',
+              'height': '50',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '1.4s',
+                'values': '50;34;78;23;56;23;34;76;80;54;21;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '45',
+              'width': '10',
+              'height': '30',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '2s',
+                'values': '30;45;13;80;56;72;45;76;34;23;67;30',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var ball = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 57 57","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"cx":"5","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;5;50;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","values":"5;27;49;5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"27","cy":"5","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","from":"5","to":"5","values":"5;50;50;5","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","begin":"0s","dur":"2.2s","from":"27","to":"27","values":"27;49;5;27","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"49","cy":"50","r":"5"}},[_c('animate',{attrs:{"attributeName":"cy","begin":"0s","dur":"2.2s","values":"50;50;5;50","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"cx","from":"49","to":"49","begin":"0s","dur":"2.2s","values":"49;5;27;49","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  var ball = {
     name: 'QSpinnerBall',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 57 57',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'stroke-width': '2',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '5',
+              'cy': '50',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '50;5;50;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '5;27;49;5',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '27',
+              'cy': '5',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'from': '5',
+                'to': '5',
+                'values': '5;50;50;5',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'begin': '0s',
+                'dur': '2.2s',
+                'from': '27',
+                'to': '27',
+                'values': '27;49;5;27',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '49',
+              'cy': '50',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '50;50;5;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'from': '49',
+                'to': '49',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '49;5;27;49',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var bars = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 140","xmlns":"http://www.w3.org/2000/svg"}},[_c('rect',{attrs:{"y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"30","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"60","width":"15","height":"140","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"90","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.25s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.25s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})]),_c('rect',{attrs:{"x":"120","y":"10","width":"15","height":"120","rx":"6"}},[_c('animate',{attrs:{"attributeName":"height","begin":"0.5s","dur":"1s","values":"120;110;100;90;80;70;60;50;40;140;120","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"y","begin":"0.5s","dur":"1s","values":"10;15;20;25;30;35;40;45;50;0;10","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  var bars = {
     name: 'QSpinnerBars',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 135 140',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '30',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '60',
+            'width': '15',
+            'height': '140',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '90',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '120',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var circles = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 135 135","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"-360 67 67","dur":"2.5s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 67 67","to":"360 67 67","dur":"8s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
+  var circles = {
     name: 'QSpinnerCircles',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 135 135',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 67 67',
+              'to': '-360 67 67',
+              'dur': '2.5s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 67 67',
+              'to': '360 67 67',
+              'dur': '8s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var comment = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('path',{attrs:{"d":"M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z","fill":"currentColor"}}),_c('circle',{attrs:{"cx":"30","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;1;1","keyTimes":"0;0.2;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"50","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.2;0.4;1","dur":"1s","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"70","cy":"47","r":"5","fill":"#fff"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","values":"0;0;1;1","keyTimes":"0;0.4;0.6;1","dur":"1s","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  var comment = {
     name: 'QSpinnerComment',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'x': '0',
+            'y': '0',
+            'width': '100',
+            'height': '100',
+            'fill': 'none'
+          }
+        }),
+        h('path', {
+          attrs: {
+            'd': 'M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z',
+            'fill': 'currentColor'
+          }
+        }),
+        h('circle', {
+          attrs: {
+            'cx': '30',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;1;1',
+              'keyTimes': '0;0.2;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '50',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;0;1;1',
+              'keyTimes': '0;0.2;0.4;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '70',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;0;1;1',
+              'keyTimes': '0;0.4;0.6;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var cube = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('rect',{attrs:{"x":"0","y":"0","width":"100","height":"100","fill":"none"}}),_c('g',{attrs:{"transform":"translate(25 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 25)"}},[_c('rect',{attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.1s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(25 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.7"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.3s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)]),_c('g',{attrs:{"transform":"translate(75 75)"}},[_c('rect',{staticClass:"cube",attrs:{"x":"-20","y":"-20","width":"40","height":"40","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"1.5","to":"1","repeatCount":"indefinite","begin":"0.2s","dur":"1s","calcMode":"spline","keySplines":"0.2 0.8 0.2 0.8","keyTimes":"0;1"}})],1)])])},staticRenderFns: [],
+  var cube = {
     name: 'QSpinnerCube',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'x': '0',
+            'y': '0',
+            'width': '100',
+            'height': '100',
+            'fill': 'none'
+          }
+        }),
+        h('g', {
+          attrs: {
+            'transform': 'translate(25 25)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.9'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(75 25)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.8'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.1s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(25 75)'
+          }
+        }, [
+          h('rect', {
+            staticClass: 'cube',
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.7'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.3s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(75 75)'
+          }
+        }, [
+          h('rect', {
+            staticClass: 'cube',
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.6'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.2s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var dots = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 120 30","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"15","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"60","cy":"15","r":"9","fill-opacity":".3"}},[_c('animate',{attrs:{"attributeName":"r","from":"9","to":"9","begin":"0s","dur":"0.8s","values":"9;15;9","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":".5","to":".5","begin":"0s","dur":"0.8s","values":".5;1;.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"105","cy":"15","r":"15"}},[_c('animate',{attrs:{"attributeName":"r","from":"15","to":"15","begin":"0s","dur":"0.8s","values":"15;9;15","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"fill-opacity","from":"1","to":"1","begin":"0s","dur":"0.8s","values":"1;.5;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  var dots = {
     name: 'QSpinnerDots',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 120 30',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('circle', {
+          attrs: {
+            'cx': '15',
+            'cy': '15',
+            'r': '15'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '15',
+              'to': '15',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '15;9;15',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '1',
+              'to': '1',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '1;.5;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '60',
+            'cy': '15',
+            'r': '9',
+            'fill-opacity': '.3'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '9',
+              'to': '9',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '9;15;9',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '.5',
+              'to': '.5',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '.5;1;.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '105',
+            'cy': '15',
+            'r': '15'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '15',
+              'to': '15',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '15;9;15',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '1',
+              'to': '1',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '1;.5;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var facebook = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","xmlns":"http://www.w3.org/2000/svg","preserveAspectRatio":"xMidYMid"}},[_c('g',{attrs:{"transform":"translate(20 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.6"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(50 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.8"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.1s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)]),_c('g',{attrs:{"transform":"translate(80 50)"}},[_c('rect',{attrs:{"x":"-10","y":"-30","width":"20","height":"60","fill":"currentColor","opacity":"0.9"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"scale","from":"2","to":"1","begin":"0.2s","repeatCount":"indefinite","dur":"1s","calcMode":"spline","keySplines":"0.1 0.9 0.4 1","keyTimes":"0;1","values":"2;1"}})],1)])])},staticRenderFns: [],
+  var facebook = {
     name: 'QSpinnerFacebook',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(20 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.6'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(50 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.8'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0.1s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(80 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.9'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0.2s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var gears = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(-20,-20)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"90 50 50","to":"0 50 50","dur":"1s","repeatCount":"indefinite"}})],1)]),_c('g',{attrs:{"transform":"translate(20,20) rotate(15 50 50)"}},[_c('path',{attrs:{"d":"M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z","fill":"currentColor"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"90 50 50","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  var gears = {
     name: 'QSpinnerGears',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(-20,-20)'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '90 50 50',
+                'to': '0 50 50',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(20,20) rotate(15 50 50)'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 50 50',
+                'to': '90 50 50',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var grid = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 105 105","xmlns":"http://www.w3.org/2000/svg"}},[_c('circle',{attrs:{"cx":"12.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"52.5","r":"12.5","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"100ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"300ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"600ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"12.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"800ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"52.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"400ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"12.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"700ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"52.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"500ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"92.5","cy":"92.5","r":"12.5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"200ms","dur":"1s","values":"1;.2;1","calcMode":"linear","repeatCount":"indefinite"}})])])},staticRenderFns: [],
+  var grid = {
     name: 'QSpinnerGrid',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 105 105',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '52.5',
+            'r': '12.5',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '100ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '300ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '52.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '600ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '800ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '52.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '400ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '700ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '500ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '200ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var hearts = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"fill":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 140 64","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z","fill-opacity":".5"}},[_c('animate',{attrs:{"attributeName":"fill-opacity","begin":"0.7s","dur":"1.4s","values":"0.5;1;0.5","calcMode":"linear","repeatCount":"indefinite"}})]),_c('path',{attrs:{"d":"M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z"}})])},staticRenderFns: [],
+  var hearts = {
     name: 'QSpinnerHearts',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 140 64',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0s',
+              'dur': '1.4s',
+              'values': '0.5;1;0.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0.7s',
+              'dur': '1.4s',
+              'values': '0.5;1;0.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z'
+          }
+        })
+      ])
+    }
+  };
 
-  var hourglass = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',[_c('path',{staticClass:"glass",attrs:{"fill":"none","stroke":"currentColor","stroke-width":"5","stroke-miterlimit":"10","d":"M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z"}}),_c('clipPath',{attrs:{"id":"uil-hourglass-clip1"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"20","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"25","to":"0","dur":"1s","repeatCount":"indefinite","vlaues":"25;0;0","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"20","to":"45","dur":"1s","repeatCount":"indefinite","vlaues":"20;45;45","keyTimes":"0;0.5;1"}})])]),_c('clipPath',{attrs:{"id":"uil-hourglass-clip2"}},[_c('rect',{staticClass:"clip",attrs:{"x":"15","y":"55","width":"70","height":"25"}},[_c('animate',{attrs:{"attributeName":"height","from":"0","to":"25","dur":"1s","repeatCount":"indefinite","vlaues":"0;25;25","keyTimes":"0;0.5;1"}}),_c('animate',{attrs:{"attributeName":"y","from":"80","to":"55","dur":"1s","repeatCount":"indefinite","vlaues":"80;55;55","keyTimes":"0;0.5;1"}})])]),_c('path',{staticClass:"sand",attrs:{"d":"M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z","clip-path":"url(#uil-hourglass-clip1)","fill":"currentColor"}}),_c('path',{staticClass:"sand",attrs:{"d":"M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z","clip-path":"url(#uil-hourglass-clip2)","fill":"currentColor"}}),_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"180 50 50","repeatCount":"indefinite","dur":"1s","values":"0 50 50;0 50 50;180 50 50","keyTimes":"0;0.7;1"}})],1)])},staticRenderFns: [],
+  var hourglass = {
     name: 'QSpinnerHourglass',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', [
+          h('path', {
+            staticClass: 'glass',
+            attrs: {
+              'fill': 'none',
+              'stroke': 'currentColor',
+              'stroke-width': '5',
+              'stroke-miterlimit': '10',
+              'd': 'M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z'
+            }
+          }),
+          h('clipPath', {
+            attrs: {
+              'id': 'uil-hourglass-clip1'
+            }
+          }, [
+            h('rect', {
+              staticClass: 'clip',
+              attrs: {
+                'x': '15',
+                'y': '20',
+                'width': '70',
+                'height': '25'
+              }
+            }, [
+              h('animate', {
+                attrs: {
+                  'attributeName': 'height',
+                  'from': '25',
+                  'to': '0',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '25;0;0',
+                  'keyTimes': '0;0.5;1'
+                }
+              }),
+              h('animate', {
+                attrs: {
+                  'attributeName': 'y',
+                  'from': '20',
+                  'to': '45',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '20;45;45',
+                  'keyTimes': '0;0.5;1'
+                }
+              })
+            ])
+          ]),
+          h('clipPath', {
+            attrs: {
+              'id': 'uil-hourglass-clip2'
+            }
+          }, [
+            h('rect', {
+              staticClass: 'clip',
+              attrs: {
+                'x': '15',
+                'y': '55',
+                'width': '70',
+                'height': '25'
+              }
+            }, [
+              h('animate', {
+                attrs: {
+                  'attributeName': 'height',
+                  'from': '0',
+                  'to': '25',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '0;25;25',
+                  'keyTimes': '0;0.5;1'
+                }
+              }),
+              h('animate', {
+                attrs: {
+                  'attributeName': 'y',
+                  'from': '80',
+                  'to': '55',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '80;55;55',
+                  'keyTimes': '0;0.5;1'
+                }
+              })
+            ])
+          ]),
+          h('path', {
+            staticClass: 'sand',
+            attrs: {
+              'd': 'M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z',
+              'clip-path': 'url(#uil-hourglass-clip1)',
+              'fill': 'currentColor'
+            }
+          }),
+          h('path', {
+            staticClass: 'sand',
+            attrs: {
+              'd': 'M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z',
+              'clip-path': 'url(#uil-hourglass-clip2)',
+              'fill': 'currentColor'
+            }
+          }),
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '180 50 50',
+              'repeatCount': 'indefinite',
+              'dur': '1s',
+              'values': '0 50 50;0 50 50;180 50 50',
+              'keyTimes': '0;0.7;1'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var infinity = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid"}},[_c('path',{attrs:{"d":"M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z","fill":"none","stroke":"currentColor","stroke-width":"8","stroke-dasharray":"10.691205342610678 10.691205342610678","stroke-dashoffset":"0"}},[_c('animate',{attrs:{"attributeName":"stroke-dashoffset","from":"0","to":"21.382410685221355","begin":"0","dur":"2s","repeatCount":"indefinite","fill":"freeze"}})])])},staticRenderFns: [],
+  var infinity = {
     name: 'QSpinnerInfinity',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z',
+            'fill': 'none',
+            'stroke': 'currentColor',
+            'stroke-width': '8',
+            'stroke-dasharray': '10.691205342610678 10.691205342610678',
+            'stroke-dashoffset': '0'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'stroke-dashoffset',
+              'from': '0',
+              'to': '21.382410685221355',
+              'begin': '0',
+              'dur': '2s',
+              'repeatCount': 'indefinite',
+              'fill': 'freeze'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var QSpinner_ios = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"stroke":"currentColor","fill":"currentColor","viewBox":"0 0 64 64"}},[_c('g',{attrs:{"stroke-width":"4","stroke-linecap":"round"}},[_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(180)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(210)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(240)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(270)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(300)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(330)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(0)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(30)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(60)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(90)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(120)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85","repeatCount":"indefinite"}})]),_c('line',{attrs:{"y1":"17","y2":"29","transform":"translate(32,32) rotate(150)"}},[_c('animate',{attrs:{"attributeName":"stroke-opacity","dur":"750ms","values":"1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  var QSpinner_ios = {
     name: 'QSpinnerIos',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'stroke': 'currentColor',
+          'fill': 'currentColor',
+          'viewBox': '0 0 64 64'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'stroke-width': '4',
+            'stroke-linecap': 'round'
+          }
+        }, [
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(180)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(210)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(240)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(270)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(300)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(330)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(0)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(30)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(60)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(90)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(120)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(150)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var oval = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"translate(1 1)","stroke-width":"2","fill":"none","fill-rule":"evenodd"}},[_c('circle',{attrs:{"stroke-opacity":".5","cx":"18","cy":"18","r":"18"}}),_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"1s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  var oval = {
     name: 'QSpinnerOval',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 38 38',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'stroke-width': '2',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'stroke-opacity': '.5',
+              'cx': '18',
+              'cy': '18',
+              'r': '18'
+            }
+          }),
+          h('path', {
+            attrs: {
+              'd': 'M36 18c0-9.94-8.06-18-18-18'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var pie = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('path',{attrs:{"d":"M0 50A50 50 0 0 1 50 0L50 50L0 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"0.8s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 0A50 50 0 0 1 100 50L50 50L50 0","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"1.6s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M100 50A50 50 0 0 1 50 100L50 50L100 50","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"2.4s","repeatCount":"indefinite"}})],1),_c('path',{attrs:{"d":"M50 100A50 50 0 0 1 0 50L50 50L50 100","fill":"currentColor","opacity":"0.5"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 50 50","to":"360 50 50","dur":"3.2s","repeatCount":"indefinite"}})],1)])},staticRenderFns: [],
+  var pie = {
     name: 'QSpinnerPie',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M0 50A50 50 0 0 1 50 0L50 50L0 50',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '0.8s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M50 0A50 50 0 0 1 100 50L50 50L50 0',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '1.6s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M100 50A50 50 0 0 1 50 100L50 50L100 50',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '2.4s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M50 100A50 50 0 0 1 0 50L50 50L50 100',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '3.2s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
 
-  var puff = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 44 44","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"0s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"1"}},[_c('animate',{attrs:{"attributeName":"r","begin":"-0.9s","dur":"1.8s","values":"1; 20","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.165, 0.84, 0.44, 1","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"-0.9s","dur":"1.8s","values":"1; 0","calcMode":"spline","keyTimes":"0; 1","keySplines":"0.3, 0.61, 0.355, 1","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  var puff = {
     name: 'QSpinnerPuff',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 44 44',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'fill': 'none',
+            'fill-rule': 'evenodd',
+            'stroke-width': '2'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '1'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '0s',
+                'dur': '1.8s',
+                'values': '1; 20',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.165, 0.84, 0.44, 1',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '0s',
+                'dur': '1.8s',
+                'values': '1; 0',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.3, 0.61, 0.355, 1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '1'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '-0.9s',
+                'dur': '1.8s',
+                'values': '1; 20',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.165, 0.84, 0.44, 1',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '-0.9s',
+                'dur': '1.8s',
+                'values': '1; 0',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.3, 0.61, 0.355, 1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var radio = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 100 100","preserveAspectRatio":"xMidYMid","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"transform":"scale(0.55)"}},[_c('circle',{attrs:{"cx":"30","cy":"150","r":"30","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.1","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})]),_c('path',{attrs:{"d":"M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z","fill":"currentColor"}},[_c('animate',{attrs:{"attributeName":"opacity","from":"0","to":"1","dur":"1s","begin":"0.2","repeatCount":"indefinite","keyTimes":"0;0.5;1","values":"0;1;1"}})])])])},staticRenderFns: [],
+  var radio = {
     name: 'QSpinnerRadio',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'scale(0.55)'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '30',
+              'cy': '150',
+              'r': '30',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ]),
+          h('path', {
+            attrs: {
+              'd': 'M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0.1',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ]),
+          h('path', {
+            attrs: {
+              'd': 'M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0.2',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var rings = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"stroke":"currentColor","width":_vm.size,"height":_vm.size,"viewBox":"0 0 45 45","xmlns":"http://www.w3.org/2000/svg"}},[_c('g',{attrs:{"fill":"none","fill-rule":"evenodd","transform":"translate(1 1)","stroke-width":"2"}},[_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"1.5s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"1.5s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"1.5s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"6"}},[_c('animate',{attrs:{"attributeName":"r","begin":"3s","dur":"3s","values":"6;22","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-opacity","begin":"3s","dur":"3s","values":"1;0","calcMode":"linear","repeatCount":"indefinite"}}),_c('animate',{attrs:{"attributeName":"stroke-width","begin":"3s","dur":"3s","values":"2;0","calcMode":"linear","repeatCount":"indefinite"}})]),_c('circle',{attrs:{"cx":"22","cy":"22","r":"8"}},[_c('animate',{attrs:{"attributeName":"r","begin":"0s","dur":"1.5s","values":"6;1;2;3;4;5;6","calcMode":"linear","repeatCount":"indefinite"}})])])])},staticRenderFns: [],
+  var rings = {
     name: 'QSpinnerRings',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 45 45',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'fill': 'none',
+            'fill-rule': 'evenodd',
+            'transform': 'translate(1 1)',
+            'stroke-width': '2'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '6'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '6;22',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '1;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-width',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '2;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '6'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '6;22',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '1;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-width',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '2;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '8'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '0s',
+                'dur': '1.5s',
+                'values': '6;1;2;3;4;5;6',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
-  var tail = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('svg',{staticClass:"q-spinner",class:_vm.classes,attrs:{"width":_vm.size,"height":_vm.size,"viewBox":"0 0 38 38","xmlns":"http://www.w3.org/2000/svg"}},[_c('defs',[_c('linearGradient',{attrs:{"x1":"8.042%","y1":"0%","x2":"65.682%","y2":"23.865%","id":"a"}},[_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":"0","offset":"0%"}}),_c('stop',{attrs:{"stop-color":"currentColor","stop-opacity":".631","offset":"63.146%"}}),_c('stop',{attrs:{"stop-color":"currentColor","offset":"100%"}})],1)],1),_c('g',{attrs:{"transform":"translate(1 1)","fill":"none","fill-rule":"evenodd"}},[_c('path',{attrs:{"d":"M36 18c0-9.94-8.06-18-18-18","stroke":"url(#a)","stroke-width":"2"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1),_c('circle',{attrs:{"fill":"currentColor","cx":"36","cy":"18","r":"1"}},[_c('animateTransform',{attrs:{"attributeName":"transform","type":"rotate","from":"0 18 18","to":"360 18 18","dur":"0.9s","repeatCount":"indefinite"}})],1)])])},staticRenderFns: [],
+  var tail = {
     name: 'QSpinnerTail',
-    mixins: [mixin]
-  }
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 38 38',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('defs', [
+          h('linearGradient', {
+            attrs: {
+              'x1': '8.042%',
+              'y1': '0%',
+              'x2': '65.682%',
+              'y2': '23.865%',
+              'id': 'a'
+            }
+          }, [
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'stop-opacity': '0',
+                'offset': '0%'
+              }
+            }),
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'stop-opacity': '.631',
+                'offset': '63.146%'
+              }
+            }),
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'offset': '100%'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M36 18c0-9.94-8.06-18-18-18',
+              'stroke': 'url(#a)',
+              'stroke-width': '2'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '0.9s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'fill': 'currentColor',
+              'cx': '36',
+              'cy': '18',
+              'r': '1'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '0.9s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
   var QSpinner = {
     mixins: [DefaultSpinner],
@@ -3224,9 +5641,7 @@
       percentage: Number,
       darkPercentage: Boolean,
       waitForRipple: Boolean,
-      repeatTimeout: [Number, Function],
-      to: [Object, String],
-      replace: Boolean
+      repeatTimeout: [Number, Function]
     },
     computed: {
       hasPercentage: function hasPercentage () {
@@ -3271,15 +5686,26 @@
 
         this.__cleanup();
 
+        if (this.to !== void 0 || this.isDisabled) {
+          e && stopAndPrevent(e);
+          if (this.isDisabled) { return }
+        }
+
+        if (e && e.detail !== -1 && this.type === 'submit') {
+          stopAndPrevent(e);
+          var ev = new MouseEvent('click', Object.assign({}, e, {detail: -1}));
+          this.timer = setTimeout(function () { return this$1.$el && this$1.$el.dispatchEvent(ev); }, 200);
+          return
+        }
+
+        var go = function () {
+          this$1.$router[this$1.replace ? 'replace' : 'push'](this$1.to);
+        };
+
         var trigger = function () {
-          if (this$1.isDisabled) {
-            return
-          }
-
-          this$1.$emit('click', e);
-
-          if (this$1.to !== void 0) {
-            this$1.$router[this$1.replace ? 'replace' : 'push'](this$1.to);
+          if (!this$1.isDisabled) {
+            this$1.$emit('click', e, go);
+            this$1.to !== void 0 && e.navigate !== false && go();
           }
         };
 
@@ -3365,16 +5791,17 @@
       this.__cleanup();
     },
     render: function render (h) {
-      return h(this.type ? 'button' : 'a', {
+      return h(this.isLink ? 'a' : 'button', {
         staticClass: 'q-btn inline relative-position q-btn-item non-selectable',
         'class': this.classes,
         style: this.style,
-        attrs: { tabindex: this.computedTabIndex, type: this.type },
+        attrs: this.attrs,
         on: this.events,
         directives: this.hasRipple
           ? [{
             name: 'ripple',
-            value: true
+            value: true,
+            modifiers: { center: this.isRound }
           }]
           : null
       }, [
@@ -3418,7 +5845,7 @@
         )
       ])
     }
-  }
+  };
 
   var QBtnGroup = {
     name: 'QBtnGroup',
@@ -3441,11 +5868,9 @@
       return h('div', {
         staticClass: 'q-btn-group row no-wrap inline',
         'class': this.classes
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   function getAnchorPosition (el, offset) {
     var ref = el.getBoundingClientRect();
@@ -3684,7 +6109,7 @@
       if (wait) { return }
 
       wait = true;
-      frame = window.requestAnimationFrame(function () {
+      frame = requestAnimationFrame(function () {
         fn.apply(this$1, args);
         wait = false;
       });
@@ -3702,15 +6127,14 @@
 
   var CanRenderMixin = {
     data: function data () {
-      var is = this.$q.platform.is;
       return {
-        canRender: is.cordova || is.electron
+        canRender: !onSSR
       }
     },
     mounted: function mounted () {
-      this.canRender = true;
+      this.canRender === false && (this.canRender = true);
     }
-  }
+  };
 
   var QPopover = {
     name: 'QPopover',
@@ -3766,9 +6190,7 @@
         on: {
           click: function click (e) { e.stopPropagation(); }
         }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     },
     mounted: function mounted () {
       var this$1 = this;
@@ -3801,7 +6223,7 @@
         var this$1 = this;
 
         if (!this.noRefocus) {
-          this.__refocusTarget = document.activeElement;
+          this.__refocusTarget = this.anchorEl || document.activeElement;
         }
         document.body.appendChild(this.$el);
         EscapeKey.register(function () { this$1.hide(); });
@@ -3876,7 +6298,7 @@
         });
       }
     }
-  }
+  };
 
   var QBtnDropdown = {
     name: 'QBtnDropdown',
@@ -3927,7 +6349,7 @@
               }
             }
           },
-          [ this.$slots.default ]
+          this.$slots.default
         ),
         Icon = h(
           'QIcon',
@@ -3944,27 +6366,9 @@
           }
         ),
         Btn = h(QBtn, {
-          props: {
-            type: this.type,
-            loading: this.loading,
-            disable: this.disable,
-            noCaps: this.noCaps,
-            noWrap: this.noWrap,
-            icon: this.icon,
-            label: this.label,
-            iconRight: this.split ? this.iconRight : null,
-            outline: this.outline,
-            flat: this.flat,
-            rounded: this.rounded,
-            push: this.push,
-            size: this.size,
-            color: this.color,
-            textColor: this.textColor,
-            glossy: this.glossy,
-            dense: this.dense,
-            noRipple: this.noRipple,
-            waitForRipple: this.waitForRipple
-          },
+          props: Object.assign({}, this.$props, {
+            iconRight: this.split ? this.iconRight : null
+          }),
           'class': this.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple',
           on: {
             click: function (e) {
@@ -4039,7 +6443,7 @@
         }
       });
     }
-  }
+  };
 
   var QBtnToggle = {
     name: 'QBtnToggle',
@@ -4138,7 +6542,7 @@
         }); }
       ))
     }
-  }
+  };
 
   var QAlert = {
     name: 'QAlert',
@@ -4179,7 +6583,7 @@
         side.push(
           h('img', {
             staticClass: 'avatar',
-            domProps: { src: this.avatar }
+            attrs: { src: this.avatar }
           })
         );
       }
@@ -4231,7 +6635,7 @@
         ])
       ])
     }
-  }
+  };
 
   function filter (terms, ref) {
     var field = ref.field;
@@ -4258,6 +6662,26 @@
       keyboardMoveDirection: false,
       keyboardMoveTimer: false
     }); },
+    watch: {
+      keyboardIndex: function keyboardIndex (val) {
+        var this$1 = this;
+
+        if (this.$refs.popover && this.$refs.popover.showing && this.keyboardMoveDirection && val > -1) {
+          this.$nextTick(function () {
+            if (!this$1.$refs.popover) {
+              return
+            }
+            var selected = this$1.$refs.popover.$el.querySelector('.q-select-highlight');
+            if (selected && selected.scrollIntoView) {
+              if (selected.scrollIntoViewIfNeeded) {
+                return selected.scrollIntoViewIfNeeded(false)
+              }
+              selected.scrollIntoView(this$1.keyboardMoveDirection < 0);
+            }
+          });
+        }
+      }
+    },
     methods: {
       __keyboardShow: function __keyboardShow (index) {
         if ( index === void 0 ) index = 0;
@@ -4266,9 +6690,9 @@
           this.keyboardIndex = index;
         }
       },
-      __keyboardSetCurrentSelection: function __keyboardSetCurrentSelection () {
+      __keyboardSetCurrentSelection: function __keyboardSetCurrentSelection (navigation) {
         if (this.keyboardIndex >= 0 && this.keyboardIndex <= this.keyboardMaxIndex) {
-          this.__keyboardSetSelection(this.keyboardIndex);
+          this.__keyboardSetSelection(this.keyboardIndex, navigation);
         }
       },
       __keyboardHandleKey: function __keyboardHandleKey (e) {
@@ -4309,7 +6733,7 @@
           do {
             index = normalizeToInterval(
               index + offset,
-              0,
+              -1,
               this$1.keyboardMaxIndex
             );
           }
@@ -4324,7 +6748,7 @@
         this.__keyboardShowTrigger();
       }
     }
-  }
+  };
 
   var QAutocomplete = {
     name: 'QAutocomplete',
@@ -4338,6 +6762,7 @@
         type: Number,
         default: 6
       },
+      maxHeight: String,
       debounce: {
         type: Number,
         default: 500
@@ -4352,7 +6777,7 @@
     inject: {
       __input: {
         default: function default$1 () {
-          console.error('QAutocomplete needs to be child of QInput or QSearch');
+          console.error('QAutocomplete needs to be child of QInput, QChipsInput or QSearch');
         }
       },
       __inputDebounce: { default: null }
@@ -4396,18 +6821,21 @@
       isWorking: function isWorking () {
         return this.$refs && this.$refs.popover
       },
-      trigger: function trigger () {
+      trigger: function trigger (focus) {
         var this$1 = this;
 
-        if (!this.__input.hasFocus() || !this.isWorking()) {
+        if (!this.__input || !this.__input.hasFocus() || !this.isWorking()) {
           return
         }
 
-        var terms = [null, void 0].includes(this.__input.val) ? '' : String(this.__input.val);
-        var searchId = uid();
+        var
+          terms = [null, void 0].includes(this.__input.val) ? '' : String(this.__input.val),
+          termsLength = terms.length,
+          searchId = uid();
+
         this.searchId = searchId;
 
-        if (terms.length < this.minCharacters) {
+        if (termsLength < this.minCharacters || (focus === true /* avoid callback params */ && termsLength > 0)) {
           this.searchId = '';
           this.__clearSearch();
           this.hide();
@@ -4422,8 +6850,8 @@
           var popover = this.$refs.popover;
           if (this.results.length) {
             this.__keyboardShow(-1);
-            if (popover.showing) {
-              popover.reposition();
+            if (popover && popover.showing) {
+              this.$nextTick(function () { return popover && popover.reposition(); });
             }
             else {
               popover.show();
@@ -4471,17 +6899,27 @@
         this.searchId = '';
       },
       __keyboardCustomKeyHandle: function __keyboardCustomKeyHandle (key) {
-        if (key === 27) { // ESCAPE
-          this.__clearSearch();
+        switch (key) {
+          case 27: // ESCAPE
+            this.__clearSearch();
+            break
+          case 38: // UP key
+          case 40: // DOWN key
+          case 9: // TAB key
+            this.__keyboardSetCurrentSelection(true);
+            break
         }
       },
       __keyboardShowTrigger: function __keyboardShowTrigger () {
         this.trigger();
       },
+      __focusShowTrigger: function __focusShowTrigger () {
+        this.trigger(true);
+      },
       __keyboardIsSelectableIndex: function __keyboardIsSelectableIndex (index) {
         return index > -1 && index < this.computedResults.length && !this.computedResults[index].disable
       },
-      setValue: function setValue (result) {
+      setValue: function setValue (result, kbdNav) {
         var value = this.staticData ? result[this.staticData.field] : result.value;
         var suffix = this.__inputDebounce ? 'Debounce' : '';
 
@@ -4490,14 +6928,16 @@
         }
 
         this.enterKey = this.__input && value !== this.__input.val;
-        this[("__input" + suffix)].set(value);
+        this[("__input" + suffix)][kbdNav ? 'setNav' : 'set'](value);
 
         this.$emit('selected', result);
-        this.__clearSearch();
-        this.hide();
+        if (!kbdNav) {
+          this.__clearSearch();
+          this.hide();
+        }
       },
-      __keyboardSetSelection: function __keyboardSetSelection (index) {
-        this.setValue(this.results[index]);
+      __keyboardSetSelection: function __keyboardSetSelection (index, navigation) {
+        this.setValue(this.results[index], navigation);
       },
       __delayTrigger: function __delayTrigger () {
         this.__clearSearch();
@@ -4524,6 +6964,7 @@
         }
         this$1.inputEl.addEventListener('keydown', this$1.__keyboardHandleKey);
         this$1.inputEl.addEventListener('blur', this$1.blurHide);
+        this$1.inputEl.addEventListener('focus', this$1.__focusShowTrigger);
       });
     },
     beforeDestroy: function beforeDestroy () {
@@ -4535,6 +6976,7 @@
       if (this.inputEl) {
         this.inputEl.removeEventListener('keydown', this.__keyboardHandleKey);
         this.inputEl.removeEventListener('blur', this.blurHide);
+        this.inputEl.removeEventListener('focus', this.__focusShowTrigger);
         this.hide();
       }
     },
@@ -4548,7 +6990,9 @@
         props: {
           fit: true,
           anchorClick: false,
-          noFocus: true
+          maxHeight: this.maxHeight,
+          noFocus: true,
+          noRefocus: true
         },
         on: {
           show: function () {
@@ -4570,9 +7014,9 @@
           style: this.computedWidth
         },
         this.computedResults.map(function (result, index) { return h(QItemWrapper, {
-          key: result.id || JSON.stringify(result),
+          key: result.id || index,
           'class': {
-            active: this$1.keyboardIndex === index,
+            'q-select-highlight': this$1.keyboardIndex === index,
             'cursor-pointer': !result.disable,
             'text-faded': result.disable
           },
@@ -4584,7 +7028,7 @@
         }); }))
       ])
     }
-  }
+  };
 
   var QBreadcrumbs = {
     name: 'QBreadcrumbs',
@@ -4651,35 +7095,30 @@
         'class': this.classes
       }, child)
     }
-  }
+  };
 
   var QBreadcrumbsEl = {
     name: 'QBreadcrumbsEl',
-    mixins: [{ props: RouterLinkMixin.props }],
+    mixins: [{ props: routerLinkProps }],
     props: {
       label: String,
       icon: String,
       color: String
     },
-    computed: {
-      link: function link () {
-        return this.to !== void 0
-      }
-    },
     render: function render (h) {
-      return h(this.link ? 'router-link' : 'span', {
-        staticClass: 'q-breadcrumbs-el flex inline items-center relative-position',
-        props: this.link ? this.$props : null
+      return h(this.to !== void 0 ? 'router-link' : 'span', {
+        staticClass: 'q-link q-breadcrumbs-el flex inline items-center relative-position',
+        props: this.to !== void 0 ? this.$props : null
       },
       this.label || this.icon
         ? [
           this.icon ? h(QIcon, { staticClass: 'q-breacrumbs-el-icon q-mr-sm', props: { name: this.icon } }) : null,
           this.label
         ]
-        : [ this.$slots.default ]
+        : this.$slots.default
       )
     }
-  }
+  };
 
   var QCard = {
     name: 'QCard',
@@ -4714,11 +7153,9 @@
       return h('div', {
         staticClass: 'q-card',
         'class': this.classes
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QCardTitle = {
     name: 'QCardTitle',
@@ -4727,24 +7164,22 @@
         staticClass: 'q-card-primary q-card-container row no-wrap'
       }, [
         h('div', {staticClass: 'col column'}, [
-          h('div', {staticClass: 'q-card-title'}, [ this.$slots.default ]),
+          h('div', {staticClass: 'q-card-title'}, this.$slots.default),
           h('div', {staticClass: 'q-card-subtitle'}, [ this.$slots.subtitle ])
         ]),
         h('div', {staticClass: 'col-auto self-center q-card-title-extra'}, [ this.$slots.right ])
       ])
     }
-  }
+  };
 
   var QCardMain = {
     name: 'QCardMain',
     render: function render (h) {
       return h('div', {
         staticClass: 'q-card-main q-card-container'
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QCardActions = {
     name: 'QCardActions',
@@ -4766,11 +7201,9 @@
       return h('div', {
         staticClass: 'q-card-actions',
         'class': this.classes
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QCardMedia = {
     name: 'QCardMedia',
@@ -4796,7 +7229,7 @@
           : null
       ])
     }
-  }
+  };
 
   var QCardSeparator = {
     name: 'QCardSeparator',
@@ -4807,11 +7240,9 @@
       return h('div', {
         staticClass: 'q-card-separator',
         'class': { inset: this.inset }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   function getDirection (mod) {
     if (!mod.horizontal && !mod.vertical) {
@@ -5004,7 +7435,7 @@
 
       delete el.__qtouchpan;
     }
-  }
+  };
 
   function isDate (v) {
     return Object.prototype.toString.call(v) === '[object Date]'
@@ -5127,12 +7558,12 @@
         pos: newPos,
         progress: progress
       };
-      anim.timer = window.requestAnimationFrame(handler);
+      anim.timer = requestAnimationFrame(handler);
     };
 
     var anim = ids[id] = {
       cancel: cancel,
-      timer: window.requestAnimationFrame(handler)
+      timer: requestAnimationFrame(handler)
     };
 
     return id
@@ -5211,7 +7642,7 @@
     beforeDestroy: function beforeDestroy () {
       this.exitFullscreen();
     }
-  }
+  };
 
   var QCarousel = {
     name: 'QCarousel',
@@ -5708,7 +8139,7 @@
         this.__setArrowKeys(false);
       }
     }
-  }
+  };
 
   var QCarouselSlide = {
     name: 'QCarouselSlide',
@@ -5748,7 +8179,7 @@
     beforeDestroy: function beforeDestroy () {
       this.carousel.__unregisterSlide();
     }
-  }
+  };
 
   var QCarouselControl = {
     name: 'QCarouselControl',
@@ -5779,9 +8210,9 @@
         'class': this.computedClass
       }, this.$slots.default)
     }
-  }
+  };
 
-  var QChatMessage = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-message",class:{ 'q-message-sent': _vm.sent, 'q-message-received': !_vm.sent }},[(_vm.label)?_c('p',{staticClass:"q-message-label text-center",domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-message-container row items-end no-wrap"},[(_vm.hasAvatarSlot())?_vm._t("avatar"):_vm._e(),_vm._v(" "),(_vm.avatar && !_vm.hasAvatarSlot())?_c('img',{staticClass:"q-message-avatar",attrs:{"src":_vm.avatar}}):_vm._e(),_vm._v(" "),_c('div',{class:_vm.sizeClass},[(_vm.name)?_c('div',{staticClass:"q-message-name",domProps:{"innerHTML":_vm._s(_vm.name)}}):_vm._e(),_vm._v(" "),(_vm.text)?_vm._l((_vm.text),function(msg,index){return _c('div',{key:index,staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_c('div',{domProps:{"innerHTML":_vm._s(msg)}}),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()])])}):_vm._e(),_vm._v(" "),(_vm.hasDefaultSlot())?_c('div',{staticClass:"q-message-text",class:_vm.messageClass},[_c('span',{staticClass:"q-message-text-content",class:_vm.textClass},[_vm._t("default"),_vm._v(" "),(_vm.stamp)?_c('div',{staticClass:"q-message-stamp",domProps:{"innerHTML":_vm._s(_vm.stamp)}}):_vm._e()],2)]):_vm._e()],2)],2)])},staticRenderFns: [],
+  var QChatMessage = {
     name: 'QChatMessage',
     props: {
       sent: Boolean,
@@ -5809,17 +8240,95 @@
         if (this.size) {
           return ("col-" + (this.size))
         }
+      },
+      classes: function classes () {
+        return {
+          'q-message-sent': this.sent,
+          'q-message-received': !this.sent
+        }
       }
     },
     methods: {
-      hasDefaultSlot: function hasDefaultSlot () {
-        return Boolean(this.$slots['default'])
+      __getText: function __getText (h) {
+        var this$1 = this;
+
+        return this.text.map(function (msg, index) { return h('div', {
+          staticClass: 'q-message-text',
+          'class': this$1.messageClass
+        }, [
+          h('span', {
+            staticClass: 'q-message-text-content',
+            'class': this$1.textClass
+          }, [
+            h('div', { domProps: { innerHTML: msg } }),
+            this$1.stamp
+              ? h('div', {
+                staticClass: 'q-message-stamp',
+                domProps: { innerHTML: this$1.stamp }
+              })
+              : null
+          ])
+        ]); })
       },
-      hasAvatarSlot: function hasAvatarSlot () {
-        return Boolean(this.$slots['avatar'])
+      __getMessage: function __getMessage (h) {
+        return h('div', {
+          staticClass: 'q-message-text',
+          'class': this.messageClass
+        }, [
+          h('span', {
+            staticClass: 'q-message-text-content',
+            'class': this.textClass
+          }, [
+            this.$slots.default,
+            this.stamp
+              ? h('div', {
+                staticClass: 'q-message-stamp',
+                domProps: { innerHTML: this.stamp }
+              })
+              : null
+          ])
+        ])
       }
+    },
+    render: function render (h) {
+      return h('div', {
+        staticClass: 'q-message',
+        'class': this.classes
+      }, [
+        this.label
+          ? h('div', {
+            staticClass: 'q-message-label text-center',
+            domProps: { innerHTML: this.label }
+          })
+          : null,
+
+        h('div', {
+          staticClass: 'q-message-container row items-end no-wrap'
+        }, [
+          this.$slots.avatar || (
+            this.avatar
+              ? h('img', {
+                staticClass: 'q-message-avatar',
+                attrs: { src: this.avatar }
+              })
+              : null
+          ),
+
+          h('div', { 'class': this.sizeClass }, [
+            this.name
+              ? h('div', {
+                staticClass: 'q-message-name',
+                domProps: { innerHTML: this.name }
+              })
+              : null,
+
+            this.text ? this.__getText(h) : null,
+            this.$slots.default ? this.__getMessage(h) : null
+          ])
+        ])
+      ])
     }
-  }
+  };
 
   function getDirection$1 (mod) {
     var dir = {}
@@ -6001,7 +8510,7 @@
 
       delete el.__qtouchswipe;
     }
-  }
+  };
 
   var CheckboxMixin = {
     directives: {
@@ -6066,7 +8575,7 @@
         this.__update(val);
       }
     }
-  }
+  };
 
   var OptionMixin = {
     props: {
@@ -6172,7 +8681,10 @@
             on: { change: this.toggle }
           }),
           this.$q.platform.is.desktop
-            ? h('div', { staticClass: 'q-focus-helper' })
+            ? h('div', {
+              staticClass: 'q-focus-helper',
+              'class': this.__kebabTag === 'q-radio' ? 'q-focus-helper-round' : 'q-focus-helper-rounded'
+            })
             : null,
           this.__getContent(h)
         ]),
@@ -6187,7 +8699,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   var QCheckbox = {
     name: 'QCheckbox',
@@ -6242,7 +8754,7 @@
     beforeCreate: function beforeCreate () {
       this.__kebabTag = 'q-checkbox';
     }
-  }
+  };
 
   var QChip = {
     name: 'QChip',
@@ -6324,13 +8836,11 @@
           }, [
             this.icon
               ? h(QIcon, { staticClass: 'q-chip-icon', props: { name: this.icon } })
-              : (this.avatar ? h('img', { domProps: { src: this.avatar } }) : null)
+              : (this.avatar ? h('img', { attrs: { src: this.avatar } }) : null)
           ])
           : null,
 
-        h('div', { staticClass: 'q-chip-main' }, [
-          this.$slots.default
-        ]),
+        h('div', { staticClass: 'q-chip-main ellipsis' }, this.$slots.default),
 
         this.iconRight
           ? h(QIcon, {
@@ -6355,7 +8865,7 @@
           : null
       ])
     }
-  }
+  };
 
   var marginal = {
     type: Array,
@@ -6393,6 +8903,8 @@
       dense: Boolean,
       box: Boolean,
       fullWidth: Boolean,
+      outline: Boolean,
+      textarea: Boolean,
       hideUnderline: Boolean,
       clearValue: {
         default: null
@@ -6405,14 +8917,29 @@
           return this.placeholder
         }
       },
+      isFullWidth: function isFullWidth () {
+        return !this.textarea && this.fullWidth
+      },
+      isOutline: function isOutline () {
+        return !this.textarea && !this.isFullWidth && this.outline
+      },
+      isBox: function isBox () {
+        return !this.textarea && !this.isFullWidth && !this.isOutline && this.box
+      },
       isInverted: function isInverted () {
-        return this.inverted || this.invertedLight
+        return !this.isFullWidth && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
       },
       isInvertedLight: function isInvertedLight () {
-        return (this.invertedLight && !this.hasError) || (this.inverted && this.hasWarning)
+        return this.isInverted && ((this.invertedLight && !this.hasError) || (this.inverted && this.hasWarning))
+      },
+      isHideUnderline: function isHideUnderline () {
+        return !this.isInverted && !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && this.hideUnderline
       },
       labelIsAbove: function labelIsAbove () {
         return this.focused || this.length || this.additionalLength || this.stackLabel
+      },
+      hasContent: function hasContent () {
+        return this.length > 0 || this.additionalLength > 0 || this.placeholder || this.placeholder === 0
       },
       editable: function editable () {
         return !this.disable && !this.readonly
@@ -6450,12 +8977,16 @@
         this.$emit('clear', val);
       }
     }
-  }
+  };
 
   var InputMixin = {
     props: {
       autofocus: [Boolean, String],
       maxHeight: Number,
+      rows: {
+        type: Number,
+        default: 1
+      },
       loading: Boolean
     },
     data: function data () {
@@ -6481,6 +9012,9 @@
 
       __onFocus: function __onFocus (e) {
         clearTimeout(this.timer);
+        if (this.focused) {
+          return
+        }
         this.focused = true;
         this.$emit('focus', e);
       },
@@ -6493,8 +9027,10 @@
         }, 200);
       },
       __onBlur: function __onBlur (e) {
-        this.focused = false;
-        this.$emit('blur', e);
+        if (this.focused) {
+          this.focused = false;
+          this.$emit('blur', e);
+        }
         this.__emit();
       },
       __emit: function __emit () {
@@ -6512,6 +9048,9 @@
         });
       },
       __onKeydown: function __onKeydown (e) {
+        if (e.keyCode === 13) {
+          this.__emit();
+        }
         this.$emit('keydown', e);
       },
       __onKeyup: function __onKeyup (e) {
@@ -6538,7 +9077,7 @@
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
     }
-  }
+  };
 
   var ParentFieldMixin = {
     inject: {
@@ -6568,13 +9107,14 @@
         this.field.__unregisterInput(this);
       }
     }
-  }
+  };
 
-  var QInputFrame = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col row no-wrap relative-position"},[(_vm.hasLabel)?_c('div',{staticClass:"q-if-label ellipsis full-width absolute self-start",class:{'q-if-label-above': _vm.labelIsAbove},domProps:{"innerHTML":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"innerHTML":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:[item.class, {hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)}],attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_vm._t("after")],2)},staticRenderFns: [],
+  //
+
+  var script = {
     name: 'QInputFrame',
     mixins: [FrameMixin, ParentFieldMixin],
     props: {
-      topAddons: Boolean,
       focused: Boolean,
       length: Number,
       focusable: Boolean,
@@ -6592,28 +9132,29 @@
       },
       addonClass: function addonClass () {
         return {
-          'q-if-addon-visible': !this.hasLabel || this.labelIsAbove,
-          'q-if-addon-top': this.topAddons
+          'q-if-addon-visible': !this.hasLabel || this.labelIsAbove
         }
       },
       classes: function classes () {
-        var isFullWidth = !this.isInverted && !this.box && this.fullWidth;
-        var cls = [{
-          'q-if-has-label': this.label,
-          'q-if-focused': this.focused,
-          'q-if-error': this.hasError,
-          'q-if-warning': this.hasWarning,
-          'q-if-disabled': this.disable,
-          'q-if-focusable': this.focusable && !this.disable,
-          'q-if-inverted': this.isInverted,
-          'q-if-inverted-light': this.isInvertedLight,
-          'q-if-light-color': this.lightColor,
-          'q-if-dark': this.dark,
-          'q-if-dense': this.dense,
-          'q-if-box': this.box,
-          'q-if-full-width': isFullWidth,
-          'q-if-hide-underline': !this.isInverted && (this.hideUnderline || isFullWidth)
-        }];
+        var cls = [];
+
+        this.label && cls.push('q-if-has-label');
+        this.focused && cls.push('q-if-focused');
+        this.hasError && cls.push('q-if-error');
+        this.hasWarning && cls.push('q-if-warning');
+        this.disable && cls.push('q-if-disabled');
+        this.focusable && !this.disable && cls.push('q-if-focusable');
+        this.isInverted && cls.push('q-if-inverted');
+        this.isInvertedLight && cls.push('q-if-inverted-light');
+        this.lightColor && cls.push('q-if-light-color');
+        this.dark && cls.push('q-if-dark');
+        this.dense && cls.push('q-if-dense');
+        this.textarea && cls.push('q-if-textarea');
+        this.isFullWidth && cls.push('q-if-full-width');
+        this.isOutline && cls.push('q-if-outline');
+        this.isBox && cls.push('q-if-box');
+        this.isHideUnderline && cls.push('q-if-hide-underline');
+        this.hasContent && cls.push('q-if-has-content');
 
         var color = this.hasError ? 'negative' : (this.hasWarning ? 'warning' : this.color);
 
@@ -6656,9 +9197,254 @@
         }
       }
     }
-  }
+  };
 
-  var QChipsInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row items-center group q-input-chips"},[_vm._l((_vm.model),function(label,index){return _c('q-chip',{key:(label + "#" + index),attrs:{"small":"","dense":_vm.dense,"closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v(" "+_vm._s(label)+" ")])}),_vm._v(" "),(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.alignClass,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+  var __vue_script__ = script;
+              
+  /* template */
+  var __vue_render__ = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "div",
+      {
+        staticClass: "q-if row no-wrap relative-position",
+        class: _vm.classes,
+        attrs: { tabindex: _vm.focusable && !_vm.disable ? 0 : -1 },
+        on: { click: _vm.__onClick }
+      },
+      [
+        _c("div", { staticClass: "q-if-baseline" }, [_vm._v("|")]),
+        _vm._v(" "),
+        _vm.before
+          ? _vm._l(_vm.before, function(item) {
+              return _c("q-icon", {
+                key: "b" + item.icon,
+                staticClass: "q-if-control q-if-control-before",
+                class: {
+                  hidden: _vm.__additionalHidden(
+                    item,
+                    _vm.hasError,
+                    _vm.hasWarning,
+                    _vm.length
+                  )
+                },
+                attrs: { name: item.icon },
+                nativeOn: {
+                  mousedown: function($event) {
+                    return _vm.__onMouseDown($event)
+                  },
+                  touchstart: function($event) {
+                    return _vm.__onMouseDown($event)
+                  },
+                  click: function($event) {
+                    _vm.__baHandler($event, item);
+                  }
+                }
+              })
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "q-if-inner col row no-wrap" },
+          [
+            _vm.prefix && _vm.fullWidth
+              ? _c("span", {
+                  staticClass: "q-if-addon q-if-addon-left",
+                  class: _vm.addonClass,
+                  domProps: { textContent: _vm._s(_vm.prefix) }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.hasLabel
+              ? _c("div", {
+                  staticClass: "q-if-label ellipsis",
+                  class: {
+                    "q-if-label-above": _vm.labelIsAbove
+                  },
+                  domProps: { textContent: _vm._s(_vm.label) }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.prefix && !_vm.fullWidth
+              ? _c("span", {
+                  staticClass: "q-if-addon q-if-addon-left",
+                  class: _vm.addonClass,
+                  domProps: { textContent: _vm._s(_vm.prefix) }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm._t("default"),
+            _vm._v(" "),
+            _vm.hasLabel
+              ? _c("div", {
+                  staticClass: "q-if-label-fake ellipsis",
+                  domProps: { textContent: _vm._s(_vm.label) }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.suffix
+              ? _c("span", {
+                  staticClass: "q-if-addon q-if-addon-right",
+                  class: _vm.addonClass,
+                  domProps: { textContent: _vm._s(_vm.suffix) }
+                })
+              : _vm._e()
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _vm.after
+          ? _vm._l(_vm.after, function(item) {
+              return _c("q-icon", {
+                key: "a" + item.icon,
+                staticClass: "q-if-control",
+                class: [
+                  item.class,
+                  {
+                    hidden: _vm.__additionalHidden(
+                      item,
+                      _vm.hasError,
+                      _vm.hasWarning,
+                      _vm.length
+                    )
+                  }
+                ],
+                attrs: { name: item.icon },
+                nativeOn: {
+                  mousedown: function($event) {
+                    return _vm.__onMouseDown($event)
+                  },
+                  touchstart: function($event) {
+                    return _vm.__onMouseDown($event)
+                  },
+                  click: function($event) {
+                    _vm.__baHandler($event, item);
+                  }
+                }
+              })
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm._t("after")
+      ],
+      2
+    )
+  };
+  var __vue_staticRenderFns__ = [];
+  __vue_render__._withStripped = true;
+
+  var __vue_template__ = typeof __vue_render__ !== 'undefined'
+    ? { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ }
+    : {};
+  /* style */
+  var __vue_inject_styles__ = undefined;
+  /* scoped */
+  var __vue_scope_id__ = undefined;
+  /* module identifier */
+  var __vue_module_identifier__ = undefined;
+  /* functional template */
+  var __vue_is_functional_template__ = false;
+  /* component normalizer */
+  function __vue_normalize__(
+    template, style, script$$1,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input-frame\\QInputFrame.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  function __vue_create_injector__() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__.styles || (__vue_create_injector__.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
+    }
+  }
+  /* style inject SSR */
+
+
+  var QInputFrame = __vue_normalize__(
+    __vue_template__,
+    __vue_inject_styles__,
+    typeof __vue_script__ === 'undefined' ? {} : __vue_script__,
+    __vue_scope_id__,
+    __vue_is_functional_template__,
+    __vue_module_identifier__,
+    typeof __vue_create_injector__ !== 'undefined' ? __vue_create_injector__ : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
+
+  //
+
+  var script$1 = {
     name: 'QChipsInput',
     mixins: [FrameMixin, InputMixin],
     components: {
@@ -6674,7 +9460,9 @@
       chipsColor: String,
       chipsBgColor: String,
       readonly: Boolean,
-      addIcon: String
+      addIcon: String,
+      upperCase: Boolean,
+      lowerCase: Boolean
     },
     data: function data () {
       var this$1 = this;
@@ -6686,6 +9474,9 @@
         shadow: {
           val: this.input,
           set: this.add,
+          setNav: function (val) {
+            this$1.input = val;
+          },
           loading: false,
           selectionOpen: false,
           watched: 0,
@@ -6752,6 +9543,14 @@
         return this.dark
           ? 'white'
           : this.color
+      },
+      inputClasses: function inputClasses () {
+        var cls = [ this.alignClass ];
+
+        this.upperCase && cls.push('uppercase');
+        this.lowerCase && cls.push('lowercase');
+
+        return cls
       }
     },
     methods: {
@@ -6764,12 +9563,21 @@
         if (this.isLoading || !this.editable || !value) {
           return
         }
-        if (this.model.includes(value)) {
-          this.$emit('duplicate', value);
+
+        var val = this.lowerCase
+          ? value.toLowerCase()
+          : (
+            this.upperCase
+              ? value.toUpperCase()
+              : value
+          );
+
+        if (this.model.includes(val)) {
+          this.$emit('duplicate', val);
           return
         }
 
-        this.model.push(value);
+        this.model.push(val);
         this.$emit('input', this.model);
         this.input = '';
       },
@@ -6830,7 +9638,374 @@
     beforeDestroy: function beforeDestroy () {
       this.__watcherUnregister(true);
     }
+  };
+
+  var __vue_script__$1 = script$1;
+              
+  /* template */
+  var __vue_render__$1 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "q-input-frame",
+      {
+        staticClass: "q-chips-input",
+        attrs: {
+          prefix: _vm.prefix,
+          suffix: _vm.suffix,
+          "stack-label": _vm.stackLabel,
+          "float-label": _vm.floatLabel,
+          error: _vm.error,
+          warning: _vm.warning,
+          disable: _vm.disable,
+          inverted: _vm.inverted,
+          "inverted-light": _vm.invertedLight,
+          dark: _vm.dark,
+          dense: _vm.dense,
+          box: _vm.box,
+          "full-width": _vm.fullWidth,
+          outline: _vm.outline,
+          "hide-underline": _vm.hideUnderline,
+          before: _vm.before,
+          after: _vm.after,
+          color: _vm.color,
+          "no-parent-field": _vm.noParentField,
+          focused: _vm.focused,
+          length: _vm.length,
+          "additional-length": _vm.input.length > 0
+        },
+        on: { click: _vm.__onClick }
+      },
+      [
+        _c(
+          "div",
+          { staticClass: "col row q-input-chips items-center" },
+          [
+            _vm._l(_vm.model, function(label, index) {
+              return _c(
+                "div",
+                { key: label + "#" + index, staticClass: "col-auto" },
+                [
+                  _c(
+                    "q-chip",
+                    {
+                      attrs: {
+                        small: "",
+                        dense: _vm.dense,
+                        closable: _vm.editable,
+                        color: _vm.computedChipBgColor,
+                        "text-color": _vm.computedChipTextColor,
+                        tabindex: _vm.editable && _vm.focused ? 0 : -1
+                      },
+                      on: {
+                        blur: _vm.__onInputBlur,
+                        focus: _vm.__clearTimer,
+                        hide: function($event) {
+                          _vm.remove(index);
+                        }
+                      },
+                      nativeOn: {
+                        blur: function($event) {
+                          return _vm.__onInputBlur($event)
+                        },
+                        focus: function($event) {
+                          return _vm.__clearTimer($event)
+                        }
+                      }
+                    },
+                    [_vm._v("\n        " + _vm._s(label) + "\n      ")]
+                  )
+                ],
+                1
+              )
+            }),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "q-input-chips-target col row items-center" },
+              [
+                _vm.$attrs.type === "checkbox"
+                  ? _c(
+                      "input",
+                      _vm._b(
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.input,
+                              expression: "input"
+                            }
+                          ],
+                          ref: "input",
+                          staticClass: "col q-input-target",
+                          class: _vm.inputClasses,
+                          attrs: {
+                            placeholder: _vm.inputPlaceholder,
+                            disabled: _vm.disable,
+                            readonly: _vm.readonly,
+                            type: "checkbox"
+                          },
+                          domProps: {
+                            checked: Array.isArray(_vm.input)
+                              ? _vm._i(_vm.input, null) > -1
+                              : _vm.input
+                          },
+                          on: {
+                            focus: _vm.__onFocus,
+                            blur: _vm.__onInputBlur,
+                            keydown: _vm.__handleKeyDown,
+                            keyup: _vm.__onKeyup,
+                            change: function($event) {
+                              var $$a = _vm.input,
+                                $$el = $event.target,
+                                $$c = $$el.checked ? true : false;
+                              if (Array.isArray($$a)) {
+                                var $$v = null,
+                                  $$i = _vm._i($$a, $$v);
+                                if ($$el.checked) {
+                                  $$i < 0 && (_vm.input = $$a.concat([$$v]));
+                                } else {
+                                  $$i > -1 &&
+                                    (_vm.input = $$a
+                                      .slice(0, $$i)
+                                      .concat($$a.slice($$i + 1)));
+                                }
+                              } else {
+                                _vm.input = $$c;
+                              }
+                            }
+                          }
+                        },
+                        "input",
+                        _vm.$attrs,
+                        false
+                      )
+                    )
+                  : _vm.$attrs.type === "radio"
+                    ? _c(
+                        "input",
+                        _vm._b(
+                          {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.input,
+                                expression: "input"
+                              }
+                            ],
+                            ref: "input",
+                            staticClass: "col q-input-target",
+                            class: _vm.inputClasses,
+                            attrs: {
+                              placeholder: _vm.inputPlaceholder,
+                              disabled: _vm.disable,
+                              readonly: _vm.readonly,
+                              type: "radio"
+                            },
+                            domProps: { checked: _vm._q(_vm.input, null) },
+                            on: {
+                              focus: _vm.__onFocus,
+                              blur: _vm.__onInputBlur,
+                              keydown: _vm.__handleKeyDown,
+                              keyup: _vm.__onKeyup,
+                              change: function($event) {
+                                _vm.input = null;
+                              }
+                            }
+                          },
+                          "input",
+                          _vm.$attrs,
+                          false
+                        )
+                      )
+                    : _c(
+                        "input",
+                        _vm._b(
+                          {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.input,
+                                expression: "input"
+                              }
+                            ],
+                            ref: "input",
+                            staticClass: "col q-input-target",
+                            class: _vm.inputClasses,
+                            attrs: {
+                              placeholder: _vm.inputPlaceholder,
+                              disabled: _vm.disable,
+                              readonly: _vm.readonly,
+                              type: _vm.$attrs.type
+                            },
+                            domProps: { value: _vm.input },
+                            on: {
+                              focus: _vm.__onFocus,
+                              blur: _vm.__onInputBlur,
+                              keydown: _vm.__handleKeyDown,
+                              keyup: _vm.__onKeyup,
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.input = $event.target.value;
+                              }
+                            }
+                          },
+                          "input",
+                          _vm.$attrs,
+                          false
+                        )
+                      )
+              ]
+            )
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _vm.isLoading
+          ? _c("q-spinner", {
+              staticClass: "q-if-control",
+              attrs: { slot: "after", size: "24px" },
+              slot: "after"
+            })
+          : _vm.editable
+            ? _c("q-icon", {
+                staticClass: "q-if-control",
+                class: { invisible: !_vm.input.length },
+                attrs: { slot: "after", name: _vm.computedAddIcon },
+                nativeOn: {
+                  mousedown: function($event) {
+                    return _vm.__clearTimer($event)
+                  },
+                  touchstart: function($event) {
+                    return _vm.__clearTimer($event)
+                  },
+                  click: function($event) {
+                    _vm.add();
+                  }
+                },
+                slot: "after"
+              })
+            : _vm._e(),
+        _vm._v(" "),
+        _vm._t("default")
+      ],
+      2
+    )
+  };
+  var __vue_staticRenderFns__$1 = [];
+  __vue_render__$1._withStripped = true;
+
+  var __vue_template__$1 = typeof __vue_render__$1 !== 'undefined'
+    ? { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 }
+    : {};
+  /* style */
+  var __vue_inject_styles__$1 = undefined;
+  /* scoped */
+  var __vue_scope_id__$1 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$1 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$1 = false;
+  /* component normalizer */
+  function __vue_normalize__$1(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script === 'function' ? script.options : script) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\chips-input\\QChipsInput.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
   }
+  /* style inject */
+  function __vue_create_injector__$1() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__$1.styles || (__vue_create_injector__$1.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
+    }
+  }
+  /* style inject SSR */
+
+
+  var QChipsInput = __vue_normalize__$1(
+    __vue_template__$1,
+    __vue_inject_styles__$1,
+    typeof __vue_script__$1 === 'undefined' ? {} : __vue_script__$1,
+    __vue_scope_id__$1,
+    __vue_is_functional_template__$1,
+    __vue_module_identifier__$1,
+    typeof __vue_create_injector__$1 !== 'undefined' ? __vue_create_injector__$1 : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
 
   function getHeight (el, style$$1) {
     var initial = {
@@ -6936,7 +10111,7 @@
         }
       }, this.$slots.default)
     }
-  }
+  };
 
   var eventName = 'q:collapsible:close';
 
@@ -7052,15 +10227,13 @@
               h('div', {
                 staticClass: 'q-collapsible-sub-item relative-position',
                 'class': { indent: this.indent }
-              }, [
-                this.$slots.default
-              ])
+              }, this.$slots.default)
             ])
           ])
         ])
       ])
     }
-  }
+  };
 
   var DisplayModeMixin = {
     props: {
@@ -7077,7 +10250,7 @@
         return this.$q.platform.is.desktop && !this.$q.platform.within.iframe
       }
     }
-  }
+  };
 
   function getPercentage (event, dragging, rtl) {
     var val = between((position(event).left - dragging.left) / dragging.width, 0, 1);
@@ -7364,6 +10537,7 @@
         if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
           return
         }
+        stopAndPrevent(ev);
         var
           decimals = this.computedDecimals,
           step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep,
@@ -7431,7 +10605,7 @@
         ]
       }
     }
-  }
+  };
 
   function throttle (fn, limit) {
     if ( limit === void 0 ) limit = 250;
@@ -7460,262 +10634,6 @@
       return JSON.parse(s)
     }
   }
-
-  function rgbToHex (ref) {
-    var r = ref.r;
-    var g = ref.g;
-    var b = ref.b;
-    var a = ref.a;
-
-    var alpha = a !== void 0;
-
-    r = Math.round(r);
-    g = Math.round(g);
-    b = Math.round(b);
-
-    if (
-      r > 255 ||
-      g > 255 ||
-      b > 255 ||
-      (alpha && a > 100)
-    ) {
-      throw new TypeError('Expected 3 numbers below 256 (and optionally one below 100)')
-    }
-
-    a = alpha
-      ? (Math.round(255 * a / 100) | 1 << 8).toString(16).slice(1)
-      : '';
-
-    return '#' + ((b | g << 8 | r << 16) | 1 << 24).toString(16).slice(1) + a
-  }
-
-  function hexToRgb (hex) {
-    if (typeof hex !== 'string') {
-      throw new TypeError('Expected a string')
-    }
-
-    hex = hex.replace(/^#/, '');
-
-    if (hex.length === 3) {
-      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    else if (hex.length === 4) {
-      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
-    }
-
-    var num = parseInt(hex, 16);
-
-    return hex.length > 6
-      ? {r: num >> 24 & 255, g: num >> 16 & 255, b: num >> 8 & 255, a: Math.round((num & 255) / 2.55)}
-      : {r: num >> 16, g: num >> 8 & 255, b: num & 255}
-  }
-
-  function hsvToRgb (ref) {
-    var h = ref.h;
-    var s = ref.s;
-    var v = ref.v;
-    var a = ref.a;
-
-    var r, g, b, i, f, p, q, t;
-    s = s / 100;
-    v = v / 100;
-
-    h = h / 360;
-    i = Math.floor(h * 6);
-    f = h * 6 - i;
-    p = v * (1 - s);
-    q = v * (1 - f * s);
-    t = v * (1 - (1 - f) * s);
-
-    switch (i % 6) {
-      case 0:
-        r = v;
-        g = t;
-        b = p;
-        break
-      case 1:
-        r = q;
-        g = v;
-        b = p;
-        break
-      case 2:
-        r = p;
-        g = v;
-        b = t;
-        break
-      case 3:
-        r = p;
-        g = q;
-        b = v;
-        break
-      case 4:
-        r = t;
-        g = p;
-        b = v;
-        break
-      case 5:
-        r = v;
-        g = p;
-        b = q;
-        break
-    }
-
-    return {
-      r: Math.round(r * 255),
-      g: Math.round(g * 255),
-      b: Math.round(b * 255),
-      a: a
-    }
-  }
-
-  function rgbToHsv (ref) {
-    var r = ref.r;
-    var g = ref.g;
-    var b = ref.b;
-    var a = ref.a;
-
-    var
-      max = Math.max(r, g, b), min = Math.min(r, g, b),
-      d = max - min,
-      h,
-      s = (max === 0 ? 0 : d / max),
-      v = max / 255;
-
-    switch (max) {
-      case min:
-        h = 0;
-        break
-      case r:
-        h = (g - b) + d * (g < b ? 6 : 0);
-        h /= 6 * d;
-        break
-      case g:
-        h = (b - r) + d * 2;
-        h /= 6 * d;
-        break
-      case b:
-        h = (r - g) + d * 4;
-        h /= 6 * d;
-        break
-    }
-
-    return {
-      h: Math.round(h * 360),
-      s: Math.round(s * 100),
-      v: Math.round(v * 100),
-      a: a
-    }
-  }
-
-  var reRGBA = /^\s*rgb(a)?\s*\((\s*(\d+)\s*,\s*?){2}(\d+)\s*,?\s*([01]?\.?\d*?)?\s*\)\s*$/;
-
-  function textToRgb (color) {
-    if (typeof color !== 'string') {
-      throw new TypeError('Expected a string')
-    }
-
-    var m = reRGBA.exec(color);
-    if (m) {
-      var rgb = {
-        r: Math.max(255, parseInt(m[2], 10)),
-        g: Math.max(255, parseInt(m[3], 10)),
-        b: Math.max(255, parseInt(m[4], 10))
-      };
-      if (m[1]) {
-        rgb.a = Math.max(1, parseFloat(m[5]));
-      }
-      return rgb
-    }
-    return hexToRgb(color)
-  }
-
-  /* works as darken if percent < 0 */
-  function lighten (color, percent) {
-    if (typeof color !== 'string') {
-      throw new TypeError('Expected a string as color')
-    }
-    if (typeof percent !== 'number') {
-      throw new TypeError('Expected a numeric percent')
-    }
-
-    var rgb = textToRgb(color),
-      t = percent < 0 ? 0 : 255,
-      p = Math.abs(percent) / 100,
-      R = rgb.r,
-      G = rgb.g,
-      B = rgb.b;
-
-    return '#' + (
-      0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 +
-      (Math.round((t - G) * p) + G) * 0x100 +
-      (Math.round((t - B) * p) + B)
-    ).toString(16).slice(1)
-  }
-
-  function luminosity (color) {
-    if (typeof color !== 'string' || color.r === void 0) {
-      throw new TypeError('Expected a string or a {r, g, b} object as color')
-    }
-
-    var
-      rgb = typeof color === 'string' ? textToRgb(color) : color,
-      r = rgb.r / 255,
-      g = rgb.g / 255,
-      b = rgb.b / 255,
-      R = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4),
-      G = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4),
-      B = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
-    return 0.2126 * R + 0.7152 * G + 0.0722 * B
-  }
-
-  function setBrand (color, value, element) {
-    if ( element === void 0 ) element = document.body;
-
-    if (typeof color !== 'string') {
-      throw new TypeError('Expected a string as color')
-    }
-    if (typeof value !== 'string') {
-      throw new TypeError('Expected a string as value')
-    }
-    if (!(element instanceof Element)) {
-      throw new TypeError('Expected a DOM element')
-    }
-
-    element.style.setProperty(("--q-color-" + color), value);
-    switch (color) {
-      case 'negative':
-      case 'warning':
-        element.style.setProperty(("--q-color-" + color + "-l"), lighten(value, 46));
-        break
-      case 'light':
-        element.style.setProperty(("--q-color-" + color + "-d"), lighten(value, -10));
-    }
-  }
-
-  function getBrand (color, element) {
-    if ( element === void 0 ) element = document.body;
-
-    if (typeof color !== 'string') {
-      throw new TypeError('Expected a string as color')
-    }
-    if (!(element instanceof Element)) {
-      throw new TypeError('Expected a DOM element')
-    }
-
-    return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
-  }
-
-  var colors = /*#__PURE__*/Object.freeze({
-    rgbToHex: rgbToHex,
-    hexToRgb: hexToRgb,
-    hsvToRgb: hsvToRgb,
-    rgbToHsv: rgbToHsv,
-    textToRgb: textToRgb,
-    lighten: lighten,
-    luminosity: luminosity,
-    setBrand: setBrand,
-    getBrand: getBrand
-  });
 
   var QColorPicker = {
     name: 'QColorPicker',
@@ -8174,7 +11092,7 @@
         );
       }
     }
-  }
+  };
 
   var contentCss = {
       maxWidth: '95vw',
@@ -8240,10 +11158,7 @@
     },
     methods: {
       toggle: function toggle () {
-        if (!this.$refs.popup) {
-          return
-        }
-        this[this.$refs.popup.showing ? 'hide' : 'show']();
+        this.$refs.popup && this[this.$refs.popup.showing ? 'hide' : 'show']();
       },
       show: function show () {
         if (!this.disable) {
@@ -8413,6 +11328,7 @@
           dense: this.dense,
           box: this.box,
           fullWidth: this.fullWidth,
+          outline: this.outline,
           hideUnderline: this.hideUnderline,
           before: this.before,
           after: this.after,
@@ -8480,7 +11396,7 @@
         })
       ])
     }
-  }
+  };
 
   var QContextMenu = {
     name: 'QContextMenu',
@@ -8621,7 +11537,7 @@
         this.target.removeEventListener('contextmenu', this.show);
       }
     }
-  }
+  };
 
   var modelValidator = function (v) {
     var type = typeof v;
@@ -9383,13 +12299,15 @@
         }
       }
     }
-  }
+  };
+
+  //
 
   function convertToAmPm (hour) {
     return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
   }
 
-  var QDatetimePicker = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.canRender)?_c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v(" "+_vm._s(_vm.monthString)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setDay(_vm.day + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v(" "+_vm._s(_vm.day)+" ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v(" "+_vm._s(_vm.year)+" ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v(" "+_vm._s(_vm.hour)+" ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v(" "+_vm._s(_vm.__pad(_vm.minute))+" ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" AM ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v(" PM ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v(" "+_vm._s(n + _vm.yearMin)+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v(" "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+" ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v(" "+_vm._s(_vm.monthStamp)+" ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay)+" ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + (_vm.color)) : null, { 'q-datetime-day-active': _vm.isValid && monthDay === _vm.day, 'q-datetime-day-today': monthDay === _vm.today, 'disabled': !_vm.editable }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v(" "+_vm._s(fillerDay + _vm.maxDay)+" ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)]):_vm._e()},staticRenderFns: [],
+  var script$2 = {
     name: 'QDatetimePicker',
     mixins: [DateMixin, ParentFieldMixin, CanRenderMixin],
     props: {
@@ -9552,7 +12470,7 @@
       setDay: function setDay (value, skipView) {
         if (this.editable) {
           this.model = new Date(this.model.setDate(this.__parseTypeValue('date', value)));
-          if (this.type === 'date') {
+          if (!skipView && this.type === 'date') {
             this.$emit('canClose');
           }
           else if (!skipView) {
@@ -9691,7 +12609,1176 @@
         this$1.__scrollView();
       });
     }
+  };
+
+  var __vue_script__$2 = script$2;
+              
+  /* template */
+  var __vue_render__$2 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _vm.canRender
+      ? _c("div", { staticClass: "q-datetime row", class: _vm.classes }, [
+          !_vm.minimal
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "q-datetime-header column col-xs-12 col-md-4 justify-center"
+                },
+                [
+                  _vm.typeHasDate
+                    ? _c("div", [
+                        _c(
+                          "div",
+                          { staticClass: "q-datetime-weekdaystring col-12" },
+                          [_vm._v(_vm._s(_vm.weekDayString))]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass: "q-datetime-datestring row flex-center"
+                          },
+                          [
+                            _c(
+                              "span",
+                              {
+                                staticClass:
+                                  "q-datetime-link small col-auto col-md-12",
+                                class: { active: _vm.view === "month" },
+                                attrs: { tabindex: 0 },
+                                on: {
+                                  keydown: [
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "down",
+                                          40,
+                                          $event.key,
+                                          ["Down", "ArrowDown"]
+                                        ) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "left",
+                                          37,
+                                          $event.key,
+                                          ["Left", "ArrowLeft"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 0
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setMonth(_vm.month - 1, true);
+                                    },
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "up",
+                                          38,
+                                          $event.key,
+                                          ["Up", "ArrowUp"]
+                                        ) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "right",
+                                          39,
+                                          $event.key,
+                                          ["Right", "ArrowRight"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 2
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setMonth(_vm.month + 1, true);
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c(
+                                  "span",
+                                  {
+                                    attrs: { tabindex: -1 },
+                                    on: {
+                                      click: function($event) {
+                                        !_vm.disable && (_vm.view = "month");
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n            " +
+                                        _vm._s(_vm.monthString) +
+                                        "\n          "
+                                    )
+                                  ]
+                                )
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "span",
+                              {
+                                staticClass: "q-datetime-link col-auto col-md-12",
+                                class: { active: _vm.view === "day" },
+                                attrs: { tabindex: 0 },
+                                on: {
+                                  keydown: [
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "left",
+                                          37,
+                                          $event.key,
+                                          ["Left", "ArrowLeft"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 0
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setDay(_vm.day - 1, true);
+                                    },
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "right",
+                                          39,
+                                          $event.key,
+                                          ["Right", "ArrowRight"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 2
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setDay(_vm.day + 1, true);
+                                    },
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "down",
+                                          40,
+                                          $event.key,
+                                          ["Down", "ArrowDown"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setDay(_vm.day + 7, true);
+                                    },
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "up",
+                                          38,
+                                          $event.key,
+                                          ["Up", "ArrowUp"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setDay(_vm.day - 7, true);
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c(
+                                  "span",
+                                  {
+                                    attrs: { tabindex: -1 },
+                                    on: {
+                                      click: function($event) {
+                                        !_vm.disable && (_vm.view = "day");
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n            " +
+                                        _vm._s(_vm.day) +
+                                        "\n          "
+                                    )
+                                  ]
+                                )
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "span",
+                              {
+                                staticClass:
+                                  "q-datetime-link small col-auto col-md-12",
+                                class: { active: _vm.view === "year" },
+                                attrs: { tabindex: 0 },
+                                on: {
+                                  keydown: [
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "down",
+                                          40,
+                                          $event.key,
+                                          ["Down", "ArrowDown"]
+                                        ) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "left",
+                                          37,
+                                          $event.key,
+                                          ["Left", "ArrowLeft"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 0
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setYear(_vm.year - 1, true);
+                                    },
+                                    function($event) {
+                                      if (
+                                        !("button" in $event) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "up",
+                                          38,
+                                          $event.key,
+                                          ["Up", "ArrowUp"]
+                                        ) &&
+                                        _vm._k(
+                                          $event.keyCode,
+                                          "right",
+                                          39,
+                                          $event.key,
+                                          ["Right", "ArrowRight"]
+                                        )
+                                      ) {
+                                        return null
+                                      }
+                                      if (
+                                        "button" in $event &&
+                                        $event.button !== 2
+                                      ) {
+                                        return null
+                                      }
+                                      $event.preventDefault();
+                                      $event.stopPropagation();
+                                      _vm.setYear(_vm.year + 1, true);
+                                    }
+                                  ]
+                                }
+                              },
+                              [
+                                _c(
+                                  "span",
+                                  {
+                                    attrs: { tabindex: -1 },
+                                    on: {
+                                      click: function($event) {
+                                        !_vm.disable && (_vm.view = "year");
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n            " +
+                                        _vm._s(_vm.year) +
+                                        "\n          "
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.typeHasTime
+                    ? _c(
+                        "div",
+                        { staticClass: "q-datetime-time row flex-center" },
+                        [
+                          _c(
+                            "div",
+                            {
+                              staticClass:
+                                "q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"
+                            },
+                            [
+                              _c(
+                                "span",
+                                {
+                                  staticClass:
+                                    "q-datetime-link col-md text-right q-pr-sm",
+                                  class: { active: _vm.view === "hour" },
+                                  attrs: { tabindex: 0 },
+                                  on: {
+                                    keydown: [
+                                      function($event) {
+                                        if (
+                                          !("button" in $event) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "down",
+                                            40,
+                                            $event.key,
+                                            ["Down", "ArrowDown"]
+                                          ) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "left",
+                                            37,
+                                            $event.key,
+                                            ["Left", "ArrowLeft"]
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        if (
+                                          "button" in $event &&
+                                          $event.button !== 0
+                                        ) {
+                                          return null
+                                        }
+                                        $event.preventDefault();
+                                        $event.stopPropagation();
+                                        _vm.setHour(_vm.hour - 1, true);
+                                      },
+                                      function($event) {
+                                        if (
+                                          !("button" in $event) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "up",
+                                            38,
+                                            $event.key,
+                                            ["Up", "ArrowUp"]
+                                          ) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "right",
+                                            39,
+                                            $event.key,
+                                            ["Right", "ArrowRight"]
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        if (
+                                          "button" in $event &&
+                                          $event.button !== 2
+                                        ) {
+                                          return null
+                                        }
+                                        $event.preventDefault();
+                                        $event.stopPropagation();
+                                        _vm.setHour(_vm.hour + 1, true);
+                                      }
+                                    ]
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "span",
+                                    {
+                                      attrs: { tabindex: -1 },
+                                      on: {
+                                        click: function($event) {
+                                          !_vm.disable && (_vm.view = "hour");
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n            " +
+                                          _vm._s(_vm.hour) +
+                                          "\n          "
+                                      )
+                                    ]
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c("span", { staticStyle: { opacity: "0.6" } }, [
+                                _vm._v(":")
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "span",
+                                {
+                                  staticClass:
+                                    "q-datetime-link col-md text-left q-pl-sm",
+                                  class: { active: _vm.view === "minute" },
+                                  attrs: { tabindex: 0 },
+                                  on: {
+                                    keydown: [
+                                      function($event) {
+                                        if (
+                                          !("button" in $event) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "down",
+                                            40,
+                                            $event.key,
+                                            ["Down", "ArrowDown"]
+                                          ) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "left",
+                                            37,
+                                            $event.key,
+                                            ["Left", "ArrowLeft"]
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        if (
+                                          "button" in $event &&
+                                          $event.button !== 0
+                                        ) {
+                                          return null
+                                        }
+                                        $event.preventDefault();
+                                        $event.stopPropagation();
+                                        _vm.setMinute(_vm.minute - 1, true);
+                                      },
+                                      function($event) {
+                                        if (
+                                          !("button" in $event) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "up",
+                                            38,
+                                            $event.key,
+                                            ["Up", "ArrowUp"]
+                                          ) &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "right",
+                                            39,
+                                            $event.key,
+                                            ["Right", "ArrowRight"]
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        if (
+                                          "button" in $event &&
+                                          $event.button !== 2
+                                        ) {
+                                          return null
+                                        }
+                                        $event.preventDefault();
+                                        $event.stopPropagation();
+                                        _vm.setMinute(_vm.minute + 1, true);
+                                      }
+                                    ]
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "span",
+                                    {
+                                      attrs: { tabindex: -1 },
+                                      on: {
+                                        click: function($event) {
+                                          !_vm.disable && (_vm.view = "minute");
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n            " +
+                                          _vm._s(_vm.__pad(_vm.minute)) +
+                                          "\n          "
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          !_vm.computedFormat24h
+                            ? _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "q-datetime-ampm column col-auto col-md-12 justify-around"
+                                },
+                                [
+                                  _c(
+                                    "div",
+                                    {
+                                      staticClass: "q-datetime-link",
+                                      class: { active: _vm.am },
+                                      attrs: { tabindex: 0 },
+                                      on: {
+                                        keyup: function($event) {
+                                          if (
+                                            !("button" in $event) &&
+                                            $event.keyCode !== 13 &&
+                                            $event.keyCode !== 32
+                                          ) {
+                                            return null
+                                          }
+                                          $event.preventDefault();
+                                          $event.stopPropagation();
+                                          _vm.toggleAmPm();
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "span",
+                                        {
+                                          attrs: { tabindex: -1 },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.toggleAmPm();
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("\n            AM\n          ")]
+                                      )
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "div",
+                                    {
+                                      staticClass: "q-datetime-link",
+                                      class: { active: !_vm.am },
+                                      attrs: { tabindex: 0 },
+                                      on: {
+                                        keyup: function($event) {
+                                          if (
+                                            !("button" in $event) &&
+                                            $event.keyCode !== 13 &&
+                                            $event.keyCode !== 32
+                                          ) {
+                                            return null
+                                          }
+                                          $event.preventDefault();
+                                          $event.stopPropagation();
+                                          _vm.toggleAmPm();
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "span",
+                                        {
+                                          attrs: { tabindex: -1 },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.toggleAmPm();
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("\n            PM\n          ")]
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            : _vm._e()
+                        ]
+                      )
+                    : _vm._e()
+                ]
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "q-datetime-content col-xs-12 column",
+              class: _vm.contentClasses
+            },
+            [
+              _c(
+                "div",
+                {
+                  ref: "selector",
+                  staticClass: "q-datetime-selector auto row flex-center"
+                },
+                [
+                  _vm.view === "year"
+                    ? _c(
+                        "div",
+                        {
+                          staticClass:
+                            "q-datetime-view-year full-width full-height"
+                        },
+                        _vm._l(_vm.yearInterval, function(n) {
+                          return _c(
+                            "q-btn",
+                            {
+                              key: "yi" + n,
+                              staticClass: "q-datetime-btn full-width",
+                              class: { active: n + _vm.yearMin === _vm.year },
+                              attrs: {
+                                flat: "",
+                                disable: !_vm.editable,
+                                tabindex: -1
+                              },
+                              on: {
+                                click: function($event) {
+                                  _vm.setYear(n + _vm.yearMin);
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n          " +
+                                  _vm._s(n + _vm.yearMin) +
+                                  "\n        "
+                              )
+                            ]
+                          )
+                        })
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.view === "month"
+                    ? _c(
+                        "div",
+                        {
+                          staticClass:
+                            "q-datetime-view-month full-width full-height"
+                        },
+                        _vm._l(_vm.monthInterval, function(index) {
+                          return _c(
+                            "q-btn",
+                            {
+                              key: "mi" + index,
+                              staticClass: "q-datetime-btn full-width",
+                              class: {
+                                active: _vm.month === index + _vm.monthMin
+                              },
+                              attrs: {
+                                flat: "",
+                                disable: !_vm.editable,
+                                tabindex: -1
+                              },
+                              on: {
+                                click: function($event) {
+                                  _vm.setMonth(index + _vm.monthMin, true);
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n          " +
+                                  _vm._s(
+                                    _vm.$q.i18n.date.months[
+                                      index + _vm.monthMin - 1
+                                    ]
+                                  ) +
+                                  "\n        "
+                              )
+                            ]
+                          )
+                        })
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.view === "day"
+                    ? _c("div", { staticClass: "q-datetime-view-day" }, [
+                        _c(
+                          "div",
+                          { staticClass: "row items-center content-center" },
+                          [
+                            _c("q-btn", {
+                              staticClass: "q-datetime-arrow",
+                              attrs: {
+                                round: "",
+                                dense: "",
+                                flat: "",
+                                icon: _vm.dateArrow[0],
+                                "repeat-timeout": _vm.__repeatTimeout,
+                                disable:
+                                  _vm.beforeMinDays > 0 ||
+                                  _vm.disable ||
+                                  _vm.readonly,
+                                tabindex: -1
+                              },
+                              on: {
+                                click: function($event) {
+                                  _vm.setMonth(_vm.month - 1);
+                                }
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col q-datetime-month-stamp" },
+                              [
+                                _vm._v(
+                                  "\n            " +
+                                    _vm._s(_vm.monthStamp) +
+                                    "\n          "
+                                )
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("q-btn", {
+                              staticClass: "q-datetime-arrow",
+                              attrs: {
+                                round: "",
+                                dense: "",
+                                flat: "",
+                                icon: _vm.dateArrow[1],
+                                "repeat-timeout": _vm.__repeatTimeout,
+                                disable:
+                                  _vm.afterMaxDays > 0 ||
+                                  _vm.disable ||
+                                  _vm.readonly,
+                                tabindex: -1
+                              },
+                              on: {
+                                click: function($event) {
+                                  _vm.setMonth(_vm.month + 1);
+                                }
+                              }
+                            })
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass:
+                              "q-datetime-weekdays row items-center justify-start"
+                          },
+                          _vm._l(_vm.headerDayNames, function(day) {
+                            return _c("div", { key: "dh" + day }, [
+                              _vm._v(_vm._s(day))
+                            ])
+                          })
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          {
+                            staticClass:
+                              "q-datetime-days row wrap items-center justify-start content-center"
+                          },
+                          [
+                            _vm._l(_vm.fillerDays, function(fillerDay) {
+                              return _c("div", {
+                                key: "fd" + fillerDay,
+                                staticClass: "q-datetime-fillerday"
+                              })
+                            }),
+                            _vm._v(" "),
+                            _vm.min
+                              ? _vm._l(_vm.beforeMinDays, function(fillerDay) {
+                                  return _c(
+                                    "div",
+                                    {
+                                      key: "fb" + fillerDay,
+                                      staticClass:
+                                        "row items-center content-center justify-center disabled"
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n              " +
+                                          _vm._s(fillerDay) +
+                                          "\n            "
+                                      )
+                                    ]
+                                  )
+                                })
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _vm._l(_vm.daysInterval, function(monthDay) {
+                              return _c(
+                                "div",
+                                {
+                                  key: "md" + monthDay,
+                                  staticClass:
+                                    "row items-center content-center justify-center cursor-pointer",
+                                  class: [
+                                    _vm.color && monthDay === _vm.day
+                                      ? "text-" + _vm.color
+                                      : null,
+                                    {
+                                      "q-datetime-day-active":
+                                        _vm.isValid && monthDay === _vm.day,
+                                      "q-datetime-day-today":
+                                        monthDay === _vm.today,
+                                      disabled: !_vm.editable
+                                    }
+                                  ],
+                                  on: {
+                                    click: function($event) {
+                                      _vm.setDay(monthDay);
+                                    }
+                                  }
+                                },
+                                [_c("span", [_vm._v(_vm._s(monthDay))])]
+                              )
+                            }),
+                            _vm._v(" "),
+                            _vm.max
+                              ? _vm._l(_vm.afterMaxDays, function(fillerDay) {
+                                  return _c(
+                                    "div",
+                                    {
+                                      key: "fa" + fillerDay,
+                                      staticClass:
+                                        "row items-center content-center justify-center disabled"
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n              " +
+                                          _vm._s(fillerDay + _vm.maxDay) +
+                                          "\n            "
+                                      )
+                                    ]
+                                  )
+                                })
+                              : _vm._e()
+                          ],
+                          2
+                        )
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.view === "hour" || _vm.view === "minute"
+                    ? _c(
+                        "div",
+                        {
+                          ref: "clock",
+                          staticClass:
+                            "column items-center content-center justify-center"
+                        },
+                        [
+                          _vm.view === "hour"
+                            ? _c(
+                                "div",
+                                {
+                                  staticClass: "q-datetime-clock cursor-pointer",
+                                  on: {
+                                    mousedown: _vm.__dragStart,
+                                    mousemove: _vm.__dragMove,
+                                    mouseup: _vm.__dragStop,
+                                    touchstart: _vm.__dragStart,
+                                    touchmove: _vm.__dragMove,
+                                    touchend: _vm.__dragStop
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "div",
+                                    {
+                                      staticClass:
+                                        "q-datetime-clock-circle full-width full-height"
+                                    },
+                                    [
+                                      _c("div", {
+                                        staticClass: "q-datetime-clock-center"
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "div",
+                                        {
+                                          staticClass: "q-datetime-clock-pointer",
+                                          style: _vm.clockPointerStyle
+                                        },
+                                        [_c("span")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm.computedFormat24h
+                                        ? _c(
+                                            "div",
+                                            _vm._l(24, function(n) {
+                                              return _c(
+                                                "div",
+                                                {
+                                                  key: "hi" + n,
+                                                  staticClass:
+                                                    "q-datetime-clock-position fmt24",
+                                                  class: [
+                                                    "q-datetime-clock-pos-" +
+                                                      (n - 1),
+                                                    n - 1 === _vm.hour
+                                                      ? "active"
+                                                      : ""
+                                                  ]
+                                                },
+                                                [
+                                                  _c("span", [
+                                                    _vm._v(_vm._s(n - 1))
+                                                  ])
+                                                ]
+                                              )
+                                            })
+                                          )
+                                        : _c(
+                                            "div",
+                                            _vm._l(12, function(n) {
+                                              return _c(
+                                                "div",
+                                                {
+                                                  key: "hi" + n,
+                                                  staticClass:
+                                                    "q-datetime-clock-position",
+                                                  class: [
+                                                    "q-datetime-clock-pos-" + n,
+                                                    n === _vm.hour ? "active" : ""
+                                                  ]
+                                                },
+                                                [_c("span", [_vm._v(_vm._s(n))])]
+                                              )
+                                            })
+                                          )
+                                    ]
+                                  )
+                                ]
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.view === "minute"
+                            ? _c(
+                                "div",
+                                {
+                                  staticClass: "q-datetime-clock cursor-pointer",
+                                  on: {
+                                    mousedown: _vm.__dragStart,
+                                    mousemove: _vm.__dragMove,
+                                    mouseup: _vm.__dragStop,
+                                    touchstart: _vm.__dragStart,
+                                    touchmove: _vm.__dragMove,
+                                    touchend: _vm.__dragStop
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "div",
+                                    {
+                                      staticClass:
+                                        "q-datetime-clock-circle full-width full-height"
+                                    },
+                                    [
+                                      _c("div", {
+                                        staticClass: "q-datetime-clock-center"
+                                      }),
+                                      _vm._v(" "),
+                                      _c(
+                                        "div",
+                                        {
+                                          staticClass: "q-datetime-clock-pointer",
+                                          style: _vm.clockPointerStyle
+                                        },
+                                        [_c("span")]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm._l(12, function(n) {
+                                        return _c(
+                                          "div",
+                                          {
+                                            key: "mi" + n,
+                                            staticClass:
+                                              "q-datetime-clock-position",
+                                            class: [
+                                              "q-datetime-clock-pos-" + (n - 1),
+                                              (n - 1) * 5 === _vm.minute
+                                                ? "active"
+                                                : ""
+                                            ]
+                                          },
+                                          [
+                                            _c("span", [
+                                              _vm._v(_vm._s((n - 1) * 5))
+                                            ])
+                                          ]
+                                        )
+                                      })
+                                    ],
+                                    2
+                                  )
+                                ]
+                              )
+                            : _vm._e()
+                        ]
+                      )
+                    : _vm._e()
+                ]
+              ),
+              _vm._v(" "),
+              _vm._t("default")
+            ],
+            2
+          )
+        ])
+      : _vm._e()
+  };
+  var __vue_staticRenderFns__$2 = [];
+  __vue_render__$2._withStripped = true;
+
+  var __vue_template__$2 = typeof __vue_render__$2 !== 'undefined'
+    ? { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 }
+    : {};
+  /* style */
+  var __vue_inject_styles__$2 = undefined;
+  /* scoped */
+  var __vue_scope_id__$2 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$2 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$2 = false;
+  /* component normalizer */
+  function __vue_normalize__$2(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script === 'function' ? script.options : script) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\datetime\\QDatetimePicker.mat.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
   }
+  /* style inject */
+  function __vue_create_injector__$2() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__$2.styles || (__vue_create_injector__$2.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
+    }
+  }
+  /* style inject SSR */
+
+
+  var QDatetimePicker = __vue_normalize__$2(
+    __vue_template__$2,
+    __vue_inject_styles__$2,
+    typeof __vue_script__$2 === 'undefined' ? {} : __vue_script__$2,
+    __vue_scope_id__$2,
+    __vue_is_functional_template__$2,
+    __vue_module_identifier__$2,
+    typeof __vue_create_injector__$2 !== 'undefined' ? __vue_create_injector__$2 : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
 
   var contentCss$1 = {
       maxWidth: '95vw',
@@ -9764,10 +13851,7 @@
     },
     methods: {
       toggle: function toggle () {
-        if (!this.$refs.popup) {
-          return
-        }
-        this[this.$refs.popup.showing ? 'hide' : 'show']();
+        this.$refs.popup && this[this.$refs.popup.showing ? 'hide' : 'show']();
       },
       show: function show () {
         if (!this.disable) {
@@ -9969,6 +14053,7 @@
           dense: this.dense,
           box: this.box,
           fullWidth: this.fullWidth,
+          outline: this.outline,
           hideUnderline: this.hideUnderline,
           before: this.before,
           after: this.after,
@@ -10036,16 +14121,17 @@
         })
       ])
     }
-  }
+  };
 
   var inputTypes = [
     'text', 'textarea', 'email',
     'tel', 'file', 'number',
     'password', 'url', 'time', 'date'
-  ]
+  ];
 
   var QResizeObservable = {
     name: 'QResizeObservable',
+    mixins: [ CanRenderMixin ],
     props: {
       debounce: {
         type: Number,
@@ -10091,7 +14177,7 @@
     render: function render (h) {
       var this$1 = this;
 
-      if (this.hasObserver) {
+      if (!this.canRender || this.hasObserver) {
         return
       }
 
@@ -10112,6 +14198,8 @@
     },
     beforeCreate: function beforeCreate () {
       this.size = { width: -1, height: -1 };
+      if (isSSR) { return }
+
       this.hasObserver = typeof ResizeObserver !== 'undefined';
 
       if (!this.hasObserver) {
@@ -10143,10 +14231,13 @@
         this.$el.contentDocument.defaultView.removeEventListener('resize', this.trigger, listenOpts.passive);
       }
     }
-  }
+  };
 
   var QScrollObservable = {
     name: 'QScrollObservable',
+    props: {
+      debounce: Number
+    },
     render: function render () {},
     data: function data () {
       return {
@@ -10165,9 +14256,14 @@
           inflexionPosition: this.dirChangePos
         }
       },
-      trigger: function trigger () {
-        if (!this.timer) {
-          this.timer = window.requestAnimationFrame(this.emit);
+      trigger: function trigger (immediately) {
+        if (immediately || this.debounce === 0) {
+          this.emit();
+        }
+        else if (!this.timer) {
+          this.timer = this.debounce
+            ? setTimeout(this.emit, this.debounce)
+            : requestAnimationFrame(this.emit);
         }
       },
       emit: function emit () {
@@ -10190,12 +14286,14 @@
     mounted: function mounted () {
       this.target = getScrollTarget(this.$el.parentNode);
       this.target.addEventListener('scroll', this.trigger, listenOpts.passive);
-      this.trigger();
+      this.trigger(true);
     },
     beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.timer);
+      cancelAnimationFrame(this.timer);
       this.target.removeEventListener('scroll', this.trigger, listenOpts.passive);
     }
-  }
+  };
 
   var QWindowResizeObservable = {
     name: 'QWindowResizeObservable',
@@ -10215,27 +14313,30 @@
           this.timer = setTimeout(this.emit, this.debounce);
         }
       },
-      emit: function emit () {
+      emit: function emit (ssr) {
         this.timer = null;
         this.$emit('resize', {
-          height: window.innerHeight,
-          width: window.innerWidth
+          height: ssr ? 0 : window.innerHeight,
+          width: ssr ? 0 : window.innerWidth
         });
       }
     },
     created: function created () {
-      this.emit();
+      this.emit(onSSR);
     },
     mounted: function mounted () {
+      fromSSR && this.emit();
       window.addEventListener('resize', this.trigger, listenOpts.passive);
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
       window.removeEventListener('resize', this.trigger, listenOpts.passive);
     }
-  }
+  };
 
-  var QInput = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClasses,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length,"top-addons":_vm.isTextarea},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position q-input-area-holder"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)},staticRenderFns: [],
+  //
+
+  var script$3 = {
     name: 'QInput',
     mixins: [FrameMixin, InputMixin],
     components: {
@@ -10262,12 +14363,7 @@
       decimals: Number,
       step: Number,
       upperCase: Boolean,
-      lowerCase: Boolean,
-
-      rows: {
-        type: Number,
-        default: 1
-      }
+      lowerCase: Boolean
     },
     data: function data () {
       var this$1 = this;
@@ -10281,6 +14377,7 @@
         shadow: {
           val: this.model,
           set: this.__set,
+          setNav: this.__set,
           loading: false,
           watched: 0,
           isDark: function () { return this$1.dark; },
@@ -10353,15 +14450,13 @@
       computedStep: function computedStep () {
         return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
       },
-      textClasses: function textClasses () {
-        var classes = [];
+      isFixedTextarea: function isFixedTextarea () {
+        return this.isTextarea && (this.maxHeight > 0 || this.rows > 1)
+      },
+      textClass: function textClass () {
         if (this.isTextarea) {
-          classes.push('q-if-text');
-          if (this.maxHeight || this.rows > 1) {
-            classes.push('q-if-textarea');
-          }
+          return 'q-if-text'
         }
-        return classes
       }
     },
     methods: {
@@ -10442,13 +14537,13 @@
         }
       },
       __updateArea: function __updateArea () {
-        var shadow = this.$refs.shadow;
-        if (shadow) {
+        var
+          shadow = this.$refs.shadow,
+          input = this.$refs.input;
+        if (shadow && input) {
           var h = shadow.scrollHeight;
-          var minHeight = between(h, 0, this.maxHeight || h);
-          var overflow = this.maxHeight && this.maxHeight < h ? 'scroll' : 'hidden';
-          this.$refs.input.style.minHeight = minHeight + "px";
-          this.$refs.input.style.overflowY = overflow;
+          input.style.minHeight = (between(h, shadow.offsetHeight, this.maxHeight || h)) + "px";
+          input.style.overflowY = this.maxHeight && this.maxHeight < h ? 'scroll' : 'hidden';
         }
       },
       __watcher: function __watcher (value) {
@@ -10484,7 +14579,331 @@
     beforeDestroy: function beforeDestroy () {
       this.__watcherUnregister(true);
     }
+  };
+
+  var __vue_script__$3 = script$3;
+              
+  /* template */
+  var __vue_render__$3 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "q-input-frame",
+      {
+        staticClass: "q-input",
+        class: _vm.textClass,
+        attrs: {
+          prefix: _vm.prefix,
+          suffix: _vm.suffix,
+          "stack-label": _vm.stackLabel,
+          "float-label": _vm.floatLabel,
+          placeholder: _vm.placeholder,
+          error: _vm.error,
+          warning: _vm.warning,
+          disable: _vm.disable,
+          inverted: _vm.inverted,
+          "inverted-light": _vm.invertedLight,
+          dark: _vm.dark,
+          dense: _vm.dense,
+          box: _vm.box,
+          "full-width": _vm.fullWidth,
+          outline: _vm.outline,
+          textarea: _vm.isFixedTextarea,
+          "hide-underline": _vm.hideUnderline,
+          before: _vm.before,
+          after: _vm.after,
+          color: _vm.color,
+          "no-parent-field": _vm.noParentField,
+          focused: _vm.focused,
+          length: _vm.autofilled + _vm.length
+        },
+        on: { click: _vm.__onClick, focus: _vm.__onFocus }
+      },
+      [
+        _vm._t("before"),
+        _vm._v(" "),
+        _vm.isTextarea
+          ? [
+              _c(
+                "div",
+                { staticClass: "col row relative-position q-input-area-holder" },
+                [
+                  _c("q-resize-observable", {
+                    on: {
+                      resize: function($event) {
+                        _vm.__updateArea();
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c(
+                    "textarea",
+                    _vm._b(
+                      {
+                        ref: "shadow",
+                        staticClass:
+                          "col q-input-target q-input-shadow absolute-top",
+                        attrs: { rows: _vm.rows },
+                        domProps: { value: _vm.model }
+                      },
+                      "textarea",
+                      _vm.$attrs,
+                      false
+                    )
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "textarea",
+                    _vm._b(
+                      {
+                        ref: "input",
+                        staticClass: "col q-input-target q-input-area",
+                        attrs: {
+                          rows: _vm.rows,
+                          placeholder: _vm.inputPlaceholder,
+                          disabled: _vm.disable,
+                          readonly: _vm.readonly
+                        },
+                        domProps: { value: _vm.model },
+                        on: {
+                          input: _vm.__set,
+                          focus: _vm.__onFocus,
+                          blur: _vm.__onInputBlur,
+                          keydown: _vm.__onKeydown,
+                          keyup: _vm.__onKeyup
+                        }
+                      },
+                      "textarea",
+                      _vm.$attrs,
+                      false
+                    )
+                  )
+                ],
+                1
+              )
+            ]
+          : _c(
+              "input",
+              _vm._b(
+                {
+                  ref: "input",
+                  staticClass: "col q-input-target q-no-input-spinner",
+                  class: _vm.inputClasses,
+                  attrs: {
+                    placeholder: _vm.inputPlaceholder,
+                    disabled: _vm.disable,
+                    readonly: _vm.readonly,
+                    step: _vm.computedStep,
+                    type: _vm.inputType
+                  },
+                  domProps: { value: _vm.model },
+                  on: {
+                    input: _vm.__set,
+                    focus: _vm.__onFocus,
+                    blur: _vm.__onInputBlur,
+                    keydown: _vm.__onKeydown,
+                    keyup: _vm.__onKeyup,
+                    animationstart: _vm.__onAnimationStart
+                  }
+                },
+                "input",
+                _vm.$attrs,
+                false
+              )
+            ),
+        _vm._v(" "),
+        !_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length
+          ? _c("q-icon", {
+              staticClass: "q-if-control",
+              attrs: {
+                slot: "after",
+                name: _vm.$q.icon.input[_vm.showPass ? "showPass" : "hidePass"]
+              },
+              nativeOn: {
+                mousedown: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                touchstart: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                click: function($event) {
+                  return _vm.togglePass($event)
+                }
+              },
+              slot: "after"
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.editable && _vm.keyboardToggle
+          ? _c("q-icon", {
+              staticClass: "q-if-control",
+              attrs: {
+                slot: "after",
+                name:
+                  _vm.$q.icon.input[_vm.showNumber ? "showNumber" : "hideNumber"]
+              },
+              nativeOn: {
+                mousedown: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                touchstart: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                click: function($event) {
+                  return _vm.toggleNumber($event)
+                }
+              },
+              slot: "after"
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.editable && _vm.clearable && _vm.length
+          ? _c("q-icon", {
+              staticClass: "q-if-control",
+              attrs: {
+                slot: "after",
+                name:
+                  _vm.$q.icon.input["clear" + (_vm.isInverted ? "Inverted" : "")]
+              },
+              nativeOn: {
+                mousedown: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                touchstart: function($event) {
+                  return _vm.__clearTimer($event)
+                },
+                click: function($event) {
+                  return _vm.clear($event)
+                }
+              },
+              slot: "after"
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.isLoading
+          ? _c("q-spinner", {
+              staticClass: "q-if-control",
+              attrs: { slot: "after", size: "24px" },
+              slot: "after"
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _vm._t("after"),
+        _vm._v(" "),
+        _vm._t("default")
+      ],
+      2
+    )
+  };
+  var __vue_staticRenderFns__$3 = [];
+  __vue_render__$3._withStripped = true;
+
+  var __vue_template__$3 = typeof __vue_render__$3 !== 'undefined'
+    ? { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 }
+    : {};
+  /* style */
+  var __vue_inject_styles__$3 = undefined;
+  /* scoped */
+  var __vue_scope_id__$3 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$3 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$3 = false;
+  /* component normalizer */
+  function __vue_normalize__$3(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script === 'function' ? script.options : script) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input\\QInput.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
   }
+  /* style inject */
+  function __vue_create_injector__$3() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__$3.styles || (__vue_create_injector__$3.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
+    }
+  }
+  /* style inject SSR */
+
+
+  var QInput = __vue_normalize__$3(
+    __vue_template__$3,
+    __vue_inject_styles__$3,
+    typeof __vue_script__$3 === 'undefined' ? {} : __vue_script__$3,
+    __vue_scope_id__$3,
+    __vue_is_functional_template__$3,
+    __vue_module_identifier__$3,
+    typeof __vue_create_injector__$3 !== 'undefined' ? __vue_create_injector__$3 : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
 
   var QRadio = {
     name: 'QRadio',
@@ -10534,7 +14953,7 @@
     beforeCreate: function beforeCreate () {
       this.__kebabTag = 'q-radio';
     }
-  }
+  };
 
   var QToggle = {
     name: 'QToggle',
@@ -10583,7 +15002,7 @@
     beforeCreate: function beforeCreate () {
       this.__kebabTag = 'q-toggle';
     }
-  }
+  };
 
   var QOptionGroup = {
     name: 'QOptionGroup',
@@ -10695,7 +15114,7 @@
         )
       )
     }
-  }
+  };
 
   var QDialog = {
     name: 'QDialog',
@@ -10794,17 +15213,22 @@
               return
             }
 
-            var node = this$1.prompt
-              ? this$1.$refs.modal.$el.getElementsByTagName('INPUT')
-              : this$1.$refs.modal.$el.getElementsByClassName('q-option');
+            var node;
 
-            if (node.length) {
-              node[0].focus();
-              return
+            if (this$1.prompt || this$1.options) {
+              node = this$1.prompt
+                ? this$1.$refs.modal.$el.getElementsByTagName('INPUT')
+                : this$1.$refs.modal.$el.getElementsByClassName('q-option');
+
+              if (node.length) {
+                node[0].focus();
+                return
+              }
             }
 
             node = this$1.$refs.modal.$el.getElementsByClassName('q-btn');
             if (node.length) {
+              console.log('found btn');
               node[node.length - 1].focus();
             }
           },
@@ -10954,7 +15378,7 @@
         }
       }
     }
-  }
+  };
 
   var QTooltip = {
     name: 'QTooltip',
@@ -11045,9 +15469,7 @@
       if (!this.canRender) { return }
 
       return h('div', { staticClass: 'q-tooltip animate-popup' }, [
-        h('div', [
-          this.$slots.default
-        ])
+        h('div', this.$slots.default)
       ])
     },
     beforeMount: function beforeMount () {
@@ -11103,7 +15525,7 @@
         this.anchorEl.removeEventListener('blur', this.__delayHide);
       }
     }
-  }
+  };
 
   function run (e, btn, vm) {
     if (btn.handler) {
@@ -11325,7 +15747,7 @@
         h('div', { staticClass: 'q-mx-xs', 'class': ("text-" + color) }, [((vm.$q.i18n.editor.url) + ": ")]),
         h(QInput, {
           key: 'qedt_btm_input',
-          staticClass: 'q-ma-none q-py-xs col q-editor-input',
+          staticClass: 'q-ma-none col q-editor-input',
           props: {
             value: link,
             color: color,
@@ -11942,7 +16364,7 @@
       var toolbars;
       if (this.hasToolbar) {
         var toolbarConfig = {
-          staticClass: "q-editor-toolbar row no-wrap scroll",
+          staticClass: "q-editor-toolbar row no-wrap scroll-x",
           'class': [
             { 'q-editor-toolbar-separator': !this.toolbarOutline && !this.toolbarPush },
             this.toolbarBackgroundClass
@@ -11999,7 +16421,7 @@
         ]
       )
     }
-  }
+  };
 
   var FabMixin = {
     props: {
@@ -12010,7 +16432,7 @@
       textColor: String,
       glossy: Boolean
     }
-  }
+  };
 
   var QFab = {
     name: 'QFab',
@@ -12079,10 +16501,10 @@
         h('div', {
           staticClass: 'q-fab-actions flex no-wrap inline items-center',
           'class': ("q-fab-" + (this.direction))
-        }, this.showing ? [ this.$slots.default ] : null)
+        }, this.showing ? this.$slots.default : null)
       ])
     }
-  }
+  };
 
   var QFabAction = {
     name: 'QFabAction',
@@ -12124,14 +16546,13 @@
         on: {
           click: this.click
         }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QField = {
     name: 'QField',
+    mixins: [ CanRenderMixin ],
     props: {
       inset: {
         type: String,
@@ -12185,7 +16606,7 @@
         return ['icon', 'full'].includes(this.inset)
       },
       hasNoInput: function hasNoInput () {
-        return !this.input.$options || this.input.__needsBorder
+        return this.canRender && (!this.input.$options || this.input.__needsBorder)
       },
       counter: function counter () {
         if (this.count) {
@@ -12318,7 +16739,7 @@
         ])
       ])
     }
-  }
+  };
 
   var QInfiniteScroll = {
     name: 'QInfiniteScroll',
@@ -12381,7 +16802,7 @@
       resume: function resume () {
         this.working = true;
         this.scrollContainer.addEventListener('scroll', this.poll, listenOpts.passive);
-        this.poll();
+        this.immediatePoll();
       },
       stop: function stop () {
         this.working = false;
@@ -12400,6 +16821,7 @@
         }
 
         this$1.poll();
+        this$1.immediatePoll = this$1.poll;
         this$1.poll = debounce(this$1.poll, 50);
       });
     },
@@ -12411,19 +16833,14 @@
         h('div', {
           ref: 'content',
           staticClass: 'q-infinite-scroll-content'
-        }, [ this.$slots.default ]),
-        h('div', {
-          staticClass: 'q-infinite-scroll-message',
-          directives: [{
-            name: 'show',
-            value: this.fetching
-          }]
-        }, [
-          this.$slots.message
-        ])
+        }, this.$slots.default),
+
+        this.fetching
+          ? h('div', { staticClass: 'q-infinite-scroll-message' }, this.$slots.message)
+          : null
       ])
     }
-  }
+  };
 
   var QInnerLoading = {
     name: 'QInnerLoading',
@@ -12441,20 +16858,66 @@
         return
       }
 
-      return h('div', {
-        staticClass: 'q-inner-loading animate-fade absolute-full column flex-center',
-        'class': { dark: this.dark }
-      }, [
-        this.$slots.default ||
-        h(QSpinner, {
-          props: {
-            size: this.size,
-            color: this.color
-          }
-        })
-      ])
+      return h(
+        'div',
+        {
+          staticClass: 'q-inner-loading animate-fade absolute-full column flex-center',
+          'class': { dark: this.dark }
+        },
+        this.$slots.default || [
+          h(QSpinner, {
+            props: {
+              size: this.size,
+              color: this.color
+            }
+          })
+        ]
+      )
     }
-  }
+  };
+
+  var QJumbotron = {
+    name: 'QJumbotron',
+    props: {
+      dark: Boolean,
+      tag: {
+        type: String,
+        default: 'div'
+      },
+      imgSrc: String,
+      gradient: String
+    },
+    computed: {
+      gradientType: function gradientType () {
+        if (this.gradient) {
+          return this.gradient.indexOf('circle') > -1
+            ? 'radial'
+            : 'linear'
+        }
+      },
+      computedStyle: function computedStyle () {
+        if (this.imgSrc) {
+          return {
+            'background-image': ("url(" + (this.imgSrc) + ")")
+          }
+        }
+        if (this.gradientType) {
+          return {
+            background: ((this.gradientType) + "-gradient(" + (this.gradient) + ")")
+          }
+        }
+      }
+    },
+    render: function render (h) {
+      return h(this.tag, {
+        staticClass: 'q-jumbotron',
+        style: this.computedStyle,
+        'class': {
+          'q-jumbotron-dark': this.dark
+        }
+      }, this.$slots.default)
+    }
+  };
 
   var QKnob = {
     name: 'QKnob',
@@ -12607,6 +17070,7 @@
         if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
           return
         }
+        stopAndPrevent(ev);
         var step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep;
         var offset$$1 = [37, 40].includes(keyCode) ? -step : step;
         this.__onInputValue(between(this.model + offset$$1, this.min, this.max));
@@ -12742,24 +17206,26 @@
             })
           ]),
 
-          h('div', {
-            staticClass: 'q-knob-label row flex-center content-center',
-            attrs: {
-              tabindex: this.editable ? 0 : -1
+          h(
+            'div',
+            {
+              staticClass: 'q-knob-label row flex-center content-center',
+              attrs: {
+                tabindex: this.editable ? 0 : -1
+              },
+              on: {
+                keydown: this.__onKeyDown,
+                keyup: this.__onKeyUp
+              }
             },
-            on: {
-              keydown: this.__onKeyDown,
-              keyup: this.__onKeyUp
-            }
-          }, [
-            this.$slots.default
-              ? this.$slots.default
-              : h('span', [ this.model ])
-          ])
+            this.$slots.default || [
+              h('span', [ this.model ])
+            ]
+          )
         ])
       ])
     }
-  }
+  };
 
   var QLayout = {
     name: 'QLayout',
@@ -12777,8 +17243,8 @@
     },
     data: function data () {
       return {
-        height: window.innerHeight,
-        width: window.innerWidth,
+        height: onSSR ? 0 : window.innerHeight,
+        width: onSSR ? 0 : window.innerWidth,
 
         header: {
           size: 0,
@@ -12876,7 +17342,7 @@
         this.$emit('resize', { height: height, width: width });
       }
     }
-  }
+  };
 
   var
     bodyClass = 'q-body-drawer-toggle',
@@ -12891,7 +17357,7 @@
         }
       }
     },
-    mixins: [ModelToggleMixin, PreventScroll],
+    mixins: [ ModelToggleMixin, PreventScroll ],
     directives: {
       TouchPan: TouchPan
     },
@@ -12958,10 +17424,10 @@
             this.largeScreenState = this.showing;
           }
           // ensure we close it for small screen
-          this.hide();
+          this.hide(false);
         }
         else if (!this.overlay) { // from xs to lg
-          this[this.largeScreenState ? 'show' : 'hide']();
+          this[this.largeScreenState ? 'show' : 'hide'](false);
         }
       },
       behavior: function behavior (val) {
@@ -12987,7 +17453,6 @@
       },
       onLayout: function onLayout (val) {
         this.__update('space', val);
-        this.layout.__animate();
       },
       $route: function $route () {
         if (this.noHideOnRouteChange) {
@@ -13222,10 +17687,11 @@
           this.$refs.content.classList.add('no-transition');
         }
       },
-      __show: function __show () {
+      __show: function __show (animate) {
         var this$1 = this;
+        if ( animate === void 0 ) animate = true;
 
-        this.layout.__animate();
+        animate && this.layout.__animate();
         this.applyPosition(0);
 
         var otherSide = this.layout.instances[this.rightSide ? 'left' : 'right'];
@@ -13252,10 +17718,11 @@
           }
         }, duration);
       },
-      __hide: function __hide () {
+      __hide: function __hide (animate) {
         var this$1 = this;
+        if ( animate === void 0 ) animate = true;
 
-        this.layout.__animate();
+        animate && this.layout.__animate();
 
         if (this.mobileOpened) {
           this.__preventScroll(false);
@@ -13344,17 +17811,18 @@
             modifiers: { horizontal: true },
             value: this.__closeByTouch
           }] : null
-        }, [
-          this.isMini && this.$slots.mini
-            ? this.$slots.mini
-            : this.$slots.default
-        ])
+        },
+        this.isMini && this.$slots.mini
+          ? [ this.$slots.mini ]
+          : this.$slots.default
+        )
       ]))
     }
-  }
+  };
 
   var QLayoutFooter = {
     name: 'QLayoutFooter',
+    mixins: [ CanRenderMixin ],
     inject: {
       layout: {
         default: function default$1 () {
@@ -13408,7 +17876,7 @@
         return this.reveal || this.layout.view.indexOf('F') > -1
       },
       offset: function offset () {
-        if (!this.value) {
+        if (!this.canRender || !this.value) {
           return 0
         }
         if (this.fixed) {
@@ -13422,7 +17890,7 @@
           'fixed-bottom': this.fixed,
           'absolute-bottom': !this.fixed,
           'hidden': !this.value && !this.fixed,
-          'q-layout-footer-hidden': !this.value || (this.fixed && !this.revealed)
+          'q-layout-footer-hidden': !this.canRender || !this.value || (this.fixed && !this.revealed)
         }
       },
       computedStyle: function computedStyle () {
@@ -13434,7 +17902,7 @@
           css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.left.size) + "px";
         }
         if (view[2] === 'r' && this.layout.right.space) {
-          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.right.size) + "px";
+          css[this.$q.i18n.rtl ? 'left' : 'right'] = (this.layout.right.size) + "px";
         }
 
         return css
@@ -13499,10 +17967,11 @@
         );
       }
     }
-  }
+  };
 
   var QLayoutHeader = {
     name: 'QLayoutHeader',
+    mixins: [ CanRenderMixin ],
     inject: {
       layout: {
         default: function default$1 () {
@@ -13561,7 +18030,7 @@
         return this.reveal || this.layout.view.indexOf('H') > -1
       },
       offset: function offset () {
-        if (!this.value) {
+        if (!this.canRender || !this.value) {
           return 0
         }
         if (this.fixed) {
@@ -13574,7 +18043,7 @@
         return {
           'fixed-top': this.fixed,
           'absolute-top': !this.fixed,
-          'q-layout-header-hidden': !this.value || (this.fixed && !this.revealed)
+          'q-layout-header-hidden': !this.canRender || !this.value || (this.fixed && !this.revealed)
         }
       },
       computedStyle: function computedStyle () {
@@ -13586,7 +18055,7 @@
           css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.left.size) + "px";
         }
         if (view[2] === 'r' && this.layout.right.space) {
-          css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.layout.right.size) + "px";
+          css[this.$q.i18n.rtl ? 'left' : 'right'] = (this.layout.right.size) + "px";
         }
 
         return css
@@ -13636,7 +18105,7 @@
         }
       }
     }
-  }
+  };
 
   var QPage = {
     name: 'QPage',
@@ -13649,7 +18118,8 @@
       layout: {}
     },
     props: {
-      padding: Boolean
+      padding: Boolean,
+      styleFn: Function
     },
     computed: {
       computedStyle: function computedStyle () {
@@ -13657,9 +18127,9 @@
           (this.layout.header.space ? this.layout.header.size : 0) +
           (this.layout.footer.space ? this.layout.footer.size : 0);
 
-        return {
-          minHeight: offset ? ("calc(100vh - " + offset + "px)") : '100vh'
-        }
+        return typeof this.styleFn === 'function'
+          ? this.styleFn(offset)
+          : { minHeight: offset ? ("calc(100vh - " + offset + "px)") : '100vh' }
       },
       computedClass: function computedClass () {
         if (this.padding) {
@@ -13672,11 +18142,9 @@
         staticClass: 'q-layout-page',
         style: this.computedStyle,
         'class': this.computedClass
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QPageContainer = {
     name: 'QPageContainer',
@@ -13714,11 +18182,9 @@
       return h('div', {
         staticClass: 'q-layout-page-container q-layout-transition',
         style: this.computedStyle
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QPageSticky = {
     name: 'QPageSticky',
@@ -13826,15 +18292,46 @@
         staticClass: 'q-page-sticky q-layout-transition z-fixed row flex-center',
         'class': this.classes,
         style: this.computedStyle
-      }, [
-        this.expand
-          ? this.$slots.default
-          : h('span', [
-            this.$slots.default
-          ])
-      ])
+      },
+      this.expand
+        ? this.$slots.default
+        : [ h('span', this.$slots.default) ]
+      )
     }
-  }
+  };
+
+  var QNoSsr = {
+    name: 'QNoSsr',
+    mixins: [ CanRenderMixin ],
+    props: {
+      tag: {
+        type: String,
+        default: 'div'
+      },
+      placeholder: String
+    },
+    render: function render (h) {
+      if (this.canRender) {
+        var slot = this.$slots.default;
+        return slot && slot.length > 1
+          ? h(this.tag, slot)
+          : (slot ? slot[0] : null)
+      }
+
+      if (this.$slots.placeholder) {
+        var slot$1 = this.$slots.placeholder;
+        return slot$1 && slot$1.length > 1
+          ? h(this.tag, { staticClass: 'q-no-ssr-placeholder' }, slot$1)
+          : (slot$1 ? slot$1[0] : null)
+      }
+
+      if (this.placeholder) {
+        return h(this.tag, { staticClass: 'q-no-ssr-placeholder' }, [
+          this.placeholder
+        ])
+      }
+    }
+  };
 
   var QPagination = {
     name: 'QPagination',
@@ -14027,7 +18524,7 @@
 
       if (this.input) {
         contentMiddle.push(h(QInput, {
-          staticClass: 'inline q-pt-none q-pb-xs',
+          staticClass: 'inline q-my-none',
           style: {
             width: ((this.inputPlaceholder.length) + "rem")
           },
@@ -14180,7 +18677,7 @@
         contentEnd
       ])
     }
-  }
+  };
 
   var QParallax = {
     name: 'QParallax',
@@ -14270,7 +18767,7 @@
         }, [
           h('img', {
             ref: 'img',
-            domProps: {
+            attrs: {
               src: this.src
             },
             'class': { ready: this.imageHasBeenLoaded },
@@ -14280,13 +18777,13 @@
           })
         ]),
 
-        h('div', {
-          staticClass: 'q-parallax-text absolute-full column flex-center'
-        }, [
+        h(
+          'div',
+          { staticClass: 'q-parallax-text absolute-full column flex-center' },
           this.imageHasBeenLoaded
             ? this.$slots.default
-            : this.$slots.loading
-        ])
+            : [ this.$slots.loading ]
+        )
       ])
     },
     beforeMount: function beforeMount () {
@@ -14311,7 +18808,7 @@
       window.removeEventListener('resize', this.resizeHandler, listenOpts.passive);
       this.scrollTarget.removeEventListener('scroll', this.__updatePos, listenOpts.passive);
     }
-  }
+  };
 
   function width$1 (val) {
     return { width: (val + "%") }
@@ -14392,7 +18889,7 @@
         })
       ])
     }
-  }
+  };
 
   var height$1 = -65;
 
@@ -14448,7 +18945,9 @@
         }
       },
       style: function style$$1 () {
-        return [cssTransform(("translateY(" + (this.pullPosition) + "px)")), { marginBottom: (height$1 + "px") }]
+        var css$$1 = cssTransform(("translateY(" + (this.pullPosition) + "px)"));
+        css$$1.marginBottom = height$1 + "px";
+        return css$$1
       },
       messageClass: function messageClass () {
         return ("text-" + (this.color))
@@ -14503,12 +19002,12 @@
         this.pullPosition -= (this.pullPosition - target) / 7;
 
         if (this.pullPosition - target > 1) {
-          this.animating = window.requestAnimationFrame(function () {
+          this.animating = requestAnimationFrame(function () {
             this$1.__animateTo(target, done, true);
           });
         }
         else {
-          this.animating = window.requestAnimationFrame(function () {
+          this.animating = requestAnimationFrame(function () {
             this$1.pullPosition = target;
             this$1.animating = false;
             done && done();
@@ -14577,7 +19076,7 @@
         ])
       ])
     }
-  }
+  };
 
   var dragType = {
     MIN: 0,
@@ -14820,6 +19319,7 @@
         if (!this.editable || ![37, 40, 39, 38].includes(keyCode)) {
           return
         }
+        stopAndPrevent(ev);
         var
           decimals = this.computedDecimals,
           step = ev.ctrlKey ? 10 * this.computedStep : this.computedStep,
@@ -14910,7 +19410,7 @@
         ]
       }
     }
-  }
+  };
 
   var QRating = {
     name: 'QRating',
@@ -14982,23 +19482,11 @@
         tabindex = this.editable ? 0 : -1;
 
       var loop = function ( i ) {
-        child.push(h(QIcon, {
+        child.push(h('span', {
           key: i,
           ref: ("rt" + i),
-          props: { name: this$1.icon || this$1.$q.icon.rating.icon },
-          'class': {
-            active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
-            exselected: this$1.mouseModel && this$1.model >= i && this$1.mouseModel < i,
-            hovered: this$1.mouseModel === i
-          },
           attrs: { tabindex: tabindex },
-          nativeOn: {
-            click: function (e) {
-              e.target.blur();
-              this$1.set(i);
-            },
-            mouseover: function () { return this$1.__setHoverValue(i); },
-            mouseout: function () { this$1.mouseModel = 0; },
+          on: {
             keydown: function (e) {
               switch (getEventKey(e)) {
                 case 13:
@@ -15008,21 +19496,34 @@
                 case 37: // LEFT ARROW
                 case 40: // DOWN ARROW
                   if (this$1.$refs[("rt" + (i - 1))]) {
-                    this$1.$refs[("rt" + (i - 1))].$el.focus();
+                    this$1.$refs[("rt" + (i - 1))].focus();
                   }
                   return stopAndPrevent(e)
                 case 39: // RIGHT ARROW
                 case 38: // UP ARROW
                   if (this$1.$refs[("rt" + (i + 1))]) {
-                    this$1.$refs[("rt" + (i + 1))].$el.focus();
+                    this$1.$refs[("rt" + (i + 1))].focus();
                   }
                   return stopAndPrevent(e)
               }
-            },
+            }
+          }
+        }, [h(QIcon, {
+          props: { name: this$1.icon || this$1.$q.icon.rating.icon },
+          'class': {
+            active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
+            exselected: this$1.mouseModel && this$1.model >= i && this$1.mouseModel < i,
+            hovered: this$1.mouseModel === i
+          },
+          attrs: { tabindex: -1 },
+          nativeOn: {
+            click: function () { return this$1.set(i); },
+            mouseover: function () { return this$1.__setHoverValue(i); },
+            mouseout: function () { this$1.mouseModel = 0; },
             focus: function () { return this$1.__setHoverValue(i); },
             blur: function () { this$1.mouseModel = 0; }
           }
-        }));
+        })]));
       };
 
       for (var i = 1; i <= this.max; i++) loop( i );
@@ -15033,7 +19534,7 @@
         style: this.size ? ("font-size: " + (this.size)) : ''
       }, child)
     }
-  }
+  };
 
   var QScrollArea = {
     name: 'QScrollArea',
@@ -15200,9 +19701,7 @@
           h('div', {
             ref: 'target',
             staticClass: 'scroll relative-position fit'
-          }, [
-            this.$slots.default
-          ])
+          }, this.$slots.default)
         ])
       }
 
@@ -15262,7 +19761,7 @@
         })
       ])
     }
-  }
+  };
 
   var QSearch = {
     name: 'QSearch',
@@ -15275,7 +19774,9 @@
         default: 300
       },
       icon: String,
-      noIcon: Boolean
+      noIcon: Boolean,
+      upperCase: Boolean,
+      lowerCase: Boolean
     },
     data: function data () {
       return {
@@ -15286,13 +19787,15 @@
     provide: function provide () {
       var this$1 = this;
 
+      var set = function (val) {
+        if (this$1.model !== val) {
+          this$1.model = val;
+        }
+      };
       return {
         __inputDebounce: {
-          set: function (val) {
-            if (this$1.model !== val) {
-              this$1.model = val;
-            }
-          },
+          set: set,
+          setNav: set,
           setChildDebounce: function (v) {
             this$1.childDebounce = v;
           }
@@ -15379,11 +19882,15 @@
           dense: this.dense,
           box: this.box,
           fullWidth: this.fullWidth,
+          outline: this.outline,
           hideUnderline: this.hideUnderline,
           color: this.color,
+          rows: this.rows,
           before: this.controlBefore,
           after: this.controlAfter,
-          clearValue: this.clearValue
+          clearValue: this.clearValue,
+          upperCase: this.upperCase,
+          lowerCase: this.lowerCase
         },
         attrs: this.$attrs,
         on: {
@@ -15398,17 +19905,17 @@
             this$1.__emit();
           }
         }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
+
+  //
 
   function defaultFilterFn (terms, obj) {
     return obj.label.toLowerCase().indexOf(terms) > -1
   }
 
-  var QSelect = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row items-center group q-input-chips",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('q-chip',{key:opt.label,attrs:{"small":"","dense":_vm.dense,"closable":!_vm.disable && !_vm.readonly && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"icon-right":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v(" "+_vm._s(opt.label)+" ")])})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v(" "+_vm._s(_vm.fakeInputValue)+" ")]),_vm._v(" "),(!_vm.disable && !_vm.readonly && _vm.clearable && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){$event.stopPropagation();return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":_vm.readonly || _vm.disable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:JSON.stringify(opt),class:[ opt.disable ? 'text-faded' : 'cursor-pointer', index === _vm.keyboardIndex ? 'q-select-highlight' : '' ],attrs:{"cfg":opt,"link":!opt.disable,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)},staticRenderFns: [],
+  var script$4 = {
     name: 'QSelect',
     mixins: [FrameMixin, KeyboardSelectionMixin],
     components: {
@@ -15458,24 +19965,6 @@
         this.model = this.multiple && Array.isArray(val)
           ? val.slice()
           : val;
-      },
-      keyboardIndex: function keyboardIndex (val) {
-        var this$1 = this;
-
-        if (this.$refs.popover.showing && this.keyboardMoveDirection && val > -1) {
-          this.$nextTick(function () {
-            if (!this$1.$refs.popover) {
-              return
-            }
-            var selected = this$1.$refs.popover.$el.querySelector('.q-select-highlight');
-            if (selected && selected.scrollIntoView) {
-              if (selected.scrollIntoViewIfNeeded) {
-                return selected.scrollIntoViewIfNeeded(false)
-              }
-              selected.scrollIntoView(this$1.keyboardMoveDirection < 0);
-            }
-          });
-        }
       },
       visibleOptions: function visibleOptions () {
         this.__keyboardCalcIndex();
@@ -15546,10 +20035,7 @@
     },
     methods: {
       togglePopup: function togglePopup () {
-        if (!this.$refs.popover) {
-          return
-        }
-        this[this.$refs.popover.showing ? 'hide' : 'show']();
+        this.$refs.popover && this[this.$refs.popover.showing ? 'hide' : 'show']();
       },
       show: function show () {
         this.__keyboardCalcIndex();
@@ -15655,6 +20141,9 @@
           }
         });
         this.terms = '';
+        if (!this.focused) {
+          return
+        }
         if (keepFocus) {
           this.$refs.input && this.$refs.input.$el && this.$refs.input.$el.focus();
           return
@@ -15700,7 +20189,7 @@
         this.model = val || (this.multiple ? [] : null);
         this.$emit('input', this.model);
         if (forceUpdate || !this.$refs.popover || !this.$refs.popover.showing) {
-          this.__onClose();
+          this.__onClose(forceUpdate);
         }
       },
       __getChipTextColor: function __getChipTextColor (optColor) {
@@ -15732,7 +20221,423 @@
           : optColor || this.color
       }
     }
+  };
+
+  var __vue_script__$4 = script$4;
+              
+  /* template */
+  var __vue_render__$4 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "q-input-frame",
+      {
+        ref: "input",
+        staticClass: "q-select",
+        attrs: {
+          prefix: _vm.prefix,
+          suffix: _vm.suffix,
+          "stack-label": _vm.stackLabel,
+          "float-label": _vm.floatLabel,
+          error: _vm.error,
+          warning: _vm.warning,
+          disable: _vm.disable,
+          inverted: _vm.inverted,
+          "inverted-light": _vm.invertedLight,
+          dark: _vm.dark,
+          dense: _vm.dense,
+          box: _vm.box,
+          "full-width": _vm.fullWidth,
+          outline: _vm.outline,
+          "hide-underline": _vm.hideUnderline,
+          before: _vm.before,
+          after: _vm.after,
+          color: _vm.color,
+          "no-parent-field": _vm.noParentField,
+          focused: _vm.focused,
+          focusable: "",
+          length: _vm.length,
+          "additional-length": _vm.additionalLength
+        },
+        nativeOn: {
+          click: function($event) {
+            return _vm.togglePopup($event)
+          },
+          focus: function($event) {
+            return _vm.__onFocus($event)
+          },
+          blur: function($event) {
+            return _vm.__onBlur($event)
+          },
+          keydown: function($event) {
+            return _vm.__keyboardHandleKey($event)
+          }
+        }
+      },
+      [
+        _vm.hasChips && _vm.selectedOptions.length
+          ? _c(
+              "div",
+              {
+                staticClass: "col row q-input-chips items-center",
+                class: _vm.alignClass
+              },
+              _vm._l(_vm.selectedOptions, function(opt) {
+                return _c(
+                  "div",
+                  { key: opt.label },
+                  [
+                    _c(
+                      "q-chip",
+                      {
+                        attrs: {
+                          small: "",
+                          dense: _vm.dense,
+                          closable: !_vm.disable && !_vm.readonly && !opt.disable,
+                          color: _vm.__getChipBgColor(opt.color),
+                          "text-color": _vm.__getChipTextColor(opt.color),
+                          icon: opt.icon,
+                          "icon-right": opt.rightIcon,
+                          avatar: opt.avatar
+                        },
+                        on: {
+                          hide: function($event) {
+                            _vm.__toggleMultiple(
+                              opt.value,
+                              _vm.disable || opt.disable
+                            );
+                          }
+                        },
+                        nativeOn: {
+                          click: function($event) {
+                            $event.stopPropagation();
+                          }
+                        }
+                      },
+                      [_vm._v("\n        " + _vm._s(opt.label) + "\n      ")]
+                    )
+                  ],
+                  1
+                )
+              })
+            )
+          : _c(
+              "div",
+              {
+                staticClass: "col q-input-target ellipsis",
+                class: _vm.fakeInputClasses
+              },
+              [_vm._v("\n    " + _vm._s(_vm.fakeInputValue) + "\n  ")]
+            ),
+        _vm._v(" "),
+        !_vm.disable && !_vm.readonly && _vm.clearable && _vm.length
+          ? _c("q-icon", {
+              staticClass: "q-if-control",
+              attrs: {
+                slot: "after",
+                name:
+                  _vm.$q.icon.input["clear" + (_vm.isInverted ? "Inverted" : "")]
+              },
+              nativeOn: {
+                click: function($event) {
+                  return _vm.clear($event)
+                }
+              },
+              slot: "after"
+            })
+          : _vm._e(),
+        _vm._v(" "),
+        _c("q-icon", {
+          staticClass: "q-if-control",
+          attrs: { slot: "after", name: _vm.$q.icon.input.dropdown },
+          slot: "after"
+        }),
+        _vm._v(" "),
+        _c(
+          "q-popover",
+          {
+            ref: "popover",
+            staticClass: "column no-wrap",
+            class: _vm.dark ? "bg-dark" : null,
+            attrs: {
+              fit: "",
+              disable: _vm.readonly || _vm.disable,
+              "anchor-click": false
+            },
+            on: {
+              show: _vm.__onShow,
+              hide: function($event) {
+                _vm.__onClose(true);
+              }
+            },
+            nativeOn: {
+              keydown: function($event) {
+                return _vm.__keyboardHandleKey($event)
+              }
+            }
+          },
+          [
+            _vm.filter
+              ? _c("q-search", {
+                  ref: "filter",
+                  staticClass: "col-auto",
+                  staticStyle: { padding: "10px" },
+                  attrs: {
+                    placeholder:
+                      _vm.filterPlaceholder || _vm.$q.i18n.label.filter,
+                    debounce: 100,
+                    color: _vm.color,
+                    dark: _vm.dark,
+                    "no-parent-field": "",
+                    "no-icon": ""
+                  },
+                  on: { input: _vm.reposition },
+                  model: {
+                    value: _vm.terms,
+                    callback: function($$v) {
+                      _vm.terms = $$v;
+                    },
+                    expression: "terms"
+                  }
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.visibleOptions.length
+              ? _c(
+                  "q-list",
+                  {
+                    staticClass: "no-border scroll",
+                    attrs: { separator: _vm.separator, dark: _vm.dark }
+                  },
+                  [
+                    _vm.multiple
+                      ? _vm._l(_vm.visibleOptions, function(opt, index) {
+                          return _c(
+                            "q-item-wrapper",
+                            {
+                              key: index,
+                              class: [
+                                opt.disable ? "text-faded" : "cursor-pointer",
+                                index === _vm.keyboardIndex
+                                  ? "q-select-highlight"
+                                  : "",
+                                opt.disable ? "" : "cursor-pointer"
+                              ],
+                              attrs: { cfg: opt, "slot-replace": "" },
+                              nativeOn: {
+                                "!click": function($event) {
+                                  _vm.__toggleMultiple(opt.value, opt.disable);
+                                },
+                                mouseenter: function($event) {
+                                  return (function(e) {
+                                    return (
+                                      !opt.disable &&
+                                      _vm.__mouseEnterHandler(e, index)
+                                    )
+                                  })($event)
+                                }
+                              }
+                            },
+                            [
+                              _vm.toggle
+                                ? _c("q-toggle", {
+                                    attrs: {
+                                      slot: "right",
+                                      "keep-color": "",
+                                      color: opt.color || _vm.color,
+                                      dark: _vm.dark,
+                                      value: _vm.optModel[opt.index],
+                                      disable: opt.disable,
+                                      "no-focus": ""
+                                    },
+                                    slot: "right"
+                                  })
+                                : _c("q-checkbox", {
+                                    attrs: {
+                                      slot: "left",
+                                      "keep-color": "",
+                                      color: opt.color || _vm.color,
+                                      dark: _vm.dark,
+                                      value: _vm.optModel[opt.index],
+                                      disable: opt.disable,
+                                      "no-focus": ""
+                                    },
+                                    slot: "left"
+                                  })
+                            ],
+                            1
+                          )
+                        })
+                      : _vm._l(_vm.visibleOptions, function(opt, index) {
+                          return _c(
+                            "q-item-wrapper",
+                            {
+                              key: index,
+                              class: [
+                                opt.disable ? "text-faded" : "cursor-pointer",
+                                index === _vm.keyboardIndex
+                                  ? "q-select-highlight"
+                                  : "",
+                                opt.disable ? "" : "cursor-pointer"
+                              ],
+                              attrs: {
+                                cfg: opt,
+                                "slot-replace": "",
+                                active: _vm.value === opt.value
+                              },
+                              nativeOn: {
+                                "!click": function($event) {
+                                  _vm.__singleSelect(opt.value, opt.disable);
+                                },
+                                mouseenter: function($event) {
+                                  return (function(e) {
+                                    return (
+                                      !opt.disable &&
+                                      _vm.__mouseEnterHandler(e, index)
+                                    )
+                                  })($event)
+                                }
+                              }
+                            },
+                            [
+                              _vm.radio
+                                ? _c("q-radio", {
+                                    attrs: {
+                                      slot: "left",
+                                      "keep-color": "",
+                                      color: opt.color || _vm.color,
+                                      value: _vm.value,
+                                      val: opt.value,
+                                      disable: opt.disable,
+                                      "no-focus": ""
+                                    },
+                                    slot: "left"
+                                  })
+                                : _vm._e()
+                            ],
+                            1
+                          )
+                        })
+                  ],
+                  2
+                )
+              : _vm._e()
+          ],
+          1
+        )
+      ],
+      1
+    )
+  };
+  var __vue_staticRenderFns__$4 = [];
+  __vue_render__$4._withStripped = true;
+
+  var __vue_template__$4 = typeof __vue_render__$4 !== 'undefined'
+    ? { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 }
+    : {};
+  /* style */
+  var __vue_inject_styles__$4 = undefined;
+  /* scoped */
+  var __vue_scope_id__$4 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$4 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$4 = false;
+  /* component normalizer */
+  function __vue_normalize__$4(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script === 'function' ? script.options : script) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\select\\QSelect.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
   }
+  /* style inject */
+  function __vue_create_injector__$4() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__$4.styles || (__vue_create_injector__$4.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
+    }
+  }
+  /* style inject SSR */
+
+
+  var QSelect = __vue_normalize__$4(
+    __vue_template__$4,
+    __vue_inject_styles__$4,
+    typeof __vue_script__$4 === 'undefined' ? {} : __vue_script__$4,
+    __vue_scope_id__$4,
+    __vue_is_functional_template__$4,
+    __vue_module_identifier__$4,
+    typeof __vue_create_injector__$4 !== 'undefined' ? __vue_create_injector__$4 : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
 
   var StepTab = {
     name: 'QStepTab',
@@ -15801,7 +20706,7 @@
           : null
       ])
     }
-  }
+  };
 
   var QStep = {
     name: 'QStep',
@@ -15911,15 +20816,15 @@
             ? h('div', {
               staticClass: 'q-stepper-step-content'
             }, [
-              h('div', { staticClass: 'q-stepper-step-inner' }, [
-                this.$slots.default
-              ])
+              h('div', {
+                staticClass: 'q-stepper-step-inner'
+              }, this.$slots.default)
             ])
             : null
         ])
       ])
     }
-  }
+  };
 
   var QStepper = {
     name: 'QStepper',
@@ -16087,7 +20992,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   var QStepperNavigation = {
     name: 'QStepperNavigation',
@@ -16100,7 +21005,7 @@
         this.$slots.default
       ])
     }
-  }
+  };
 
   var TabMixin = {
     directives: {
@@ -16150,7 +21055,9 @@
           active: this.active,
           hidden: this.hidden,
           disabled: this.disable,
+          'q-tab-full': this.icon && this.label,
           'q-tab-only-label': !this.icon && this.label,
+          'hide-none': !this.hide,
           'hide-icon': this.hide === 'icon',
           'hide-label': this.hide === 'label'
         };
@@ -16175,37 +21082,48 @@
       }
     },
     methods: {
+      __getTabMeta: function __getTabMeta (h) {
+        if (this.count) {
+          return [
+            h(QChip, {
+              staticClass: 'q-tab-meta',
+              props: {
+                floating: true
+              }
+            }, [ this.count ])
+          ]
+        }
+        if (this.alert) {
+          return [
+            h('div', { staticClass: 'q-tab-meta q-dot' })
+          ]
+        }
+      },
       __getTabContent: function __getTabContent (h) {
         var child = [];
 
-        this.icon && child.push(h(QIcon, {
-          staticClass: 'q-tab-icon',
-          props: {
-            name: this.icon
-          }
-        }));
+        this.icon && child.push(
+          h('div', { staticClass: 'q-tab-icon-parent relative-position' }, [
+            h(QIcon, {
+              staticClass: 'q-tab-icon',
+              props: {
+                name: this.icon
+              }
+            }),
+            this.__getTabMeta(h)
+          ])
+        );
 
-        this.label && child.push(h('div', {
-          staticClass: 'q-tab-label',
-          domProps: {
-            innerHTML: this.label
-          }
-        }));
+        this.label && child.push(
+          h('div', { staticClass: 'q-tab-label-parent relative-position' }, [
+            h('div', {
+              staticClass: 'q-tab-label'
+            }, [ this.label ]),
+            this.__getTabMeta(h)
+          ])
+        );
 
-        if (this.count) {
-          child.push(h(QChip, {
-            props: {
-              floating: true
-            }
-          }, [ this.count ]));
-        }
-        else if (this.alert) {
-          child.push(h('div', {
-            staticClass: 'q-dot'
-          }));
-        }
-
-        child.push(this.$slots.default);
+        child = child.concat(this.$slots.default);
         {
           child.push(h('div', {
             staticClass: 'q-tabs-bar',
@@ -16221,7 +21139,7 @@
         return child
       }
     }
-  }
+  };
 
   var QRouteTab = {
     name: 'QRouteTab',
@@ -16267,7 +21185,7 @@
 
       return h('router-link', {
         props: {
-          tag: 'div',
+          tag: 'a',
           to: this.to,
           exact: this.exact,
           append: this.append,
@@ -16280,12 +21198,12 @@
           click: this.select,
           keyup: function (e) { return e.keyCode === 13 && this$1.select(e); }
         },
-        staticClass: 'q-tab column flex-center relative-position',
+        staticClass: 'q-link q-tab column flex-center relative-position',
         'class': this.classes,
         directives: [{ name: 'ripple' }]
       }, this.__getTabContent(h))
     }
-  }
+  };
 
   var QTab = {
     name: 'QTab',
@@ -16319,7 +21237,7 @@
         directives: [{ name: 'ripple' }]
       }, this.__getTabContent(h))
     }
-  }
+  };
 
   var QTabPane = {
     name: 'QTabPane',
@@ -16348,7 +21266,15 @@
       }
     },
     render: function render (h) {
-      var node = h('div', {staticClass: 'q-tab-pane', 'class': {hidden: !this.active}}, [this.$slots.default]);
+      var node = h(
+        'div',
+        {
+          staticClass: 'q-tab-pane',
+          'class': { hidden: !this.active }
+        },
+        this.$slots.default
+      );
+
       if (this.keepAlive) {
         if (!this.shown && !this.active) {
           return
@@ -16363,13 +21289,13 @@
         }
       }
     }
-  }
+  };
 
   var
     scrollNavigationSpeed = 5, // in pixels
     debounceDelay = 50; // in ms
 
-  var QTabs = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-tabs flex no-wrap",class:_vm.classes},[_c('div',{ref:"tabs",staticClass:"q-tabs-head row",class:_vm.innerClasses},[_c('div',{ref:"scroller",staticClass:"q-tabs-scroller row no-wrap"},[_vm._t("title"),_vm._v(" "),(_vm.$q.theme !== 'ios')?_c('div',{staticClass:"relative-position self-stretch q-tabs-global-bar-container",class:_vm.posbarClasses},[_c('div',{ref:"posbar",staticClass:"q-tabs-bar q-tabs-global-bar",on:{"transitionend":_vm.__updatePosbarTransition}})]):_vm._e()],2),_vm._v(" "),_c('div',{ref:"leftScroll",staticClass:"row flex-center q-tabs-left-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(0);},"touchstart":function($event){_vm.__animScrollTo(0);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.left}})],1),_vm._v(" "),_c('div',{ref:"rightScroll",staticClass:"row flex-center q-tabs-right-scroll",on:{"mousedown":function($event){_vm.__animScrollTo(9999);},"touchstart":function($event){_vm.__animScrollTo(9999);},"mouseup":_vm.__stopAnimScroll,"mouseleave":_vm.__stopAnimScroll,"touchend":_vm.__stopAnimScroll}},[_c('q-icon',{attrs:{"name":_vm.$q.icon.tabs.right}})],1)]),_vm._v(" "),_c('div',{staticClass:"q-tabs-panes"},[_vm._t("default")],2)])},staticRenderFns: [],
+  var QTabs = {
     name: 'QTabs',
     provide: function provide () {
       return {
@@ -16377,9 +21303,6 @@
         selectTab: this.selectTab,
         selectTabRouter: this.selectTabRouter
       }
-    },
-    components: {
-      QIcon: QIcon
     },
     props: {
       value: String,
@@ -16685,6 +21608,12 @@
           }
         }, 5);
       },
+      __scrollToStart: function __scrollToStart () {
+        this.__animScrollTo(0);
+      },
+      __scrollToEnd: function __scrollToEnd () {
+        this.__animScrollTo(9999);
+      },
       __stopAnimScroll: function __stopAnimScroll () {
         clearInterval(this.scrollTimer);
       },
@@ -16710,6 +21639,71 @@
         this.$refs.scroller.scrollLeft = scrollPosition;
         return done
       }
+    },
+    render: function render (h) {
+      return h('div', {
+        staticClass: 'q-tabs flex no-wrap',
+        'class': this.classes
+      }, [
+        h('div', {
+          staticClass: 'q-tabs-head row',
+          ref: 'tabs',
+          'class': this.innerClasses
+        }, [
+          h('div', {
+            ref: 'scroller',
+            staticClass: 'q-tabs-scroller row no-wrap'
+          }, [
+            this.$slots.title,
+            h('div', {
+                staticClass: 'relative-position self-stretch q-tabs-global-bar-container',
+                'class': this.posbarClasses
+              }, [
+                h('div', {
+                  ref: 'posbar',
+                  staticClass: 'q-tabs-bar q-tabs-global-bar',
+                  on: {
+                    transitionend: this.__updatePosbarTransition
+                  }
+                })
+              ])
+          ]),
+
+          h('div', {
+            ref: 'leftScroll',
+            staticClass: 'row flex-center q-tabs-left-scroll',
+            on: {
+              mousedown: this.__scrollToStart,
+              touchstart: this.__scrollToStart,
+              mouseup: this.__stopAnimScroll,
+              mouseleave: this.__stopAnimScroll,
+              touchend: this.__stopAnimScroll
+            }
+          }, [
+            h(QIcon, {
+              props: { name: this.$q.icon.tabs.left }
+            })
+          ]),
+
+          h('div', {
+            ref: 'rightScroll',
+            staticClass: 'row flex-center q-tabs-right-scroll',
+            on: {
+              mousedown: this.__scrollToEnd,
+              touchstart: this.__scrollToEnd,
+              mouseup: this.__stopAnimScroll,
+              mouseleave: this.__stopAnimScroll,
+              touchend: this.__stopAnimScroll
+            }
+          }, [
+            h(QIcon, {
+              props: { name: this.$q.icon.tabs.right }
+            })
+          ])
+        ]),
+
+        h('div', { staticClass: 'q-tabs-panes' }, this.$slots.default)
+      ])
     },
     created: function created () {
       this.timer = null;
@@ -16750,7 +21744,7 @@
       this.__redraw.cancel();
       this.__updateScrollIndicator.cancel();
     }
-  }
+  };
 
   var Top = {
     computed: {
@@ -16819,7 +21813,7 @@
         return h('div', { staticClass: staticClass }, child)
       }
     }
-  }
+  };
 
   var QTh = {
     name: 'QTh',
@@ -16833,13 +21827,13 @@
       if (!this.props) {
         return h('td', {
           'class': { 'q-table-col-auto-width': this.autoWidth }
-        }, [ this.$slots.default ])
+        }, this.$slots.default)
       }
 
       var col;
       var
         name = this.$vnode.key,
-        child = [ this.$slots.default ];
+        child = [].concat(this.$slots.default);
 
       if (name) {
         col = this.props.colsMap[name];
@@ -16871,7 +21865,7 @@
           : null
       }, child)
     }
-  }
+  };
 
   var TableHeader = {
     methods: {
@@ -16982,7 +21976,7 @@
         return data
       }
     }
-  }
+  };
 
   var TableBody = {
     methods: {
@@ -17098,7 +22092,7 @@
         return col.format ? col.format(val) : val
       }
     }
-  }
+  };
 
   var Bottom = {
     computed: {
@@ -17153,7 +22147,7 @@
               this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
             ]),
             h(QSelect, {
-              staticClass: 'inline q-table-bottom-item',
+              staticClass: 'inline q-table-bottom-item q-my-none',
               props: {
                 color: this.color,
                 value: rowsPerPage,
@@ -17207,7 +22201,7 @@
         ]
       }
     }
-  }
+  };
 
   function sortDate (a, b) {
     return (new Date(a)) - (new Date(b))
@@ -17299,7 +22293,7 @@
         this.setPagination({ sortBy: sortBy, descending: descending, page: 1 });
       }
     }
-  }
+  };
 
   var Filter = {
     props: {
@@ -17331,7 +22325,7 @@
         });
       }
     }
-  }
+  };
 
   function samePagination (oldPag, newPag) {
     for (var prop in newPag) {
@@ -17473,7 +22467,7 @@
     created: function created () {
       this.$emit('update:pagination', extend({}, this.computedPagination));
     }
-  }
+  };
 
   var RowSelection = {
     props: {
@@ -17545,7 +22539,7 @@
         }
       }
     }
-  }
+  };
 
   var ColumnSelection = {
     props: {
@@ -17579,7 +22573,7 @@
         return names
       }
     }
-  }
+  };
 
   var Expand = {
     data: function data () {
@@ -17587,7 +22581,7 @@
         rowsExpanded: {}
       }
     }
-  }
+  };
 
   var QTable = {
     name: 'QTable',
@@ -17735,7 +22729,7 @@
         });
       }
     }
-  }
+  };
 
   var QTr = {
     name: 'QTr',
@@ -17743,12 +22737,15 @@
       props: Object
     },
     render: function render (h) {
-      return h('tr',
-        !this.props || this.props.header ? {} : { 'class': this.props.__trClass },
-        [ this.$slots.default ]
+      return h(
+        'tr',
+        !this.props || this.props.header
+          ? {}
+          : { 'class': this.props.__trClass },
+        this.$slots.default
       )
     }
-  }
+  };
 
   var QTd = {
     name: 'QTd',
@@ -17760,7 +22757,7 @@
       if (!this.props) {
         return h('td', {
           'class': { 'q-table-col-auto-width': this.autoWidth }
-        }, [ this.$slots.default ])
+        }, this.$slots.default)
       }
 
       var col;
@@ -17778,9 +22775,9 @@
         'class': [col.__tdClass, {
           'q-table-col-auto-width': this.autoWidth
         }]
-      }, [ this.$slots.default ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QTableColumns = {
     name: 'QTableColumns',
@@ -17808,6 +22805,7 @@
       var this$1 = this;
 
       return h(QSelect, {
+        staticClass: 'q-my-none',
         props: {
           multiple: true,
           toggle: true,
@@ -17823,7 +22821,7 @@
         }
       })
     }
-  }
+  };
 
   var QTimeline = {
     name: 'QTimeline',
@@ -17843,11 +22841,9 @@
       return h('ul', {
         staticClass: 'q-timeline',
         'class': { 'q-timeline-dark': this.dark }
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QTimelineEntry = {
     name: 'QTimelineEntry',
@@ -17890,9 +22886,11 @@
         return h('div', { staticClass: 'q-timeline-heading' }, [
           h('div'),
           h('div'),
-          h(this.tag, { staticClass: 'q-timeline-heading-title' }, [
+          h(
+            this.tag,
+            { staticClass: 'q-timeline-heading-title' },
             this.$slots.default
-          ])
+          )
         ])
       }
 
@@ -17913,13 +22911,16 @@
             : null
         ]),
 
-        h('div', { staticClass: 'q-timeline-content' }, [
-          h('h6', { staticClass: 'q-timeline-title' }, [ this.title ]),
-          this.$slots.default
-        ])
+        h(
+          'div',
+          { staticClass: 'q-timeline-content' },
+          [
+            h('h6', { staticClass: 'q-timeline-title' }, [ this.title ])
+          ].concat(this.$slots.default)
+        )
       ])
     }
-  }
+  };
 
   var QToolbar = {
     name: 'QToolbar',
@@ -17953,11 +22954,9 @@
       return h('div', {
         staticClass: 'q-toolbar row no-wrap items-center relative-position',
         'class': this.classes
-      }, [
-        this.$slots.default
-      ])
+      }, this.$slots.default)
     }
-  }
+  };
 
   var QToolbarTitle = {
     name: 'QToolbarTitle',
@@ -17975,7 +22974,7 @@
           : null
       ])
     }
-  }
+  };
 
   var QTree = {
     name: 'QTree',
@@ -18381,7 +23380,7 @@
           return h('img', {
             staticClass: "q-tree-img q-mr-sm",
             'class': { avatar: node.avatar },
-            domProps: { src: node.img || node.avatar }
+            attrs: { src: node.img || node.avatar }
           })
         }
       },
@@ -18567,7 +23566,9 @@
         this.expandAll();
       }
     }
-  }
+  };
+
+  //
 
   function initFile (file) {
     file.__doneUploading = false;
@@ -18576,11 +23577,7 @@
     file.__progress = 0;
   }
 
-  var
-    selectDialogOpened,
-    selectDialogTimer;
-
-  var QUploader = {render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v(" "+_vm._s(_vm.label)+" ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add,"click":_vm.__selectDialogOnOpen,"blur":_vm.__selectDialogOnClose}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v(" "+_vm._s(file.__progress)+"% ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)},staticRenderFns: [],
+  var script$5 = {
     name: 'QUploader',
     mixins: [FrameMixin],
     components: {
@@ -18614,6 +23611,7 @@
         type: Array,
         default: function () { return []; }
       },
+      noContentType: Boolean,
       method: {
         type: String,
         default: 'POST'
@@ -18752,7 +23750,6 @@
       __add: function __add (e, files) {
         var this$1 = this;
 
-        this.__selectDialogOnClose();
         if (this.addDisabled) {
           return
         }
@@ -18833,37 +23830,8 @@
       },
       __pick: function __pick () {
         if (!this.addDisabled && this.$q.platform.is.mozilla) {
-          this.__selectDialogOnOpen();
           this.$refs.file.click();
         }
-      },
-      __selectDialogOnOpen: function __selectDialogOnOpen () {
-        clearTimeout(selectDialogTimer);
-        if (selectDialogOpened) {
-          return
-        }
-        selectDialogTimer = setTimeout(function () {
-          clearTimeout(selectDialogTimer);
-          selectDialogOpened = true;
-          EscapeKey.register(function () {
-            clearTimeout(selectDialogTimer);
-            selectDialogTimer = setTimeout(function () {
-              selectDialogOpened = false;
-              EscapeKey.pop();
-              // console.log('END-ESC listen for esc')
-            }, 300);
-          });
-          // console.log('START listen for esc')
-        }, 300);
-      },
-      __selectDialogOnClose: function __selectDialogOnClose () {
-        if (!selectDialogOpened) {
-          return
-        }
-        clearTimeout(selectDialogTimer);
-        selectDialogOpened = false;
-        EscapeKey.pop();
-        // console.log('END listen for esc')
       },
       __getUploadPromise: function __getUploadPromise (file) {
         var this$1 = this;
@@ -18905,7 +23873,9 @@
           this.additionalFields.forEach(function (field) {
             form.append(field.name, field.value);
           });
-          form.append('Content-Type', file.type || 'application/octet-stream');
+          if (this.noContentType !== true) {
+            form.append('Content-Type', file.type || 'application/octet-stream');
+          }
           form.append(this.name, file);
         }
         catch (e) {
@@ -19017,12 +23987,410 @@
         this.__computeTotalSize();
         this.$emit('reset');
       }
-    },
-    beforeDestroy: function beforeDestroy () {
-      clearTimeout(selectDialogTimer);
-      this.__selectDialogOnClose();
+    }
+  };
+
+  var __vue_script__$5 = script$5;
+              
+  /* template */
+  var __vue_render__$5 = function() {
+    var _vm = this;
+    var _h = _vm.$createElement;
+    var _c = _vm._self._c || _h;
+    return _c(
+      "div",
+      {
+        staticClass: "q-uploader relative-position",
+        class: _vm.classes,
+        on: {
+          dragover: function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            return _vm.__onDragOver($event)
+          }
+        }
+      },
+      [
+        _c(
+          "q-input-frame",
+          {
+            ref: "input",
+            attrs: {
+              prefix: _vm.prefix,
+              suffix: _vm.suffix,
+              "stack-label": _vm.stackLabel,
+              "float-label": _vm.floatLabel,
+              error: _vm.error,
+              warning: _vm.warning,
+              disable: _vm.disable,
+              inverted: _vm.inverted,
+              "inverted-light": _vm.invertedLight,
+              dark: _vm.dark,
+              dense: _vm.dense,
+              box: _vm.box,
+              "full-width": _vm.fullWidth,
+              outline: _vm.outline,
+              "hide-underline": _vm.hideUnderline,
+              before: _vm.before,
+              after: _vm.after,
+              color: _vm.color,
+              align: _vm.align,
+              "no-parent-field": _vm.noParentField,
+              length: _vm.queueLength,
+              "additional-length": ""
+            }
+          },
+          [
+            _c(
+              "div",
+              {
+                staticClass: "col q-input-target ellipsis",
+                class: _vm.alignClass
+              },
+              [_vm._v("\n      " + _vm._s(_vm.label) + "\n    ")]
+            ),
+            _vm._v(" "),
+            _vm.uploading
+              ? _c("q-spinner", {
+                  staticClass: "q-if-end self-center",
+                  attrs: { slot: "after", size: "24px" },
+                  slot: "after"
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.uploading
+              ? _c("q-icon", {
+                  staticClass: "q-if-end self-center q-if-control",
+                  attrs: {
+                    slot: "after",
+                    name:
+                      _vm.$q.icon.uploader[
+                        "clear" + (_vm.isInverted ? "Inverted" : "")
+                      ]
+                  },
+                  nativeOn: {
+                    click: function($event) {
+                      return _vm.abort($event)
+                    }
+                  },
+                  slot: "after"
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            !_vm.uploading
+              ? _c(
+                  "q-icon",
+                  {
+                    staticClass:
+                      "q-uploader-pick-button self-center q-if-control relative-position overflow-hidden",
+                    attrs: {
+                      slot: "after",
+                      name: _vm.$q.icon.uploader.add,
+                      disabled: _vm.addDisabled
+                    },
+                    nativeOn: {
+                      click: function($event) {
+                        return _vm.__pick($event)
+                      }
+                    },
+                    slot: "after"
+                  },
+                  [
+                    _c(
+                      "input",
+                      _vm._b(
+                        {
+                          ref: "file",
+                          staticClass:
+                            "q-uploader-input absolute-full cursor-pointer",
+                          attrs: { type: "file", accept: _vm.extensions },
+                          on: { change: _vm.__add }
+                        },
+                        "input",
+                        { multiple: _vm.multiple },
+                        true
+                      )
+                    )
+                  ]
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            !_vm.hideUploadButton && !_vm.uploading
+              ? _c("q-icon", {
+                  staticClass: "q-if-control self-center",
+                  attrs: {
+                    slot: "after",
+                    name: _vm.$q.icon.uploader.upload,
+                    disabled: _vm.queueLength === 0
+                  },
+                  nativeOn: {
+                    click: function($event) {
+                      return _vm.upload($event)
+                    }
+                  },
+                  slot: "after"
+                })
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.hasExpandedContent
+              ? _c("q-icon", {
+                  staticClass: "q-if-control generic_transition self-center",
+                  class: { "rotate-180": _vm.expanded },
+                  attrs: { slot: "after", name: _vm.$q.icon.uploader.expand },
+                  nativeOn: {
+                    click: function($event) {
+                      _vm.expanded = !_vm.expanded;
+                    }
+                  },
+                  slot: "after"
+                })
+              : _vm._e()
+          ],
+          1
+        ),
+        _vm._v(" "),
+        _c("q-slide-transition", [
+          _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: _vm.expanded,
+                  expression: "expanded"
+                }
+              ],
+              class: _vm.expandClass,
+              style: _vm.expandStyle
+            },
+            [
+              _c(
+                "q-list",
+                {
+                  staticClass: "q-uploader-files q-py-none scroll",
+                  style: _vm.filesStyle,
+                  attrs: { dark: _vm.dark }
+                },
+                _vm._l(_vm.files, function(file) {
+                  return _c(
+                    "q-item",
+                    {
+                      key: file.name + file.__timestamp,
+                      staticClass: "q-uploader-file q-pa-xs"
+                    },
+                    [
+                      !_vm.hideUploadProgress
+                        ? _c("q-progress", {
+                            staticClass: "q-uploader-progress-bg absolute-full",
+                            attrs: {
+                              color: file.__failed
+                                ? "negative"
+                                : _vm.progressColor,
+                              percentage: file.__progress,
+                              height: "100%"
+                            }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      !_vm.hideUploadProgress
+                        ? _c(
+                            "div",
+                            { staticClass: "q-uploader-progress-text absolute" },
+                            [
+                              _vm._v(
+                                "\n            " +
+                                  _vm._s(file.__progress) +
+                                  "%\n          "
+                              )
+                            ]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      file.__img
+                        ? _c("q-item-side", { attrs: { image: file.__img.src } })
+                        : _c("q-item-side", {
+                            attrs: {
+                              icon: _vm.$q.icon.uploader.file,
+                              color: _vm.color
+                            }
+                          }),
+                      _vm._v(" "),
+                      _c("q-item-main", {
+                        attrs: { label: file.name, sublabel: file.__size }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "q-item-side",
+                        { attrs: { right: "" } },
+                        [
+                          _c("q-item-tile", {
+                            staticClass: "cursor-pointer",
+                            attrs: {
+                              icon:
+                                _vm.$q.icon.uploader[
+                                  file.__doneUploading ? "done" : "clear"
+                                ],
+                              color: _vm.color
+                            },
+                            nativeOn: {
+                              click: function($event) {
+                                _vm.__remove(file);
+                              }
+                            }
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                })
+              )
+            ],
+            1
+          )
+        ]),
+        _vm._v(" "),
+        _vm.dnd
+          ? _c("div", {
+              staticClass:
+                "q-uploader-dnd flex row items-center justify-center absolute-full",
+              class: _vm.dndClass,
+              on: {
+                dragenter: function($event) {
+                  $event.preventDefault();
+                  $event.stopPropagation();
+                },
+                dragover: function($event) {
+                  $event.preventDefault();
+                  $event.stopPropagation();
+                },
+                dragleave: function($event) {
+                  $event.preventDefault();
+                  $event.stopPropagation();
+                  return _vm.__onDragLeave($event)
+                },
+                drop: function($event) {
+                  $event.preventDefault();
+                  $event.stopPropagation();
+                  return _vm.__onDrop($event)
+                }
+              }
+            })
+          : _vm._e()
+      ],
+      1
+    )
+  };
+  var __vue_staticRenderFns__$5 = [];
+  __vue_render__$5._withStripped = true;
+
+  var __vue_template__$5 = typeof __vue_render__$5 !== 'undefined'
+    ? { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 }
+    : {};
+  /* style */
+  var __vue_inject_styles__$5 = undefined;
+  /* scoped */
+  var __vue_scope_id__$5 = undefined;
+  /* module identifier */
+  var __vue_module_identifier__$5 = undefined;
+  /* functional template */
+  var __vue_is_functional_template__$5 = false;
+  /* component normalizer */
+  function __vue_normalize__$5(
+    template, style, script,
+    scope, functional, moduleIdentifier,
+    createInjector, createInjectorSSR
+  ) {
+    var component = (typeof script === 'function' ? script.options : script) || {};
+
+    {
+      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\uploader\\QUploader.vue";
+    }
+
+    if (!component.render) {
+      component.render = template.render;
+      component.staticRenderFns = template.staticRenderFns;
+      component._compiled = true;
+
+      if (functional) { component.functional = true; }
+    }
+
+    component._scopeId = scope;
+
+    return component
+  }
+  /* style inject */
+  function __vue_create_injector__$5() {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var styles = __vue_create_injector__$5.styles || (__vue_create_injector__$5.styles = {});
+    var isOldIE =
+      typeof navigator !== 'undefined' &&
+      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+
+    return function addStyle(id, css) {
+      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
+
+      var group = isOldIE ? css.media || 'default' : id;
+      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
+
+      if (!style.ids.includes(id)) {
+        var code = css.source;
+        var index = style.ids.length;
+
+        style.ids.push(id);
+
+        if (isOldIE) {
+          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
+        }
+
+        if (!style.element) {
+          var el = style.element = document.createElement('style');
+          el.type = 'text/css';
+
+          if (css.media) { el.setAttribute('media', css.media); }
+          if (isOldIE) {
+            el.setAttribute('data-group', group);
+            el.setAttribute('data-next-index', '0');
+          }
+
+          head.appendChild(el);
+        }
+
+        if (isOldIE) {
+          index = parseInt(style.element.getAttribute('data-next-index'));
+          style.element.setAttribute('data-next-index', index + 1);
+        }
+
+        if (style.element.styleSheet) {
+          style.parts.push(code);
+          style.element.styleSheet.cssText = style.parts
+            .filter(Boolean)
+            .join('\n');
+        } else {
+          var textNode = document.createTextNode(code);
+          var nodes = style.element.childNodes;
+          if (nodes[index]) { style.element.removeChild(nodes[index]); }
+          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+          else { style.element.appendChild(textNode); }
+        }
+      }
     }
   }
+  /* style inject SSR */
+
+
+  var QUploader = __vue_normalize__$5(
+    __vue_template__$5,
+    __vue_inject_styles__$5,
+    typeof __vue_script__$5 === 'undefined' ? {} : __vue_script__$5,
+    __vue_scope_id__$5,
+    __vue_is_functional_template__$5,
+    __vue_module_identifier__$5,
+    typeof __vue_create_injector__$5 !== 'undefined' ? __vue_create_injector__$5 : function () {},
+    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
+  );
 
   var QVideo = {
     name: 'QVideo',
@@ -19050,7 +24418,7 @@
         h('iframe', this.iframeData)
       ])
     }
-  }
+  };
 
 
 
@@ -19094,6 +24462,7 @@
     QInnerLoading: QInnerLoading,
     QInput: QInput,
     QInputFrame: QInputFrame,
+    QJumbotron: QJumbotron,
     QKnob: QKnob,
     QLayout: QLayout,
     QLayoutDrawer: QLayoutDrawer,
@@ -19112,6 +24481,7 @@
     QListHeader: QListHeader,
     QModal: QModal,
     QModalLayout: QModalLayout,
+    QNoSsr: QNoSsr,
     QResizeObservable: QResizeObservable,
     QScrollObservable: QScrollObservable,
     QWindowResizeObservable: QWindowResizeObservable,
@@ -19269,7 +24639,7 @@
       el.removeEventListener('keyup', ctx.goToTopKey);
       delete el.__qbacktotop;
     }
-  }
+  };
 
   var closeOverlay = {
     name: 'close-overlay',
@@ -19301,7 +24671,7 @@
       el.removeEventListener('keyup', ctx.handlerKey);
       delete el.__qclose;
     }
-  }
+  };
 
   var goBack = {
     name: 'go-back',
@@ -19343,7 +24713,7 @@
       el.removeEventListener('keyup', ctx.goBackKey);
       delete el.__qgoback;
     }
-  }
+  };
 
   function updateBinding$1 (el, binding) {
     var ctx = el.__qscrollfire;
@@ -19402,7 +24772,7 @@
       ctx.scrollTarget.removeEventListener('scroll', ctx.scroll, listenOpts.passive);
       delete el.__qscrollfire;
     }
-  }
+  };
 
   function updateBinding$2 (el, binding) {
     var ctx = el.__qscroll;
@@ -19445,7 +24815,7 @@
       ctx.scrollTarget.removeEventListener('scroll', ctx.scroll, listenOpts.passive);
       delete el.__qscroll;
     }
-  }
+  };
 
   function updateBinding$3 (el, binding) {
     var ctx = el.__qtouchhold;
@@ -19528,7 +24898,7 @@
       document.removeEventListener('mouseup', ctx.mouseAbort);
       delete el.__qtouchhold;
     }
-  }
+  };
 
 
 
@@ -19547,10 +24917,20 @@
   function modalFn (Component, Vue$$1) {
     return function (props, resolver) {
       return new Promise(function (resolve, reject) {
-        if (isSSR) { return }
+        if (isSSR) { return resolve() }
 
         var node = document.createElement('div');
         document.body.appendChild(node);
+
+        var
+          ok = function (data) {
+            resolve(data);
+            vm.$destroy();
+          },
+          cancel = function (reason) {
+            reject(reason || new Error());
+            vm.$destroy();
+          };
 
         var vm = new Vue$$1({
           el: node,
@@ -19561,45 +24941,28 @@
             props: props,
             ref: 'modal',
             on: {
-              ok: function (data) {
-                resolve(data);
-                vm.$destroy();
-              },
-              cancel: function (reason) {
-                reject(reason || new Error());
-                vm.$destroy();
-              }
+              ok: ok,
+              cancel: cancel
             }
           }); },
           mounted: function mounted () {
             this.$refs.modal.show();
           }
         });
-        if (resolver) {
-          resolver.then(function (data) {
-            resolve(data);
-            vm.$destroy();
-          }).catch(function (reason) {
-            reject(reason || new Error());
-            vm.$destroy();
-          });
-        }
+
+        resolver && resolver.then(ok, cancel);
       })
     }
   }
 
   var actionSheet = {
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
 
-      if (this.__installed) { return }
-      this.__installed = true;
-
       this.create = $q.actionSheet = modalFn(QActionSheet, Vue$$1);
     }
-  }
+  };
 
   var metaValue;
 
@@ -19645,15 +25008,11 @@
   }
 
   var addressbarColor = {
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
 
-      if (this.__installed) { return }
-      this.__installed = true;
-
-      this.set = Platform.is.mobile && !isSSR && (
+      this.set = !isSSR && Platform.is.mobile && (
         Platform.is.cordova ||
         Platform.is.winphone || Platform.is.safari ||
         Platform.is.webkit || Platform.is.vivaldi
@@ -19662,8 +25021,8 @@
           ready(function () {
             var val = hexColor || getBrand('primary');
 
-            if (Platform.is.cordova) {
-              window.StatusBar && window.StatusBar.backgroundColorByHexString(val);
+            if (Platform.is.cordova && window.StatusBar) {
+              window.StatusBar.backgroundColorByHexString(val);
             }
             else {
               setColor(val);
@@ -19674,7 +25033,7 @@
 
       $q.addressbarColor = this;
     }
-  }
+  };
 
   var prefixes = {};
 
@@ -19702,14 +25061,10 @@
       }
     },
 
-    __installed: false,
     install: function install (ref) {
       var this$1 = this;
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
-
-      if (this.__installed) { return }
-      this.__installed = true;
 
       $q.fullscreen = this;
 
@@ -19747,19 +25102,15 @@
 
       Vue$$1.util.defineReactive(this, 'isActive', this.isActive);
     }
-  }
+  };
 
   var appVisibility = {
     appVisible: false,
 
-    __installed: false,
     install: function install (ref) {
       var this$1 = this;
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
-
-      if (this.__installed) { return }
-      this.__installed = true;
 
       if (isSSR) {
         this.appVisible = $q.appVisible = true;
@@ -19792,11 +25143,7 @@
         document.addEventListener(evt, update, false);
       }
     }
-  }
-
-  var
-    cookieSource,
-    ssrRes;
+  };
 
   function encode (string) {
     return encodeURIComponent(string)
@@ -19833,12 +25180,13 @@
     return string
   }
 
-  function set (key, val, opts) {
+  function set (key, val, opts, ssr) {
     if ( opts === void 0 ) opts = {};
 
     var time = opts.expires;
+    var hasExpire = typeof opts.expires === 'number';
 
-    if (typeof opts.expires === 'number') {
+    if (hasExpire) {
       time = new Date();
       time.setMilliseconds(time.getMilliseconds() + opts.expires * 864e+5);
     }
@@ -19847,29 +25195,47 @@
 
     var cookie = [
       keyValue,
-      time ? '; expires=' + time.toUTCString() : '', // use expires attribute, max-age is not supported by IE
-      opts.path ? '; path=' + opts.path : '',
-      opts.domain ? '; domain=' + opts.domain : '',
-      opts.secure ? '; secure' : ''
+      time ? '; Expires=' + time.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+      opts.path ? '; Path=' + opts.path : '',
+      opts.domain ? '; Domain=' + opts.domain : '',
+      opts.httpOnly ? '; HttpOnly' : '',
+      opts.secure ? '; Secure' : ''
     ].join('');
 
-    if (isSSR) {
-      ssrRes.setHeader('Set-Cookie', cookie);
+    if (ssr) {
+      ssr.res.setHeader('Set-Cookie', cookie);
 
       // make temporary update so future get()
       // within same SSR timeframe would return the set value
-      cookieSource.cookie = cookieSource.cookie
-        ? (keyValue + "; " + (cookieSource.cookie))
-        : cookie;
+
+      var all = ssr.req.headers.cookie || '';
+
+      if (hasExpire && opts.expires < 0) {
+        var val$1 = get(key, ssr);
+        if (val$1 !== undefined) {
+          all = all
+            .replace((key + "=" + val$1 + "; "), '')
+            .replace(("; " + key + "=" + val$1), '')
+            .replace((key + "=" + val$1), '');
+        }
+      }
+      else {
+        all = all
+          ? (keyValue + "; " + all)
+          : cookie;
+      }
+
+      ssr.req.headers.cookie = all;
     }
     else {
       document.cookie = cookie;
     }
   }
 
-  function get (key) {
+  function get (key, ssr) {
     var
       result = key ? undefined : {},
+      cookieSource = ssr ? ssr.req.headers : document,
       cookies = cookieSource.cookie ? cookieSource.cookie.split('; ') : [],
       i = 0,
       l = cookies.length,
@@ -19894,55 +25260,58 @@
     return result
   }
 
-  function remove (key, options) {
-    set(key, '', extend(true, {}, options, {
-      expires: -1
-    }));
+  function remove (key, options, ssr) {
+    set(
+      key,
+      '',
+      Object.assign({}, options, { expires: -1 }),
+      ssr
+    );
   }
 
-  function has (key) {
-    return get(key) !== undefined
+  function has (key, ssr) {
+    return get(key, ssr) !== undefined
   }
 
-  var cookies = {
-    get: get,
-    set: set,
-    has: has,
-    remove: remove,
-    all: function () { return get(); },
+  function getObject (ctx) {
+    if ( ctx === void 0 ) ctx = {};
 
-    __installed: false,
-    install: function install (ref) {
-      var $q = ref.$q;
-      var cfg = ref.cfg;
+    var ssr = ctx.ssr;
 
-      if (this.__installed) { return }
-      this.__installed = true;
-
-      if (isSSR) {
-        cookieSource = cfg.ssr.req.headers;
-        ssrRes = cfg.ssr.res;
-      }
-      else {
-        cookieSource = document;
-      }
-
-      $q.cookies = this;
+    return {
+      get: function (key) { return get(key, ssr); },
+      set: function (key, val, opts) { return set(key, val, opts, ssr); },
+      has: function (key) { return has(key, ssr); },
+      remove: function (key, options) { return remove(key, options, ssr); },
+      all: function () { return get(null, ssr); }
     }
   }
 
+  var cookies = {
+    install: function install (ref) {
+      var $q = ref.$q;
+      var queues = ref.queues;
+
+      if (isSSR) {
+        queues.server.push(function (q, ctx) {
+          q.cookies = getObject(ctx);
+        });
+      }
+      else {
+        Object.assign(this, getObject());
+        $q.cookies = this;
+      }
+    }
+  };
+
   var dialog = {
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
 
-      if (this.__installed) { return }
-      this.__installed = true;
-
       this.create = $q.dialog = modalFn(QDialog, Vue$$1);
     }
-  }
+  };
 
   var
     vm,
@@ -20038,21 +25407,17 @@
     },
 
     __Vue: null,
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
       var loading = ref.cfg.loading;
-
-      if (this.__installed) { return }
-      this.__installed = true;
 
       loading && this.setDefaults(loading);
 
       $q.loading = this;
       this.__Vue = Vue$$1;
     }
-  }
+  };
 
   var defaults$1;
 
@@ -20064,12 +25429,11 @@
 
   function init (ref) {
     var this$1 = this;
-    var $q = ref.$q;
     var Vue$$1 = ref.Vue;
 
     if (!document.body) {
       ready(function () {
-        init.call(this$1, { $q: $q, Vue: Vue$$1 });
+        init.call(this$1, { Vue: Vue$$1 });
       });
       return
     }
@@ -20226,39 +25590,50 @@
     create: function create (opts) {
       var this$1 = this;
 
-      if (isSSR) { return }
+      if (isSSR) { return function () {} }
 
       if (!document.body) {
-        ready(function () { // here we won't return the dismiss function (we can return a promise)
-          this$1.create(opts);
+        var
+          cancelled = false,
+          cancelFn = function () {},
+          cancelFnWrapper = function () {
+            cancelled = true;
+            cancelFn();
+          };
+
+        ready(function () {
+          if (!cancelled) {
+            cancelFn = this$1.create(opts);
+          }
         });
+
+        return cancelFnWrapper
       }
-      else {
-        return this.__vm.add(opts)
-      }
+
+      return this.__vm.add(opts)
     },
     setDefaults: function setDefaults (opts) {
       Object.assign(defaults$1, opts);
     },
 
-    __installed: false,
     install: function install (args) {
-      if (this.__installed) { return }
-      this.__installed = true;
-
-      if (!isSSR) {
-        init.call(this, args);
+      if (isSSR) {
+        args.$q.notify = function () {};
+        args.$q.notify.setDefaults = function () {};
+        return
       }
+
+      init.call(this, args);
 
       args.cfg.notify && this.setDefaults(args.cfg.notify);
 
       args.$q.notify = this.create.bind(this);
       args.$q.notify.setDefaults = this.setDefaults;
     }
-  }
+  };
 
   var screen = {
-    width: 1024,
+    width: 0,
 
     sizes: {
       sm: 576,
@@ -20268,39 +25643,25 @@
     },
 
     lt: {
+      sm: true,
+      md: true,
       xl: true
     },
-    gt: {
-      xs: true,
-      sm: true,
-      md: true
-    },
-    lg: true,
+    gt: {},
+    xs: true,
 
-    __installed: false,
+    setSizes: function setSizes () {},
+    setDebounce: function setDebounce () {},
+
     install: function install (ref) {
       var this$1 = this;
       var $q = ref.$q;
+      var queues = ref.queues;
       var Vue$$1 = ref.Vue;
-
-      if (this.__installed) { return }
-      this.__installed = true;
 
       if (isSSR) {
         $q.screen = this;
-        this.setSizes = this.setDebounce = function () {};
         return
-      }
-
-      if (document && document.body) {
-        var style = getComputedStyle(document.body);
-
-        // if css props available
-        if (style.getPropertyValue('--q-size-sm')) {
-          ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
-            this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
-          });
-        }
       }
 
       var update = function () {
@@ -20329,30 +25690,63 @@
         this$1.xl = w > s.xl;
       };
 
-      update();
-      var updateEvt = debounce(update, 100);
-
-      window.addEventListener('resize', updateEvt, listenOpts.passive);
+      var
+        updateEvt = debounce(update, 100),
+        updateSizes = {},
+        updateDebounce;
 
       this.setSizes = function (sizes) {
-        ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
-          if (sizes[name]) {
-            this$1.sizes[name] = sizes[name];
-          }
+        sizes.forEach(function (name) {
+          updateSizes[name] = sizes[name];
         });
-        update();
       };
-      this.setDebounce = function (delay) {
-        window.removeEventListener('resize', updateEvt, listenOpts.passive);
-        updateEvt = delay > 0
-          ? debounce(update, delay)
-          : update;
+      this.setDebounce = function (deb) {
+        updateDebounce = deb;
+      };
+
+      var start = function () {
+        var style = getComputedStyle(document.body);
+
+        // if css props available
+        if (style.getPropertyValue('--q-size-sm')) {
+          ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+            this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
+          });
+        }
+
+        this$1.setSizes = function (sizes) {
+          ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+            if (sizes[name]) {
+              this$1.sizes[name] = sizes[name];
+            }
+          });
+          update();
+        };
+        this$1.setDebounce = function (delay) {
+          window.removeEventListener('resize', updateEvt, listenOpts.passive);
+          updateEvt = delay > 0
+            ? debounce(update, delay)
+            : update;
+          window.addEventListener('resize', updateEvt, listenOpts.passive);
+        };
+
+        updateDebounce && this$1.setDebounce(updateDebounce);
+        Object.keys(updateSizes).length > 0 && this$1.setSizes(updateSizes);
+        update();
+
         window.addEventListener('resize', updateEvt, listenOpts.passive);
       };
 
       Vue$$1.util.defineReactive($q, 'screen', this);
+
+      if (fromSSR) {
+        queues.takeover.push(start);
+      }
+      else {
+        start();
+      }
     }
-  }
+  };
 
   function encode$1 (value) {
     if (Object.prototype.toString.call(value) === '[object Date]') {
@@ -20478,39 +25872,35 @@
   }
 
   var LocalStorage = {
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
 
-      if (this.__installed) { return }
-      this.__installed = true;
+      if (onSSR) {
+        $q.localStorage = getEmptyStorage();
+        return
+      }
 
-      if ($q.platform.has.webStorage) {
+      if (hasWebStorage()) {
         var storage = getStorage('local');
         $q.localStorage = storage;
         Object.assign(this, storage);
-      }
-      else {
-        $q.localStorage = getEmptyStorage();
       }
     }
   };
 
   var SessionStorage = {
-    __installed: false,
     install: function install (ref) {
       var $q = ref.$q;
 
-      if (this.__installed) { return }
-      this.__installed = true;
+      if (onSSR) {
+        $q.sessionStorage = getEmptyStorage();
+        return
+      }
 
-      if ($q.platform.has.webStorage) {
+      if (hasWebStorage()) {
         var storage = getStorage('session');
         $q.sessionStorage = storage;
         Object.assign(this, storage);
-      }
-      else {
-        $q.sessionStorage = getEmptyStorage();
       }
     }
   };
@@ -20579,7 +25969,10 @@
     Vue.use({ install: install }, {
       components: components,
       directives: directives,
-      plugins: plugins
+      plugins: plugins,
+      config: typeof window !== 'undefined'
+        ? (window.quasarConfig || {})
+        : {}
     });
   }
 
@@ -20588,12 +25981,12 @@
     theme: 'mat',
 
     i18n: i18n,
-    icons: icons,
+    icons: Icons,
     components: components,
     directives: directives,
     plugins: plugins,
     utils: utils
-  }
+  };
 
   return index_umd;
 
