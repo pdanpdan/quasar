@@ -1528,18 +1528,18 @@ body.desktop .q-carousel-thumbnails img:hover {
           align-items: flex-start;
   padding-top: 3px;
 }
-.q-if:not(.q-if-full-width):not(.q-if-textarea):not(.q-if-box):not(.q-if-outline):not(.q-if-inverted) {
+.q-if.q-if-standard {
   padding-top: 4px;
   padding-bottom: 4px;
 }
-.q-if:not(.q-if-full-width):not(.q-if-textarea):not(.q-if-box):not(.q-if-outline):not(.q-if-inverted).q-if-dense {
+.q-if.q-if-standard.q-if-dense {
   padding-top: 0px;
   padding-bottom: 0px;
 }
-.q-if:not(.q-if-full-width):not(.q-if-textarea):not(.q-if-box):not(.q-if-outline):not(.q-if-inverted).q-if-has-label {
+.q-if.q-if-standard.q-if-has-label {
   padding-top: 20px;
 }
-.q-if:not(.q-if-full-width):not(.q-if-textarea):not(.q-if-box):not(.q-if-outline):not(.q-if-inverted).q-if-has-label.q-if-dense {
+.q-if.q-if-standard.q-if-has-label.q-if-dense {
   padding-top: 20px;
 }
 .q-if:before,

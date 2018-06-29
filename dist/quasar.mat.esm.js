@@ -7088,11 +7088,9 @@ var QBreadcrumbs = {
       type: String,
       default: '/'
     },
-    align: {
-      type: String,
-      default: 'left',
-      validator: function (v) { return alignValues.includes(v); }
-    }
+    align: Object.assign({}, AlignMixin.props.align, {
+      default: 'left'
+    })
   },
   computed: {
     classes: function classes () {
@@ -7153,14 +7151,10 @@ var QBreadcrumbsEl = {
     return h(this.to !== void 0 ? 'router-link' : 'span', {
       staticClass: 'q-link q-breadcrumbs-el flex inline items-center relative-position',
       props: this.to !== void 0 ? this.$props : null
-    },
-    this.label || this.icon
-      ? [
-        this.icon ? h(QIcon, { staticClass: 'q-breacrumbs-el-icon q-mr-sm', props: { name: this.icon } }) : null,
-        this.label
-      ]
-      : this.$slots.default
-    )
+    }, [
+      this.icon ? h(QIcon, { staticClass: 'q-breacrumbs-el-icon q-mr-sm', props: { name: this.icon } }) : null,
+      this.label
+    ].concat(this.$slots.default))
   }
 };
 
@@ -8977,6 +8971,9 @@ var FrameMixin = {
     isHideUnderline: function isHideUnderline () {
       return !this.isInverted && !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && this.hideUnderline
     },
+    isStandard: function isStandard () {
+      return !this.isFullWidth && !this.textarea && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
+    },
     labelIsAbove: function labelIsAbove () {
       return this.focused || this.length || this.additionalLength || this.stackLabel
     },
@@ -9203,6 +9200,7 @@ var script = {
       this.isOutline && cls.push('q-if-outline');
       this.isBox && cls.push('q-if-box');
       this.isHideUnderline && cls.push('q-if-hide-underline');
+      this.isStandard && cls.push('q-if-standard');
       this.hasContent && cls.push('q-if-has-content');
 
       var color = this.hasError ? 'negative' : (this.hasWarning ? 'warning' : this.color);
@@ -11163,7 +11161,6 @@ var QColor = {
       type: [String, Object],
       default: null
     },
-    // clearValue: {},
     formatModel: {
       type: String,
       default: 'auto',
@@ -11653,7 +11650,6 @@ var input = {
   format: String,
   okLabel: String,
   cancelLabel: String,
-  // clearValue: {},
   displayValue: String
 };
 
@@ -14510,7 +14506,9 @@ var script$3 = {
         : 0
     },
     computedClearValue: function computedClearValue () {
-      return this.isNumber && this.clearValue === 0 ? this.clearValue : this.clearValue || (this.isNumber ? null : '')
+      return this.isNumber && this.clearValue === 0
+        ? this.clearValue
+        : this.clearValue || (this.isNumber ? null : '')
     },
     computedStep: function computedStep () {
       return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
@@ -14556,7 +14554,12 @@ var script$3 = {
     __setModel: function __setModel (val) {
       clearTimeout(this.timer);
       this.focus();
-      this.__set(this.isNumber && val === 0 ? val : val || (this.isNumber ? null : ''), true);
+      this.__set(
+        this.isNumber && val === 0
+          ? val
+          : val || (this.isNumber ? null : ''),
+        true
+      );
     },
     __set: function __set (e, forceUpdate) {
       var this$1 = this;
@@ -19894,7 +19897,9 @@ var QSearch = {
         : this.debounce
     },
     computedClearValue: function computedClearValue () {
-      return this.isNumber && this.clearValue === 0 ? this.clearValue : this.clearValue || (this.type === 'number' ? null : '')
+      return this.isNumber && this.clearValue === 0
+        ? this.clearValue
+        : this.clearValue || (this.type === 'number' ? null : '')
     },
     controlBefore: function controlBefore () {
       var before = (this.before || []).slice();
