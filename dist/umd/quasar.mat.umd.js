@@ -8948,11 +8948,11 @@
       isInvertedLight: function isInvertedLight () {
         return this.isInverted && ((this.invertedLight && !this.hasError) || (this.inverted && this.hasWarning))
       },
-      isHideUnderline: function isHideUnderline () {
-        return !this.isInverted && !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && this.hideUnderline
-      },
       isStandard: function isStandard () {
-        return !this.isFullWidth && !this.textarea && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
+        return !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && !this.isInverted
+      },
+      isHideUnderline: function isHideUnderline () {
+        return this.isStandard && this.hideUnderline
       },
       labelIsAbove: function labelIsAbove () {
         return this.focused || this.length || this.additionalLength || this.stackLabel
