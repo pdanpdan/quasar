@@ -19621,7 +19621,7 @@ var __vue_render__$4 = function() {
           _vm.filter
             ? _c("q-search", {
                 ref: "filter",
-                staticClass: "col-auto",
+                staticClass: "col-auto q-my-none",
                 staticStyle: { padding: "10px" },
                 attrs: {
                   placeholder:
