@@ -99,6 +99,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-breadcrumbs/align": {
+    "type": "string",
+    "description": "String value."
+  },
   "q-breadcrumbs/color": {
     "type": "string",
     "description": "String value."
@@ -398,6 +402,14 @@
   "q-btn-dropdown/content-style": {
     "type": "array|string|object",
     "description": "One of array, string, or object."
+  },
+  "q-btn-dropdown/popover-anchor": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-btn-dropdown/popover-self": {
+    "type": "string",
+    "description": "String value."
   },
   "q-btn-toggle/type": {
     "type": "string",

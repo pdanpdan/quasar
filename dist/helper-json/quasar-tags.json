@@ -141,7 +141,9 @@
       "value",
       "split",
       "content-class",
-      "content-style"
+      "content-style",
+      "popover-anchor",
+      "popover-self"
     ],
     "description": ""
   },

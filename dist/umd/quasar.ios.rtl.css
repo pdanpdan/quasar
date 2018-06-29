@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.3
+ * Quasar Framework v0.17.0-beta.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -9996,6 +9996,18 @@ a.q-link {
 }
 [dir] .q-mb-xl, [dir] .q-my-xl {
   margin-bottom: 48px;
+}
+[dir=ltr] .q-ml-auto, [dir=ltr] .q-mx-auto {
+  margin-left: auto;
+}
+[dir=rtl] .q-ml-auto, [dir=rtl] .q-mx-auto {
+  margin-right: auto;
+}
+[dir=ltr] .q-mr-auto, [dir=ltr] .q-mx-auto {
+  margin-right: auto;
+}
+[dir=rtl] .q-mr-auto, [dir=rtl] .q-mx-auto {
+  margin-left: auto;
 }
 .q-touch {
   -webkit-user-select: none;

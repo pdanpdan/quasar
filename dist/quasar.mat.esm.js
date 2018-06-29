@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.3
+ * Quasar Framework v0.17.0-beta.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -343,32 +343,51 @@ if (!String.prototype.endsWith) {
   };
 }
 
-if (!isSSR && typeof Element.prototype.matches !== 'function') {
-  Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches (selector) {
-    var
-      element = this,
-      elements = (element.document || element.ownerDocument).querySelectorAll(selector),
-      index = 0;
+if (!isSSR) {
+  if (typeof Element.prototype.matches !== 'function') {
+    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches (selector) {
+      var
+        element = this,
+        elements = (element.document || element.ownerDocument).querySelectorAll(selector),
+        index = 0;
 
-    while (elements[index] && elements[index] !== element) {
-      ++index;
-    }
-
-    return Boolean(elements[index])
-  };
-}
-
-if (!isSSR && typeof Element.prototype.closest !== 'function') {
-  Element.prototype.closest = function closest (selector) {
-    var el = this;
-    while (el && el.nodeType === 1) {
-      if (el.matches(selector)) {
-        return el
+      while (elements[index] && elements[index] !== element) {
+        ++index;
       }
-      el = el.parentNode;
-    }
-    return null
-  };
+
+      return Boolean(elements[index])
+    };
+  }
+
+  if (typeof Element.prototype.closest !== 'function') {
+    Element.prototype.closest = function closest (selector) {
+      var el = this;
+      while (el && el.nodeType === 1) {
+        if (el.matches(selector)) {
+          return el
+        }
+        el = el.parentNode;
+      }
+      return null
+    };
+  }
+
+  // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+  (function (arr) {
+    arr.forEach(function (item) {
+      if (item.hasOwnProperty('remove')) { return }
+      Object.defineProperty(item, 'remove', {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: function value () {
+          if (this.parentNode !== null) {
+            this.parentNode.removeChild(this);
+          }
+        }
+      });
+    });
+  })([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
 }
 
 if (!Array.prototype.find) {
@@ -398,7 +417,7 @@ if (!Array.prototype.find) {
   });
 }
 
-var version = "0.17.0-beta.3";
+var version = "0.17.0-beta.4";
 
 var History = {
   __history: [],
@@ -1451,6 +1470,7 @@ var ModelToggleMixin = {
           resolve(evt);
         };
         this$1.showPromiseReject = function () {
+          this$1.showPromise.catch(function () {});
           this$1.showPromise = null;
           reject(null); // eslint prefer-promise-reject-errors: 0
         };
@@ -1490,6 +1510,7 @@ var ModelToggleMixin = {
           resolve();
         };
         this$1.hidePromiseReject = function () {
+          this$1.hidePromise.catch(function () {});
           this$1.hidePromise = null;
           reject(null);
         };
@@ -1783,7 +1804,7 @@ function getScrollbarWidth () {
     w2 = outer.clientWidth;
   }
 
-  document.body.removeChild(outer);
+  outer.remove();
   size = w1 - w2;
 
   return size
@@ -2042,14 +2063,10 @@ var QModal = {
       this.$nextTick(function () { return content && content.focus(); });
     },
     __hide: function __hide () {
-      var this$1 = this;
-
       EscapeKey.pop();
       this.__preventScroll(false);
       this.__register(false);
-      if (!this.noRefocus) {
-        setTimeout(function () { return this$1.__refocusTarget && this$1.__refocusTarget.focus(); }, 300);
-      }
+      !this.noRefocus && this.__refocusTarget && this.__refocusTarget.focus();
     },
     __stopPropagation: function __stopPropagation (e) {
       e.stopPropagation();
@@ -2081,9 +2098,7 @@ var QModal = {
     }
   },
   beforeDestroy: function beforeDestroy () {
-    if (this.$el.parentNode) {
-      this.$el.parentNode.removeChild(this.$el);
-    }
+    this.$el.remove();
   },
   render: function render (h) {
     var this$1 = this;
@@ -2096,9 +2111,11 @@ var QModal = {
         },
         enterCancelled: function () {
           this$1.showPromise && this$1.showPromiseReject();
+          this$1.$el.remove();
         },
         afterLeave: function () {
           this$1.hidePromise && this$1.hidePromiseResolve();
+          this$1.$el.remove();
         },
         leaveCancelled: function () {
           this$1.hidePromise && this$1.hidePromiseReject();
@@ -2812,7 +2829,6 @@ var QActionSheet = {
         },
         'escape-key': function () {
           this$1.$emit('escape-key');
-          this$1.$emit('cancel');
         }
       }
     }, child)
@@ -3215,9 +3231,7 @@ function showRipple (evt, el, ref) {
     css(animNode, cssTransform(("translate(" + x + "px, " + y + "px) scale3d(1, 1, 1)")));
     setTimeout(function () {
       animNode.classList.remove('q-ripple-animation-visible');
-      setTimeout(function () {
-        container.parentNode && el.removeChild(container);
-      }, 300);
+      setTimeout(function () { container.remove(); }, 300);
     }, 300);
   }, 10);
 }
@@ -3288,20 +3302,22 @@ var Ripple = {
   }
 };
 
-var alignMap = {
-  left: 'start',
-  center: 'center',
-  right: 'end',
-  between: 'between',
-  around: 'around'
-};
+var
+  alignMap = {
+    left: 'start',
+    center: 'center',
+    right: 'end',
+    between: 'between',
+    around: 'around'
+  },
+  alignValues = Object.keys(alignMap);
 
 var AlignMixin = {
   props: {
     align: {
       type: String,
       default: 'center',
-      validator: function (v) { return ['left', 'right', 'center', 'between', 'around'].includes(v); }
+      validator: function (v) { return alignValues.includes(v); }
     }
   },
   computed: {
@@ -5740,13 +5756,11 @@ var QBtn = {
       clearTimeout(this.timer);
     },
     __onKeyDown: function __onKeyDown (e, repeat) {
-      if (this.type || this.isDisabled || e.keyCode !== 13) {
+      if (this.isDisabled || e.keyCode !== 13) {
         return
       }
       this.active = true;
-      if (repeat) {
-        this.__startRepeat(e);
-      }
+      repeat ? this.__startRepeat(e) : stopAndPrevent(e);
     },
     __onKeyUp: function __onKeyUp (e, repeat) {
       if (!this.active) {
@@ -6286,7 +6300,7 @@ var QPopover = {
       window.removeEventListener('resize', this.__updatePosition, listenOpts.passive);
       EscapeKey.pop();
 
-      document.body.removeChild(this.$el);
+      this.$el.remove();
       this.hidePromise && this.hidePromiseResolve();
       if (!this.noRefocus && this.__refocusTarget) {
         this.__refocusTarget.focus();
@@ -6327,7 +6341,15 @@ var QBtnDropdown = {
     value: Boolean,
     split: Boolean,
     contentClass: [Array, String, Object],
-    contentStyle: [Array, String, Object]
+    contentStyle: [Array, String, Object],
+    popoverAnchor: {
+      type: String,
+      default: 'bottom right'
+    },
+    popoverSelf: {
+      type: String,
+      default: 'top right'
+    }
   },
   data: function data () {
     return {
@@ -6351,8 +6373,8 @@ var QBtnDropdown = {
             disable: this.disable,
             fit: true,
             anchorClick: !this.split,
-            anchor: 'bottom right',
-            self: 'top right'
+            anchor: this.popoverAnchor,
+            self: this.popoverSelf
           },
           'class': this.contentClass,
           style: this.contentStyle,
@@ -7067,7 +7089,9 @@ var QBreadcrumbs = {
       default: '/'
     },
     align: {
-      default: 'left'
+      type: String,
+      default: 'left',
+      validator: function (v) { return alignValues.includes(v); }
     }
   },
   computed: {
@@ -8926,9 +8950,7 @@ var FrameMixin = {
     outline: Boolean,
     textarea: Boolean,
     hideUnderline: Boolean,
-    clearValue: {
-      default: null
-    },
+    clearValue: {},
     noParentField: Boolean
   },
   computed: {
@@ -8964,6 +8986,12 @@ var FrameMixin = {
     editable: function editable () {
       return !this.disable && !this.readonly
     },
+    computedClearValue: function computedClearValue () {
+      return this.clearValue === void 0 ? null : this.clearValue
+    },
+    isClearable: function isClearable () {
+      return this.editable && this.clearable && this.computedClearValue !== this.model
+    },
     hasError: function hasError () {
       return !!((!this.noParentField && this.field && this.field.error) || this.error)
     },
@@ -8990,7 +9018,7 @@ var FrameMixin = {
         return
       }
       evt && stopAndPrevent(evt);
-      var val = this.clearValue;
+      var val = this.computedClearValue;
       if (this.__setModel) {
         this.__setModel(val, true);
       }
@@ -9036,6 +9064,7 @@ var InputMixin = {
         return
       }
       this.focused = true;
+      this.$refs.input && this.$refs.input.focus();
       this.$emit('focus', e);
     },
     __onInputBlur: function __onInputBlur (e) {
@@ -11134,6 +11163,7 @@ var QColor = {
       type: [String, Object],
       default: null
     },
+    // clearValue: {},
     formatModel: {
       type: String,
       default: 'auto',
@@ -11172,6 +11202,12 @@ var QColor = {
 
       return ''
     },
+    computedClearValue: function computedClearValue () {
+      return this.clearValue === void 0 ? this.defaultValue : this.clearValue
+    },
+    isClearable: function isClearable () {
+      return this.editable && this.clearable && JSON.stringify(this.computedClearValue) !== JSON.stringify(this.value)
+    },
     modalBtnColor: function modalBtnColor () {
       return this.color
     }
@@ -11197,7 +11233,7 @@ var QColor = {
           stopAndPrevent(e);
           return this.show()
         case 8: // BACKSPACE key
-          if (this.editable && this.clearable && this.actualValue.length) {
+          if (this.isClearable) {
             this.clear();
           }
       }
@@ -11400,7 +11436,7 @@ var QColor = {
           }
         }, this.__getPicker(h, true)),
 
-      this.editable && this.clearable && this.actualValue.length
+      this.isClearable
         ? h('QIcon', {
           slot: 'after',
           props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
@@ -11617,6 +11653,7 @@ var input = {
   format: String,
   okLabel: String,
   cancelLabel: String,
+  // clearValue: {},
   displayValue: String
 };
 
@@ -13865,6 +13902,12 @@ var QDatetime = {
       }
       return this.defaultValue
     },
+    computedClearValue: function computedClearValue () {
+      return this.clearValue === void 0 ? this.defaultValue : this.clearValue
+    },
+    isClearable: function isClearable () {
+      return this.editable && this.clearable && !isSameDate(this.computedClearValue, this.value)
+    },
     modalBtnColor: function modalBtnColor () {
       return this.color
     }
@@ -13890,7 +13933,7 @@ var QDatetime = {
           stopAndPrevent(e);
           return this.show()
         case 8: // BACKSPACE key
-          if (this.editable && this.clearable && this.actualValue.length) {
+          if (this.isClearable) {
             this.clear();
           }
       }
@@ -14125,7 +14168,7 @@ var QDatetime = {
           }
         }, this.__getPicker(h, true)),
 
-      this.editable && this.clearable && this.actualValue.length
+      this.isClearable
         ? h('QIcon', {
           slot: 'after',
           props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
@@ -14375,7 +14418,6 @@ var script$3 = {
       type: String,
       validator: function (v) { return ['left', 'center', 'right'].includes(v); }
     },
-    clearable: Boolean,
     noPassToggle: Boolean,
     numericKeyboardToggle: Boolean,
     readonly: Boolean,
@@ -14467,6 +14509,9 @@ var script$3 = {
         ? ('' + this.model).length
         : 0
     },
+    computedClearValue: function computedClearValue () {
+      return this.isNumber && this.clearValue === 0 ? this.clearValue : this.clearValue || (this.isNumber ? null : '')
+    },
     computedStep: function computedStep () {
       return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
     },
@@ -14511,7 +14556,7 @@ var script$3 = {
     __setModel: function __setModel (val) {
       clearTimeout(this.timer);
       this.focus();
-      this.__set(val || (this.isNumber ? null : ''), true);
+      this.__set(this.isNumber && val === 0 ? val : val || (this.isNumber ? null : ''), true);
     },
     __set: function __set (e, forceUpdate) {
       var this$1 = this;
@@ -14778,7 +14823,7 @@ var __vue_render__$3 = function() {
           })
         : _vm._e(),
       _vm._v(" "),
-      _vm.editable && _vm.clearable && _vm.length
+      _vm.isClearable
         ? _c("q-icon", {
             staticClass: "q-if-control",
             attrs: {
@@ -15248,7 +15293,6 @@ var QDialog = {
 
           node = this$1.$refs.modal.$el.getElementsByClassName('q-btn');
           if (node.length) {
-            console.log('found btn');
             node[node.length - 1].focus();
           }
         },
@@ -15260,7 +15304,6 @@ var QDialog = {
         },
         'escape-key': function () {
           this$1.$emit('escape-key');
-          this$1.$emit('cancel');
         }
       }
     }, child)
@@ -15458,7 +15501,8 @@ var QTooltip = {
 
       this.scrollTarget.removeEventListener('scroll', this.hide, listenOpts.passive);
       window.removeEventListener('resize', this.__debouncedUpdatePosition, listenOpts.passive);
-      document.body.removeChild(this.$el);
+      this.$el.remove();
+
       if (this.$q.platform.is.mobile) {
         document.body.removeEventListener('click', this.hide, true);
       }
@@ -19528,22 +19572,24 @@ var QRating = {
             }
           }
         }
-      }, [h(QIcon, {
-        props: { name: this$1.icon || this$1.$q.icon.rating.icon },
-        'class': {
-          active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
-          exselected: this$1.mouseModel && this$1.model >= i && this$1.mouseModel < i,
-          hovered: this$1.mouseModel === i
-        },
-        attrs: { tabindex: -1 },
-        nativeOn: {
-          click: function () { return this$1.set(i); },
-          mouseover: function () { return this$1.__setHoverValue(i); },
-          mouseout: function () { this$1.mouseModel = 0; },
-          focus: function () { return this$1.__setHoverValue(i); },
-          blur: function () { this$1.mouseModel = 0; }
-        }
-      })]));
+      }, [
+        h(QIcon, {
+          props: { name: this$1.icon || this$1.$q.icon.rating.icon },
+          'class': {
+            active: (!this$1.mouseModel && this$1.model >= i) || (this$1.mouseModel && this$1.mouseModel >= i),
+            exselected: this$1.mouseModel && this$1.model >= i && this$1.mouseModel < i,
+            hovered: this$1.mouseModel === i
+          },
+          attrs: { tabindex: -1 },
+          nativeOn: {
+            click: function () { return this$1.set(i); },
+            mouseover: function () { return this$1.__setHoverValue(i); },
+            mouseout: function () { this$1.mouseModel = 0; },
+            focus: function () { return this$1.__setHoverValue(i); },
+            blur: function () { this$1.mouseModel = 0; }
+          }
+        })
+      ]));
     };
 
     for (var i = 1; i <= this.max; i++) loop( i );
@@ -19847,32 +19893,33 @@ var QSearch = {
         ? 0
         : this.debounce
     },
+    computedClearValue: function computedClearValue () {
+      return this.isNumber && this.clearValue === 0 ? this.clearValue : this.clearValue || (this.type === 'number' ? null : '')
+    },
     controlBefore: function controlBefore () {
-      return this.before || (
-        this.noIcon
-          ? null
-          : [{
-            icon: this.icon || this.$q.icon.search.icon,
-            handler: this.focus
-          }]
-      )
+      var before = (this.before || []).slice();
+      if (!this.noIcon) {
+        before.unshift({
+          icon: this.icon || this.$q.icon.search.icon,
+          handler: this.focus
+        });
+      }
+      return before
     },
     controlAfter: function controlAfter () {
-      if (this.after) {
-        return this.after
-      }
-      if (this.editable && this.clearable) {
-        return [{
+      var after = (this.after || []).slice();
+      if (this.isClearable) {
+        after.push({
           icon: this.$q.icon.search[("clear" + (this.isInverted ? 'Inverted' : ''))],
-          content: true,
           handler: this.clear
-        }]
+        });
       }
+      return after
     }
   },
   methods: {
-    clear: function clear () {
-      this.$refs.input.clear();
+    clear: function clear (evt) {
+      this.$refs.input.clear(evt);
     }
   },
   render: function render (h) {
@@ -19959,7 +20006,6 @@ var script$4 = {
     multiple: Boolean,
     toggle: Boolean,
     chips: Boolean,
-    readonly: Boolean,
     options: {
       type: Array,
       required: true,
@@ -19967,9 +20013,7 @@ var script$4 = {
     },
     chipsColor: String,
     chipsBgColor: String,
-    displayValue: String,
-    clearable: Boolean,
-    clearValue: {}
+    displayValue: String
   },
   data: function data () {
     return {
@@ -20031,6 +20075,12 @@ var script$4 = {
 
       var opt = this.selectedOptions.map(function (opt) { return opt.label; });
       return opt.length ? opt.join(', ') : ''
+    },
+    computedClearValue: function computedClearValue () {
+      return this.clearValue || (this.multiple ? [] : null)
+    },
+    isClearable: function isClearable () {
+      return this.editable && this.clearable && JSON.stringify(this.computedClearValue) !== JSON.stringify(this.model)
     },
     selectedOptions: function selectedOptions () {
       var this$1 = this;
@@ -20314,7 +20364,7 @@ var __vue_render__$4 = function() {
                       attrs: {
                         small: "",
                         dense: _vm.dense,
-                        closable: !_vm.disable && !_vm.readonly && !opt.disable,
+                        closable: _vm.editable && !opt.disable,
                         color: _vm.__getChipBgColor(opt.color),
                         "text-color": _vm.__getChipTextColor(opt.color),
                         icon: opt.icon,
@@ -20351,7 +20401,7 @@ var __vue_render__$4 = function() {
             [_vm._v("\n    " + _vm._s(_vm.fakeInputValue) + "\n  ")]
           ),
       _vm._v(" "),
-      !_vm.disable && !_vm.readonly && _vm.clearable && _vm.length
+      _vm.isClearable
         ? _c("q-icon", {
             staticClass: "q-if-control",
             attrs: {
@@ -20380,11 +20430,7 @@ var __vue_render__$4 = function() {
           ref: "popover",
           staticClass: "column no-wrap",
           class: _vm.dark ? "bg-dark" : null,
-          attrs: {
-            fit: "",
-            disable: _vm.readonly || _vm.disable,
-            "anchor-click": false
-          },
+          attrs: { fit: "", disable: !_vm.editable, "anchor-click": false },
           on: {
             show: _vm.__onShow,
             hide: function($event) {
@@ -20442,7 +20488,8 @@ var __vue_render__$4 = function() {
                               index === _vm.keyboardIndex
                                 ? "q-select-highlight"
                                 : "",
-                              opt.disable ? "" : "cursor-pointer"
+                              opt.disable ? "" : "cursor-pointer",
+                              opt.className || ""
                             ],
                             attrs: { cfg: opt, "slot-replace": "" },
                             nativeOn: {
@@ -20499,7 +20546,8 @@ var __vue_render__$4 = function() {
                               index === _vm.keyboardIndex
                                 ? "q-select-highlight"
                                 : "",
-                              opt.disable ? "" : "cursor-pointer"
+                              opt.disable ? "" : "cursor-pointer",
+                              opt.className || ""
                             ],
                             attrs: {
                               cfg: opt,
@@ -25278,7 +25326,7 @@ var loading = {
     else {
       vm.$destroy();
       document.body.classList.remove('with-loading');
-      document.body.removeChild(vm.$el);
+      vm.$el.remove();
       vm = null;
     }
 

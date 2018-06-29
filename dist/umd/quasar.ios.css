@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.3
+ * Quasar Framework v0.17.0-beta.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -8300,6 +8300,14 @@ a.q-link {
 .q-mb-xl,
 .q-my-xl {
   margin-bottom: 48px;
+}
+.q-ml-auto,
+.q-mx-auto {
+  margin-left: auto;
+}
+.q-mr-auto,
+.q-mx-auto {
+  margin-right: auto;
 }
 .q-touch {
   -webkit-user-select: none;
