@@ -24738,12 +24738,12 @@ var screen = {
       return
     }
 
-    var update = function () {
+    var update = function (resized) {
       var
         w = window.innerWidth,
         s = this$1.sizes;
 
-      if (w === this$1.width) {
+      if (resized && w === this$1.width) {
         return
       }
 
@@ -24764,10 +24764,7 @@ var screen = {
       this$1.xl = w > s.xl;
     };
 
-    var
-      updateEvt = debounce(update, 100),
-      updateSizes = {},
-      updateDebounce;
+    var updateEvt, updateSizes = {}, updateDebounce;
 
     this.setSizes = function (sizes) {
       sizes.forEach(function (name) {
@@ -24797,18 +24794,23 @@ var screen = {
         update();
       };
       this$1.setDebounce = function (delay) {
-        window.removeEventListener('resize', updateEvt, listenOpts.passive);
+        var fn = function () { update(true); };
+        updateEvt && window.removeEventListener('resize', updateEvt, listenOpts.passive);
         updateEvt = delay > 0
-          ? debounce(update, delay)
-          : update;
+          ? debounce(fn, delay)
+          : fn;
         window.addEventListener('resize', updateEvt, listenOpts.passive);
       };
 
-      updateDebounce && this$1.setDebounce(updateDebounce);
-      Object.keys(updateSizes).length > 0 && this$1.setSizes(updateSizes);
-      update();
+      this$1.setDebounce(updateDebounce || 100);
 
-      window.addEventListener('resize', updateEvt, listenOpts.passive);
+      if (Object.keys(updateSizes).length > 0) {
+        this$1.setSizes(updateSizes);
+        updateSizes = null;
+      }
+      else {
+        update();
+      }
     };
 
     Vue.util.defineReactive($q, 'screen', this);
