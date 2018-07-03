@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.4
+ * Quasar Framework v0.17.0-beta.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -694,9 +694,9 @@ $input-dense-label-top-scale ?= unit($input-font-size / $input-dense-font-size *
 $input-dense-padding-x       ?= 12px
 $input-dense-padding-top     ?= 20px
 $input-dense-padding-bottom  ?= 0px
-$input-box-padding-top          ?= 1.4 * $input-padding-top
+$input-box-padding-top          ?= $input-padding-top
 $input-box-padding-bottom       ?= $input-padding-bottom
-$input-box-dense-padding-top    ?= 1.4 * $input-dense-padding-top
+$input-box-dense-padding-top    ?= $input-dense-padding-top
 $input-box-dense-padding-bottom ?= $input-dense-padding-bottom
 $input-fullwidth-padding-y       ?= 16px
 $input-fullwidth-dense-padding-y ?= 12px
@@ -1835,24 +1835,10 @@ qfield-horizontal()
   font-size $input-font-size
   margin-top $input-margin-top
   margin-bottom $input-margin-bottom
-  &.q-if-dense
-    font-size $input-dense-font-size
-    margin-top $input-dense-margin-top
-    margin-bottom $input-dense-margin-bottom
   .q-if-inner
     min-height $input-min-height
     align-items flex-start
-    padding-top 3px
-  &.q-if-standard
-    padding-top $input-padding-bottom
-    padding-bottom $input-padding-bottom
-    &.q-if-dense
-      padding-top $input-dense-padding-bottom
-      padding-bottom $input-dense-padding-bottom
-    &.q-if-has-label
-      padding-top $input-padding-top
-      &.q-if-dense
-        padding-top $input-dense-padding-top
+    padding-top 4px
   &:before, &:after
     position absolute
     top 0
@@ -1863,178 +1849,192 @@ qfield-horizontal()
     border-bottom-style solid
     background transparent
     pointer-events none
+    content ''
   &:before
     color $light
     color var(--q-color-light)
     transform scaleY(1)
   &:after
-    border-width 0
-    transform-origin center center 0
-    transform scaleX(0)
-  &:not(.q-if-hide-underline):not(.q-if-inverted)
+    border-width 2px
+    opacity 0
+  &.q-if-hide-underline, &.q-if-inverted
     &:before, &:after
-      content ''
+      content none
   &:not(.q-if-disabled):not(.q-if-full-width):not(.q-if-error):not(.q-if-warning):hover:before
     color black
     .q-if-dark&
       color white
-  &:not(.q-if-full-width)
-    .q-if-label
-      position absolute
-      transform-origin top left
-      transform scale(1) translate(0, 0)
-      &.q-if-label-above
-        transform scale($input-label-top-scale) translate(0, (-100 / $input-label-top-scale)%)
-        .q-if-dense&
-          transform scale($input-dense-label-top-scale) translate(0, (-120 / $input-dense-label-top-scale)%)
-  &.q-if-box, &.q-if-inverted
-    .q-if-label
-      top 50%
-      transform scale(1) translate(0, -50%)
-      &.q-if-label-above
-        top 0
+.q-if-dense
+  font-size $input-dense-font-size
+  margin-top $input-dense-margin-top
+  margin-bottom $input-dense-margin-bottom
+.q-if-standard
+  padding-top $input-padding-bottom
+  padding-bottom $input-padding-bottom
+  &.q-if-dense
+    padding-top $input-dense-padding-bottom
+    padding-bottom $input-dense-padding-bottom
+  &.q-if-has-label
+    padding-top $input-padding-top
+    &.q-if-dense
+      padding-top $input-dense-padding-top
+.q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline, .q-if-textarea
+  .q-if-label
+    position absolute
+    transform-origin top left
+    transform scale(1) translate(0, 0)
+    &.q-if-label-above
+      transform scale($input-label-top-scale) translate(0, (-100 / $input-label-top-scale)%)
+      .q-if-dense&
+        transform scale($input-dense-label-top-scale) translate(0, (-120 / $input-dense-label-top-scale)%)
+.q-if-box, .q-if-inverted
+  .q-if-label
+    top 50%
+    transform scale(1) translate(0, -50%)
+    &.q-if-label-above
+      top 0
+      transform scale($input-label-top-scale) translate(0, 50%)
+      .q-if-dense&
         transform scale($input-label-top-scale) translate(0, 50%)
-        .q-if-dense&
-          transform scale($input-label-top-scale) translate(0, 50%)
-  &.q-if-outline, &.q-if-textarea
+.q-if-box
+  border-radius $input-border-radius $input-border-radius 0 0
+  background rgba(0, 0, 0, .06)
+  padding-left $input-padding-x
+  padding-right $input-padding-x
+  .q-if-inner
+    margin-top $input-box-padding-bottom
+    margin-bottom $input-box-padding-bottom
+  &.q-if-dense
+    padding-left $input-dense-padding-x
+    padding-right $input-dense-padding-x
+    .q-if-inner
+      margin-top $input-box-dense-padding-bottom
+      margin-bottom $input-box-dense-padding-bottom
+  &.q-if-has-label
+    .q-if-inner
+      margin-top $input-box-padding-top
+    &.q-if-dense
+      .q-if-inner
+        margin-top $input-box-dense-padding-top
+  &:before, &:after
+    border-radius $input-border-radius $input-border-radius 0 0
+  &:not(.q-if-disabled):not(.q-if-focused):hover
+    background rgba(0, 0, 0, .1)
+    .q-if-dark&
+      background rgba(255, 255, 255, .14)
+  &.q-if-dark
+    background rgba(255, 255, 255, .1)
+.q-if-inverted
+  box-shadow $shadow-1
+  border-radius $input-inverted-border-radius
+  padding-left $input-padding-x
+  padding-right $input-padding-x
+  .q-if-inner
+    margin-top $input-box-padding-bottom
+    margin-bottom $input-box-padding-bottom
+  &.q-if-dense
+    padding-left $input-dense-padding-x
+    padding-right $input-dense-padding-x
+    .q-if-inner
+      margin-top $input-box-dense-padding-bottom
+      margin-bottom $input-box-dense-padding-bottom
+  &:before, &:after
+    border-style none
     border-radius $input-border-radius
-    padding-left $input-padding-x
-    padding-right $input-padding-x
-    &.q-if-dense
-      padding-left $input-dense-padding-x
-      padding-right $input-dense-padding-x
-    &:before, &:after
-      border-style solid
-      border-radius $input-border-radius
-  &.q-if-inverted
-    box-shadow $shadow-1
-    border-radius $input-inverted-border-radius
-    padding-left $input-padding-x
-    padding-right $input-padding-x
+  &.q-if-has-label
     .q-if-inner
-      margin-top $input-box-padding-bottom
-      margin-bottom $input-box-padding-bottom
+      margin-top $input-box-padding-top
     &.q-if-dense
-      padding-left $input-dense-padding-x
-      padding-right $input-dense-padding-x
       .q-if-inner
-        margin-top $input-box-dense-padding-bottom
-        margin-bottom $input-box-dense-padding-bottom
-    &:before, &:after
-      border-style none
-      border-radius $input-border-radius
-    &.q-if-has-label
-      .q-if-inner
-        margin-top $input-box-padding-top
-      &.q-if-dense
-        .q-if-inner
-          margin-top $input-box-dense-padding-top
-    .q-input-target
-      color inherit
-  &.q-if-outline
-    padding-top $input-fullwidth-padding-y
-    padding-bottom $input-fullwidth-padding-y
+        margin-top $input-box-dense-padding-top
+  .q-input-target
+    color inherit
+.q-if-outline, .q-if-textarea
+  border-radius $input-border-radius
+  padding-left $input-padding-x
+  padding-right $input-padding-x
+  &.q-if-dense
+    padding-left $input-dense-padding-x
+    padding-right $input-dense-padding-x
+  &:before, &:after
+    border-style solid
+    border-radius $input-border-radius
+.q-if-outline
+  padding-top $input-fullwidth-padding-y
+  padding-bottom $input-fullwidth-padding-y
+  background-color inherit
+  .q-if-inner
     background-color inherit
-    .q-if-inner
+  &.q-if-dense
+    padding-top $input-fullwidth-dense-padding-y
+    padding-bottom $input-fullwidth-dense-padding-y
+  .q-if-label
+    left $input-padding-x
+    background-color inherit
+    z-index 1
+    &.q-if-label-above
+      left $input-padding-x - $input-outline-label-padding-x
+      padding-left $input-outline-label-padding-x
+      padding-right $input-outline-label-padding-x
+      transform scale($input-label-top-scale) translate(0, (-130 / $input-label-top-scale)%)
       background-color inherit
-    &.q-if-dense
-      padding-top $input-fullwidth-dense-padding-y
-      padding-bottom $input-fullwidth-dense-padding-y
-    .q-if-label
-      left $input-padding-x
-      background-color inherit
-      z-index 1
-      &.q-if-label-above
-        left $input-padding-x - $input-outline-label-padding-x
-        padding-left $input-outline-label-padding-x
-        padding-right $input-outline-label-padding-x
-        transform scale($input-label-top-scale) translate(0, (-130 / $input-label-top-scale)%)
-        background-color inherit
-        .q-if-dense&
-          transform scale($input-dense-label-top-scale) translate(0, (-130 / $input-dense-label-top-scale)%)
-    .q-if-control + .q-if-inner > .q-if-label:not(.q-if-label-above)
-      left $input-padding-x + $input-control-size + $input-control-margin
-    .q-if-control + .q-if-control + .q-if-inner > .q-if-label:not(.q-if-label-above)
-      left $input-padding-x + 2 * ($input-control-size + $input-control-margin)
-  &.q-if-textarea .q-if-inner
+      .q-if-dense&
+        transform scale($input-dense-label-top-scale) translate(0, (-130 / $input-dense-label-top-scale)%)
+  .q-if-control + .q-if-inner > .q-if-label:not(.q-if-label-above)
+    left $input-padding-x + $input-control-size + $input-control-margin
+  .q-if-control + .q-if-control + .q-if-inner > .q-if-label:not(.q-if-label-above)
+    left $input-padding-x + 2 * ($input-control-size + $input-control-margin)
+.q-if-textarea
+  .q-if-inner
     margin-top $input-textarea-padding-top
     margin-bottom $input-textarea-padding-bottom
     .q-if-dense&
       margin-top $input-textarea-dense-padding-top
       margin-bottom $input-textarea-dense-padding-bottom
-  &.q-if-box
-    border-radius $input-border-radius $input-border-radius 0 0
-    background rgba(0, 0, 0, .06)
-    padding-left $input-padding-x
-    padding-right $input-padding-x
-    .q-if-inner
-      margin-top $input-box-padding-bottom
-      margin-bottom $input-box-padding-bottom
-    &.q-if-dense
-      padding-left $input-dense-padding-x
-      padding-right $input-dense-padding-x
-      .q-if-inner
-        margin-top $input-box-dense-padding-bottom
-        margin-bottom $input-box-dense-padding-bottom
-    &.q-if-has-label
-      .q-if-inner
-        margin-top $input-box-padding-top
-      &.q-if-dense
-        .q-if-inner
-          margin-top $input-box-dense-padding-top
-    &:before, &:after
-      border-radius $input-border-radius $input-border-radius 0 0
-    &:not(.q-if-disabled):not(.q-if-focused):hover
-      background rgba(0, 0, 0, .1)
-      .q-if-dark&
-        background rgba(255, 255, 255, .14)
-    &.q-if-dark
-      background rgba(255, 255, 255, .1)
-  &.q-if-full-width
-    padding-top $input-fullwidth-padding-y
-    padding-bottom $input-fullwidth-padding-y
+.q-if-full-width
+  padding-top $input-fullwidth-padding-y
+  padding-bottom $input-fullwidth-padding-y
+  margin-top 0
+  margin-bottom 0
+  &.q-if-dense
+    padding-top $input-fullwidth-dense-padding-y
+    padding-bottom $input-fullwidth-dense-padding-y
     margin-top 0
     margin-bottom 0
-    &.q-if-dense
-      padding-top $input-fullwidth-dense-padding-y
-      padding-bottom $input-fullwidth-dense-padding-y
-      margin-top 0
-      margin-bottom 0
-    .q-if-label-above
-      width 0
-      overflow visible
-    &.q-if-has-content .q-if-label-above
-      display none
-  &.q-if-focused
-    &:not(.q-if-full-width)
-      &:after
-        border-width 2px
-        transform scaleX(1)
-        transition $input-frame-transition-border
-    .q-if-label, .q-if-addon, .q-if-control
-      color currentColor
-  &.q-if-warning
-    &:before, &:after, &:not(.q-if-inverted) .q-if-label
-      color $warning
-      color var(--q-color-warning)
-    &:hover:before
-      color lighten($warning, 46%)
-      color var(--q-color-warning-l)
-  &.q-if-error
-    &:before, &:after, &:not(.q-if-inverted) .q-if-label
-      color $negative
-      color var(--q-color-negative)
-    &:hover:before
-      color lighten($negative, 46%)
-      color var(--q-color-negative-l)
-  &.q-if-disabled
+  .q-if-label-above
+    width 0
+    overflow visible
+  &.q-if-has-content .q-if-label-above
+    display none
+.q-if-focused
+  &:not(.q-if-full-width)
+    &:after
+      opacity 1
+      transition $input-frame-transition-border
+  .q-if-label, .q-if-addon, .q-if-control
+    color currentColor
+.q-if-warning
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+    color $warning
+    color var(--q-color-warning)
+  &:hover:before
+    color lighten($warning, 46%)
+    color var(--q-color-warning-l)
+.q-if-error
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+    color $negative
+    color var(--q-color-negative)
+  &:hover:before
+    color lighten($negative, 46%)
+    color var(--q-color-negative-l)
+.q-if-disabled
+  cursor not-allowed
+  opacity .6
+  .q-if-label, .q-if-control, .q-input-target, .q-chip
     cursor not-allowed
-    opacity .6
-    .q-if-label, .q-if-control, .q-input-target, .q-chip
-      cursor not-allowed
-  &.q-if-dark:not(.q-if-inverted-light)
-    .q-input-target:not(.q-input-target-placeholder)
-      color white
+.q-if-dark:not(.q-if-inverted-light)
+  .q-input-target:not(.q-input-target-placeholder)
+    color white
 .q-if-focusable
   outline 0
   cursor pointer
@@ -2052,6 +2052,8 @@ qfield-horizontal()
 .q-if-baseline
   width 0
   visibility hidden
+  .q-if-standard &
+    padding-top 4px
 .q-if-label, .q-if-label-fake, .q-if-baseline
   pointer-events none
   user-select none
@@ -5542,6 +5544,8 @@ for $space, $value in $spaces
     @extends .q-ml-{$space}, .q-mr-{$space}
   .q-my-{$space}
     @extends .q-mt-{$space}, .q-mb-{$space}
+.q-mt-dense
+  margin-top $input-dense-margin-top
 .q-ml-auto
   margin-left auto
 .q-mr-auto

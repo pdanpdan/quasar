@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.4
+ * Quasar Framework v0.17.0-beta.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -425,7 +425,7 @@
     });
   }
 
-  var version = "0.17.0-beta.4";
+  var version = "0.17.0-beta.5";
 
   var History = {
     __history: [],
@@ -3357,8 +3357,10 @@
     xl: 24,
     form: 12.444,
     'form-label': 18.666,
-    'form-inverted': 12.444,
-    'form-label-inverted': 21.777
+    'form-full': 21.777,
+    'form-dense': 9.333,
+    'form-label-dense': 17.111,
+    'form-full-dense': 18.666
   };
 
   var BtnMixin = {
@@ -15928,7 +15930,7 @@
           })
           : (this.insetIcon ? h('div', { staticClass: 'q-field-icon' }) : null),
 
-        h('div', { staticClass: 'row col' }, [
+        h('div', { staticClass: 'row col items-baseline' }, [
           label || this.insetHasLabel
             ? h('div', {
               staticClass: 'q-field-label q-field-margin',
@@ -15941,7 +15943,7 @@
             : null,
 
           h('div', {
-            staticClass: 'q-field-content',
+            staticClass: 'q-field-content ellipsis',
             'class': this.inputClasses
           }, [
             this.$slots.default,
