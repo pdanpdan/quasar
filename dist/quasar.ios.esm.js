@@ -17767,7 +17767,7 @@ var QPagination = {
 
     if (this.input) {
       contentMiddle.push(h(QInput, {
-        staticClass: 'inline q-my-none',
+        staticClass: 'inline q-my-none q-py-none',
         style: {
           width: ((this.inputPlaceholder.length) + "rem")
         },
@@ -21363,7 +21363,7 @@ var Bottom = {
             this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
-            staticClass: 'inline q-table-bottom-item q-my-none',
+            staticClass: 'q-table-bottom-item q-my-none q-py-none',
             props: {
               color: this.color,
               value: rowsPerPage,
@@ -22021,7 +22021,7 @@ var QTableColumns = {
     var this$1 = this;
 
     return h(QSelect, {
-      staticClass: 'q-my-none',
+      staticClass: 'q-my-none q-py-none',
       props: {
         multiple: true,
         toggle: true,

@@ -5064,6 +5064,9 @@ body.desktop .q-tab:hover:before {
 [dir=rtl] .q-table-bottom-item {
   margin-left: 24px;
 }
+.q-table-bottom-item.q-if {
+  font-size: 13px;
+}
 [dir] .q-table-horizontal-separator thead, [dir] .q-table-horizontal-separator tbody td {
   border-width: 0 0 1px 0;
 }

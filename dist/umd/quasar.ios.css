@@ -3680,6 +3680,9 @@ body.desktop .q-tab:hover:before {
 .q-table-bottom-item {
   margin-right: 24px;
 }
+.q-table-bottom-item.q-if {
+  font-size: 13px;
+}
 .q-table-horizontal-separator thead,
 .q-table-horizontal-separator tbody td {
   border-width: 0 0 1px 0;
