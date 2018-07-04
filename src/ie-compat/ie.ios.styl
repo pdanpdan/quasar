@@ -1,0 +1,75 @@
+ie_style = @block
+  /* Inputs */
+  .q-if > .q-if-inner
+    flex-basis auto
+    display inline-flex
+    > div
+      min-width 100%
+      > .q-input-target
+        flex-basis auto
+  .q-input-target:before
+    display block
+
+  /* QAlert */
+  .row > .col
+    &.q-alert-content
+      flex-basis auto
+
+  /* QSlider, QRange */
+  .q-slider-handle
+    > .q-chip.inline.row
+      display -ms-inline-grid
+
+  /* QBtn */
+  .q-btn
+    .q-btn-inner
+      flex-basis auto
+    &:not(.q-btn-round)
+      height 1px
+    &:active
+    &.active
+      .q-btn-inner
+        margin -1px 1px 1px -1px
+      &.q-btn-push
+        .q-btn-inner
+          margin 1px 0 -1px 0
+        &.disabled
+          .q-btn-inner
+            margin -1px 1px 1px -1px
+  .q-btn-group > .q-btn.q-btn-push:not(.disabled)
+    &:active .q-btn-inner
+    &.active .q-btn-inner
+      margin 0
+
+  /* QChip */
+  .q-chip:not(.q-chip-small):not(.q-chip-dense) .q-chip-main
+    line-height $chip-height
+  .q-btn .q-chip
+    display inline-block
+  .q-tab .q-chip .q-chip-main
+    line-height normal
+
+  /* QFab */
+  .q-fab-actions
+    &.q-fab-left
+    &.q-fab-right
+      display block
+      white-space nowrap
+
+  /* QList */
+  .q-item-main
+    min-width 1px
+
+  /* QModalLayout */
+  .modal-content
+    height 100%
+  .q-modal-layout
+    flex 1 1 auto
+  .q-layout-header, .q-layout-footer
+    display flex
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
+  {ie_style}
+
+@supports (-ms-ime-align:auto)
+  {ie_style}
