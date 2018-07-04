@@ -3313,12 +3313,10 @@
     md: 14,
     lg: 20,
     xl: 24,
-    form: 12.444,
-    'form-label': 18.666,
-    'form-full': 21.777,
-    'form-dense': 9.333,
-    'form-label-dense': 17.111,
-    'form-full-dense': 18.666
+    form: 14.777,
+    'form-label': 21.777,
+    'form-dense': 10.888,
+    'form-label-dense': 18.666
   };
 
   var BtnMixin = {
@@ -6239,7 +6237,7 @@
         var this$1 = this;
 
         if (!this.noRefocus) {
-          this.__refocusTarget = this.anchorEl || document.activeElement;
+          this.__refocusTarget = (this.anchorClick && this.anchorEl) || document.activeElement;
         }
         document.body.appendChild(this.$el);
         EscapeKey.register(function () { this$1.hide(); });
@@ -6848,7 +6846,7 @@
       trigger: function trigger (focus) {
         var this$1 = this;
 
-        if (!this.__input || !this.__input.hasFocus() || !this.isWorking()) {
+        if (!this.__input || !this.__input.isEditable() || !this.__input.hasFocus() || !this.isWorking()) {
           return
         }
 
@@ -9171,6 +9169,7 @@
         this.hasError && cls.push('q-if-error');
         this.hasWarning && cls.push('q-if-warning');
         this.disable && cls.push('q-if-disabled');
+        this.readonly && cls.push('q-if-readonly');
         this.focusable && !this.disable && cls.push('q-if-focusable');
         this.isInverted && cls.push('q-if-inverted');
         this.isInvertedLight && cls.push('q-if-inverted-light');
@@ -9275,55 +9274,57 @@
             })
           : _vm._e(),
         _vm._v(" "),
-        _c(
-          "div",
-          { staticClass: "q-if-inner col row no-wrap" },
-          [
-            _vm.prefix && _vm.fullWidth
-              ? _c("span", {
-                  staticClass: "q-if-addon q-if-addon-left",
-                  class: _vm.addonClass,
-                  domProps: { textContent: _vm._s(_vm.prefix) }
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.hasLabel
-              ? _c("div", {
-                  staticClass: "q-if-label ellipsis",
-                  class: {
-                    "q-if-label-above": _vm.labelIsAbove
-                  },
-                  domProps: { textContent: _vm._s(_vm.label) }
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.prefix && !_vm.fullWidth
-              ? _c("span", {
-                  staticClass: "q-if-addon q-if-addon-left",
-                  class: _vm.addonClass,
-                  domProps: { textContent: _vm._s(_vm.prefix) }
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm._t("default"),
-            _vm._v(" "),
-            _vm.hasLabel
-              ? _c("div", {
-                  staticClass: "q-if-label-fake ellipsis",
-                  domProps: { textContent: _vm._s(_vm.label) }
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.suffix
-              ? _c("span", {
-                  staticClass: "q-if-addon q-if-addon-right",
-                  class: _vm.addonClass,
-                  domProps: { textContent: _vm._s(_vm.suffix) }
-                })
-              : _vm._e()
-          ],
-          2
-        ),
+        _c("div", { staticClass: "q-if-inner col" }, [
+          _c(
+            "div",
+            { staticClass: "row no-wrap" },
+            [
+              _vm.prefix && _vm.isFullWidth
+                ? _c("span", {
+                    staticClass: "q-if-addon q-if-addon-left",
+                    class: _vm.addonClass,
+                    domProps: { textContent: _vm._s(_vm.prefix) }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.hasLabel
+                ? _c("div", {
+                    staticClass: "q-if-label ellipsis",
+                    class: {
+                      "q-if-label-above": _vm.labelIsAbove
+                    },
+                    domProps: { textContent: _vm._s(_vm.label) }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.prefix && !_vm.isFullWidth
+                ? _c("span", {
+                    staticClass: "q-if-addon q-if-addon-left",
+                    class: _vm.addonClass,
+                    domProps: { textContent: _vm._s(_vm.prefix) }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
+              _vm._t("default"),
+              _vm._v(" "),
+              _vm.suffix
+                ? _c("span", {
+                    staticClass: "q-if-addon q-if-addon-right",
+                    class: _vm.addonClass,
+                    domProps: { textContent: _vm._s(_vm.suffix) }
+                  })
+                : _vm._e()
+            ],
+            2
+          ),
+          _vm._v(" "),
+          _vm.hasLabel
+            ? _c("div", {
+                staticClass: "q-if-label-fake ellipsis",
+                domProps: { textContent: _vm._s(_vm.label) }
+              })
+            : _vm._e()
+        ]),
         _vm._v(" "),
         _vm.after
           ? _vm._l(_vm.after, function(item) {
@@ -9509,6 +9510,7 @@
           loading: false,
           selectionOpen: false,
           watched: 0,
+          isEditable: function () { return this$1.editable; },
           isDark: function () { return this$1.dark; },
           hasFocus: function () { return document.activeElement === this$1.$refs.input; },
           register: function () {
@@ -9688,6 +9690,7 @@
           error: _vm.error,
           warning: _vm.warning,
           disable: _vm.disable,
+          readonly: _vm.readonly,
           inverted: _vm.inverted,
           "inverted-light": _vm.invertedLight,
           dark: _vm.dark,
@@ -10755,6 +10758,9 @@
           inp.push('a');
         }
         return inp
+      },
+      __needsBorder: function __needsBorder () {
+        return true
       }
     },
     created: function created () {
@@ -12298,6 +12304,9 @@
 
       editable: function editable () {
         return !this.disable && !this.readonly
+      },
+      __needsBorder: function __needsBorder () {
+        return true
       }
     },
 
@@ -14420,6 +14429,7 @@
           setNav: this.__set,
           loading: false,
           watched: 0,
+          isEditable: function () { return this$1.editable; },
           isDark: function () { return this$1.dark; },
           hasFocus: function () { return document.activeElement === this$1.$refs.input; },
           register: function () {
@@ -14652,6 +14662,7 @@
           error: _vm.error,
           warning: _vm.warning,
           disable: _vm.disable,
+          readonly: _vm.readonly,
           inverted: _vm.inverted,
           "inverted-light": _vm.invertedLight,
           dark: _vm.dark,
@@ -16756,7 +16767,7 @@
           })
           : (this.insetIcon ? h('div', { staticClass: 'q-field-icon' }) : null),
 
-        h('div', { staticClass: 'row col items-baseline' }, [
+        h('div', { staticClass: 'row col' }, [
           label || this.insetHasLabel
             ? h('div', {
               staticClass: 'q-field-label q-field-margin',
@@ -20300,6 +20311,7 @@
           error: _vm.error,
           warning: _vm.warning,
           disable: _vm.disable,
+          readonly: _vm.readonly,
           inverted: _vm.inverted,
           "inverted-light": _vm.invertedLight,
           dark: _vm.dark,
@@ -21248,6 +21260,9 @@
           event: routerLinkEventName,
           activeClass: 'q-router-link-active',
           exactActiveClass: 'q-router-link-exact-active'
+        },
+        attrs: {
+          tabindex: -1
         },
         nativeOn: {
           click: this.select,
@@ -24078,6 +24093,7 @@
               error: _vm.error,
               warning: _vm.warning,
               disable: _vm.disable,
+              readonly: _vm.readonly,
               inverted: _vm.inverted,
               "inverted-light": _vm.invertedLight,
               dark: _vm.dark,
