@@ -6952,7 +6952,7 @@
         this.enterKey = this.__input && value !== this.__input.val;
         this[("__input" + suffix)][kbdNav ? 'setNav' : 'set'](value);
 
-        this.$emit('selected', result);
+        this.$emit('selected', result, !!kbdNav);
         if (!kbdNav) {
           this.__clearSearch();
           this.hide();
@@ -9608,6 +9608,7 @@
           return
         }
 
+        this.$emit('add', { index: this.model.length, val: val });
         this.model.push(val);
         this.$emit('input', this.model);
         this.input = '';
@@ -9616,7 +9617,7 @@
         clearTimeout(this.timer);
         this.focus();
         if (this.editable && index >= 0 && index < this.length) {
-          this.model.splice(index, 1);
+          this.$emit('remove', { index: index, value: this.model.splice(index, 1) });
           this.$emit('input', this.model);
         }
       },
@@ -20235,9 +20236,10 @@
           index = model.indexOf(value);
 
         if (index > -1) {
-          model.splice(index, 1);
+          this.$emit('remove', { index: index, value: model.splice(index, 1) });
         }
         else {
+          this.$emit('add', { index: model.length, value: value });
           model.push(value);
         }
 
