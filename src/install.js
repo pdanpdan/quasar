@@ -1,10 +1,10 @@
-import './polyfills'
+import './polyfills.js'
 import { version } from '../package.json'
-import Platform, { isSSR } from './plugins/platform'
-import History from './history'
-import I18n from './i18n'
-import Body from './body'
-import Icons from './icons'
+import Platform, { isSSR } from './plugins/platform.js'
+import History from './history.js'
+import I18n from './i18n.js'
+import Body from './body.js'
+import Icons from './icons.js'
 
 export const queues = {
   server: [], // on SSR update
@@ -40,23 +40,19 @@ export default function (Vue, opts = {}) {
     Vue.prototype.$q = $q
   }
 
-  if (opts.directives) {
-    Object.keys(opts.directives).forEach(key => {
-      const d = opts.directives[key]
-      if (d.name !== undefined && d.unbind !== void 0) {
-        Vue.directive(d.name, d)
-      }
-    })
-  }
+  opts.components && Object.keys(opts.components).forEach(key => {
+    const c = opts.components[key]
+    if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
+      Vue.component(c.name, c)
+    }
+  })
 
-  if (opts.components) {
-    Object.keys(opts.components).forEach(key => {
-      const c = opts.components[key]
-      if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
-        Vue.component(c.name, c)
-      }
-    })
-  }
+  opts.directives && Object.keys(opts.directives).forEach(key => {
+    const d = opts.directives[key]
+    if (d.name !== undefined && d.unbind !== void 0) {
+      Vue.directive(d.name, d)
+    }
+  })
 
   if (opts.plugins) {
     const param = { $q, queues, Vue, cfg }

@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.5
+ * Quasar Framework v0.17.0-beta.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1820,7 +1820,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-field-bottom {
   -webkit-transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
   transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-  -webkit-backface-visibility: hidden;
 }
 .q-if.q-if-full-width:after,
 .q-if.q-if-hide-underline:before,
@@ -1953,6 +1952,9 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
           align-items: flex-start;
   padding-top: 4px;
 }
+.q-if .q-if-inner > div {
+  overflow-x: hidden;
+}
 .q-if-dense {
   font-size: 0.813rem;
   margin-top: 12px;
@@ -1980,42 +1982,43 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   position: absolute;
   -webkit-transform-origin: top left;
           transform-origin: top left;
-  -webkit-transform: scale(1) translate(0, 0);
-          transform: scale(1) translate(0, 0);
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
 }
 .q-if-standard .q-if-label.q-if-label-above,
 .q-if-box .q-if-label.q-if-label-above,
 .q-if-inverted .q-if-label.q-if-label-above,
 .q-if-outline .q-if-label.q-if-label-above,
 .q-if-textarea .q-if-label.q-if-label-above {
-  -webkit-transform: scale(0.75) translate(0, -133.33333333333334%);
-          transform: scale(0.75) translate(0, -133.33333333333334%);
+  font-size: 0.75rem;
+  -webkit-transform: translate(0, -133.33333333333334%);
+          transform: translate(0, -133.33333333333334%);
 }
 .q-if-dense.q-if-standard .q-if-label.q-if-label-above,
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
 .q-if-dense.q-if-inverted .q-if-label.q-if-label-above,
 .q-if-dense.q-if-outline .q-if-label.q-if-label-above,
 .q-if-dense.q-if-textarea .q-if-label.q-if-label-above {
-  -webkit-transform: scale(0.899907749077491) translate(0, -133.347001537673%);
-          transform: scale(0.899907749077491) translate(0, -133.347001537673%);
+  -webkit-transform: translate(0, -133.347001537673%);
+          transform: translate(0, -133.347001537673%);
 }
 .q-if-box .q-if-label,
 .q-if-inverted:not(.q-if-textarea) .q-if-label {
   top: 50%;
-  -webkit-transform: scale(1) translate(0, -50%);
-          transform: scale(1) translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+          transform: translate(0, -50%);
 }
 .q-if-box .q-if-label.q-if-label-above,
 .q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
-  top: 5px;
-  -webkit-transform: scale(0.75) translate(0, 50%);
-          transform: scale(0.75) translate(0, 50%);
+  top: 4px;
+  -webkit-transform: translate(0, 50%);
+          transform: translate(0, 50%);
 }
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
 .q-if-dense.q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
   top: 2px;
-  -webkit-transform: scale(0.899907749077491) translate(0, 50%);
-          transform: scale(0.899907749077491) translate(0, 50%);
+  -webkit-transform: translate(0, 50%);
+          transform: translate(0, 50%);
 }
 .q-if-box {
   background: rgba(0,0,0,0.06);
@@ -2039,25 +2042,24 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-outline,
 .q-if-outline .q-if-inner,
-.q-if-outline .q-if-inner > div {
+.q-if-outline .q-if-inner > div,
+.q-if-outline .q-if-label {
   background-color: inherit;
 }
 .q-if-outline .q-if-label {
   left: 16px;
-  background-color: inherit;
   z-index: 1;
 }
 .q-if-outline .q-if-label.q-if-label-above {
   left: 12px;
   padding-left: 4px;
   padding-right: 4px;
-  -webkit-transform: scale(0.75) translate(0, -193.33333333333334%);
-          transform: scale(0.75) translate(0, -193.33333333333334%);
-  background-color: inherit;
+  -webkit-transform: translate(0, -193.33333333333334%);
+          transform: translate(0, -193.33333333333334%);
 }
 .q-if-dense.q-if-outline .q-if-label.q-if-label-above {
-  -webkit-transform: scale(0.899907749077491) translate(0, -166.68375192209123%);
-          transform: scale(0.899907749077491) translate(0, -166.68375192209123%);
+  -webkit-transform: translate(0, -166.68375192209123%);
+          transform: translate(0, -166.68375192209123%);
 }
 .q-if-outline .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above) {
   left: 44px;
@@ -2079,6 +2081,8 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-full-width .q-if-label {
   width: 0;
+  margin: 0;
+  white-space: nowrap;
   overflow: visible;
 }
 .q-if-full-width.q-if-has-content .q-if-label-above {
@@ -2131,6 +2135,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   width: 24px;
   height: 24px;
   cursor: pointer;
+  z-index: 2;
 }
 .q-if-control + .q-if-control,
 .q-if-control + .q-if-inner,
@@ -2164,16 +2169,9 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   height: 0;
 }
 .q-if-label {
-  max-width: 100%;
-}
-.q-if-box .q-if-label,
-.q-if-outline .q-if-label,
-.q-if-inverted .q-if-label,
-.q-if-textarea .q-if-label {
-  max-width: calc(100% - 32px);
-}
-.q-if-label-above {
-  z-index: 1;
+  height: 1.2em;
+  overflow: hidden;
+  margin-right: 52px;
 }
 .q-if-label,
 .q-if-addon,
@@ -2207,7 +2205,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   opacity: 1;
 }
 .q-input-chips {
-  margin-top: -9px;
+  margin-top: -5px;
   margin-left: -8px;
 }
 .q-input-chips > div {
@@ -2215,15 +2213,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   padding-left: 8px;
 }
 .q-if-dense .q-input-chips {
-  margin-top: -5px;
-}
-.q-input-chips .q-input-chips-target {
-  min-height: 34px;
-  padding-top: 6px;
+  margin-top: -4px;
 }
 .q-if-dense .q-input-chips .q-input-chips-target {
-  min-height: 18px;
-  padding-top: 4px;
+  margin-top: -4px;
 }
 .q-input-target,
 .q-input-shadow {
@@ -3296,6 +3289,9 @@ body.desktop .q-select-highlight {
   height: 12px;
   outline: 0;
   background: currentColor;
+}
+.q-slider-handle .q-chip {
+  max-width: unset;
 }
 .q-slider-handle.dragging {
   -webkit-transform: translate3d(-50%, -50%, 0) scale(1.3);

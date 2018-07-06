@@ -30,7 +30,7 @@
 
         <div
           v-if="hasLabel"
-          class="q-if-label ellipsis"
+          class="q-if-label"
           :class="{
             'q-if-label-above': labelIsAbove
           }"
@@ -55,7 +55,7 @@
       </div>
       <div
         v-if="hasLabel"
-        class="q-if-label-fake ellipsis"
+        class="q-if-label-fake"
         v-text="label"
       />
     </div>
@@ -77,8 +77,8 @@
 </template>
 
 <script>
-import FrameMixin from '../../mixins/input-frame'
-import ParentFieldMixin from '../../mixins/parent-field'
+import FrameMixin from '../../mixins/input-frame.js'
+import ParentFieldMixin from '../../mixins/parent-field.js'
 
 export default {
   name: 'QInputFrame',

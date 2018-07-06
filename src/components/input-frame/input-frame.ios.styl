@@ -1,6 +1,5 @@
 .q-if, .q-if:before, .q-if-label, .q-if-addon, .q-field-icon, .q-field-label, .q-if-control, .q-field-bottom
   transition $input-frame-transition
-  -webkit-backface-visibility hidden
 
 $content-none
   content none
@@ -85,6 +84,8 @@ $margin-top-box-dense
     min-height $input-min-height
     align-items flex-start
     padding-top 4px
+    > div
+      overflow-x hidden
 
 .q-if-dense
   font-size $input-dense-font-size
@@ -106,26 +107,23 @@ $margin-top-box-dense
   .q-if-label
     position absolute
     transform-origin top left
-    transform scale(1) translate(0, 0)
+    transform translate(0, 0)
     &.q-if-label-above
-      transform scale($input-label-top-scale) translate(0, (-100 / $input-label-top-scale)%)
+      font-size ($input-font-size * $input-label-top-scale)
+      transform translate(0, (-100 / $input-label-top-scale)%)
       .q-if-dense&
-        transform scale($input-dense-label-top-scale) translate(0, (-120 / $input-dense-label-top-scale)%)
+        transform translate(0, (-120 / $input-dense-label-top-scale)%)
 
 .q-if-box, .q-if-inverted:not(.q-if-textarea)
   .q-if-label
     top 50%
-    transform scale(1) translate(0, -50%)
+    transform translate(0, -50%)
     &.q-if-label-above
-      top 5px
-      transform scale($input-label-top-scale) translate(0, 50%)
+      top 4px
+      transform translate(0, 50%)
       .q-if-dense&
         top 2px
-        transform scale($input-dense-label-top-scale) translate(0, 50%)
-
-.q-if-box
-  @extends $border-radius-top
-  background rgba(0, 0, 0, .06)
+        transform translate(0, 50%)
   @extends $padding-x
   .q-if-inner
     @extends $margin-y-box
@@ -139,6 +137,10 @@ $margin-top-box-dense
     &.q-if-dense
       .q-if-inner
         @extends $margin-top-box-dense
+
+.q-if-box
+  @extends $border-radius-top
+  background rgba(0, 0, 0, .06)
   &:not(.q-if-disabled):not(.q-if-focused):hover
     background rgba(0, 0, 0, .1)
     .q-if-dark&
@@ -149,20 +151,6 @@ $margin-top-box-dense
 .q-if-inverted
   box-shadow $shadow-1
   border-radius $input-inverted-border-radius
-  &:not(.q-if-textarea)
-    @extends $padding-x
-    .q-if-inner
-      @extends $margin-y-box
-    &.q-if-dense
-      @extends $padding-x-dense
-      .q-if-inner
-        @extends $margin-y-box-dense
-    &.q-if-has-label
-      .q-if-inner
-        @extends $margin-top-box
-      &.q-if-dense
-        .q-if-inner
-          @extends $margin-top-box-dense
   .q-input-target
     color inherit
 
@@ -174,22 +162,20 @@ $margin-top-box-dense
 
 .q-if-outline
   @extends $padding-y-full-width
-  &, .q-if-inner, .q-if-inner > div
+  &, .q-if-inner, .q-if-inner > div, .q-if-label
     background-color inherit
   &.q-if-dense
     @extends $padding-y-full-width-dense
   .q-if-label
     left $input-padding-x
-    background-color inherit
     z-index 1
     &.q-if-label-above
       left $input-padding-x - $input-outline-label-padding-x
       padding-left $input-outline-label-padding-x
       padding-right $input-outline-label-padding-x
-      transform scale($input-label-top-scale) translate(0, (-145 / $input-label-top-scale)%)
-      background-color inherit
+      transform translate(0, (-145 / $input-label-top-scale)%)
       .q-if-dense&
-        transform scale($input-dense-label-top-scale) translate(0, (-150 / $input-dense-label-top-scale)%)
+        transform translate(0, (-150 / $input-dense-label-top-scale)%)
   .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)
     left $input-padding-x + $input-control-size + $input-control-margin
   .q-if-control + .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)
@@ -211,6 +197,8 @@ $margin-top-box-dense
     @extends $padding-y-full-width-dense
   .q-if-label
     width 0
+    margin 0
+    white-space nowrap
     overflow visible
   &.q-if-has-content .q-if-label-above
     display none
@@ -254,6 +242,7 @@ $margin-top-box-dense
   width $input-control-size
   height $input-control-size
   cursor pointer
+  z-index 2
   + .q-if-control, + .q-if-inner, .q-if-inner + &
     margin-left $input-control-margin
   &:hover
@@ -274,12 +263,9 @@ $margin-top-box-dense
   visibility hidden
   height 0
 .q-if-label
-  max-width 100%
-.q-if-box, .q-if-outline, .q-if-inverted, .q-if-textarea
-  .q-if-label
-    max-width 'calc(100% - %s)' % (2 * $input-padding-x)
-.q-if-label-above
-  z-index 1
+  height 1.2em
+  overflow hidden
+  margin-right 2 * $input-control-size + $input-control-margin
 
 .q-if-label, .q-if-addon, .q-if-control
   color $form-dark
@@ -305,16 +291,12 @@ $margin-top-box-dense
   opacity 1
 
 .q-input-chips
-  margin-top -9px
+  margin-top -5px
   margin-left -8px
   > div
     padding-top 4px
     padding-left 8px
   .q-if-dense &
-    margin-top -5px
-  .q-input-chips-target
-    min-height 34px
-    padding-top 6px
-    .q-if-dense &
-      min-height 18px
-      padding-top 4px
+    margin-top -4px
+    .q-input-chips-target
+      margin-top -4px

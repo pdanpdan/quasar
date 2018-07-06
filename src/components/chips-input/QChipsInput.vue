@@ -32,8 +32,7 @@
     <div class="col row q-input-chips items-center">
       <div v-for="(label, index) in model" :key="`${label}#${index}`" class="col-auto">
         <q-chip
-          small
-          :dense="dense"
+          dense
           :closable="editable"
           :color="computedChipBgColor"
           :text-color="computedChipTextColor"
@@ -90,12 +89,12 @@
 </template>
 
 <script>
-import FrameMixin from '../../mixins/input-frame'
-import InputMixin from '../../mixins/input'
-import { QInputFrame } from '../input-frame'
-import { QChip } from '../chip'
-import { getEventKey, stopAndPrevent } from '../../utils/event'
-import { QSpinner } from '../spinner'
+import FrameMixin from '../../mixins/input-frame.js'
+import InputMixin from '../../mixins/input.js'
+import QInputFrame from '../input-frame/QInputFrame.vue'
+import QChip from '../chip/QChip.js'
+import QSpinner from '../spinner/QSpinner.js'
+import { getEventKey, stopAndPrevent } from '../../utils/event.js'
 
 export default {
   name: 'QChipsInput',

@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.5
+ * Quasar Framework v0.17.0-beta.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -425,7 +425,7 @@
     });
   }
 
-  var version = "0.17.0-beta.5";
+  var version = "0.17.0-beta.8";
 
   var History = {
     __history: [],
@@ -621,7 +621,7 @@
     return o
   }
 
-  var dom = /*#__PURE__*/Object.freeze({
+  var dom = {
     offset: offset,
     style: style,
     height: height,
@@ -629,7 +629,7 @@
     css: css,
     ready: ready,
     cssTransform: cssTransform
-  });
+  };
 
   var i18n = {
     install: function install ($q, queues, Vue$$1, lang) {
@@ -936,7 +936,7 @@
     return getComputedStyle(element).getPropertyValue(("--q-color-" + color)).trim() || null
   }
 
-  var colors = /*#__PURE__*/Object.freeze({
+  var colors = {
     rgbToHex: rgbToHex,
     hexToRgb: hexToRgb,
     hsvToRgb: hsvToRgb,
@@ -946,7 +946,7 @@
     luminosity: luminosity,
     setBrand: setBrand,
     getBrand: getBrand
-  });
+  };
 
   function getBodyClasses (ref, cfg) {
     var is = ref.is;
@@ -1237,23 +1237,19 @@
       Vue$$1.prototype.$q = $q;
     }
 
-    if (opts.directives) {
-      Object.keys(opts.directives).forEach(function (key) {
-        var d = opts.directives[key];
-        if (d.name !== undefined && d.unbind !== void 0) {
-          Vue$$1.directive(d.name, d);
-        }
-      });
-    }
+    opts.components && Object.keys(opts.components).forEach(function (key) {
+      var c = opts.components[key];
+      if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
+        Vue$$1.component(c.name, c);
+      }
+    });
 
-    if (opts.components) {
-      Object.keys(opts.components).forEach(function (key) {
-        var c = opts.components[key];
-        if (c.name !== undefined && (c.render !== void 0 || c.mixins !== void 0)) {
-          Vue$$1.component(c.name, c);
-        }
-      });
-    }
+    opts.directives && Object.keys(opts.directives).forEach(function (key) {
+      var d = opts.directives[key];
+      if (d.name !== undefined && d.unbind !== void 0) {
+        Vue$$1.directive(d.name, d);
+      }
+    });
 
     if (opts.plugins) {
       var param = { $q: $q, queues: queues, Vue: Vue$$1, cfg: cfg };
@@ -1299,92 +1295,6 @@
       }
     }
   };
-
-  var
-    toString = Object.prototype.toString,
-    hasOwn = Object.prototype.hasOwnProperty,
-    class2type = {};
-
-  'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
-    class2type['[object ' + name + ']'] = name.toLowerCase();
-  });
-
-  function type (obj) {
-    return obj === null ? String(obj) : class2type[toString.call(obj)] || 'object'
-  }
-
-  function isPlainObject (obj) {
-    if (!obj || type(obj) !== 'object') {
-      return false
-    }
-
-    if (obj.constructor &&
-      !hasOwn.call(obj, 'constructor') &&
-      !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
-      return false
-    }
-
-    var key;
-    for (key in obj) {}
-
-    return key === undefined || hasOwn.call(obj, key)
-  }
-
-  function extend () {
-    var arguments$1 = arguments;
-
-    var
-      options, name, src, copy, copyIsArray, clone,
-      target = arguments[0] || {},
-      i = 1,
-      length = arguments.length,
-      deep = false;
-
-    if (typeof target === 'boolean') {
-      deep = target;
-      target = arguments[1] || {};
-      i = 2;
-    }
-
-    if (Object(target) !== target && type(target) !== 'function') {
-      target = {};
-    }
-
-    if (length === i) {
-      target = this;
-      i--;
-    }
-
-    for (; i < length; i++) {
-      if ((options = arguments$1[i]) !== null) {
-        for (name in options) {
-          src = target[name];
-          copy = options[name];
-
-          if (target === copy) {
-            continue
-          }
-
-          if (deep && copy && (isPlainObject(copy) || (copyIsArray = type(copy) === 'array'))) {
-            if (copyIsArray) {
-              copyIsArray = false;
-              clone = src && type(src) === 'array' ? src : [];
-            }
-            else {
-              clone = src && isPlainObject(src) ? src : {};
-            }
-
-            target[name] = extend(deep, clone, copy);
-          }
-          else if (copy !== undefined) {
-            target[name] = copy;
-          }
-        }
-      }
-    }
-
-    return target
-  }
 
   /* eslint prefer-promise-reject-errors: 0 */
 
@@ -1688,7 +1598,7 @@
     e.stopPropagation();
   }
 
-  var event = /*#__PURE__*/Object.freeze({
+  var event = {
     listenOpts: listenOpts,
     leftClick: leftClick,
     middleClick: middleClick,
@@ -1699,7 +1609,7 @@
     getEventPath: getEventPath,
     getMouseWheelDistance: getMouseWheelDistance,
     stopAndPrevent: stopAndPrevent
-  });
+  };
 
   function getScrollTarget (el) {
     return el.closest('.scroll,.scroll-y') || window
@@ -1801,7 +1711,7 @@
     ) && el.scrollHeight > el.clientHeight
   }
 
-  var scroll = /*#__PURE__*/Object.freeze({
+  var scroll = {
     getScrollTarget: getScrollTarget,
     getScrollHeight: getScrollHeight,
     getScrollPosition: getScrollPosition,
@@ -1809,7 +1719,7 @@
     setScrollPosition: setScrollPosition,
     getScrollbarWidth: getScrollbarWidth,
     hasScrollbar: hasScrollbar
-  });
+  };
 
   var registered = 0;
 
@@ -1985,7 +1895,7 @@
             ? this.contentCss
             : [this.contentCss];
 
-          css.unshift(extend(
+          css.unshift(Object.assign(
             {},
             positionCSS,
             additionalCSS(this.position)
@@ -2014,9 +1924,8 @@
         if (!this.noRefocus) {
           this.__refocusTarget = document.activeElement;
         }
-        var body = document.body;
 
-        body.appendChild(this.$el);
+        document.body.appendChild(this.$el);
         this.__register(true);
         this.__preventScroll(true);
 
@@ -2129,74 +2038,6 @@
     }
   };
 
-  var QModalLayout = {
-    name: 'QModalLayout',
-    inject: {
-      __qmodal: {
-        default: function default$1 () {
-          console.error('QModalLayout needs to be child of QModal');
-        }
-      }
-    },
-    props: {
-      headerStyle: [String, Object, Array],
-      headerClass: [String, Object, Array],
-
-      contentStyle: [String, Object, Array],
-      contentClass: [String, Object, Array],
-
-      footerStyle: [String, Object, Array],
-      footerClass: [String, Object, Array]
-    },
-    watch: {
-      __qmodal: function __qmodal (newModal, oldModal) {
-        oldModal && oldModal.unregister(this);
-        newModal && newModal.register(this);
-      }
-    },
-    mounted: function mounted () {
-      this.__qmodal && this.__qmodal.register(this);
-    },
-    beforeDestroy: function beforeDestroy () {
-      this.__qmodal && this.__qmodal.unregister(this);
-    },
-    render: function render (h) {
-      var child = [];
-
-      if (this.$slots.header || (this.$slots.navigation)) {
-        child.push(h('div', {
-          staticClass: 'q-layout-header',
-          style: this.headerStyle,
-          'class': this.headerClass
-        }, [
-          this.$slots.header,
-          this.$slots.navigation
-        ]));
-      }
-
-      child.push(h('div', {
-        staticClass: 'q-modal-layout-content col scroll',
-        style: this.contentStyle,
-        'class': this.contentClass
-      }, this.$slots.default));
-
-      if (this.$slots.footer || ('mat' === 'ios')) {
-        child.push(h('div', {
-          staticClass: 'q-layout-footer',
-          style: this.footerStyle,
-          'class': this.footerClass
-        }, [
-          this.$slots.footer,
-          null
-        ]));
-      }
-
-      return h('div', {
-        staticClass: 'q-modal-layout col column no-wrap'
-      }, child)
-    }
-  };
-
   var prefix$1 = 'md';
 
   var QIcon = {
@@ -2258,6 +2099,46 @@
         this.content,
         this.$slots.default
       ])
+    }
+  };
+
+  var QList = {
+    name: 'QList',
+    props: {
+      noBorder: Boolean,
+      dark: Boolean,
+      dense: Boolean,
+      sparse: Boolean,
+      striped: Boolean,
+      stripedOdd: Boolean,
+      separator: Boolean,
+      insetSeparator: Boolean,
+      multiline: Boolean,
+      highlight: Boolean,
+      link: Boolean
+    },
+    computed: {
+      classes: function classes () {
+        return {
+          'no-border': this.noBorder,
+          'q-list-dark': this.dark,
+          'q-list-dense': this.dense,
+          'q-list-sparse': this.sparse,
+          'q-list-striped': this.striped,
+          'q-list-striped-odd': this.stripedOdd,
+          'q-list-separator': this.separator,
+          'q-list-inset-separator': this.insetSeparator,
+          'q-list-multiline': this.multiline,
+          'q-list-highlight': this.highlight,
+          'q-list-link': this.link
+        }
+      }
+    },
+    render: function render (h) {
+      return h('div', {
+        staticClass: 'q-list',
+        'class': this.classes
+      }, this.$slots.default)
     }
   };
 
@@ -2384,56 +2265,6 @@
     }
   };
 
-  var QItemSeparator = {
-    name: 'QItemSeparator',
-    props: {
-      inset: Boolean
-    },
-    render: function render (h) {
-      return h('div', {
-        staticClass: 'q-item-separator-component',
-        'class': {
-          'q-item-separator-inset-component': this.inset
-        }
-      }, this.$slots.default)
-    }
-  };
-
-  function text (h, name, val, n) {
-    n = parseInt(n, 10);
-    return h('div', {
-      staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
-      style: textStyle(n)
-    }, [ val ])
-  }
-
-  var QItemMain = {
-    name: 'QItemMain',
-    props: {
-      label: String,
-      labelLines: [String, Number],
-      sublabel: String,
-      sublabelLines: [String, Number],
-      inset: Boolean,
-      tag: {
-        type: String,
-        default: 'div'
-      }
-    },
-    render: function render (h) {
-      return h(this.tag, {
-        staticClass: 'q-item-main q-item-section',
-        'class': {
-          'q-item-main-inset': this.inset
-        }
-      }, [
-        this.label ? text(h, 'label', this.label, this.labelLines) : null,
-        this.sublabel ? text(h, 'sublabel', this.sublabel, this.sublabelLines) : null,
-        this.$slots.default
-      ])
-    }
-  };
-
   var QItemSide = {
     name: 'QItemSide',
     props: {
@@ -2530,216 +2361,51 @@
     }
   };
 
-  var QItemTile = {
-    name: 'QItemTile',
+  function text (h, name, val, n) {
+    n = parseInt(n, 10);
+    return h('div', {
+      staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
+      style: textStyle(n)
+    }, [ val ])
+  }
+
+  var QItemMain = {
+    name: 'QItemMain',
     props: {
-      icon: String,
-      letter: Boolean,
-      inverted: Boolean, // for icon and letter only
-
-      image: Boolean,
-      avatar: Boolean,
-      stamp: Boolean,
-
-      label: Boolean,
-      sublabel: Boolean,
-      lines: [Number, String],
-
+      label: String,
+      labelLines: [String, Number],
+      sublabel: String,
+      sublabelLines: [String, Number],
+      inset: Boolean,
       tag: {
         type: String,
         default: 'div'
-      },
-
-      color: String,
-      textColor: String // only for inverted icon/letter
-    },
-    computed: {
-      hasLines: function hasLines () {
-        return (this.label || this.sublabel) && this.lines
-      },
-      type: function type () {
-        var this$1 = this;
-
-        return ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'].find(function (type) { return this$1[type]; })
-      },
-      classes: function classes () {
-        var cls = [];
-
-        if (this.color) {
-          if (this.inverted) {
-            cls.push(("bg-" + (this.color)));
-          }
-          else if (!this.textColor) {
-            cls.push(("text-" + (this.color)));
-          }
-        }
-        this.textColor && cls.push(("text-" + (this.textColor)));
-        this.type && cls.push(("q-item-" + (this.type)));
-
-        if (this.inverted && (this.icon || this.letter)) {
-          cls.push('q-item-inverted');
-          cls.push('flex');
-          cls.push('flex-center');
-        }
-
-        if (this.hasLines && (this.lines === '1' || this.lines === 1)) {
-          cls.push('ellipsis');
-        }
-
-        return cls
-      },
-      style: function style () {
-        if (this.hasLines) {
-          return textStyle(this.lines)
-        }
       }
     },
     render: function render (h) {
-      var data = {
-        'class': this.classes,
-        style: this.style
-      };
-
-      if (this.icon) {
-        if (this.inverted) {
-          return h(this.tag, data, [
-            h(QIcon, { props: { name: this.icon } }, this.$slots.default)
-          ])
+      return h(this.tag, {
+        staticClass: 'q-item-main q-item-section',
+        'class': {
+          'q-item-main-inset': this.inset
         }
-        data.props = { name: this.icon };
-      }
-
-      return h(this.icon ? QIcon : this.tag, data, this.$slots.default)
+      }, [
+        this.label ? text(h, 'label', this.label, this.labelLines) : null,
+        this.sublabel ? text(h, 'sublabel', this.sublabel, this.sublabelLines) : null,
+        this.$slots.default
+      ])
     }
   };
 
-  function push (child, h, name, slot, replace, conf) {
-    var defaultProps = { props: { right: conf.right } };
-
-    if (slot && replace) {
-      child.push(h(name, defaultProps, slot));
-      return
-    }
-
-    var v = false;
-    for (var p in conf) {
-      if (conf.hasOwnProperty(p)) {
-        v = conf[p];
-        if (v !== void 0 && v !== true) {
-          child.push(h(name, { props: conf }));
-          break
-        }
-      }
-    }
-
-    slot && child.push(h(name, defaultProps, slot));
-  }
-
-  var QItemWrapper = {
-    name: 'QItemWrapper',
-    props: {
-      cfg: {
-        type: Object,
-        default: function () { return ({}); }
-      },
-      slotReplace: Boolean
-    },
-    render: function render (h) {
-      var
-        cfg = this.cfg,
-        replace = this.slotReplace,
-        child = [];
-
-      push(child, h, QItemSide, this.$slots.left, replace, {
-        icon: cfg.icon,
-        color: cfg.leftColor,
-        avatar: cfg.avatar,
-        letter: cfg.letter,
-        image: cfg.image,
-        inverted: cfg.leftInverted,
-        textColor: cfg.leftTextColor
-      });
-
-      push(child, h, QItemMain, this.$slots.main, replace, {
-        label: cfg.label,
-        sublabel: cfg.sublabel,
-        labelLines: cfg.labelLines,
-        sublabelLines: cfg.sublabelLines,
-        inset: cfg.inset
-      });
-
-      push(child, h, QItemSide, this.$slots.right, replace, {
-        right: true,
-        icon: cfg.rightIcon,
-        color: cfg.rightColor,
-        avatar: cfg.rightAvatar,
-        letter: cfg.rightLetter,
-        image: cfg.rightImage,
-        stamp: cfg.stamp,
-        inverted: cfg.rightInverted,
-        textColor: cfg.rightTextColor
-      });
-
-      child.push(this.$slots.default);
-
-      return h(QItem, {
-        attrs: this.$attrs,
-        on: this.$listeners,
-        props: cfg
-      }, child)
-    }
-  };
-
-  var QList = {
-    name: 'QList',
-    props: {
-      noBorder: Boolean,
-      dark: Boolean,
-      dense: Boolean,
-      sparse: Boolean,
-      striped: Boolean,
-      stripedOdd: Boolean,
-      separator: Boolean,
-      insetSeparator: Boolean,
-      multiline: Boolean,
-      highlight: Boolean,
-      link: Boolean
-    },
-    computed: {
-      classes: function classes () {
-        return {
-          'no-border': this.noBorder,
-          'q-list-dark': this.dark,
-          'q-list-dense': this.dense,
-          'q-list-sparse': this.sparse,
-          'q-list-striped': this.striped,
-          'q-list-striped-odd': this.stripedOdd,
-          'q-list-separator': this.separator,
-          'q-list-inset-separator': this.insetSeparator,
-          'q-list-multiline': this.multiline,
-          'q-list-highlight': this.highlight,
-          'q-list-link': this.link
-        }
-      }
-    },
-    render: function render (h) {
-      return h('div', {
-        staticClass: 'q-list',
-        'class': this.classes
-      }, this.$slots.default)
-    }
-  };
-
-  var QListHeader = {
-    name: 'QListHeader',
+  var QItemSeparator = {
+    name: 'QItemSeparator',
     props: {
       inset: Boolean
     },
     render: function render (h) {
       return h('div', {
-        staticClass: 'q-list-header',
+        staticClass: 'q-item-separator-component',
         'class': {
-          'q-list-header-inset': this.inset
+          'q-item-separator-inset-component': this.inset
         }
       }, this.$slots.default)
     }
@@ -2931,13 +2597,13 @@
       : new Array(length - val.length + 1).join(char) + val
   }
 
-  var format = /*#__PURE__*/Object.freeze({
+  var format = {
     humanStorageSize: humanStorageSize,
     capitalize: capitalize,
     between: between,
     normalizeToInterval: normalizeToInterval,
     pad: pad
-  });
+  };
 
   var
     xhr = isSSR ? null : XMLHttpRequest,
@@ -3497,2154 +3163,6 @@
     }
   };
 
-  var audio = {
-    name: 'QSpinnerAudio',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 55 80',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'matrix(1 0 0 -1 0 80)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'width': '10',
-              'height': '20',
-              'rx': '3'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'height',
-                'begin': '0s',
-                'dur': '4.3s',
-                'values': '20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('rect', {
-            attrs: {
-              'x': '15',
-              'width': '10',
-              'height': '80',
-              'rx': '3'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'height',
-                'begin': '0s',
-                'dur': '2s',
-                'values': '80;55;33;5;75;23;73;33;12;14;60;80',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('rect', {
-            attrs: {
-              'x': '30',
-              'width': '10',
-              'height': '50',
-              'rx': '3'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'height',
-                'begin': '0s',
-                'dur': '1.4s',
-                'values': '50;34;78;23;56;23;34;76;80;54;21;50',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('rect', {
-            attrs: {
-              'x': '45',
-              'width': '10',
-              'height': '30',
-              'rx': '3'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'height',
-                'begin': '0s',
-                'dur': '2s',
-                'values': '30;45;13;80;56;72;45;76;34;23;67;30',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var ball = {
-    name: 'QSpinnerBall',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'stroke': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 57 57',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'translate(1 1)',
-            'stroke-width': '2',
-            'fill': 'none',
-            'fill-rule': 'evenodd'
-          }
-        }, [
-          h('circle', {
-            attrs: {
-              'cx': '5',
-              'cy': '50',
-              'r': '5'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'cy',
-                'begin': '0s',
-                'dur': '2.2s',
-                'values': '50;5;50;50',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'cx',
-                'begin': '0s',
-                'dur': '2.2s',
-                'values': '5;27;49;5',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'cx': '27',
-              'cy': '5',
-              'r': '5'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'cy',
-                'begin': '0s',
-                'dur': '2.2s',
-                'from': '5',
-                'to': '5',
-                'values': '5;50;50;5',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'cx',
-                'begin': '0s',
-                'dur': '2.2s',
-                'from': '27',
-                'to': '27',
-                'values': '27;49;5;27',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'cx': '49',
-              'cy': '50',
-              'r': '5'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'cy',
-                'begin': '0s',
-                'dur': '2.2s',
-                'values': '50;50;5;50',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'cx',
-                'from': '49',
-                'to': '49',
-                'begin': '0s',
-                'dur': '2.2s',
-                'values': '49;5;27;49',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var bars = {
-    name: 'QSpinnerBars',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 135 140',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('rect', {
-          attrs: {
-            'y': '10',
-            'width': '15',
-            'height': '120',
-            'rx': '6'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'height',
-              'begin': '0.5s',
-              'dur': '1s',
-              'values': '120;110;100;90;80;70;60;50;40;140;120',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'y',
-              'begin': '0.5s',
-              'dur': '1s',
-              'values': '10;15;20;25;30;35;40;45;50;0;10',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('rect', {
-          attrs: {
-            'x': '30',
-            'y': '10',
-            'width': '15',
-            'height': '120',
-            'rx': '6'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'height',
-              'begin': '0.25s',
-              'dur': '1s',
-              'values': '120;110;100;90;80;70;60;50;40;140;120',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'y',
-              'begin': '0.25s',
-              'dur': '1s',
-              'values': '10;15;20;25;30;35;40;45;50;0;10',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('rect', {
-          attrs: {
-            'x': '60',
-            'width': '15',
-            'height': '140',
-            'rx': '6'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'height',
-              'begin': '0s',
-              'dur': '1s',
-              'values': '120;110;100;90;80;70;60;50;40;140;120',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'y',
-              'begin': '0s',
-              'dur': '1s',
-              'values': '10;15;20;25;30;35;40;45;50;0;10',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('rect', {
-          attrs: {
-            'x': '90',
-            'y': '10',
-            'width': '15',
-            'height': '120',
-            'rx': '6'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'height',
-              'begin': '0.25s',
-              'dur': '1s',
-              'values': '120;110;100;90;80;70;60;50;40;140;120',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'y',
-              'begin': '0.25s',
-              'dur': '1s',
-              'values': '10;15;20;25;30;35;40;45;50;0;10',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('rect', {
-          attrs: {
-            'x': '120',
-            'y': '10',
-            'width': '15',
-            'height': '120',
-            'rx': '6'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'height',
-              'begin': '0.5s',
-              'dur': '1s',
-              'values': '120;110;100;90;80;70;60;50;40;140;120',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'y',
-              'begin': '0.5s',
-              'dur': '1s',
-              'values': '10;15;20;25;30;35;40;45;50;0;10',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var circles = {
-    name: 'QSpinnerCircles',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 135 135',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('path', {
-          attrs: {
-            'd': 'M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 67 67',
-              'to': '-360 67 67',
-              'dur': '2.5s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 67 67',
-              'to': '360 67 67',
-              'dur': '8s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var comment = {
-    name: 'QSpinnerComment',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'xmlns': 'http://www.w3.org/2000/svg',
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid'
-        }
-      }, [
-        h('rect', {
-          attrs: {
-            'x': '0',
-            'y': '0',
-            'width': '100',
-            'height': '100',
-            'fill': 'none'
-          }
-        }),
-        h('path', {
-          attrs: {
-            'd': 'M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z',
-            'fill': 'currentColor'
-          }
-        }),
-        h('circle', {
-          attrs: {
-            'cx': '30',
-            'cy': '47',
-            'r': '5',
-            'fill': '#fff'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'opacity',
-              'from': '0',
-              'to': '1',
-              'values': '0;1;1',
-              'keyTimes': '0;0.2;1',
-              'dur': '1s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '50',
-            'cy': '47',
-            'r': '5',
-            'fill': '#fff'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'opacity',
-              'from': '0',
-              'to': '1',
-              'values': '0;0;1;1',
-              'keyTimes': '0;0.2;0.4;1',
-              'dur': '1s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '70',
-            'cy': '47',
-            'r': '5',
-            'fill': '#fff'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'opacity',
-              'from': '0',
-              'to': '1',
-              'values': '0;0;1;1',
-              'keyTimes': '0;0.4;0.6;1',
-              'dur': '1s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var cube = {
-    name: 'QSpinnerCube',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'xmlns': 'http://www.w3.org/2000/svg',
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid'
-        }
-      }, [
-        h('rect', {
-          attrs: {
-            'x': '0',
-            'y': '0',
-            'width': '100',
-            'height': '100',
-            'fill': 'none'
-          }
-        }),
-        h('g', {
-          attrs: {
-            'transform': 'translate(25 25)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'x': '-20',
-              'y': '-20',
-              'width': '40',
-              'height': '40',
-              'fill': 'currentColor',
-              'opacity': '0.9'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '1.5',
-                'to': '1',
-                'repeatCount': 'indefinite',
-                'begin': '0s',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.2 0.8 0.2 0.8',
-                'keyTimes': '0;1'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(75 25)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'x': '-20',
-              'y': '-20',
-              'width': '40',
-              'height': '40',
-              'fill': 'currentColor',
-              'opacity': '0.8'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '1.5',
-                'to': '1',
-                'repeatCount': 'indefinite',
-                'begin': '0.1s',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.2 0.8 0.2 0.8',
-                'keyTimes': '0;1'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(25 75)'
-          }
-        }, [
-          h('rect', {
-            staticClass: 'cube',
-            attrs: {
-              'x': '-20',
-              'y': '-20',
-              'width': '40',
-              'height': '40',
-              'fill': 'currentColor',
-              'opacity': '0.7'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '1.5',
-                'to': '1',
-                'repeatCount': 'indefinite',
-                'begin': '0.3s',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.2 0.8 0.2 0.8',
-                'keyTimes': '0;1'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(75 75)'
-          }
-        }, [
-          h('rect', {
-            staticClass: 'cube',
-            attrs: {
-              'x': '-20',
-              'y': '-20',
-              'width': '40',
-              'height': '40',
-              'fill': 'currentColor',
-              'opacity': '0.6'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '1.5',
-                'to': '1',
-                'repeatCount': 'indefinite',
-                'begin': '0.2s',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.2 0.8 0.2 0.8',
-                'keyTimes': '0;1'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var dots = {
-    name: 'QSpinnerDots',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 120 30',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('circle', {
-          attrs: {
-            'cx': '15',
-            'cy': '15',
-            'r': '15'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'r',
-              'from': '15',
-              'to': '15',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '15;9;15',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'from': '1',
-              'to': '1',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '1;.5;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '60',
-            'cy': '15',
-            'r': '9',
-            'fill-opacity': '.3'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'r',
-              'from': '9',
-              'to': '9',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '9;15;9',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'from': '.5',
-              'to': '.5',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '.5;1;.5',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '105',
-            'cy': '15',
-            'r': '15'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'r',
-              'from': '15',
-              'to': '15',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '15;9;15',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          }),
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'from': '1',
-              'to': '1',
-              'begin': '0s',
-              'dur': '0.8s',
-              'values': '1;.5;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var facebook = {
-    name: 'QSpinnerFacebook',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'xmlns': 'http://www.w3.org/2000/svg',
-          'preserveAspectRatio': 'xMidYMid'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'translate(20 50)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'x': '-10',
-              'y': '-30',
-              'width': '20',
-              'height': '60',
-              'fill': 'currentColor',
-              'opacity': '0.6'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '2',
-                'to': '1',
-                'begin': '0s',
-                'repeatCount': 'indefinite',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.1 0.9 0.4 1',
-                'keyTimes': '0;1',
-                'values': '2;1'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(50 50)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'x': '-10',
-              'y': '-30',
-              'width': '20',
-              'height': '60',
-              'fill': 'currentColor',
-              'opacity': '0.8'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '2',
-                'to': '1',
-                'begin': '0.1s',
-                'repeatCount': 'indefinite',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.1 0.9 0.4 1',
-                'keyTimes': '0;1',
-                'values': '2;1'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(80 50)'
-          }
-        }, [
-          h('rect', {
-            attrs: {
-              'x': '-10',
-              'y': '-30',
-              'width': '20',
-              'height': '60',
-              'fill': 'currentColor',
-              'opacity': '0.9'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'scale',
-                'from': '2',
-                'to': '1',
-                'begin': '0.2s',
-                'repeatCount': 'indefinite',
-                'dur': '1s',
-                'calcMode': 'spline',
-                'keySplines': '0.1 0.9 0.4 1',
-                'keyTimes': '0;1',
-                'values': '2;1'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var gears = {
-    name: 'QSpinnerGears',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'translate(-20,-20)'
-          }
-        }, [
-          h('path', {
-            attrs: {
-              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
-              'fill': 'currentColor'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'rotate',
-                'from': '90 50 50',
-                'to': '0 50 50',
-                'dur': '1s',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(20,20) rotate(15 50 50)'
-          }
-        }, [
-          h('path', {
-            attrs: {
-              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
-              'fill': 'currentColor'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'rotate',
-                'from': '0 50 50',
-                'to': '90 50 50',
-                'dur': '1s',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var grid = {
-    name: 'QSpinnerGrid',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 105 105',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('circle', {
-          attrs: {
-            'cx': '12.5',
-            'cy': '12.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '0s',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '12.5',
-            'cy': '52.5',
-            'r': '12.5',
-            'fill-opacity': '.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '100ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '52.5',
-            'cy': '12.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '300ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '52.5',
-            'cy': '52.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '600ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '92.5',
-            'cy': '12.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '800ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '92.5',
-            'cy': '52.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '400ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '12.5',
-            'cy': '92.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '700ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '52.5',
-            'cy': '92.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '500ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('circle', {
-          attrs: {
-            'cx': '92.5',
-            'cy': '92.5',
-            'r': '12.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '200ms',
-              'dur': '1s',
-              'values': '1;.2;1',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var hearts = {
-    name: 'QSpinnerHearts',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'fill': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 140 64',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('path', {
-          attrs: {
-            'd': 'M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z',
-            'fill-opacity': '.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '0s',
-              'dur': '1.4s',
-              'values': '0.5;1;0.5',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z',
-            'fill-opacity': '.5'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'fill-opacity',
-              'begin': '0.7s',
-              'dur': '1.4s',
-              'values': '0.5;1;0.5',
-              'calcMode': 'linear',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z'
-          }
-        })
-      ])
-    }
-  };
-
-  var hourglass = {
-    name: 'QSpinnerHourglass',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', [
-          h('path', {
-            staticClass: 'glass',
-            attrs: {
-              'fill': 'none',
-              'stroke': 'currentColor',
-              'stroke-width': '5',
-              'stroke-miterlimit': '10',
-              'd': 'M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z'
-            }
-          }),
-          h('clipPath', {
-            attrs: {
-              'id': 'uil-hourglass-clip1'
-            }
-          }, [
-            h('rect', {
-              staticClass: 'clip',
-              attrs: {
-                'x': '15',
-                'y': '20',
-                'width': '70',
-                'height': '25'
-              }
-            }, [
-              h('animate', {
-                attrs: {
-                  'attributeName': 'height',
-                  'from': '25',
-                  'to': '0',
-                  'dur': '1s',
-                  'repeatCount': 'indefinite',
-                  'vlaues': '25;0;0',
-                  'keyTimes': '0;0.5;1'
-                }
-              }),
-              h('animate', {
-                attrs: {
-                  'attributeName': 'y',
-                  'from': '20',
-                  'to': '45',
-                  'dur': '1s',
-                  'repeatCount': 'indefinite',
-                  'vlaues': '20;45;45',
-                  'keyTimes': '0;0.5;1'
-                }
-              })
-            ])
-          ]),
-          h('clipPath', {
-            attrs: {
-              'id': 'uil-hourglass-clip2'
-            }
-          }, [
-            h('rect', {
-              staticClass: 'clip',
-              attrs: {
-                'x': '15',
-                'y': '55',
-                'width': '70',
-                'height': '25'
-              }
-            }, [
-              h('animate', {
-                attrs: {
-                  'attributeName': 'height',
-                  'from': '0',
-                  'to': '25',
-                  'dur': '1s',
-                  'repeatCount': 'indefinite',
-                  'vlaues': '0;25;25',
-                  'keyTimes': '0;0.5;1'
-                }
-              }),
-              h('animate', {
-                attrs: {
-                  'attributeName': 'y',
-                  'from': '80',
-                  'to': '55',
-                  'dur': '1s',
-                  'repeatCount': 'indefinite',
-                  'vlaues': '80;55;55',
-                  'keyTimes': '0;0.5;1'
-                }
-              })
-            ])
-          ]),
-          h('path', {
-            staticClass: 'sand',
-            attrs: {
-              'd': 'M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z',
-              'clip-path': 'url(#uil-hourglass-clip1)',
-              'fill': 'currentColor'
-            }
-          }),
-          h('path', {
-            staticClass: 'sand',
-            attrs: {
-              'd': 'M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z',
-              'clip-path': 'url(#uil-hourglass-clip2)',
-              'fill': 'currentColor'
-            }
-          }),
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 50 50',
-              'to': '180 50 50',
-              'repeatCount': 'indefinite',
-              'dur': '1s',
-              'values': '0 50 50;0 50 50;180 50 50',
-              'keyTimes': '0;0.7;1'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var infinity = {
-    name: 'QSpinnerInfinity',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid'
-        }
-      }, [
-        h('path', {
-          attrs: {
-            'd': 'M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z',
-            'fill': 'none',
-            'stroke': 'currentColor',
-            'stroke-width': '8',
-            'stroke-dasharray': '10.691205342610678 10.691205342610678',
-            'stroke-dashoffset': '0'
-          }
-        }, [
-          h('animate', {
-            attrs: {
-              'attributeName': 'stroke-dashoffset',
-              'from': '0',
-              'to': '21.382410685221355',
-              'begin': '0',
-              'dur': '2s',
-              'repeatCount': 'indefinite',
-              'fill': 'freeze'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var QSpinner_ios = {
-    name: 'QSpinnerIos',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'stroke': 'currentColor',
-          'fill': 'currentColor',
-          'viewBox': '0 0 64 64'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'stroke-width': '4',
-            'stroke-linecap': 'round'
-          }
-        }, [
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(180)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(210)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(240)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(270)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(300)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(330)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(0)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(30)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(60)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(90)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(120)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('line', {
-            attrs: {
-              'y1': '17',
-              'y2': '29',
-              'transform': 'translate(32,32) rotate(150)'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'dur': '750ms',
-                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var oval = {
-    name: 'QSpinnerOval',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'stroke': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 38 38',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'translate(1 1)',
-            'stroke-width': '2',
-            'fill': 'none',
-            'fill-rule': 'evenodd'
-          }
-        }, [
-          h('circle', {
-            attrs: {
-              'stroke-opacity': '.5',
-              'cx': '18',
-              'cy': '18',
-              'r': '18'
-            }
-          }),
-          h('path', {
-            attrs: {
-              'd': 'M36 18c0-9.94-8.06-18-18-18'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'rotate',
-                'from': '0 18 18',
-                'to': '360 18 18',
-                'dur': '1s',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var pie = {
-    name: 'QSpinnerPie',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('path', {
-          attrs: {
-            'd': 'M0 50A50 50 0 0 1 50 0L50 50L0 50',
-            'fill': 'currentColor',
-            'opacity': '0.5'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 50 50',
-              'to': '360 50 50',
-              'dur': '0.8s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M50 0A50 50 0 0 1 100 50L50 50L50 0',
-            'fill': 'currentColor',
-            'opacity': '0.5'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 50 50',
-              'to': '360 50 50',
-              'dur': '1.6s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M100 50A50 50 0 0 1 50 100L50 50L100 50',
-            'fill': 'currentColor',
-            'opacity': '0.5'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 50 50',
-              'to': '360 50 50',
-              'dur': '2.4s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ]),
-        h('path', {
-          attrs: {
-            'd': 'M50 100A50 50 0 0 1 0 50L50 50L50 100',
-            'fill': 'currentColor',
-            'opacity': '0.5'
-          }
-        }, [
-          h('animateTransform', {
-            attrs: {
-              'attributeName': 'transform',
-              'type': 'rotate',
-              'from': '0 50 50',
-              'to': '360 50 50',
-              'dur': '3.2s',
-              'repeatCount': 'indefinite'
-            }
-          })
-        ])
-      ])
-    }
-  };
-
-  var puff = {
-    name: 'QSpinnerPuff',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'stroke': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 44 44',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'fill': 'none',
-            'fill-rule': 'evenodd',
-            'stroke-width': '2'
-          }
-        }, [
-          h('circle', {
-            attrs: {
-              'cx': '22',
-              'cy': '22',
-              'r': '1'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'r',
-                'begin': '0s',
-                'dur': '1.8s',
-                'values': '1; 20',
-                'calcMode': 'spline',
-                'keyTimes': '0; 1',
-                'keySplines': '0.165, 0.84, 0.44, 1',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'begin': '0s',
-                'dur': '1.8s',
-                'values': '1; 0',
-                'calcMode': 'spline',
-                'keyTimes': '0; 1',
-                'keySplines': '0.3, 0.61, 0.355, 1',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'cx': '22',
-              'cy': '22',
-              'r': '1'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'r',
-                'begin': '-0.9s',
-                'dur': '1.8s',
-                'values': '1; 20',
-                'calcMode': 'spline',
-                'keyTimes': '0; 1',
-                'keySplines': '0.165, 0.84, 0.44, 1',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'begin': '-0.9s',
-                'dur': '1.8s',
-                'values': '1; 0',
-                'calcMode': 'spline',
-                'keyTimes': '0; 1',
-                'keySplines': '0.3, 0.61, 0.355, 1',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var radio = {
-    name: 'QSpinnerRadio',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 100 100',
-          'preserveAspectRatio': 'xMidYMid',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'transform': 'scale(0.55)'
-          }
-        }, [
-          h('circle', {
-            attrs: {
-              'cx': '30',
-              'cy': '150',
-              'r': '30',
-              'fill': 'currentColor'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'opacity',
-                'from': '0',
-                'to': '1',
-                'dur': '1s',
-                'begin': '0',
-                'repeatCount': 'indefinite',
-                'keyTimes': '0;0.5;1',
-                'values': '0;1;1'
-              }
-            })
-          ]),
-          h('path', {
-            attrs: {
-              'd': 'M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z',
-              'fill': 'currentColor'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'opacity',
-                'from': '0',
-                'to': '1',
-                'dur': '1s',
-                'begin': '0.1',
-                'repeatCount': 'indefinite',
-                'keyTimes': '0;0.5;1',
-                'values': '0;1;1'
-              }
-            })
-          ]),
-          h('path', {
-            attrs: {
-              'd': 'M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z',
-              'fill': 'currentColor'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'opacity',
-                'from': '0',
-                'to': '1',
-                'dur': '1s',
-                'begin': '0.2',
-                'repeatCount': 'indefinite',
-                'keyTimes': '0;0.5;1',
-                'values': '0;1;1'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var rings = {
-    name: 'QSpinnerRings',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'stroke': 'currentColor',
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 45 45',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('g', {
-          attrs: {
-            'fill': 'none',
-            'fill-rule': 'evenodd',
-            'transform': 'translate(1 1)',
-            'stroke-width': '2'
-          }
-        }, [
-          h('circle', {
-            attrs: {
-              'cx': '22',
-              'cy': '22',
-              'r': '6'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'r',
-                'begin': '1.5s',
-                'dur': '3s',
-                'values': '6;22',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'begin': '1.5s',
-                'dur': '3s',
-                'values': '1;0',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-width',
-                'begin': '1.5s',
-                'dur': '3s',
-                'values': '2;0',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'cx': '22',
-              'cy': '22',
-              'r': '6'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'r',
-                'begin': '3s',
-                'dur': '3s',
-                'values': '6;22',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-opacity',
-                'begin': '3s',
-                'dur': '3s',
-                'values': '1;0',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            }),
-            h('animate', {
-              attrs: {
-                'attributeName': 'stroke-width',
-                'begin': '3s',
-                'dur': '3s',
-                'values': '2;0',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'cx': '22',
-              'cy': '22',
-              'r': '8'
-            }
-          }, [
-            h('animate', {
-              attrs: {
-                'attributeName': 'r',
-                'begin': '0s',
-                'dur': '1.5s',
-                'values': '6;1;2;3;4;5;6',
-                'calcMode': 'linear',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
-  var tail = {
-    name: 'QSpinnerTail',
-    mixins: [mixin],
-    render: function render (h) {
-      return h('svg', {
-        staticClass: 'q-spinner',
-        class: this.classes,
-        attrs: {
-          'width': this.size,
-          'height': this.size,
-          'viewBox': '0 0 38 38',
-          'xmlns': 'http://www.w3.org/2000/svg'
-        }
-      }, [
-        h('defs', [
-          h('linearGradient', {
-            attrs: {
-              'x1': '8.042%',
-              'y1': '0%',
-              'x2': '65.682%',
-              'y2': '23.865%',
-              'id': 'a'
-            }
-          }, [
-            h('stop', {
-              attrs: {
-                'stop-color': 'currentColor',
-                'stop-opacity': '0',
-                'offset': '0%'
-              }
-            }),
-            h('stop', {
-              attrs: {
-                'stop-color': 'currentColor',
-                'stop-opacity': '.631',
-                'offset': '63.146%'
-              }
-            }),
-            h('stop', {
-              attrs: {
-                'stop-color': 'currentColor',
-                'offset': '100%'
-              }
-            })
-          ])
-        ]),
-        h('g', {
-          attrs: {
-            'transform': 'translate(1 1)',
-            'fill': 'none',
-            'fill-rule': 'evenodd'
-          }
-        }, [
-          h('path', {
-            attrs: {
-              'd': 'M36 18c0-9.94-8.06-18-18-18',
-              'stroke': 'url(#a)',
-              'stroke-width': '2'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'rotate',
-                'from': '0 18 18',
-                'to': '360 18 18',
-                'dur': '0.9s',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ]),
-          h('circle', {
-            attrs: {
-              'fill': 'currentColor',
-              'cx': '36',
-              'cy': '18',
-              'r': '1'
-            }
-          }, [
-            h('animateTransform', {
-              attrs: {
-                'attributeName': 'transform',
-                'type': 'rotate',
-                'from': '0 18 18',
-                'to': '360 18 18',
-                'dur': '0.9s',
-                'repeatCount': 'indefinite'
-              }
-            })
-          ])
-        ])
-      ])
-    }
-  };
-
   var QSpinner = {
     mixins: [DefaultSpinner],
     name: 'QSpinner'
@@ -5861,711 +3379,6 @@
     }
   };
 
-  var QBtnGroup = {
-    name: 'QBtnGroup',
-    props: {
-      outline: Boolean,
-      flat: Boolean,
-      rounded: Boolean,
-      push: Boolean
-    },
-    computed: {
-      classes: function classes () {
-        var this$1 = this;
-
-        return ['outline', 'flat', 'rounded', 'push']
-          .filter(function (t) { return this$1[t]; })
-          .map(function (t) { return ("q-btn-group-" + t); }).join(' ')
-      }
-    },
-    render: function render (h) {
-      return h('div', {
-        staticClass: 'q-btn-group row no-wrap inline',
-        'class': this.classes
-      }, this.$slots.default)
-    }
-  };
-
-  function getAnchorPosition (el, offset) {
-    var ref = el.getBoundingClientRect();
-    var top = ref.top;
-    var left = ref.left;
-    var right = ref.right;
-    var bottom = ref.bottom;
-    var a = {
-        top: top,
-        left: left,
-        width: el.offsetWidth,
-        height: el.offsetHeight
-      };
-
-    if (offset) {
-      a.top -= offset[1];
-      a.left -= offset[0];
-      if (bottom) {
-        bottom += offset[1];
-      }
-      if (right) {
-        right += offset[0];
-      }
-      a.width += offset[0];
-      a.height += offset[1];
-    }
-
-    a.right = right || a.left + a.width;
-    a.bottom = bottom || a.top + a.height;
-    a.middle = a.left + ((a.right - a.left) / 2);
-    a.center = a.top + ((a.bottom - a.top) / 2);
-
-    return a
-  }
-
-  function getTargetPosition (el) {
-    return {
-      top: 0,
-      center: el.offsetHeight / 2,
-      bottom: el.offsetHeight,
-      left: 0,
-      middle: el.offsetWidth / 2,
-      right: el.offsetWidth
-    }
-  }
-
-  function getOverlapMode (anchor, target, median) {
-    if ([anchor, target].indexOf(median) >= 0) { return 'auto' }
-    if (anchor === target) { return 'inclusive' }
-    return 'exclusive'
-  }
-
-  function getPositions (anchor, target) {
-    var
-      a = extend({}, anchor),
-      t = extend({}, target);
-
-    var positions = {
-      x: ['left', 'right'].filter(function (p) { return p !== t.horizontal; }),
-      y: ['top', 'bottom'].filter(function (p) { return p !== t.vertical; })
-    };
-
-    var overlap = {
-      x: getOverlapMode(a.horizontal, t.horizontal, 'middle'),
-      y: getOverlapMode(a.vertical, t.vertical, 'center')
-    };
-
-    positions.x.splice(overlap.x === 'auto' ? 0 : 1, 0, 'middle');
-    positions.y.splice(overlap.y === 'auto' ? 0 : 1, 0, 'center');
-
-    if (overlap.y !== 'auto') {
-      a.vertical = a.vertical === 'top' ? 'bottom' : 'top';
-      if (overlap.y === 'inclusive') {
-        t.vertical = t.vertical;
-      }
-    }
-
-    if (overlap.x !== 'auto') {
-      a.horizontal = a.horizontal === 'left' ? 'right' : 'left';
-      if (overlap.y === 'inclusive') {
-        t.horizontal = t.horizontal;
-      }
-    }
-
-    return {
-      positions: positions,
-      anchorPos: a
-    }
-  }
-
-  function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
-    var ref = getPositions(anchorOrigin, selfOrigin);
-    var positions = ref.positions;
-    var anchorPos = ref.anchorPos;
-
-    if (targetPosition.top < 0 || targetPosition.top + target.bottom > window.innerHeight) {
-      var newTop = anchor[anchorPos.vertical] - target[positions.y[0]];
-      if (newTop + target.bottom <= window.innerHeight) {
-        targetPosition.top = newTop;
-      }
-      else {
-        newTop = anchor[anchorPos.vertical] - target[positions.y[1]];
-        if (newTop + target.bottom <= window.innerHeight) {
-          targetPosition.top = newTop;
-        }
-      }
-    }
-    if (targetPosition.left < 0 || targetPosition.left + target.right > window.innerWidth) {
-      var newLeft = anchor[anchorPos.horizontal] - target[positions.x[0]];
-      if (newLeft + target.right <= window.innerWidth) {
-        targetPosition.left = newLeft;
-      }
-      else {
-        newLeft = anchor[anchorPos.horizontal] - target[positions.x[1]];
-        if (newLeft + target.right <= window.innerWidth) {
-          targetPosition.left = newLeft;
-        }
-      }
-    }
-
-    return targetPosition
-  }
-
-  function setPosition (ref) {
-    var el = ref.el;
-    var animate = ref.animate;
-    var anchorEl = ref.anchorEl;
-    var anchorOrigin = ref.anchorOrigin;
-    var selfOrigin = ref.selfOrigin;
-    var maxHeight = ref.maxHeight;
-    var event = ref.event;
-    var anchorClick = ref.anchorClick;
-    var touchPosition = ref.touchPosition;
-    var offset = ref.offset;
-
-    var anchor;
-    el.style.maxHeight = maxHeight || '65vh';
-
-    if (event && (!anchorClick || touchPosition)) {
-      var ref$1 = position(event);
-      var top = ref$1.top;
-      var left = ref$1.left;
-      anchor = {top: top, left: left, width: 1, height: 1, right: left + 1, center: top, middle: left, bottom: top + 1};
-    }
-    else {
-      anchor = getAnchorPosition(anchorEl, offset);
-    }
-
-    var target = getTargetPosition(el);
-    var targetPosition = {
-      top: anchor[anchorOrigin.vertical] - target[selfOrigin.vertical],
-      left: anchor[anchorOrigin.horizontal] - target[selfOrigin.horizontal]
-    };
-
-    targetPosition = repositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
-
-    el.style.top = Math.max(0, targetPosition.top) + 'px';
-    el.style.left = Math.max(0, targetPosition.left) + 'px';
-
-    if (animate) {
-      var directions = targetPosition.top < anchor.top ? ['up', 'down'] : ['down', 'up'];
-      el.classList.add(("animate-popup-" + (directions[0])));
-      el.classList.remove(("animate-popup-" + (directions[1])));
-    }
-  }
-
-  function positionValidator (pos) {
-    var parts = pos.split(' ');
-    if (parts.length !== 2) {
-      return false
-    }
-    if (!['top', 'center', 'bottom'].includes(parts[0])) {
-      console.error('Anchor/Self position must start with one of top/center/bottom');
-      return false
-    }
-    if (!['left', 'middle', 'right'].includes(parts[1])) {
-      console.error('Anchor/Self position must end with one of left/middle/right');
-      return false
-    }
-    return true
-  }
-
-  function offsetValidator (val) {
-    if (!val) { return true }
-    if (val.length !== 2) { return false }
-    if (typeof val[0] !== 'number' || typeof val[1] !== 'number') {
-      return false
-    }
-    return true
-  }
-
-  function parsePosition (pos) {
-    var parts = pos.split(' ');
-    return {vertical: parts[0], horizontal: parts[1]}
-  }
-
-  function debounce (fn, wait, immediate) {
-    if ( wait === void 0 ) wait = 250;
-
-    var timeout;
-
-    function debounced () {
-      var this$1 = this;
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
-      var later = function () {
-        timeout = null;
-        if (!immediate) {
-          fn.apply(this$1, args);
-        }
-      };
-
-      clearTimeout(timeout);
-      if (immediate && !timeout) {
-        fn.apply(this, args);
-      }
-      timeout = setTimeout(later, wait);
-    }
-
-    debounced.cancel = function () {
-      clearTimeout(timeout);
-    };
-
-    return debounced
-  }
-
-  function frameDebounce (fn) {
-    var wait = false, frame;
-
-    function debounced () {
-      var this$1 = this;
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
-      if (wait) { return }
-
-      wait = true;
-      frame = requestAnimationFrame(function () {
-        fn.apply(this$1, args);
-        wait = false;
-      });
-    }
-
-    debounced.cancel = function () {
-      window.cancelAnimationFrame(frame);
-      wait = false;
-    };
-
-    return debounced
-  }
-
-  // using it to manage SSR rendering with best performance
-
-  var CanRenderMixin = {
-    data: function data () {
-      return {
-        canRender: !onSSR
-      }
-    },
-    mounted: function mounted () {
-      this.canRender === false && (this.canRender = true);
-    }
-  };
-
-  var QPopover = {
-    name: 'QPopover',
-    mixins: [ModelToggleMixin, CanRenderMixin],
-    props: {
-      anchor: {
-        type: String,
-        validator: positionValidator
-      },
-      self: {
-        type: String,
-        validator: positionValidator
-      },
-      fit: Boolean,
-      maxHeight: String,
-      touchPosition: Boolean,
-      anchorClick: {
-        /*
-          for handling anchor outside of Popover
-          example: context menu component
-        */
-        type: Boolean,
-        default: true
-      },
-      offset: {
-        type: Array,
-        validator: offsetValidator
-      },
-      noFocus: Boolean,
-      noRefocus: Boolean,
-      disable: Boolean
-    },
-    watch: {
-      $route: function $route () {
-        this.hide();
-      }
-    },
-    computed: {
-      anchorOrigin: function anchorOrigin () {
-        return parsePosition(this.anchor || ("bottom " + (this.$q.i18n.rtl ? 'right' : 'left')))
-      },
-      selfOrigin: function selfOrigin () {
-        return parsePosition(this.self || ("top " + (this.$q.i18n.rtl ? 'right' : 'left')))
-      }
-    },
-    render: function render (h) {
-      if (!this.canRender) { return }
-
-      return h('div', {
-        staticClass: 'q-popover scroll',
-        ref: 'content',
-        attrs: { tabindex: -1 },
-        on: {
-          click: function click (e) { e.stopPropagation(); }
-        }
-      }, this.$slots.default)
-    },
-    mounted: function mounted () {
-      var this$1 = this;
-
-      this.__updatePosition = frameDebounce(function (_, event, animate) { return this$1.reposition(event, animate); });
-      this.$nextTick(function () {
-        this$1.anchorEl = this$1.$el.parentNode;
-        this$1.anchorEl.removeChild(this$1.$el);
-        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner')) {
-          this$1.anchorEl = this$1.anchorEl.parentNode;
-        }
-        if (this$1.anchorClick) {
-          this$1.anchorEl.classList.add('cursor-pointer');
-          this$1.anchorEl.addEventListener('click', this$1.toggle);
-          this$1.anchorEl.addEventListener('keyup', this$1.__toggleKey);
-        }
-      });
-      if (this.value) {
-        this.show();
-      }
-    },
-    beforeDestroy: function beforeDestroy () {
-      if (this.anchorClick && this.anchorEl) {
-        this.anchorEl.removeEventListener('click', this.toggle);
-        this.anchorEl.removeEventListener('keyup', this.__toggleKey);
-      }
-    },
-    methods: {
-      __show: function __show (evt) {
-        var this$1 = this;
-
-        if (!this.noRefocus) {
-          this.__refocusTarget = (this.anchorClick && this.anchorEl) || document.activeElement;
-        }
-        document.body.appendChild(this.$el);
-        EscapeKey.register(function () { this$1.hide(); });
-        this.scrollTarget = getScrollTarget(this.anchorEl);
-        this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
-        window.addEventListener('resize', this.__updatePosition, listenOpts.passive);
-        this.__updatePosition(0, evt, true);
-
-        clearTimeout(this.timer);
-        if (!this.noFocus && this.$refs.content) {
-          this.$refs.content.focus();
-        }
-        this.timer = setTimeout(function () {
-          document.body.addEventListener('click', this$1.__bodyHide, true);
-          document.body.addEventListener('touchstart', this$1.__bodyHide, true);
-          this$1.showPromise && this$1.showPromiseResolve();
-        }, 0);
-      },
-      __toggleKey: function __toggleKey (evt) {
-        if (evt.keyCode === 13) {
-          this.toggle(evt);
-        }
-      },
-      __bodyHide: function __bodyHide (evt) {
-        if (
-          evt && evt.target &&
-          (this.$el.contains(evt.target) || this.anchorEl.contains(evt.target))
-        ) {
-          return
-        }
-
-        this.hide(evt);
-      },
-      __hide: function __hide () {
-        clearTimeout(this.timer);
-
-        document.body.removeEventListener('click', this.__bodyHide, true);
-        document.body.removeEventListener('touchstart', this.__bodyHide, true);
-        this.scrollTarget.removeEventListener('scroll', this.__updatePosition, listenOpts.passive);
-        window.removeEventListener('resize', this.__updatePosition, listenOpts.passive);
-        EscapeKey.pop();
-
-        this.$el.remove();
-        this.hidePromise && this.hidePromiseResolve();
-        if (!this.noRefocus && this.__refocusTarget) {
-          this.__refocusTarget.focus();
-        }
-      },
-      reposition: function reposition (event, animate) {
-        if (this.fit) {
-          this.$el.style.minWidth = width(this.anchorEl) + 'px';
-        }
-        var ref = this.anchorEl.getBoundingClientRect();
-        var top = ref.top;
-        var bottom = ref.bottom;
-
-        if (bottom < 0 || top > window.innerHeight) {
-          return this.hide()
-        }
-
-        setPosition({
-          event: event,
-          animate: animate,
-          el: this.$el,
-          offset: this.offset,
-          anchorEl: this.anchorEl,
-          anchorOrigin: this.anchorOrigin,
-          selfOrigin: this.selfOrigin,
-          maxHeight: this.maxHeight,
-          anchorClick: this.anchorClick,
-          touchPosition: this.touchPosition
-        });
-      }
-    }
-  };
-
-  var QBtnDropdown = {
-    name: 'QBtnDropdown',
-    mixins: [BtnMixin],
-    props: {
-      value: Boolean,
-      split: Boolean,
-      contentClass: [Array, String, Object],
-      contentStyle: [Array, String, Object],
-      popoverAnchor: {
-        type: String,
-        default: 'bottom right'
-      },
-      popoverSelf: {
-        type: String,
-        default: 'top right'
-      }
-    },
-    data: function data () {
-      return {
-        showing: this.value
-      }
-    },
-    watch: {
-      value: function value (val) {
-        this.$refs.popover && this.$refs.popover[val ? 'show' : 'hide']();
-      }
-    },
-    render: function render (h) {
-      var this$1 = this;
-
-      var
-        Popover = h(
-          QPopover,
-          {
-            ref: 'popover',
-            props: {
-              disable: this.disable,
-              fit: true,
-              anchorClick: !this.split,
-              anchor: this.popoverAnchor,
-              self: this.popoverSelf
-            },
-            'class': this.contentClass,
-            style: this.contentStyle,
-            on: {
-              show: function (e) {
-                this$1.showing = true;
-                this$1.$emit('show', e);
-                this$1.$emit('input', true);
-              },
-              hide: function (e) {
-                this$1.showing = false;
-                this$1.$emit('hide', e);
-                this$1.$emit('input', false);
-              }
-            }
-          },
-          this.$slots.default
-        ),
-        Icon = h(
-          'QIcon',
-          {
-            props: {
-              name: this.$q.icon.input.dropdown
-            },
-            staticClass: 'transition-generic',
-            'class': {
-              'rotate-180': this.showing,
-              'on-right': !this.split,
-              'q-btn-dropdown-arrow': !this.split
-            }
-          }
-        ),
-        Btn = h(QBtn, {
-          props: Object.assign({}, this.$props, {
-            iconRight: this.split ? this.iconRight : null
-          }),
-          'class': this.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple',
-          on: {
-            click: function (e) {
-              this$1.split && this$1.hide();
-              if (!this$1.disable) {
-                this$1.$emit('click', e);
-              }
-            }
-          }
-        }, this.split ? null : [ Icon, Popover ]);
-
-      if (!this.split) {
-        return Btn
-      }
-
-      return h(
-        QBtnGroup,
-        {
-          props: {
-            outline: this.outline,
-            flat: this.flat,
-            rounded: this.rounded,
-            push: this.push
-          },
-          staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap q-btn-item'
-        },
-        [
-          Btn,
-          h(
-            QBtn,
-            {
-              props: {
-                disable: this.disable,
-                outline: this.outline,
-                flat: this.flat,
-                rounded: this.rounded,
-                push: this.push,
-                size: this.size,
-                color: this.color,
-                textColor: this.textColor,
-                dense: this.dense,
-                glossy: this.glossy,
-                noRipple: this.noRipple,
-                waitForRipple: this.waitForRipple
-              },
-              staticClass: 'q-btn-dropdown-arrow',
-              on: { click: function () { this$1.toggle(); } }
-            },
-            [ Icon ]
-          ),
-          [ Popover ]
-        ]
-      )
-    },
-    methods: {
-      toggle: function toggle () {
-        return this.$refs.popover ? this.$refs.popover.toggle() : Promise.resolve()
-      },
-      show: function show () {
-        return this.$refs.popover ? this.$refs.popover.show() : Promise.resolve()
-      },
-      hide: function hide () {
-        return this.$refs.popover ? this.$refs.popover.hide() : Promise.resolve()
-      }
-    },
-    mounted: function mounted () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        if (this$1.value) {
-          this$1.$refs.popover && this$1.$refs.popover.show();
-        }
-      });
-    }
-  };
-
-  var QBtnToggle = {
-    name: 'QBtnToggle',
-    props: {
-      value: {
-        required: true
-      },
-      type: String,
-      // To avoid seeing the active raise shadow through the transparent button, give it a color (even white).
-      color: String,
-      textColor: String,
-      toggleColor: {
-        type: String,
-        default: 'primary'
-      },
-      toggleTextColor: String,
-      options: {
-        type: Array,
-        required: true,
-        validator: function (v) { return v.every(function (opt) { return ('label' in opt || 'icon' in opt) && 'value' in opt; }); }
-      },
-      readonly: Boolean,
-      disable: Boolean,
-      noCaps: Boolean,
-      noWrap: Boolean,
-      outline: Boolean,
-      flat: Boolean,
-      dense: Boolean,
-      rounded: Boolean,
-      push: Boolean,
-      size: String,
-      glossy: Boolean,
-      noRipple: Boolean,
-      waitForRipple: Boolean
-    },
-    computed: {
-      val: function val () {
-        var this$1 = this;
-
-        return this.options.map(function (opt) { return opt.value === this$1.value; })
-      }
-    },
-    methods: {
-      set: function set (value, opt) {
-        var this$1 = this;
-
-        if (this.readonly) {
-          return
-        }
-        this.$emit('input', value, opt);
-        this.$nextTick(function () {
-          if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
-            this$1.$emit('change', value, opt);
-          }
-        });
-      }
-    },
-    render: function render (h) {
-      var this$1 = this;
-
-      return h(QBtnGroup, {
-        staticClass: 'q-btn-toggle',
-        props: {
-          outline: this.outline,
-          flat: this.flat,
-          rounded: this.rounded,
-          push: this.push
-        }
-      },
-      this.options.map(
-        function (opt, i) { return h(QBtn, {
-          key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
-          on: { click: function () { return this$1.set(opt.value, opt); } },
-          props: {
-            type: opt.hasOwnProperty('type') ? opt.type : this$1.type,
-            disable: this$1.disable,
-            label: opt.label,
-            // Colors come from the button specific options first, then from general props
-            color: this$1.val[i] ? opt.toggleColor || this$1.toggleColor : opt.color || this$1.color,
-            textColor: this$1.val[i] ? opt.toggleTextColor || this$1.toggleTextColor : opt.textColor || this$1.textColor,
-            icon: opt.icon,
-            iconRight: opt.iconRight,
-            noCaps: this$1.noCaps || opt.noCaps,
-            noWrap: this$1.noWrap || opt.noWrap,
-            outline: this$1.outline,
-            flat: this$1.flat,
-            rounded: this$1.rounded,
-            push: this$1.push,
-            glossy: this$1.glossy,
-            size: this$1.size,
-            dense: this$1.dense,
-            noRipple: this$1.noRipple || opt.noRipple,
-            waitForRipple: this$1.waitForRipple || opt.waitForRipple,
-            tabindex: opt.tabindex
-          }
-        }); }
-      ))
-    }
-  };
-
   var QAlert = {
     name: 'QAlert',
     props: {
@@ -6677,6 +3490,480 @@
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
       s4() + '-' + s4() + s4() + s4()
   }
+
+  function getAnchorPosition (el, offset) {
+    var ref = el.getBoundingClientRect();
+    var top = ref.top;
+    var left = ref.left;
+    var right = ref.right;
+    var bottom = ref.bottom;
+    var a = {
+        top: top,
+        left: left,
+        width: el.offsetWidth,
+        height: el.offsetHeight
+      };
+
+    if (offset) {
+      a.top -= offset[1];
+      a.left -= offset[0];
+      if (bottom) {
+        bottom += offset[1];
+      }
+      if (right) {
+        right += offset[0];
+      }
+      a.width += offset[0];
+      a.height += offset[1];
+    }
+
+    a.right = right || a.left + a.width;
+    a.bottom = bottom || a.top + a.height;
+    a.middle = a.left + ((a.right - a.left) / 2);
+    a.center = a.top + ((a.bottom - a.top) / 2);
+
+    return a
+  }
+
+  function getTargetPosition (el) {
+    return {
+      top: 0,
+      center: el.offsetHeight / 2,
+      bottom: el.offsetHeight,
+      left: 0,
+      middle: el.offsetWidth / 2,
+      right: el.offsetWidth
+    }
+  }
+
+  function getOverlapMode (anchor, target, median) {
+    if ([anchor, target].indexOf(median) >= 0) { return 'auto' }
+    if (anchor === target) { return 'inclusive' }
+    return 'exclusive'
+  }
+
+  function getPositions (anchor, target) {
+    var
+      a = Object.assign({}, anchor),
+      t = Object.assign({}, target);
+
+    var positions = {
+      x: ['left', 'right'].filter(function (p) { return p !== t.horizontal; }),
+      y: ['top', 'bottom'].filter(function (p) { return p !== t.vertical; })
+    };
+
+    var overlap = {
+      x: getOverlapMode(a.horizontal, t.horizontal, 'middle'),
+      y: getOverlapMode(a.vertical, t.vertical, 'center')
+    };
+
+    positions.x.splice(overlap.x === 'auto' ? 0 : 1, 0, 'middle');
+    positions.y.splice(overlap.y === 'auto' ? 0 : 1, 0, 'center');
+
+    if (overlap.y !== 'auto') {
+      a.vertical = a.vertical === 'top' ? 'bottom' : 'top';
+      if (overlap.y === 'inclusive') {
+        a.vertical = t.vertical;
+      }
+    }
+
+    if (overlap.x !== 'auto') {
+      a.horizontal = a.horizontal === 'left' ? 'right' : 'left';
+      if (overlap.x === 'inclusive') {
+        a.horizontal = t.horizontal;
+      }
+    }
+
+    return {
+      positions: positions,
+      anchorPos: a
+    }
+  }
+
+  function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
+    var ref = getPositions(anchorOrigin, selfOrigin);
+    var positions = ref.positions;
+    var anchorPos = ref.anchorPos;
+
+    if (targetPosition.top < 0 || targetPosition.top + target.bottom > window.innerHeight) {
+      var newTop = anchor[anchorPos.vertical] - target[positions.y[0]];
+      if (newTop + target.bottom <= window.innerHeight) {
+        targetPosition.top = newTop;
+      }
+      else {
+        newTop = anchor[anchorPos.vertical] - target[positions.y[1]];
+        if (newTop + target.bottom <= window.innerHeight) {
+          targetPosition.top = newTop;
+        }
+      }
+    }
+    if (targetPosition.left < 0 || targetPosition.left + target.right > window.innerWidth) {
+      var newLeft = anchor[anchorPos.horizontal] - target[positions.x[0]];
+      if (newLeft + target.right <= window.innerWidth) {
+        targetPosition.left = newLeft;
+      }
+      else {
+        newLeft = anchor[anchorPos.horizontal] - target[positions.x[1]];
+        if (newLeft + target.right <= window.innerWidth) {
+          targetPosition.left = newLeft;
+        }
+      }
+    }
+
+    return targetPosition
+  }
+
+  function setPosition (ref) {
+    var el = ref.el;
+    var animate = ref.animate;
+    var anchorEl = ref.anchorEl;
+    var anchorOrigin = ref.anchorOrigin;
+    var selfOrigin = ref.selfOrigin;
+    var maxHeight = ref.maxHeight;
+    var event$$1 = ref.event;
+    var anchorClick = ref.anchorClick;
+    var touchPosition = ref.touchPosition;
+    var offset = ref.offset;
+
+    var anchor;
+    el.style.maxHeight = maxHeight || '65vh';
+
+    if (event$$1 && (!anchorClick || touchPosition)) {
+      var ref$1 = position(event$$1);
+      var top = ref$1.top;
+      var left = ref$1.left;
+      anchor = {top: top, left: left, width: 1, height: 1, right: left + 1, center: top, middle: left, bottom: top + 1};
+    }
+    else {
+      anchor = getAnchorPosition(anchorEl, offset);
+    }
+
+    var target = getTargetPosition(el);
+    var targetPosition = {
+      top: anchor[anchorOrigin.vertical] - target[selfOrigin.vertical],
+      left: anchor[anchorOrigin.horizontal] - target[selfOrigin.horizontal]
+    };
+
+    targetPosition = repositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
+
+    el.style.top = Math.max(0, targetPosition.top) + 'px';
+    el.style.left = Math.max(0, targetPosition.left) + 'px';
+
+    if (animate) {
+      var directions = targetPosition.top < anchor.top ? ['up', 'down'] : ['down', 'up'];
+      el.classList.add(("animate-popup-" + (directions[0])));
+      el.classList.remove(("animate-popup-" + (directions[1])));
+    }
+  }
+
+  function positionValidator (pos) {
+    var parts = pos.split(' ');
+    if (parts.length !== 2) {
+      return false
+    }
+    if (!['top', 'center', 'bottom'].includes(parts[0])) {
+      console.error('Anchor/Self position must start with one of top/center/bottom');
+      return false
+    }
+    if (!['left', 'middle', 'right'].includes(parts[1])) {
+      console.error('Anchor/Self position must end with one of left/middle/right');
+      return false
+    }
+    return true
+  }
+
+  function offsetValidator (val) {
+    if (!val) { return true }
+    if (val.length !== 2) { return false }
+    if (typeof val[0] !== 'number' || typeof val[1] !== 'number') {
+      return false
+    }
+    return true
+  }
+
+  function parsePosition (pos) {
+    var parts = pos.split(' ');
+    return {vertical: parts[0], horizontal: parts[1]}
+  }
+
+  function frameDebounce (fn) {
+    var wait = false, frame;
+
+    function debounced () {
+      var this$1 = this;
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      if (wait) { return }
+
+      wait = true;
+      frame = requestAnimationFrame(function () {
+        fn.apply(this$1, args);
+        wait = false;
+      });
+    }
+
+    debounced.cancel = function () {
+      window.cancelAnimationFrame(frame);
+      wait = false;
+    };
+
+    return debounced
+  }
+
+  // using it to manage SSR rendering with best performance
+
+  var CanRenderMixin = {
+    data: function data () {
+      return {
+        canRender: !onSSR
+      }
+    },
+    mounted: function mounted () {
+      this.canRender === false && (this.canRender = true);
+    }
+  };
+
+  var QPopover = {
+    name: 'QPopover',
+    mixins: [ModelToggleMixin, CanRenderMixin],
+    props: {
+      anchor: {
+        type: String,
+        validator: positionValidator
+      },
+      self: {
+        type: String,
+        validator: positionValidator
+      },
+      fit: Boolean,
+      maxHeight: String,
+      touchPosition: Boolean,
+      anchorClick: {
+        /*
+          for handling anchor outside of Popover
+          example: context menu component
+        */
+        type: Boolean,
+        default: true
+      },
+      offset: {
+        type: Array,
+        validator: offsetValidator
+      },
+      noFocus: Boolean,
+      noRefocus: Boolean,
+      disable: Boolean
+    },
+    watch: {
+      $route: function $route () {
+        this.hide();
+      }
+    },
+    computed: {
+      anchorOrigin: function anchorOrigin () {
+        return parsePosition(this.anchor || ("bottom " + (this.$q.i18n.rtl ? 'right' : 'left')))
+      },
+      selfOrigin: function selfOrigin () {
+        return parsePosition(this.self || ("top " + (this.$q.i18n.rtl ? 'right' : 'left')))
+      }
+    },
+    render: function render (h) {
+      if (!this.canRender) { return }
+
+      return h('div', {
+        staticClass: 'q-popover scroll',
+        ref: 'content',
+        attrs: { tabindex: -1 },
+        on: {
+          click: function click (e) { e.stopPropagation(); }
+        }
+      }, this.$slots.default)
+    },
+    mounted: function mounted () {
+      var this$1 = this;
+
+      this.__updatePosition = frameDebounce(function (_, event$$1, animate) { return this$1.reposition(event$$1, animate); });
+      this.$nextTick(function () {
+        this$1.anchorEl = this$1.$el.parentNode;
+        this$1.anchorEl.removeChild(this$1.$el);
+        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner')) {
+          this$1.anchorEl = this$1.anchorEl.parentNode;
+        }
+        if (this$1.anchorClick) {
+          this$1.anchorEl.classList.add('cursor-pointer');
+          this$1.anchorEl.addEventListener('click', this$1.toggle);
+          this$1.anchorEl.addEventListener('keyup', this$1.__toggleKey);
+        }
+      });
+      if (this.value) {
+        this.show();
+      }
+    },
+    beforeDestroy: function beforeDestroy () {
+      if (this.anchorClick && this.anchorEl) {
+        this.anchorEl.removeEventListener('click', this.toggle);
+        this.anchorEl.removeEventListener('keyup', this.__toggleKey);
+      }
+    },
+    methods: {
+      __show: function __show (evt) {
+        var this$1 = this;
+
+        if (!this.noRefocus) {
+          this.__refocusTarget = (this.anchorClick && this.anchorEl) || document.activeElement;
+        }
+        document.body.appendChild(this.$el);
+        EscapeKey.register(function () { this$1.hide(); });
+        this.scrollTarget = getScrollTarget(this.anchorEl);
+        this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
+        window.addEventListener('resize', this.__updatePosition, listenOpts.passive);
+        this.__updatePosition(0, evt, true);
+
+        clearTimeout(this.timer);
+        if (!this.noFocus && this.$refs.content) {
+          this.$refs.content.focus();
+        }
+        this.timer = setTimeout(function () {
+          document.body.addEventListener('click', this$1.__bodyHide, true);
+          document.body.addEventListener('touchstart', this$1.__bodyHide, true);
+          this$1.showPromise && this$1.showPromiseResolve();
+        }, 0);
+      },
+      __toggleKey: function __toggleKey (evt) {
+        if (evt.keyCode === 13) {
+          this.toggle(evt);
+        }
+      },
+      __bodyHide: function __bodyHide (evt) {
+        if (
+          evt && evt.target &&
+          (this.$el.contains(evt.target) || this.anchorEl.contains(evt.target))
+        ) {
+          return
+        }
+
+        this.hide(evt);
+      },
+      __hide: function __hide () {
+        clearTimeout(this.timer);
+
+        document.body.removeEventListener('click', this.__bodyHide, true);
+        document.body.removeEventListener('touchstart', this.__bodyHide, true);
+        this.scrollTarget.removeEventListener('scroll', this.__updatePosition, listenOpts.passive);
+        window.removeEventListener('resize', this.__updatePosition, listenOpts.passive);
+        EscapeKey.pop();
+
+        this.$el.remove();
+        this.hidePromise && this.hidePromiseResolve();
+        if (!this.noRefocus && this.__refocusTarget) {
+          this.__refocusTarget.focus();
+        }
+      },
+      reposition: function reposition (event$$1, animate) {
+        if (this.fit) {
+          this.$el.style.minWidth = width(this.anchorEl) + 'px';
+        }
+        var ref = this.anchorEl.getBoundingClientRect();
+        var top = ref.top;
+        var bottom = ref.bottom;
+
+        if (bottom < 0 || top > window.innerHeight) {
+          return this.hide()
+        }
+
+        setPosition({
+          event: event$$1,
+          animate: animate,
+          el: this.$el,
+          offset: this.offset,
+          anchorEl: this.anchorEl,
+          anchorOrigin: this.anchorOrigin,
+          selfOrigin: this.selfOrigin,
+          maxHeight: this.maxHeight,
+          anchorClick: this.anchorClick,
+          touchPosition: this.touchPosition
+        });
+      }
+    }
+  };
+
+  function push (child, h, name, slot, replace, conf) {
+    var defaultProps = { props: { right: conf.right } };
+
+    if (slot && replace) {
+      child.push(h(name, defaultProps, slot));
+      return
+    }
+
+    var v = false;
+    for (var p in conf) {
+      if (conf.hasOwnProperty(p)) {
+        v = conf[p];
+        if (v !== void 0 && v !== true) {
+          child.push(h(name, { props: conf }));
+          break
+        }
+      }
+    }
+
+    slot && child.push(h(name, defaultProps, slot));
+  }
+
+  var QItemWrapper = {
+    name: 'QItemWrapper',
+    props: {
+      cfg: {
+        type: Object,
+        default: function () { return ({}); }
+      },
+      slotReplace: Boolean
+    },
+    render: function render (h) {
+      var
+        cfg = this.cfg,
+        replace = this.slotReplace,
+        child = [];
+
+      push(child, h, QItemSide, this.$slots.left, replace, {
+        icon: cfg.icon,
+        color: cfg.leftColor,
+        avatar: cfg.avatar,
+        letter: cfg.letter,
+        image: cfg.image,
+        inverted: cfg.leftInverted,
+        textColor: cfg.leftTextColor
+      });
+
+      push(child, h, QItemMain, this.$slots.main, replace, {
+        label: cfg.label,
+        sublabel: cfg.sublabel,
+        labelLines: cfg.labelLines,
+        sublabelLines: cfg.sublabelLines,
+        inset: cfg.inset
+      });
+
+      push(child, h, QItemSide, this.$slots.right, replace, {
+        right: true,
+        icon: cfg.rightIcon,
+        color: cfg.rightColor,
+        avatar: cfg.rightAvatar,
+        letter: cfg.rightLetter,
+        image: cfg.rightImage,
+        stamp: cfg.stamp,
+        inverted: cfg.rightInverted,
+        textColor: cfg.rightTextColor
+      });
+
+      child.push(this.$slots.default);
+
+      return h(QItem, {
+        attrs: this.$attrs,
+        on: this.$listeners,
+        props: cfg
+      }, child)
+    }
+  };
 
   var KeyboardSelectionMixin = {
     data: function () { return ({
@@ -7138,6 +4425,283 @@
     }
   };
 
+  var QBtnGroup = {
+    name: 'QBtnGroup',
+    props: {
+      outline: Boolean,
+      flat: Boolean,
+      rounded: Boolean,
+      push: Boolean
+    },
+    computed: {
+      classes: function classes () {
+        var this$1 = this;
+
+        return ['outline', 'flat', 'rounded', 'push']
+          .filter(function (t) { return this$1[t]; })
+          .map(function (t) { return ("q-btn-group-" + t); }).join(' ')
+      }
+    },
+    render: function render (h) {
+      return h('div', {
+        staticClass: 'q-btn-group row no-wrap inline',
+        'class': this.classes
+      }, this.$slots.default)
+    }
+  };
+
+  var QBtnDropdown = {
+    name: 'QBtnDropdown',
+    mixins: [BtnMixin],
+    props: {
+      value: Boolean,
+      split: Boolean,
+      contentClass: [Array, String, Object],
+      contentStyle: [Array, String, Object],
+      popoverAnchor: {
+        type: String,
+        default: 'bottom right'
+      },
+      popoverSelf: {
+        type: String,
+        default: 'top right'
+      }
+    },
+    data: function data () {
+      return {
+        showing: this.value
+      }
+    },
+    watch: {
+      value: function value (val) {
+        this.$refs.popover && this.$refs.popover[val ? 'show' : 'hide']();
+      }
+    },
+    render: function render (h) {
+      var this$1 = this;
+
+      var
+        Popover = h(
+          QPopover,
+          {
+            ref: 'popover',
+            props: {
+              disable: this.disable,
+              fit: true,
+              anchorClick: !this.split,
+              anchor: this.popoverAnchor,
+              self: this.popoverSelf
+            },
+            'class': this.contentClass,
+            style: this.contentStyle,
+            on: {
+              show: function (e) {
+                this$1.showing = true;
+                this$1.$emit('show', e);
+                this$1.$emit('input', true);
+              },
+              hide: function (e) {
+                this$1.showing = false;
+                this$1.$emit('hide', e);
+                this$1.$emit('input', false);
+              }
+            }
+          },
+          this.$slots.default
+        ),
+        Icon = h(
+          'QIcon',
+          {
+            props: {
+              name: this.$q.icon.input.dropdown
+            },
+            staticClass: 'transition-generic',
+            'class': {
+              'rotate-180': this.showing,
+              'on-right': !this.split,
+              'q-btn-dropdown-arrow': !this.split
+            }
+          }
+        ),
+        Btn = h(QBtn, {
+          props: Object.assign({}, this.$props, {
+            iconRight: this.split ? this.iconRight : null
+          }),
+          'class': this.split ? 'q-btn-dropdown-current' : 'q-btn-dropdown q-btn-dropdown-simple',
+          on: {
+            click: function (e) {
+              this$1.split && this$1.hide();
+              if (!this$1.disable) {
+                this$1.$emit('click', e);
+              }
+            }
+          }
+        }, this.split ? null : [ Icon, Popover ]);
+
+      if (!this.split) {
+        return Btn
+      }
+
+      return h(
+        QBtnGroup,
+        {
+          props: {
+            outline: this.outline,
+            flat: this.flat,
+            rounded: this.rounded,
+            push: this.push
+          },
+          staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap q-btn-item'
+        },
+        [
+          Btn,
+          h(
+            QBtn,
+            {
+              props: {
+                disable: this.disable,
+                outline: this.outline,
+                flat: this.flat,
+                rounded: this.rounded,
+                push: this.push,
+                size: this.size,
+                color: this.color,
+                textColor: this.textColor,
+                dense: this.dense,
+                glossy: this.glossy,
+                noRipple: this.noRipple,
+                waitForRipple: this.waitForRipple
+              },
+              staticClass: 'q-btn-dropdown-arrow',
+              on: { click: function () { this$1.toggle(); } }
+            },
+            [ Icon ]
+          ),
+          [ Popover ]
+        ]
+      )
+    },
+    methods: {
+      toggle: function toggle () {
+        return this.$refs.popover ? this.$refs.popover.toggle() : Promise.resolve()
+      },
+      show: function show () {
+        return this.$refs.popover ? this.$refs.popover.show() : Promise.resolve()
+      },
+      hide: function hide () {
+        return this.$refs.popover ? this.$refs.popover.hide() : Promise.resolve()
+      }
+    },
+    mounted: function mounted () {
+      var this$1 = this;
+
+      this.$nextTick(function () {
+        if (this$1.value) {
+          this$1.$refs.popover && this$1.$refs.popover.show();
+        }
+      });
+    }
+  };
+
+  var QBtnToggle = {
+    name: 'QBtnToggle',
+    props: {
+      value: {
+        required: true
+      },
+      type: String,
+      // To avoid seeing the active raise shadow through the transparent button, give it a color (even white).
+      color: String,
+      textColor: String,
+      toggleColor: {
+        type: String,
+        default: 'primary'
+      },
+      toggleTextColor: String,
+      options: {
+        type: Array,
+        required: true,
+        validator: function (v) { return v.every(function (opt) { return ('label' in opt || 'icon' in opt) && 'value' in opt; }); }
+      },
+      readonly: Boolean,
+      disable: Boolean,
+      noCaps: Boolean,
+      noWrap: Boolean,
+      outline: Boolean,
+      flat: Boolean,
+      dense: Boolean,
+      rounded: Boolean,
+      push: Boolean,
+      size: String,
+      glossy: Boolean,
+      noRipple: Boolean,
+      waitForRipple: Boolean
+    },
+    computed: {
+      val: function val () {
+        var this$1 = this;
+
+        return this.options.map(function (opt) { return opt.value === this$1.value; })
+      }
+    },
+    methods: {
+      set: function set (value, opt) {
+        var this$1 = this;
+
+        if (this.readonly) {
+          return
+        }
+        this.$emit('input', value, opt);
+        this.$nextTick(function () {
+          if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
+            this$1.$emit('change', value, opt);
+          }
+        });
+      }
+    },
+    render: function render (h) {
+      var this$1 = this;
+
+      return h(QBtnGroup, {
+        staticClass: 'q-btn-toggle',
+        props: {
+          outline: this.outline,
+          flat: this.flat,
+          rounded: this.rounded,
+          push: this.push
+        }
+      },
+      this.options.map(
+        function (opt, i) { return h(QBtn, {
+          key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
+          on: { click: function () { return this$1.set(opt.value, opt); } },
+          props: {
+            type: opt.hasOwnProperty('type') ? opt.type : this$1.type,
+            disable: this$1.disable,
+            label: opt.label,
+            // Colors come from the button specific options first, then from general props
+            color: this$1.val[i] ? opt.toggleColor || this$1.toggleColor : opt.color || this$1.color,
+            textColor: this$1.val[i] ? opt.toggleTextColor || this$1.toggleTextColor : opt.textColor || this$1.textColor,
+            icon: opt.icon,
+            iconRight: opt.iconRight,
+            noCaps: this$1.noCaps || opt.noCaps,
+            noWrap: this$1.noWrap || opt.noWrap,
+            outline: this$1.outline,
+            flat: this$1.flat,
+            rounded: this$1.rounded,
+            push: this$1.push,
+            glossy: this$1.glossy,
+            size: this$1.size,
+            dense: this$1.dense,
+            noRipple: this$1.noRipple || opt.noRipple,
+            waitForRipple: this$1.waitForRipple || opt.waitForRipple,
+            tabindex: opt.tabindex
+          }
+        }); }
+      ))
+    }
+  };
+
   var QCard = {
     name: 'QCard',
     props: {
@@ -7510,7 +5074,7 @@
   var accelerate = easeInCubic;
   var sharp = easeInOutQuad;
 
-  var easing = /*#__PURE__*/Object.freeze({
+  var easing = {
     linear: linear,
     easeInQuad: easeInQuad,
     easeOutQuad: easeOutQuad,
@@ -7532,7 +5096,7 @@
     decelerate: decelerate,
     accelerate: accelerate,
     sharp: sharp
-  });
+  };
 
   var ids = {};
 
@@ -7544,7 +5108,7 @@
     var apply = ref.apply;
     var done = ref.done;
     var cancel = ref.cancel;
-    var easing = ref.easing;
+    var easing$$1 = ref.easing;
 
     var id = name;
     var start = new Date();
@@ -7556,7 +5120,7 @@
       id = uid();
     }
 
-    var delta = easing || linear;
+    var delta = easing$$1 || linear;
     var handler = function () {
       var progress = ((new Date()) - start) / duration;
       if (progress > 1) {
@@ -7599,10 +5163,10 @@
     }
   }
 
-  var animate = /*#__PURE__*/Object.freeze({
+  var animate = {
     start: start,
     stop: stop
-  });
+  };
 
   var FullscreenMixin = {
     data: function data () {
@@ -7876,18 +5440,18 @@
         stop(this.animUid);
         this.animationInProgress = false;
       },
-      __pan: function __pan (event) {
+      __pan: function __pan (event$$1) {
         var this$1 = this;
 
         if (this.infinite && this.animationInProgress) {
           return
         }
-        if (event.isFirst) {
+        if (event$$1.isFirst) {
           this.initialPosition = this.position;
           this.__cleanup();
         }
 
-        var delta = this.rtlDir * (event.direction === 'left' ? -1 : 1) * event.distance.x;
+        var delta = this.rtlDir * (event$$1.direction === 'left' ? -1 : 1) * event$$1.distance.x;
 
         if (
           (this.infinite && this.slidesNumber < 2) ||
@@ -7904,7 +5468,7 @@
 
         var
           pos = this.initialPosition + delta / this.$refs.track.offsetWidth * 100,
-          slidePos = this.slide + this.rtlDir * (event.direction === 'left' ? 1 : -1);
+          slidePos = this.slide + this.rtlDir * (event$$1.direction === 'left' ? 1 : -1);
 
         if (this.position !== pos) {
           this.position = pos;
@@ -7913,9 +5477,9 @@
           this.positionSlide = slidePos;
         }
 
-        if (event.isFinal) {
+        if (event$$1.isFinal) {
           this.goToSlide(
-            event.distance.x < 40
+            event$$1.distance.x < 40
               ? this.slide
               : this.positionSlide,
             true
@@ -9227,7 +6791,8 @@
     }
   };
 
-  var __vue_script__ = script;
+  /* script */
+              var __vue_script__ = script;
               
   /* template */
   var __vue_render__ = function() {
@@ -9289,7 +6854,7 @@
               _vm._v(" "),
               _vm.hasLabel
                 ? _c("div", {
-                    staticClass: "q-if-label ellipsis",
+                    staticClass: "q-if-label",
                     class: {
                       "q-if-label-above": _vm.labelIsAbove
                     },
@@ -9320,7 +6885,7 @@
           _vm._v(" "),
           _vm.hasLabel
             ? _c("div", {
-                staticClass: "q-if-label-fake ellipsis",
+                staticClass: "q-if-label-fake",
                 domProps: { textContent: _vm._s(_vm.label) }
               })
             : _vm._e()
@@ -9366,111 +6931,109 @@
   var __vue_staticRenderFns__ = [];
   __vue_render__._withStripped = true;
 
-  var __vue_template__ = typeof __vue_render__ !== 'undefined'
-    ? { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ }
-    : {};
-  /* style */
-  var __vue_inject_styles__ = undefined;
-  /* scoped */
-  var __vue_scope_id__ = undefined;
-  /* module identifier */
-  var __vue_module_identifier__ = undefined;
-  /* functional template */
-  var __vue_is_functional_template__ = false;
-  /* component normalizer */
-  function __vue_normalize__(
-    template, style, script$$1,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
+    /* style */
+    var __vue_inject_styles__ = undefined;
+    /* scoped */
+    var __vue_scope_id__ = undefined;
+    /* module identifier */
+    var __vue_module_identifier__ = undefined;
+    /* functional template */
+    var __vue_is_functional_template__ = false;
+    /* component normalizer */
+    function __vue_normalize__(
+      template, style, script$$1,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input-frame\\QInputFrame.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input-frame\\QInputFrame.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__.styles || (__vue_create_injector__.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__.styles || (__vue_create_injector__.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
-
-  var QInputFrame = __vue_normalize__(
-    __vue_template__,
-    __vue_inject_styles__,
-    typeof __vue_script__ === 'undefined' ? {} : __vue_script__,
-    __vue_scope_id__,
-    __vue_is_functional_template__,
-    __vue_module_identifier__,
-    typeof __vue_create_injector__ !== 'undefined' ? __vue_create_injector__ : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+    
+    var QInputFrame = __vue_normalize__(
+      { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
+      __vue_inject_styles__,
+      __vue_script__,
+      __vue_scope_id__,
+      __vue_is_functional_template__,
+      __vue_module_identifier__,
+      __vue_create_injector__,
+      undefined
+    );
 
   //
 
@@ -9672,7 +7235,8 @@
     }
   };
 
-  var __vue_script__$1 = script$1;
+  /* script */
+              var __vue_script__$1 = script$1;
               
   /* template */
   var __vue_render__$1 = function() {
@@ -9724,8 +7288,7 @@
                     "q-chip",
                     {
                       attrs: {
-                        small: "",
-                        dense: _vm.dense,
+                        dense: "",
                         closable: _vm.editable,
                         color: _vm.computedChipBgColor,
                         "text-color": _vm.computedChipTextColor,
@@ -9934,111 +7497,192 @@
   var __vue_staticRenderFns__$1 = [];
   __vue_render__$1._withStripped = true;
 
-  var __vue_template__$1 = typeof __vue_render__$1 !== 'undefined'
-    ? { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 }
-    : {};
-  /* style */
-  var __vue_inject_styles__$1 = undefined;
-  /* scoped */
-  var __vue_scope_id__$1 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$1 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$1 = false;
-  /* component normalizer */
-  function __vue_normalize__$1(
-    template, style, script,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script === 'function' ? script.options : script) || {};
+    /* style */
+    var __vue_inject_styles__$1 = undefined;
+    /* scoped */
+    var __vue_scope_id__$1 = undefined;
+    /* module identifier */
+    var __vue_module_identifier__$1 = undefined;
+    /* functional template */
+    var __vue_is_functional_template__$1 = false;
+    /* component normalizer */
+    function __vue_normalize__$1(
+      template, style, script,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script === 'function' ? script.options : script) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\chips-input\\QChipsInput.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\chips-input\\QChipsInput.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__$1() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__$1.styles || (__vue_create_injector__$1.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__$1() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__$1.styles || (__vue_create_injector__$1.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
+    
+    var QChipsInput = __vue_normalize__$1(
+      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
+      __vue_inject_styles__$1,
+      __vue_script__$1,
+      __vue_scope_id__$1,
+      __vue_is_functional_template__$1,
+      __vue_module_identifier__$1,
+      __vue_create_injector__$1,
+      undefined
+    );
 
-  var QChipsInput = __vue_normalize__$1(
-    __vue_template__$1,
-    __vue_inject_styles__$1,
-    typeof __vue_script__$1 === 'undefined' ? {} : __vue_script__$1,
-    __vue_scope_id__$1,
-    __vue_is_functional_template__$1,
-    __vue_module_identifier__$1,
-    typeof __vue_create_injector__$1 !== 'undefined' ? __vue_create_injector__$1 : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+  var QItemTile = {
+    name: 'QItemTile',
+    props: {
+      icon: String,
+      letter: Boolean,
+      inverted: Boolean, // for icon and letter only
+
+      image: Boolean,
+      avatar: Boolean,
+      stamp: Boolean,
+
+      label: Boolean,
+      sublabel: Boolean,
+      lines: [Number, String],
+
+      tag: {
+        type: String,
+        default: 'div'
+      },
+
+      color: String,
+      textColor: String // only for inverted icon/letter
+    },
+    computed: {
+      hasLines: function hasLines () {
+        return (this.label || this.sublabel) && this.lines
+      },
+      type: function type () {
+        var this$1 = this;
+
+        return ['icon', 'label', 'sublabel', 'image', 'avatar', 'letter', 'stamp'].find(function (type) { return this$1[type]; })
+      },
+      classes: function classes () {
+        var cls = [];
+
+        if (this.color) {
+          if (this.inverted) {
+            cls.push(("bg-" + (this.color)));
+          }
+          else if (!this.textColor) {
+            cls.push(("text-" + (this.color)));
+          }
+        }
+        this.textColor && cls.push(("text-" + (this.textColor)));
+        this.type && cls.push(("q-item-" + (this.type)));
+
+        if (this.inverted && (this.icon || this.letter)) {
+          cls.push('q-item-inverted');
+          cls.push('flex');
+          cls.push('flex-center');
+        }
+
+        if (this.hasLines && (this.lines === '1' || this.lines === 1)) {
+          cls.push('ellipsis');
+        }
+
+        return cls
+      },
+      style: function style () {
+        if (this.hasLines) {
+          return textStyle(this.lines)
+        }
+      }
+    },
+    render: function render (h) {
+      var data = {
+        'class': this.classes,
+        style: this.style
+      };
+
+      if (this.icon) {
+        if (this.inverted) {
+          return h(this.tag, data, [
+            h(QIcon, { props: { name: this.icon } }, this.$slots.default)
+          ])
+        }
+        data.props = { name: this.icon };
+      }
+
+      return h(this.icon ? QIcon : this.tag, data, this.$slots.default)
+    }
+  };
 
   function getHeight (el, style$$1) {
     var initial = {
@@ -10285,8 +7929,8 @@
     }
   };
 
-  function getPercentage (event, dragging, rtl) {
-    var val = between((position(event).left - dragging.left) / dragging.width, 0, 1);
+  function getPercentage (event$$1, dragging, rtl) {
+    var val = between((position(event$$1).left - dragging.left) / dragging.width, 0, 1);
     return rtl ? 1.0 - val : val
   }
 
@@ -10377,24 +8021,24 @@
       }
     },
     methods: {
-      __pan: function __pan (event) {
+      __pan: function __pan (event$$1) {
         var this$1 = this;
 
-        if (event.isFinal) {
+        if (event$$1.isFinal) {
           if (this.dragging) {
             this.dragTimer = setTimeout(function () {
               this$1.dragging = false;
             }, 100);
-            this.__end(event.evt);
+            this.__end(event$$1.evt);
             this.__update(true);
           }
         }
-        else if (event.isFirst) {
+        else if (event$$1.isFirst) {
           clearTimeout(this.dragTimer);
-          this.dragging = this.__getDragging(event.evt);
+          this.dragging = this.__getDragging(event$$1.evt);
         }
         else if (this.dragging) {
-          this.__move(event.evt);
+          this.__move(event$$1.evt);
           this.__update();
         }
       },
@@ -10413,11 +8057,11 @@
           });
         }
       },
-      __click: function __click (event) {
+      __click: function __click (event$$1) {
         if (!this.dragging) {
-          var dragging = this.__getDragging(event);
+          var dragging = this.__getDragging(event$$1);
           if (dragging) {
-            this.__end(event, dragging);
+            this.__end(event$$1, dragging);
             this.__update(true);
           }
         }
@@ -10544,9 +8188,9 @@
           width: container.offsetWidth
         }
       },
-      __move: function __move (event) {
+      __move: function __move (event$$1) {
         var percentage = getPercentage(
-          event,
+          event$$1,
           this.dragging,
           this.$q.i18n.rtl
         );
@@ -10554,11 +8198,11 @@
         this.currentPercentage = percentage;
         this.model = getModel(percentage, this.min, this.max, this.step, this.computedDecimals);
       },
-      __end: function __end (event, dragging) {
+      __end: function __end (event$$1, dragging) {
         if ( dragging === void 0 ) dragging = this.dragging;
 
         var percentage = getPercentage(
-          event,
+          event$$1,
           dragging,
           this.$q.i18n.rtl
         );
@@ -11070,7 +8714,7 @@
           model.a = this.forceAlpha ? 100 : void 0;
         }
         model.hex = rgbToHex(model);
-        return extend({ a: 100 }, model, rgbToHsv(model))
+        return Object.assign({ a: 100 }, model, rgbToHsv(model))
       },
 
       __saturationPan: function __saturationPan (evt) {
@@ -11084,30 +8728,30 @@
           this.__dragMove(evt);
         }
       },
-      __dragStart: function __dragStart (event) {
-        stopAndPrevent(event.evt);
+      __dragStart: function __dragStart (event$$1) {
+        stopAndPrevent(event$$1.evt);
 
         this.saturationDragging = true;
-        this.__saturationChange(event);
+        this.__saturationChange(event$$1);
       },
-      __dragMove: function __dragMove (event) {
+      __dragMove: function __dragMove (event$$1) {
         if (!this.saturationDragging) {
           return
         }
-        stopAndPrevent(event.evt);
+        stopAndPrevent(event$$1.evt);
 
-        this.__saturationChange(event);
+        this.__saturationChange(event$$1);
       },
-      __dragStop: function __dragStop (event) {
+      __dragStop: function __dragStop (event$$1) {
         var this$1 = this;
 
-        stopAndPrevent(event.evt);
+        stopAndPrevent(event$$1.evt);
         setTimeout(function () {
           this$1.saturationDragging = false;
         }, 100);
         this.__onSaturationChange(
-          event.position.left,
-          event.position.top,
+          event$$1.position.left,
+          event$$1.position.top,
           true
         );
       },
@@ -11293,7 +8937,7 @@
         var child = [
           h(QColorPicker, {
             staticClass: ("no-border" + (modal ? ' full-width' : '')),
-            props: extend({
+            props: Object.assign({
               value: this.model,
               disable: this.disable,
               readonly: this.readonly,
@@ -11877,7 +9521,7 @@
     return 'string'
   }
 
-  function convertDateToFormat (date, type) {
+  function convertDateToFormat (date, type, format$$1) {
     if (!date && date !== 0) {
       return
     }
@@ -11888,7 +9532,7 @@
       case 'number':
         return date.getTime()
       default:
-        return formatDate(date)
+        return formatDate(date, format$$1)
     }
   }
 
@@ -12188,17 +9832,17 @@
     })
   }
 
-  function matchFormat (format) {
-    if ( format === void 0 ) format = '';
+  function matchFormat (format$$1) {
+    if ( format$$1 === void 0 ) format$$1 = '';
 
-    return format.match(token)
+    return format$$1.match(token)
   }
 
   function clone$1 (value) {
     return isDate(value) ? new Date(value.getTime()) : value
   }
 
-  var date = /*#__PURE__*/Object.freeze({
+  var date = {
     isValid: isValid,
     buildDate: buildDate,
     getDayOfWeek: getDayOfWeek,
@@ -12222,19 +9866,38 @@
     formatDate: formatDate,
     matchFormat: matchFormat,
     clone: clone$1
-  });
+  };
+
+  var reDate = /^\d{4}[^\d]\d{2}[^\d]\d{2}/;
 
   var DateMixin = {
     props: inline,
     computed: {
+      computedValue: function computedValue () {
+        if (this.type === 'date' && this.formatModel === 'string' && reDate.test(this.value)) {
+          return this.value.slice(0, 10).split(/[^\d]/).join('/')
+        }
+        return this.value
+      },
+      computedDefaultValue: function computedDefaultValue () {
+        if (this.type === 'date' && this.formatModel === 'string' && reDate.test(this.defaultValue)) {
+          return this.defaultValue.slice(0, 10).split(/[^\d]+/).join('/')
+        }
+        return this.defaultValue
+      },
+      computedDateFormat: function computedDateFormat () {
+        if (this.type === 'date' && this.formatModel === 'string') {
+          return 'YYYY/MM/DD HH:mm:ss'
+        }
+      },
       model: {
         get: function get () {
-          var date = isValid(this.value)
-            ? new Date(this.value)
-            : (this.defaultValue ? new Date(this.defaultValue) : startOfDate(new Date(), 'day'));
+          var date$$1 = isValid(this.computedValue)
+            ? new Date(this.computedValue)
+            : (this.computedDefaultValue ? new Date(this.computedDefaultValue) : startOfDate(new Date(), 'day'));
 
           return getDateBetween(
-            date,
+            date$$1,
             this.pmin,
             this.pmax
           )
@@ -12242,8 +9905,8 @@
         set: function set (val) {
           var this$1 = this;
 
-          var date = getDateBetween(val, this.pmin, this.pmax);
-          var value = convertDateToFormat(date, this.formatModel === 'auto' ? inferDateFormat(this.value) : this.formatModel);
+          var date$$1 = getDateBetween(val, this.pmin, this.pmax);
+          var value = convertDateToFormat(date$$1, this.formatModel === 'auto' ? inferDateFormat(this.value) : this.formatModel, this.computedDateFormat);
           this.$emit('input', value);
           this.$nextTick(function () {
             if (!isSameDate(value, this$1.value)) {
@@ -12278,29 +9941,33 @@
         return this.model.getMinutes()
       },
 
+      currentYear: function currentYear () {
+        return (new Date()).getFullYear()
+      },
+
       yearInterval: function yearInterval () {
         var
-          min = this.pmin !== null ? this.pmin.getFullYear() : 1950,
-          max = this.pmax !== null ? this.pmax.getFullYear() : 2050;
-        return Math.max(1, max - min + 1)
+          min = this.yearMin,
+          max = this.pmax !== null ? this.pmax.getFullYear() : (this.year || this.currentYear) + 50;
+        return Math.max(1, max - min)
       },
       yearMin: function yearMin () {
-        return this.pmin !== null ? this.pmin.getFullYear() - 1 : 1949
+        return this.pmin !== null ? this.pmin.getFullYear() - 1 : (this.year || this.currentYear) - 51
       },
       monthInterval: function monthInterval () {
         var
-          min = this.pmin !== null && this.pmin.getFullYear() === this.model.getFullYear() ? this.pmin.getMonth() : 0,
-          max = this.pmax !== null && this.pmax.getFullYear() === this.model.getFullYear() ? this.pmax.getMonth() : 11;
+          min = this.monthMin,
+          max = this.pmax !== null && this.pmax.getFullYear() === this.year ? this.pmax.getMonth() : 11;
         return Math.max(1, max - min + 1)
       },
       monthMin: function monthMin () {
-        return this.pmin !== null && this.pmin.getFullYear() === this.model.getFullYear()
+        return this.pmin !== null && this.pmin.getFullYear() === this.year
           ? this.pmin.getMonth()
           : 0
       },
 
       daysInMonth: function daysInMonth$$1 () {
-        return (new Date(this.model.getFullYear(), this.model.getMonth() + 1, 0)).getDate()
+        return (new Date(this.year, this.model.getMonth() + 1, 0)).getDate()
       },
 
       editable: function editable () {
@@ -12332,9 +9999,9 @@
         }
         if (type === 'year') {
           var
-            min = this.pmin ? this.pmin.getFullYear() : 1950,
-            max = this.pmax ? this.pmax.getFullYear() : 2050;
-          return between(value, min, max)
+            min = this.yearMin,
+            max = min + this.yearInterval;
+          return between(value, min + 1, max)
         }
         if (type === 'hour') {
           return between(value, 0, 23)
@@ -12656,7 +10323,8 @@
     }
   };
 
-  var __vue_script__$2 = script$2;
+  /* script */
+              var __vue_script__$2 = script$2;
               
   /* template */
   var __vue_render__$2 = function() {
@@ -13719,111 +11387,109 @@
   var __vue_staticRenderFns__$2 = [];
   __vue_render__$2._withStripped = true;
 
-  var __vue_template__$2 = typeof __vue_render__$2 !== 'undefined'
-    ? { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 }
-    : {};
-  /* style */
-  var __vue_inject_styles__$2 = undefined;
-  /* scoped */
-  var __vue_scope_id__$2 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$2 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$2 = false;
-  /* component normalizer */
-  function __vue_normalize__$2(
-    template, style, script,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script === 'function' ? script.options : script) || {};
+    /* style */
+    var __vue_inject_styles__$2 = undefined;
+    /* scoped */
+    var __vue_scope_id__$2 = undefined;
+    /* module identifier */
+    var __vue_module_identifier__$2 = undefined;
+    /* functional template */
+    var __vue_is_functional_template__$2 = false;
+    /* component normalizer */
+    function __vue_normalize__$2(
+      template, style, script,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script === 'function' ? script.options : script) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\datetime\\QDatetimePicker.mat.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\datetime\\QDatetimePicker.mat.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__$2() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__$2.styles || (__vue_create_injector__$2.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__$2() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__$2.styles || (__vue_create_injector__$2.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
-
-  var QDatetimePicker = __vue_normalize__$2(
-    __vue_template__$2,
-    __vue_inject_styles__$2,
-    typeof __vue_script__$2 === 'undefined' ? {} : __vue_script__$2,
-    __vue_scope_id__$2,
-    __vue_is_functional_template__$2,
-    __vue_module_identifier__$2,
-    typeof __vue_create_injector__$2 !== 'undefined' ? __vue_create_injector__$2 : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+    
+    var QDatetimePicker = __vue_normalize__$2(
+      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
+      __vue_inject_styles__$2,
+      __vue_script__$2,
+      __vue_scope_id__$2,
+      __vue_is_functional_template__$2,
+      __vue_module_identifier__$2,
+      __vue_create_injector__$2,
+      undefined
+    );
 
   var contentCss$1 = {
       maxWidth: '95vw',
@@ -13833,10 +11499,7 @@
   var QDatetime = {
     name: 'QDatetime',
     mixins: [FrameMixin, DisplayModeMixin, CanRenderMixin],
-    props: extend(
-      input,
-      inline
-    ),
+    props: Object.assign({}, input, inline),
     watch: {
       value: function value (v) {
         if (!this.disable && this.isPopover) {
@@ -13859,6 +11522,15 @@
       }
     },
     computed: {
+      computedFormat: function computedFormat () {
+        if (this.format) {
+          return this.format
+        }
+        if (this.type === 'date') {
+          return 'YYYY/MM/DD'
+        }
+        return this.type === 'time' ? 'HH:mm' : 'YYYY/MM/DD HH:mm:ss'
+      },
       actualValue: function actualValue () {
         if (this.displayValue) {
           return this.displayValue
@@ -13867,22 +11539,7 @@
           return ''
         }
 
-        var format;
-
-        if (this.format) {
-          format = this.format;
-        }
-        else if (this.type === 'date') {
-          format = 'YYYY/MM/DD';
-        }
-        else if (this.type === 'time') {
-          format = 'HH:mm';
-        }
-        else {
-          format = 'YYYY/MM/DD HH:mm:ss';
-        }
-
-        return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
+        return formatDate(this.value, this.computedFormat, /* for reactiveness */ this.$q.i18n.date)
       },
       computedValue: function computedValue () {
         if (isValid(this.value)) {
@@ -14284,107 +11941,6 @@
     }
   };
 
-  var QScrollObservable = {
-    name: 'QScrollObservable',
-    props: {
-      debounce: Number
-    },
-    render: function render () {},
-    data: function data () {
-      return {
-        pos: 0,
-        dir: 'down',
-        dirChanged: false,
-        dirChangePos: 0
-      }
-    },
-    methods: {
-      getPosition: function getPosition () {
-        return {
-          position: this.pos,
-          direction: this.dir,
-          directionChanged: this.dirChanged,
-          inflexionPosition: this.dirChangePos
-        }
-      },
-      trigger: function trigger (immediately) {
-        if (immediately || this.debounce === 0) {
-          this.emit();
-        }
-        else if (!this.timer) {
-          this.timer = this.debounce
-            ? setTimeout(this.emit, this.debounce)
-            : requestAnimationFrame(this.emit);
-        }
-      },
-      emit: function emit () {
-        var
-          pos = Math.max(0, getScrollPosition(this.target)),
-          delta = pos - this.pos,
-          dir = delta < 0 ? 'up' : 'down';
-
-        this.dirChanged = this.dir !== dir;
-        if (this.dirChanged) {
-          this.dir = dir;
-          this.dirChangePos = this.pos;
-        }
-
-        this.timer = null;
-        this.pos = pos;
-        this.$emit('scroll', this.getPosition());
-      }
-    },
-    mounted: function mounted () {
-      this.target = getScrollTarget(this.$el.parentNode);
-      this.target.addEventListener('scroll', this.trigger, listenOpts.passive);
-      this.trigger(true);
-    },
-    beforeDestroy: function beforeDestroy () {
-      clearTimeout(this.timer);
-      cancelAnimationFrame(this.timer);
-      this.target.removeEventListener('scroll', this.trigger, listenOpts.passive);
-    }
-  };
-
-  var QWindowResizeObservable = {
-    name: 'QWindowResizeObservable',
-    props: {
-      debounce: {
-        type: Number,
-        default: 80
-      }
-    },
-    render: function render () {},
-    methods: {
-      trigger: function trigger () {
-        if (this.debounce === 0) {
-          this.emit();
-        }
-        else if (!this.timer) {
-          this.timer = setTimeout(this.emit, this.debounce);
-        }
-      },
-      emit: function emit (ssr) {
-        this.timer = null;
-        this.$emit('resize', {
-          height: ssr ? 0 : window.innerHeight,
-          width: ssr ? 0 : window.innerWidth
-        });
-      }
-    },
-    created: function created () {
-      this.emit(onSSR);
-    },
-    mounted: function mounted () {
-      fromSSR && this.emit();
-      window.addEventListener('resize', this.trigger, listenOpts.passive);
-    },
-    beforeDestroy: function beforeDestroy () {
-      clearTimeout(this.timer);
-      window.removeEventListener('resize', this.trigger, listenOpts.passive);
-    }
-  };
-
   //
 
   var script$3 = {
@@ -14642,7 +12198,8 @@
     }
   };
 
-  var __vue_script__$3 = script$3;
+  /* script */
+              var __vue_script__$3 = script$3;
               
   /* template */
   var __vue_render__$3 = function() {
@@ -14861,111 +12418,109 @@
   var __vue_staticRenderFns__$3 = [];
   __vue_render__$3._withStripped = true;
 
-  var __vue_template__$3 = typeof __vue_render__$3 !== 'undefined'
-    ? { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 }
-    : {};
-  /* style */
-  var __vue_inject_styles__$3 = undefined;
-  /* scoped */
-  var __vue_scope_id__$3 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$3 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$3 = false;
-  /* component normalizer */
-  function __vue_normalize__$3(
-    template, style, script,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script === 'function' ? script.options : script) || {};
+    /* style */
+    var __vue_inject_styles__$3 = undefined;
+    /* scoped */
+    var __vue_scope_id__$3 = undefined;
+    /* module identifier */
+    var __vue_module_identifier__$3 = undefined;
+    /* functional template */
+    var __vue_is_functional_template__$3 = false;
+    /* component normalizer */
+    function __vue_normalize__$3(
+      template, style, script,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script === 'function' ? script.options : script) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input\\QInput.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input\\QInput.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__$3() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__$3.styles || (__vue_create_injector__$3.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__$3() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__$3.styles || (__vue_create_injector__$3.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
-
-  var QInput = __vue_normalize__$3(
-    __vue_template__$3,
-    __vue_inject_styles__$3,
-    typeof __vue_script__$3 === 'undefined' ? {} : __vue_script__$3,
-    __vue_scope_id__$3,
-    __vue_is_functional_template__$3,
-    __vue_module_identifier__$3,
-    typeof __vue_create_injector__$3 !== 'undefined' ? __vue_create_injector__$3 : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+    
+    var QInput = __vue_normalize__$3(
+      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
+      __vue_inject_styles__$3,
+      __vue_script__$3,
+      __vue_scope_id__$3,
+      __vue_is_functional_template__$3,
+      __vue_module_identifier__$3,
+      __vue_create_injector__$3,
+      undefined
+    );
 
   var QRadio = {
     name: 'QRadio',
@@ -15326,7 +12881,7 @@
       },
       okProps: function okProps () {
         return Object(this.ok) === this.ok
-          ? extend({
+          ? Object.assign({
             color: this.color,
             label: this.$q.i18n.label.ok,
             noRipple: true
@@ -15335,7 +12890,7 @@
       },
       cancelProps: function cancelProps () {
         return Object(this.cancel) === this.cancel
-          ? extend({
+          ? Object.assign({
             color: this.color,
             label: this.$q.i18n.label.cancel,
             noRipple: true
@@ -15439,6 +12994,37 @@
       }
     }
   };
+
+  function debounce (fn, wait, immediate) {
+    if ( wait === void 0 ) wait = 250;
+
+    var timeout;
+
+    function debounced () {
+      var this$1 = this;
+      var args = [], len = arguments.length;
+      while ( len-- ) args[ len ] = arguments[ len ];
+
+      var later = function () {
+        timeout = null;
+        if (!immediate) {
+          fn.apply(this$1, args);
+        }
+      };
+
+      clearTimeout(timeout);
+      if (immediate && !timeout) {
+        fn.apply(this, args);
+      }
+      timeout = setTimeout(later, wait);
+    }
+
+    debounced.cancel = function () {
+      clearTimeout(timeout);
+    };
+
+    return debounced
+  }
 
   var QTooltip = {
     name: 'QTooltip',
@@ -15623,7 +13209,7 @@
     }
 
     return h(QBtn, {
-      props: extend({
+      props: Object.assign({
         icon: btn.icon,
         color: toggled ? btn.toggleColor || vm.toolbarToggleColor : btn.color || vm.toolbarColor,
         textColor: toggled && (vm.toolbarFlat || vm.toolbarOutline) ? null : btn.textColor || vm.toolbarTextColor,
@@ -15726,7 +13312,7 @@
     var Dropdown = h(
       QBtnDropdown,
       {
-        props: extend({
+        props: Object.assign({
           noCaps: true,
           noWrap: true,
           color: highlight ? vm.toolbarToggleColor : vm.toolbarColor,
@@ -15817,8 +13403,8 @@
           },
           on: {
             input: function (val) { link = val; },
-            keydown: function (event) {
-              switch (getEventKey(event)) {
+            keydown: function (event$$1) {
+              switch (getEventKey(event$$1)) {
                 case 13: // ENTER key
                   return updateLink()
                 case 27: // ESCAPE key
@@ -15838,7 +13424,7 @@
             attrs: {
               tabindex: -1
             },
-            props: extend({
+            props: Object.assign({
               label: vm.$q.i18n.label.remove,
               noCaps: true
             }, vm.buttonProps),
@@ -15852,7 +13438,7 @@
           }),
           h(QBtn, {
             key: 'qedt_btm_upd',
-            props: extend({
+            props: Object.assign({
               label: vm.$q.i18n.label.update,
               noCaps: true
             }, vm.buttonProps),
@@ -16117,6 +13703,92 @@
   };
 
   Object.defineProperties( Caret.prototype, prototypeAccessors );
+
+  var
+    toString = Object.prototype.toString,
+    hasOwn = Object.prototype.hasOwnProperty,
+    class2type = {};
+
+  'Boolean Number String Function Array Date RegExp Object'.split(' ').forEach(function (name) {
+    class2type['[object ' + name + ']'] = name.toLowerCase();
+  });
+
+  function type (obj) {
+    return obj === null ? String(obj) : class2type[toString.call(obj)] || 'object'
+  }
+
+  function isPlainObject (obj) {
+    if (!obj || type(obj) !== 'object') {
+      return false
+    }
+
+    if (obj.constructor &&
+      !hasOwn.call(obj, 'constructor') &&
+      !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
+      return false
+    }
+
+    var key;
+    for (key in obj) {}
+
+    return key === undefined || hasOwn.call(obj, key)
+  }
+
+  function extend () {
+    var arguments$1 = arguments;
+
+    var
+      options, name, src, copy, copyIsArray, clone,
+      target = arguments[0] || {},
+      i = 1,
+      length = arguments.length,
+      deep = false;
+
+    if (typeof target === 'boolean') {
+      deep = target;
+      target = arguments[1] || {};
+      i = 2;
+    }
+
+    if (Object(target) !== target && type(target) !== 'function') {
+      target = {};
+    }
+
+    if (length === i) {
+      target = this;
+      i--;
+    }
+
+    for (; i < length; i++) {
+      if ((options = arguments$1[i]) !== null) {
+        for (name in options) {
+          src = target[name];
+          copy = options[name];
+
+          if (target === copy) {
+            continue
+          }
+
+          if (deep && copy && (isPlainObject(copy) || (copyIsArray = type(copy) === 'array'))) {
+            if (copyIsArray) {
+              copyIsArray = false;
+              clone = src && type(src) === 'array' ? src : [];
+            }
+            else {
+              clone = src && isPlainObject(src) ? src : {};
+            }
+
+            target[name] = extend(deep, clone, copy);
+          }
+          else if (copy !== undefined) {
+            target[name] = copy;
+          }
+        }
+      }
+    }
+
+    return target
+  }
 
   var QEditor = {
     name: 'QEditor',
@@ -17083,18 +14755,18 @@
       }
     },
     methods: {
-      __pan: function __pan (event) {
+      __pan: function __pan (event$$1) {
         if (!this.editable) {
           return
         }
-        if (event.isFinal) {
-          this.__dragStop(event.evt);
+        if (event$$1.isFinal) {
+          this.__dragStop(event$$1.evt);
         }
-        else if (event.isFirst) {
-          this.__dragStart(event.evt);
+        else if (event$$1.isFirst) {
+          this.__dragStart(event$$1.evt);
         }
         else {
-          this.__dragMove(event.evt);
+          this.__dragMove(event$$1.evt);
         }
       },
       __dragStart: function __dragStart (ev) {
@@ -17285,6 +14957,107 @@
           )
         ])
       ])
+    }
+  };
+
+  var QScrollObservable = {
+    name: 'QScrollObservable',
+    props: {
+      debounce: Number
+    },
+    render: function render () {},
+    data: function data () {
+      return {
+        pos: 0,
+        dir: 'down',
+        dirChanged: false,
+        dirChangePos: 0
+      }
+    },
+    methods: {
+      getPosition: function getPosition () {
+        return {
+          position: this.pos,
+          direction: this.dir,
+          directionChanged: this.dirChanged,
+          inflexionPosition: this.dirChangePos
+        }
+      },
+      trigger: function trigger (immediately) {
+        if (immediately || this.debounce === 0) {
+          this.emit();
+        }
+        else if (!this.timer) {
+          this.timer = this.debounce
+            ? setTimeout(this.emit, this.debounce)
+            : requestAnimationFrame(this.emit);
+        }
+      },
+      emit: function emit () {
+        var
+          pos = Math.max(0, getScrollPosition(this.target)),
+          delta = pos - this.pos,
+          dir = delta < 0 ? 'up' : 'down';
+
+        this.dirChanged = this.dir !== dir;
+        if (this.dirChanged) {
+          this.dir = dir;
+          this.dirChangePos = this.pos;
+        }
+
+        this.timer = null;
+        this.pos = pos;
+        this.$emit('scroll', this.getPosition());
+      }
+    },
+    mounted: function mounted () {
+      this.target = getScrollTarget(this.$el.parentNode);
+      this.target.addEventListener('scroll', this.trigger, listenOpts.passive);
+      this.trigger(true);
+    },
+    beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.timer);
+      cancelAnimationFrame(this.timer);
+      this.target.removeEventListener('scroll', this.trigger, listenOpts.passive);
+    }
+  };
+
+  var QWindowResizeObservable = {
+    name: 'QWindowResizeObservable',
+    props: {
+      debounce: {
+        type: Number,
+        default: 80
+      }
+    },
+    render: function render () {},
+    methods: {
+      trigger: function trigger () {
+        if (this.debounce === 0) {
+          this.emit();
+        }
+        else if (!this.timer) {
+          this.timer = setTimeout(this.emit, this.debounce);
+        }
+      },
+      emit: function emit (ssr) {
+        this.timer = null;
+        this.$emit('resize', {
+          height: ssr ? 0 : window.innerHeight,
+          width: ssr ? 0 : window.innerWidth
+        });
+      }
+    },
+    created: function created () {
+      this.emit(onSSR);
+    },
+    mounted: function mounted () {
+      fromSSR && this.emit();
+      window.addEventListener('resize', this.trigger, listenOpts.passive);
+    },
+    beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.timer);
+      window.removeEventListener('resize', this.trigger, listenOpts.passive);
     }
   };
 
@@ -18361,6 +16134,89 @@
     }
   };
 
+  var QListHeader = {
+    name: 'QListHeader',
+    props: {
+      inset: Boolean
+    },
+    render: function render (h) {
+      return h('div', {
+        staticClass: 'q-list-header',
+        'class': {
+          'q-list-header-inset': this.inset
+        }
+      }, this.$slots.default)
+    }
+  };
+
+  var QModalLayout = {
+    name: 'QModalLayout',
+    inject: {
+      __qmodal: {
+        default: function default$1 () {
+          console.error('QModalLayout needs to be child of QModal');
+        }
+      }
+    },
+    props: {
+      headerStyle: [String, Object, Array],
+      headerClass: [String, Object, Array],
+
+      contentStyle: [String, Object, Array],
+      contentClass: [String, Object, Array],
+
+      footerStyle: [String, Object, Array],
+      footerClass: [String, Object, Array]
+    },
+    watch: {
+      __qmodal: function __qmodal (newModal, oldModal) {
+        oldModal && oldModal.unregister(this);
+        newModal && newModal.register(this);
+      }
+    },
+    mounted: function mounted () {
+      this.__qmodal && this.__qmodal.register(this);
+    },
+    beforeDestroy: function beforeDestroy () {
+      this.__qmodal && this.__qmodal.unregister(this);
+    },
+    render: function render (h) {
+      var child = [];
+
+      if (this.$slots.header || (this.$slots.navigation)) {
+        child.push(h('div', {
+          staticClass: 'q-layout-header',
+          style: this.headerStyle,
+          'class': this.headerClass
+        }, [
+          this.$slots.header,
+          this.$slots.navigation
+        ]));
+      }
+
+      child.push(h('div', {
+        staticClass: 'q-modal-layout-content col scroll',
+        style: this.contentStyle,
+        'class': this.contentClass
+      }, this.$slots.default));
+
+      if (this.$slots.footer || ('mat' === 'ios')) {
+        child.push(h('div', {
+          staticClass: 'q-layout-footer',
+          style: this.footerStyle,
+          'class': this.footerClass
+        }, [
+          this.$slots.footer,
+          null
+        ]));
+      }
+
+      return h('div', {
+        staticClass: 'q-modal-layout col column no-wrap'
+      }, child)
+    }
+  };
+
   var QNoSsr = {
     name: 'QNoSsr',
     mixins: [ CanRenderMixin ],
@@ -18520,7 +16376,7 @@
           : otherwise
       },
       __getBtn: function __getBtn (h, props) {
-        return h(QBtn, extend(true, {
+        return h(QBtn, Object.assign({
           props: {
             color: this.color,
             flat: true,
@@ -18602,7 +16458,7 @@
           },
           on: {
             input: function (value) { return (this$1.newPage = value); },
-            keydown: function (event) { return (getEventKey(event) === 13 && this$1.__update()); },
+            keydown: function (event$$1) { return (getEventKey(event$$1) === 13 && this$1.__update()); },
             blur: function () { return this$1.__update(); }
           }
         }));
@@ -19168,7 +17024,7 @@
     },
     data: function data () {
       return {
-        model: extend({}, this.value),
+        model: Object.assign({}, this.value),
         dragging: false,
         currentMinPercentage: (this.value.min - this.min) / (this.max - this.min),
         currentMaxPercentage: (this.value.max - this.min) / (this.max - this.min)
@@ -19249,7 +17105,7 @@
       }
     },
     methods: {
-      __getDragging: function __getDragging (event) {
+      __getDragging: function __getDragging (event$$1) {
         var
           container = this.$refs.handle,
           width = container.offsetWidth,
@@ -19265,7 +17121,7 @@
         };
 
         var
-          percentage = getPercentage(event, dragging, this.$q.i18n.rtl),
+          percentage = getPercentage(event$$1, dragging, this.$q.i18n.rtl),
           type;
 
         if (percentage < this.currentMinPercentage + sensitivity) {
@@ -19274,7 +17130,7 @@
         else if (percentage < this.currentMaxPercentage - sensitivity) {
           if (this.dragRange || this.dragOnlyRange) {
             type = dragType.RANGE;
-            extend(dragging, {
+            Object.assign(dragging, {
               offsetPercentage: percentage,
               offsetModel: getModel(percentage, this.min, this.max, this.step, this.computedDecimals),
               rangeValue: dragging.valueMax - dragging.valueMin,
@@ -19298,11 +17154,11 @@
         dragging.type = type;
         return dragging
       },
-      __move: function __move (event, dragging) {
+      __move: function __move (event$$1, dragging) {
         if ( dragging === void 0 ) dragging = this.dragging;
 
         var
-          percentage = getPercentage(event, dragging, this.$q.i18n.rtl),
+          percentage = getPercentage(event$$1, dragging, this.$q.i18n.rtl),
           model = getModel(percentage, this.min, this.max, this.step, this.computedDecimals),
           pos;
 
@@ -19368,10 +17224,10 @@
           max: pos.max
         };
       },
-      __end: function __end (event, dragging) {
+      __end: function __end (event$$1, dragging) {
         if ( dragging === void 0 ) dragging = this.dragging;
 
-        this.__move(event, dragging);
+        this.__move(event$$1, dragging);
         this.currentMinPercentage = (this.model.min - this.min) / (this.max - this.min);
         this.currentMaxPercentage = (this.model.max - this.min) / (this.max - this.min);
       },
@@ -19640,7 +17496,7 @@
       },
       style: function style () {
         var top = this.scrollPercentage * (this.containerHeight - this.thumbHeight);
-        return extend({}, this.thumbStyle, {
+        return Object.assign({}, this.thumbStyle, {
           top: (top + "px"),
           height: ((this.thumbHeight) + "px")
         })
@@ -20046,7 +17902,7 @@
       visibleOptions: function visibleOptions () {
         var this$1 = this;
 
-        var opts = this.options.map(function (opt, index) { return extend({}, opt, { index: index }); });
+        var opts = this.options.map(function (opt, index) { return Object.assign({}, opt, { index: index }); });
         if (this.filter && this.terms.length) {
           var lowerTerms = this.terms.toLowerCase();
           opts = opts.filter(function (opt) { return this$1.filterFn(lowerTerms, opt); });
@@ -20293,7 +18149,8 @@
     }
   };
 
-  var __vue_script__$4 = script$4;
+  /* script */
+              var __vue_script__$4 = script$4;
               
   /* template */
   var __vue_render__$4 = function() {
@@ -20363,8 +18220,7 @@
                       "q-chip",
                       {
                         attrs: {
-                          small: "",
-                          dense: _vm.dense,
+                          dense: "",
                           closable: _vm.editable && !opt.disable,
                           color: _vm.__getChipBgColor(opt.color),
                           "text-color": _vm.__getChipTextColor(opt.color),
@@ -20602,111 +18458,2257 @@
   var __vue_staticRenderFns__$4 = [];
   __vue_render__$4._withStripped = true;
 
-  var __vue_template__$4 = typeof __vue_render__$4 !== 'undefined'
-    ? { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 }
-    : {};
-  /* style */
-  var __vue_inject_styles__$4 = undefined;
-  /* scoped */
-  var __vue_scope_id__$4 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$4 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$4 = false;
-  /* component normalizer */
-  function __vue_normalize__$4(
-    template, style, script,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script === 'function' ? script.options : script) || {};
+    /* style */
+    var __vue_inject_styles__$4 = undefined;
+    /* scoped */
+    var __vue_scope_id__$4 = undefined;
+    /* module identifier */
+    var __vue_module_identifier__$4 = undefined;
+    /* functional template */
+    var __vue_is_functional_template__$4 = false;
+    /* component normalizer */
+    function __vue_normalize__$4(
+      template, style, script,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script === 'function' ? script.options : script) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\select\\QSelect.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\select\\QSelect.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__$4() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__$4.styles || (__vue_create_injector__$4.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__$4() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__$4.styles || (__vue_create_injector__$4.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
+    
+    var QSelect = __vue_normalize__$4(
+      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
+      __vue_inject_styles__$4,
+      __vue_script__$4,
+      __vue_scope_id__$4,
+      __vue_is_functional_template__$4,
+      __vue_module_identifier__$4,
+      __vue_create_injector__$4,
+      undefined
+    );
 
-  var QSelect = __vue_normalize__$4(
-    __vue_template__$4,
-    __vue_inject_styles__$4,
-    typeof __vue_script__$4 === 'undefined' ? {} : __vue_script__$4,
-    __vue_scope_id__$4,
-    __vue_is_functional_template__$4,
-    __vue_module_identifier__$4,
-    typeof __vue_create_injector__$4 !== 'undefined' ? __vue_create_injector__$4 : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+  var QSpinnerAudio = {
+    name: 'QSpinnerAudio',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 55 80',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'matrix(1 0 0 -1 0 80)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'width': '10',
+              'height': '20',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '4.3s',
+                'values': '20;45;57;80;64;32;66;45;64;23;66;13;64;56;34;34;2;23;76;79;20',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '15',
+              'width': '10',
+              'height': '80',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '2s',
+                'values': '80;55;33;5;75;23;73;33;12;14;60;80',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '30',
+              'width': '10',
+              'height': '50',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '1.4s',
+                'values': '50;34;78;23;56;23;34;76;80;54;21;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('rect', {
+            attrs: {
+              'x': '45',
+              'width': '10',
+              'height': '30',
+              'rx': '3'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'height',
+                'begin': '0s',
+                'dur': '2s',
+                'values': '30;45;13;80;56;72;45;76;34;23;67;30',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerBall = {
+    name: 'QSpinnerBall',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 57 57',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'stroke-width': '2',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '5',
+              'cy': '50',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '50;5;50;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '5;27;49;5',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '27',
+              'cy': '5',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'from': '5',
+                'to': '5',
+                'values': '5;50;50;5',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'begin': '0s',
+                'dur': '2.2s',
+                'from': '27',
+                'to': '27',
+                'values': '27;49;5;27',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '49',
+              'cy': '50',
+              'r': '5'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'cy',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '50;50;5;50',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'cx',
+                'from': '49',
+                'to': '49',
+                'begin': '0s',
+                'dur': '2.2s',
+                'values': '49;5;27;49',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerBars = {
+    name: 'QSpinnerBars',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 135 140',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '30',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '60',
+            'width': '15',
+            'height': '140',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '90',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.25s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('rect', {
+          attrs: {
+            'x': '120',
+            'y': '10',
+            'width': '15',
+            'height': '120',
+            'rx': '6'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'height',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '120;110;100;90;80;70;60;50;40;140;120',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'y',
+              'begin': '0.5s',
+              'dur': '1s',
+              'values': '10;15;20;25;30;35;40;45;50;0;10',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerCircles = {
+    name: 'QSpinnerCircles',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 135 135',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M67.447 58c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10zm9.448 9.447c0 5.523 4.477 10 10 10 5.522 0 10-4.477 10-10s-4.478-10-10-10c-5.523 0-10 4.477-10 10zm-9.448 9.448c-5.523 0-10 4.477-10 10 0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zM58 67.447c0-5.523-4.477-10-10-10s-10 4.477-10 10 4.477 10 10 10 10-4.477 10-10z'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 67 67',
+              'to': '-360 67 67',
+              'dur': '2.5s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M28.19 40.31c6.627 0 12-5.374 12-12 0-6.628-5.373-12-12-12-6.628 0-12 5.372-12 12 0 6.626 5.372 12 12 12zm30.72-19.825c4.686 4.687 12.284 4.687 16.97 0 4.686-4.686 4.686-12.284 0-16.97-4.686-4.687-12.284-4.687-16.97 0-4.687 4.686-4.687 12.284 0 16.97zm35.74 7.705c0 6.627 5.37 12 12 12 6.626 0 12-5.373 12-12 0-6.628-5.374-12-12-12-6.63 0-12 5.372-12 12zm19.822 30.72c-4.686 4.686-4.686 12.284 0 16.97 4.687 4.686 12.285 4.686 16.97 0 4.687-4.686 4.687-12.284 0-16.97-4.685-4.687-12.283-4.687-16.97 0zm-7.704 35.74c-6.627 0-12 5.37-12 12 0 6.626 5.373 12 12 12s12-5.374 12-12c0-6.63-5.373-12-12-12zm-30.72 19.822c-4.686-4.686-12.284-4.686-16.97 0-4.686 4.687-4.686 12.285 0 16.97 4.686 4.687 12.284 4.687 16.97 0 4.687-4.685 4.687-12.283 0-16.97zm-35.74-7.704c0-6.627-5.372-12-12-12-6.626 0-12 5.373-12 12s5.374 12 12 12c6.628 0 12-5.373 12-12zm-19.823-30.72c4.687-4.686 4.687-12.284 0-16.97-4.686-4.686-12.284-4.686-16.97 0-4.687 4.686-4.687 12.284 0 16.97 4.686 4.687 12.284 4.687 16.97 0z'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 67 67',
+              'to': '360 67 67',
+              'dur': '8s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerComment = {
+    name: 'QSpinnerComment',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'x': '0',
+            'y': '0',
+            'width': '100',
+            'height': '100',
+            'fill': 'none'
+          }
+        }),
+        h('path', {
+          attrs: {
+            'd': 'M78,19H22c-6.6,0-12,5.4-12,12v31c0,6.6,5.4,12,12,12h37.2c0.4,3,1.8,5.6,3.7,7.6c2.4,2.5,5.1,4.1,9.1,4 c-1.4-2.1-2-7.2-2-10.3c0-0.4,0-0.8,0-1.3h8c6.6,0,12-5.4,12-12V31C90,24.4,84.6,19,78,19z',
+            'fill': 'currentColor'
+          }
+        }),
+        h('circle', {
+          attrs: {
+            'cx': '30',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;1;1',
+              'keyTimes': '0;0.2;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '50',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;0;1;1',
+              'keyTimes': '0;0.2;0.4;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '70',
+            'cy': '47',
+            'r': '5',
+            'fill': '#fff'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'opacity',
+              'from': '0',
+              'to': '1',
+              'values': '0;0;1;1',
+              'keyTimes': '0;0.4;0.6;1',
+              'dur': '1s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerCube = {
+    name: 'QSpinnerCube',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('rect', {
+          attrs: {
+            'x': '0',
+            'y': '0',
+            'width': '100',
+            'height': '100',
+            'fill': 'none'
+          }
+        }),
+        h('g', {
+          attrs: {
+            'transform': 'translate(25 25)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.9'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(75 25)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.8'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.1s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(25 75)'
+          }
+        }, [
+          h('rect', {
+            staticClass: 'cube',
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.7'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.3s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(75 75)'
+          }
+        }, [
+          h('rect', {
+            staticClass: 'cube',
+            attrs: {
+              'x': '-20',
+              'y': '-20',
+              'width': '40',
+              'height': '40',
+              'fill': 'currentColor',
+              'opacity': '0.6'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '1.5',
+                'to': '1',
+                'repeatCount': 'indefinite',
+                'begin': '0.2s',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.2 0.8 0.2 0.8',
+                'keyTimes': '0;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerDots = {
+    name: 'QSpinnerDots',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 120 30',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('circle', {
+          attrs: {
+            'cx': '15',
+            'cy': '15',
+            'r': '15'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '15',
+              'to': '15',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '15;9;15',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '1',
+              'to': '1',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '1;.5;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '60',
+            'cy': '15',
+            'r': '9',
+            'fill-opacity': '.3'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '9',
+              'to': '9',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '9;15;9',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '.5',
+              'to': '.5',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '.5;1;.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '105',
+            'cy': '15',
+            'r': '15'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'r',
+              'from': '15',
+              'to': '15',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '15;9;15',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          }),
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'from': '1',
+              'to': '1',
+              'begin': '0s',
+              'dur': '0.8s',
+              'values': '1;.5;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerFacebook = {
+    name: 'QSpinnerFacebook',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(20 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.6'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(50 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.8'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0.1s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(80 50)'
+          }
+        }, [
+          h('rect', {
+            attrs: {
+              'x': '-10',
+              'y': '-30',
+              'width': '20',
+              'height': '60',
+              'fill': 'currentColor',
+              'opacity': '0.9'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'scale',
+                'from': '2',
+                'to': '1',
+                'begin': '0.2s',
+                'repeatCount': 'indefinite',
+                'dur': '1s',
+                'calcMode': 'spline',
+                'keySplines': '0.1 0.9 0.4 1',
+                'keyTimes': '0;1',
+                'values': '2;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerGears = {
+    name: 'QSpinnerGears',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(-20,-20)'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '90 50 50',
+                'to': '0 50 50',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(20,20) rotate(15 50 50)'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M79.9,52.6C80,51.8,80,50.9,80,50s0-1.8-0.1-2.6l-5.1-0.4c-0.3-2.4-0.9-4.6-1.8-6.7l4.2-2.9c-0.7-1.6-1.6-3.1-2.6-4.5 L70,35c-1.4-1.9-3.1-3.5-4.9-4.9l2.2-4.6c-1.4-1-2.9-1.9-4.5-2.6L59.8,27c-2.1-0.9-4.4-1.5-6.7-1.8l-0.4-5.1C51.8,20,50.9,20,50,20 s-1.8,0-2.6,0.1l-0.4,5.1c-2.4,0.3-4.6,0.9-6.7,1.8l-2.9-4.1c-1.6,0.7-3.1,1.6-4.5,2.6l2.1,4.6c-1.9,1.4-3.5,3.1-5,4.9l-4.5-2.1 c-1,1.4-1.9,2.9-2.6,4.5l4.1,2.9c-0.9,2.1-1.5,4.4-1.8,6.8l-5,0.4C20,48.2,20,49.1,20,50s0,1.8,0.1,2.6l5,0.4 c0.3,2.4,0.9,4.7,1.8,6.8l-4.1,2.9c0.7,1.6,1.6,3.1,2.6,4.5l4.5-2.1c1.4,1.9,3.1,3.5,5,4.9l-2.1,4.6c1.4,1,2.9,1.9,4.5,2.6l2.9-4.1 c2.1,0.9,4.4,1.5,6.7,1.8l0.4,5.1C48.2,80,49.1,80,50,80s1.8,0,2.6-0.1l0.4-5.1c2.3-0.3,4.6-0.9,6.7-1.8l2.9,4.2 c1.6-0.7,3.1-1.6,4.5-2.6L65,69.9c1.9-1.4,3.5-3,4.9-4.9l4.6,2.2c1-1.4,1.9-2.9,2.6-4.5L73,59.8c0.9-2.1,1.5-4.4,1.8-6.7L79.9,52.6 z M50,65c-8.3,0-15-6.7-15-15c0-8.3,6.7-15,15-15s15,6.7,15,15C65,58.3,58.3,65,50,65z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 50 50',
+                'to': '90 50 50',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerGrid = {
+    name: 'QSpinnerGrid',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 105 105',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0s',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '52.5',
+            'r': '12.5',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '100ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '300ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '52.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '600ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '12.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '800ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '52.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '400ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '12.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '700ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '52.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '500ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('circle', {
+          attrs: {
+            'cx': '92.5',
+            'cy': '92.5',
+            'r': '12.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '200ms',
+              'dur': '1s',
+              'values': '1;.2;1',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerHearts = {
+    name: 'QSpinnerHearts',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'fill': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 140 64',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M30.262 57.02L7.195 40.723c-5.84-3.976-7.56-12.06-3.842-18.063 3.715-6 11.467-7.65 17.306-3.68l4.52 3.76 2.6-5.274c3.716-6.002 11.47-7.65 17.304-3.68 5.84 3.97 7.56 12.054 3.842 18.062L34.49 56.118c-.897 1.512-2.793 1.915-4.228.9z',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0s',
+              'dur': '1.4s',
+              'values': '0.5;1;0.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M105.512 56.12l-14.44-24.272c-3.716-6.008-1.996-14.093 3.843-18.062 5.835-3.97 13.588-2.322 17.306 3.68l2.6 5.274 4.52-3.76c5.84-3.97 13.593-2.32 17.308 3.68 3.718 6.003 1.998 14.088-3.842 18.064L109.74 57.02c-1.434 1.014-3.33.61-4.228-.9z',
+            'fill-opacity': '.5'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'fill-opacity',
+              'begin': '0.7s',
+              'dur': '1.4s',
+              'values': '0.5;1;0.5',
+              'calcMode': 'linear',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M67.408 57.834l-23.01-24.98c-5.864-6.15-5.864-16.108 0-22.248 5.86-6.14 15.37-6.14 21.234 0L70 16.168l4.368-5.562c5.863-6.14 15.375-6.14 21.235 0 5.863 6.14 5.863 16.098 0 22.247l-23.007 24.98c-1.43 1.556-3.757 1.556-5.188 0z'
+          }
+        })
+      ])
+    }
+  };
+
+  var QSpinnerHourglass = {
+    name: 'QSpinnerHourglass',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', [
+          h('path', {
+            staticClass: 'glass',
+            attrs: {
+              'fill': 'none',
+              'stroke': 'currentColor',
+              'stroke-width': '5',
+              'stroke-miterlimit': '10',
+              'd': 'M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z'
+            }
+          }),
+          h('clipPath', {
+            attrs: {
+              'id': 'uil-hourglass-clip1'
+            }
+          }, [
+            h('rect', {
+              staticClass: 'clip',
+              attrs: {
+                'x': '15',
+                'y': '20',
+                'width': '70',
+                'height': '25'
+              }
+            }, [
+              h('animate', {
+                attrs: {
+                  'attributeName': 'height',
+                  'from': '25',
+                  'to': '0',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '25;0;0',
+                  'keyTimes': '0;0.5;1'
+                }
+              }),
+              h('animate', {
+                attrs: {
+                  'attributeName': 'y',
+                  'from': '20',
+                  'to': '45',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '20;45;45',
+                  'keyTimes': '0;0.5;1'
+                }
+              })
+            ])
+          ]),
+          h('clipPath', {
+            attrs: {
+              'id': 'uil-hourglass-clip2'
+            }
+          }, [
+            h('rect', {
+              staticClass: 'clip',
+              attrs: {
+                'x': '15',
+                'y': '55',
+                'width': '70',
+                'height': '25'
+              }
+            }, [
+              h('animate', {
+                attrs: {
+                  'attributeName': 'height',
+                  'from': '0',
+                  'to': '25',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '0;25;25',
+                  'keyTimes': '0;0.5;1'
+                }
+              }),
+              h('animate', {
+                attrs: {
+                  'attributeName': 'y',
+                  'from': '80',
+                  'to': '55',
+                  'dur': '1s',
+                  'repeatCount': 'indefinite',
+                  'vlaues': '80;55;55',
+                  'keyTimes': '0;0.5;1'
+                }
+              })
+            ])
+          ]),
+          h('path', {
+            staticClass: 'sand',
+            attrs: {
+              'd': 'M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z',
+              'clip-path': 'url(#uil-hourglass-clip1)',
+              'fill': 'currentColor'
+            }
+          }),
+          h('path', {
+            staticClass: 'sand',
+            attrs: {
+              'd': 'M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z',
+              'clip-path': 'url(#uil-hourglass-clip2)',
+              'fill': 'currentColor'
+            }
+          }),
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '180 50 50',
+              'repeatCount': 'indefinite',
+              'dur': '1s',
+              'values': '0 50 50;0 50 50;180 50 50',
+              'keyTimes': '0;0.7;1'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerInfinity = {
+    name: 'QSpinnerInfinity',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M24.3,30C11.4,30,5,43.3,5,50s6.4,20,19.3,20c19.3,0,32.1-40,51.4-40C88.6,30,95,43.3,95,50s-6.4,20-19.3,20C56.4,70,43.6,30,24.3,30z',
+            'fill': 'none',
+            'stroke': 'currentColor',
+            'stroke-width': '8',
+            'stroke-dasharray': '10.691205342610678 10.691205342610678',
+            'stroke-dashoffset': '0'
+          }
+        }, [
+          h('animate', {
+            attrs: {
+              'attributeName': 'stroke-dashoffset',
+              'from': '0',
+              'to': '21.382410685221355',
+              'begin': '0',
+              'dur': '2s',
+              'repeatCount': 'indefinite',
+              'fill': 'freeze'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinner_ios = {
+    name: 'QSpinnerIos',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'stroke': 'currentColor',
+          'fill': 'currentColor',
+          'viewBox': '0 0 64 64'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'stroke-width': '4',
+            'stroke-linecap': 'round'
+          }
+        }, [
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(180)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(210)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(240)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(270)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(300)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(330)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(0)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(30)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(60)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(90)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(120)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('line', {
+            attrs: {
+              'y1': '17',
+              'y2': '29',
+              'transform': 'translate(32,32) rotate(150)'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'dur': '750ms',
+                'values': '1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerOval = {
+    name: 'QSpinnerOval',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 38 38',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'stroke-width': '2',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'stroke-opacity': '.5',
+              'cx': '18',
+              'cy': '18',
+              'r': '18'
+            }
+          }),
+          h('path', {
+            attrs: {
+              'd': 'M36 18c0-9.94-8.06-18-18-18'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '1s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerPie = {
+    name: 'QSpinnerPie',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('path', {
+          attrs: {
+            'd': 'M0 50A50 50 0 0 1 50 0L50 50L0 50',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '0.8s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M50 0A50 50 0 0 1 100 50L50 50L50 0',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '1.6s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M100 50A50 50 0 0 1 50 100L50 50L100 50',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '2.4s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ]),
+        h('path', {
+          attrs: {
+            'd': 'M50 100A50 50 0 0 1 0 50L50 50L50 100',
+            'fill': 'currentColor',
+            'opacity': '0.5'
+          }
+        }, [
+          h('animateTransform', {
+            attrs: {
+              'attributeName': 'transform',
+              'type': 'rotate',
+              'from': '0 50 50',
+              'to': '360 50 50',
+              'dur': '3.2s',
+              'repeatCount': 'indefinite'
+            }
+          })
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerPuff = {
+    name: 'QSpinnerPuff',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 44 44',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'fill': 'none',
+            'fill-rule': 'evenodd',
+            'stroke-width': '2'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '1'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '0s',
+                'dur': '1.8s',
+                'values': '1; 20',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.165, 0.84, 0.44, 1',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '0s',
+                'dur': '1.8s',
+                'values': '1; 0',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.3, 0.61, 0.355, 1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '1'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '-0.9s',
+                'dur': '1.8s',
+                'values': '1; 20',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.165, 0.84, 0.44, 1',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '-0.9s',
+                'dur': '1.8s',
+                'values': '1; 0',
+                'calcMode': 'spline',
+                'keyTimes': '0; 1',
+                'keySplines': '0.3, 0.61, 0.355, 1',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerRadio = {
+    name: 'QSpinnerRadio',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 100 100',
+          'preserveAspectRatio': 'xMidYMid',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'transform': 'scale(0.55)'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '30',
+              'cy': '150',
+              'r': '30',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ]),
+          h('path', {
+            attrs: {
+              'd': 'M90,150h30c0-49.7-40.3-90-90-90v30C63.1,90,90,116.9,90,150z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0.1',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ]),
+          h('path', {
+            attrs: {
+              'd': 'M150,150h30C180,67.2,112.8,0,30,0v30C96.3,30,150,83.7,150,150z',
+              'fill': 'currentColor'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'opacity',
+                'from': '0',
+                'to': '1',
+                'dur': '1s',
+                'begin': '0.2',
+                'repeatCount': 'indefinite',
+                'keyTimes': '0;0.5;1',
+                'values': '0;1;1'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerRings = {
+    name: 'QSpinnerRings',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'stroke': 'currentColor',
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 45 45',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('g', {
+          attrs: {
+            'fill': 'none',
+            'fill-rule': 'evenodd',
+            'transform': 'translate(1 1)',
+            'stroke-width': '2'
+          }
+        }, [
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '6'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '6;22',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '1;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-width',
+                'begin': '1.5s',
+                'dur': '3s',
+                'values': '2;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '6'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '6;22',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-opacity',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '1;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            }),
+            h('animate', {
+              attrs: {
+                'attributeName': 'stroke-width',
+                'begin': '3s',
+                'dur': '3s',
+                'values': '2;0',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'cx': '22',
+              'cy': '22',
+              'r': '8'
+            }
+          }, [
+            h('animate', {
+              attrs: {
+                'attributeName': 'r',
+                'begin': '0s',
+                'dur': '1.5s',
+                'values': '6;1;2;3;4;5;6',
+                'calcMode': 'linear',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
+
+  var QSpinnerTail = {
+    name: 'QSpinnerTail',
+    mixins: [mixin],
+    render: function render (h) {
+      return h('svg', {
+        staticClass: 'q-spinner',
+        class: this.classes,
+        attrs: {
+          'width': this.size,
+          'height': this.size,
+          'viewBox': '0 0 38 38',
+          'xmlns': 'http://www.w3.org/2000/svg'
+        }
+      }, [
+        h('defs', [
+          h('linearGradient', {
+            attrs: {
+              'x1': '8.042%',
+              'y1': '0%',
+              'x2': '65.682%',
+              'y2': '23.865%',
+              'id': 'a'
+            }
+          }, [
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'stop-opacity': '0',
+                'offset': '0%'
+              }
+            }),
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'stop-opacity': '.631',
+                'offset': '63.146%'
+              }
+            }),
+            h('stop', {
+              attrs: {
+                'stop-color': 'currentColor',
+                'offset': '100%'
+              }
+            })
+          ])
+        ]),
+        h('g', {
+          attrs: {
+            'transform': 'translate(1 1)',
+            'fill': 'none',
+            'fill-rule': 'evenodd'
+          }
+        }, [
+          h('path', {
+            attrs: {
+              'd': 'M36 18c0-9.94-8.06-18-18-18',
+              'stroke': 'url(#a)',
+              'stroke-width': '2'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '0.9s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ]),
+          h('circle', {
+            attrs: {
+              'fill': 'currentColor',
+              'cx': '36',
+              'cy': '18',
+              'r': '1'
+            }
+          }, [
+            h('animateTransform', {
+              attrs: {
+                'attributeName': 'transform',
+                'type': 'rotate',
+                'from': '0 18 18',
+                'to': '360 18 18',
+                'dur': '0.9s',
+                'repeatCount': 'indefinite'
+              }
+            })
+          ])
+        ])
+      ])
+    }
+  };
 
   var StepTab = {
     name: 'QStepTab',
@@ -22142,7 +22144,7 @@
         });
 
         data.cols = data.cols.map(function (col) {
-          var c = extend({}, col);
+          var c = Object.assign({}, col);
           Object.defineProperty(c, 'value', {
             get: function () { return this$1.getCellValue(col, data.row); }
           });
@@ -22438,7 +22440,7 @@
     },
     computed: {
       computedPagination: function computedPagination () {
-        return fixPagination(extend({}, this.innerPagination, this.pagination))
+        return fixPagination(Object.assign({}, this.innerPagination, this.pagination))
       },
       firstRowIndex: function firstRowIndex () {
         var ref = this.computedPagination;
@@ -22499,7 +22501,7 @@
         });
       },
       setPagination: function setPagination (val, forceServerRequest) {
-        var newPagination = fixPagination(extend({}, this.computedPagination, val));
+        var newPagination = fixPagination(Object.assign({}, this.computedPagination, val));
 
         if (samePagination(this.computedPagination, newPagination)) {
           if (this.isServerSide && forceServerRequest) {
@@ -22537,7 +22539,7 @@
       }
     },
     created: function created () {
-      this.$emit('update:pagination', extend({}, this.computedPagination));
+      this.$emit('update:pagination', Object.assign({}, this.computedPagination));
     }
   };
 
@@ -24062,7 +24064,8 @@
     }
   };
 
-  var __vue_script__$5 = script$5;
+  /* script */
+              var __vue_script__$5 = script$5;
               
   /* template */
   var __vue_render__$5 = function() {
@@ -24359,111 +24362,109 @@
   var __vue_staticRenderFns__$5 = [];
   __vue_render__$5._withStripped = true;
 
-  var __vue_template__$5 = typeof __vue_render__$5 !== 'undefined'
-    ? { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 }
-    : {};
-  /* style */
-  var __vue_inject_styles__$5 = undefined;
-  /* scoped */
-  var __vue_scope_id__$5 = undefined;
-  /* module identifier */
-  var __vue_module_identifier__$5 = undefined;
-  /* functional template */
-  var __vue_is_functional_template__$5 = false;
-  /* component normalizer */
-  function __vue_normalize__$5(
-    template, style, script,
-    scope, functional, moduleIdentifier,
-    createInjector, createInjectorSSR
-  ) {
-    var component = (typeof script === 'function' ? script.options : script) || {};
+    /* style */
+    var __vue_inject_styles__$5 = undefined;
+    /* scoped */
+    var __vue_scope_id__$5 = undefined;
+    /* module identifier */
+    var __vue_module_identifier__$5 = undefined;
+    /* functional template */
+    var __vue_is_functional_template__$5 = false;
+    /* component normalizer */
+    function __vue_normalize__$5(
+      template, style, script,
+      scope, functional, moduleIdentifier,
+      createInjector, createInjectorSSR
+    ) {
+      var component = (typeof script === 'function' ? script.options : script) || {};
 
-    {
-      component.__file = "c:\\work\\quasar\\quasar\\src\\components\\uploader\\QUploader.vue";
+      {
+        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\uploader\\QUploader.vue";
+      }
+
+      if (!component.render) {
+        component.render = template.render;
+        component.staticRenderFns = template.staticRenderFns;
+        component._compiled = true;
+
+        if (functional) { component.functional = true; }
+      }
+
+      component._scopeId = scope;
+
+      return component
     }
+    /* style inject */
+    function __vue_create_injector__$5() {
+      var head = document.head || document.getElementsByTagName('head')[0];
+      var styles = __vue_create_injector__$5.styles || (__vue_create_injector__$5.styles = {});
+      var isOldIE =
+        typeof navigator !== 'undefined' &&
+        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
 
-    if (!component.render) {
-      component.render = template.render;
-      component.staticRenderFns = template.staticRenderFns;
-      component._compiled = true;
+      return function addStyle(id, css) {
+        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
 
-      if (functional) { component.functional = true; }
-    }
+        var group = isOldIE ? css.media || 'default' : id;
+        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
 
-    component._scopeId = scope;
+        if (!style.ids.includes(id)) {
+          var code = css.source;
+          var index = style.ids.length;
 
-    return component
-  }
-  /* style inject */
-  function __vue_create_injector__$5() {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var styles = __vue_create_injector__$5.styles || (__vue_create_injector__$5.styles = {});
-    var isOldIE =
-      typeof navigator !== 'undefined' &&
-      /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
+          style.ids.push(id);
 
-    return function addStyle(id, css) {
-      if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-      var group = isOldIE ? css.media || 'default' : id;
-      var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-      if (!style.ids.includes(id)) {
-        var code = css.source;
-        var index = style.ids.length;
-
-        style.ids.push(id);
-
-        if (isOldIE) {
-          style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-        }
-
-        if (!style.element) {
-          var el = style.element = document.createElement('style');
-          el.type = 'text/css';
-
-          if (css.media) { el.setAttribute('media', css.media); }
           if (isOldIE) {
-            el.setAttribute('data-group', group);
-            el.setAttribute('data-next-index', '0');
+            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
           }
 
-          head.appendChild(el);
-        }
+          if (!style.element) {
+            var el = style.element = document.createElement('style');
+            el.type = 'text/css';
 
-        if (isOldIE) {
-          index = parseInt(style.element.getAttribute('data-next-index'));
-          style.element.setAttribute('data-next-index', index + 1);
-        }
+            if (css.media) { el.setAttribute('media', css.media); }
+            if (isOldIE) {
+              el.setAttribute('data-group', group);
+              el.setAttribute('data-next-index', '0');
+            }
 
-        if (style.element.styleSheet) {
-          style.parts.push(code);
-          style.element.styleSheet.cssText = style.parts
-            .filter(Boolean)
-            .join('\n');
-        } else {
-          var textNode = document.createTextNode(code);
-          var nodes = style.element.childNodes;
-          if (nodes[index]) { style.element.removeChild(nodes[index]); }
-          if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-          else { style.element.appendChild(textNode); }
+            head.appendChild(el);
+          }
+
+          if (isOldIE) {
+            index = parseInt(style.element.getAttribute('data-next-index'));
+            style.element.setAttribute('data-next-index', index + 1);
+          }
+
+          if (style.element.styleSheet) {
+            style.parts.push(code);
+            style.element.styleSheet.cssText = style.parts
+              .filter(Boolean)
+              .join('\n');
+          } else {
+            var textNode = document.createTextNode(code);
+            var nodes = style.element.childNodes;
+            if (nodes[index]) { style.element.removeChild(nodes[index]); }
+            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
+            else { style.element.appendChild(textNode); }
+          }
         }
       }
     }
-  }
-  /* style inject SSR */
+    /* style inject SSR */
+    
 
-
-  var QUploader = __vue_normalize__$5(
-    __vue_template__$5,
-    __vue_inject_styles__$5,
-    typeof __vue_script__$5 === 'undefined' ? {} : __vue_script__$5,
-    __vue_scope_id__$5,
-    __vue_is_functional_template__$5,
-    __vue_module_identifier__$5,
-    typeof __vue_create_injector__$5 !== 'undefined' ? __vue_create_injector__$5 : function () {},
-    typeof __vue_create_injector_ssr__ !== 'undefined' ? __vue_create_injector_ssr__ : function () {}
-  );
+    
+    var QUploader = __vue_normalize__$5(
+      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
+      __vue_inject_styles__$5,
+      __vue_script__$5,
+      __vue_scope_id__$5,
+      __vue_is_functional_template__$5,
+      __vue_module_identifier__$5,
+      __vue_create_injector__$5,
+      undefined
+    );
 
   var QVideo = {
     name: 'QVideo',
@@ -24573,27 +24574,27 @@
     QSlideTransition: QSlideTransition,
     QSlider: QSlider,
     QSpinner: QSpinner,
-    QSpinnerAudio: audio,
-    QSpinnerBall: ball,
-    QSpinnerBars: bars,
-    QSpinnerCircles: circles,
-    QSpinnerComment: comment,
-    QSpinnerCube: cube,
-    QSpinnerDots: dots,
-    QSpinnerFacebook: facebook,
-    QSpinnerGears: gears,
-    QSpinnerGrid: grid,
-    QSpinnerHearts: hearts,
-    QSpinnerHourglass: hourglass,
-    QSpinnerInfinity: infinity,
+    QSpinnerAudio: QSpinnerAudio,
+    QSpinnerBall: QSpinnerBall,
+    QSpinnerBars: QSpinnerBars,
+    QSpinnerCircles: QSpinnerCircles,
+    QSpinnerComment: QSpinnerComment,
+    QSpinnerCube: QSpinnerCube,
+    QSpinnerDots: QSpinnerDots,
+    QSpinnerFacebook: QSpinnerFacebook,
+    QSpinnerGears: QSpinnerGears,
+    QSpinnerGrid: QSpinnerGrid,
+    QSpinnerHearts: QSpinnerHearts,
+    QSpinnerHourglass: QSpinnerHourglass,
+    QSpinnerInfinity: QSpinnerInfinity,
     QSpinnerIos: QSpinner_ios,
     QSpinnerMat: DefaultSpinner,
-    QSpinnerOval: oval,
-    QSpinnerPie: pie,
-    QSpinnerPuff: puff,
-    QSpinnerRadio: radio,
-    QSpinnerRings: rings,
-    QSpinnerTail: tail,
+    QSpinnerOval: QSpinnerOval,
+    QSpinnerPie: QSpinnerPie,
+    QSpinnerPuff: QSpinnerPuff,
+    QSpinnerRadio: QSpinnerRadio,
+    QSpinnerRings: QSpinnerRings,
+    QSpinnerTail: QSpinnerTail,
     QStep: QStep,
     QStepper: QStepper,
     QStepperNavigation: QStepperNavigation,
@@ -24866,7 +24867,7 @@
     name: 'scroll',
     bind: function bind (el, binding) {
       var ctx = {
-        scroll: function scroll () {
+        scroll: function scroll$$1 () {
           ctx.handler(getScrollPosition(ctx.scrollTarget));
         }
       };
@@ -25946,7 +25947,7 @@
     }
   }
 
-  var LocalStorage = {
+  var localStorage = {
     install: function install (ref) {
       var $q = ref.$q;
 
@@ -25963,7 +25964,7 @@
     }
   };
 
-  var SessionStorage = {
+  var sessionStorage = {
     install: function install (ref) {
       var $q = ref.$q;
 
@@ -25993,8 +25994,8 @@
     Notify: notify,
     Platform: Platform,
     Screen: screen,
-    LocalStorage: LocalStorage,
-    SessionStorage: SessionStorage
+    LocalStorage: localStorage,
+    SessionStorage: sessionStorage
   });
 
   function openUrl (url, reject) {
@@ -26023,13 +26024,13 @@
     colors: colors,
     date: date,
     debounce: debounce,
-    frameDebounce: frameDebounce,
     dom: dom,
     easing: easing,
     event: event,
     extend: extend,
     filter: filter,
     format: format,
+    frameDebounce: frameDebounce,
     noop: noop,
     openURL: openUrl,
     scroll: scroll,

@@ -1,15 +1,14 @@
-import FrameMixin from '../../mixins/input-frame'
-import DisplayModeMixin from '../../mixins/display-mode'
-import CanRenderMixin from '../../mixins/can-render'
-import extend from '../../utils/extend'
-import { input, inline } from './datetime-props'
-import { QInputFrame } from '../input-frame'
-import { QPopover } from '../popover'
+import FrameMixin from '../../mixins/input-frame.js'
+import DisplayModeMixin from '../../mixins/display-mode.js'
+import CanRenderMixin from '../../mixins/can-render.js'
+import { input, inline } from './datetime-props.js'
+import QInputFrame from '../input-frame/QInputFrame.vue'
+import QPopover from '../popover/QPopover.js'
 import QDatetimePicker from './QDatetimePicker'
-import { QBtn } from '../btn'
-import { clone, formatDate, isSameDate, isValid, startOfDate } from '../../utils/date'
-import { QModal } from '../modal'
-import { getEventKey, stopAndPrevent } from '../../utils/event'
+import QBtn from '../btn/QBtn.js'
+import { clone, formatDate, isSameDate, isValid, startOfDate } from '../../utils/date.js'
+import QModal from '../modal/QModal.js'
+import { getEventKey, stopAndPrevent } from '../../utils/event.js'
 
 const contentCss = process.env.THEME === 'ios'
   ? {
@@ -26,10 +25,7 @@ const contentCss = process.env.THEME === 'ios'
 export default {
   name: 'QDatetime',
   mixins: [FrameMixin, DisplayModeMixin, CanRenderMixin],
-  props: extend(
-    input,
-    inline
-  ),
+  props: Object.assign({}, input, inline),
   watch: {
     value (v) {
       if (!this.disable && this.isPopover) {
@@ -52,6 +48,15 @@ export default {
     }
   },
   computed: {
+    computedFormat () {
+      if (this.format) {
+        return this.format
+      }
+      if (this.type === 'date') {
+        return 'YYYY/MM/DD'
+      }
+      return this.type === 'time' ? 'HH:mm' : 'YYYY/MM/DD HH:mm:ss'
+    },
     actualValue () {
       if (this.displayValue) {
         return this.displayValue
@@ -60,22 +65,7 @@ export default {
         return ''
       }
 
-      let format
-
-      if (this.format) {
-        format = this.format
-      }
-      else if (this.type === 'date') {
-        format = 'YYYY/MM/DD'
-      }
-      else if (this.type === 'time') {
-        format = 'HH:mm'
-      }
-      else {
-        format = 'YYYY/MM/DD HH:mm:ss'
-      }
-
-      return formatDate(this.value, format, /* for reactiveness */ this.$q.i18n.date)
+      return formatDate(this.value, this.computedFormat, /* for reactiveness */ this.$q.i18n.date)
     },
     computedValue () {
       if (isValid(this.value)) {
