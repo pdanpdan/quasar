@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.8
+ * Quasar Framework v0.17.0-beta.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -932,7 +932,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-message-text:last-child:after {
   -webkit-transform: translate(30px, -2px);
-  transform: translate(30px, -2px);
+          transform: translate(30px, -2px);
 }
 .q-checkbox-icon {
   height: 21px;
@@ -1066,7 +1066,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 [dir=rtl] .q-chip-pointing-up:before {
   right: 50%;
   -webkit-transform: translateX(50%) translateY(-22%) rotate(-45deg);
-  transform: translateX(50%) translateY(-22%) rotate(-45deg);
+          transform: translateX(50%) translateY(-22%) rotate(-45deg);
 }
 [dir] .q-chip-pointing-down {
   margin-bottom: 0.8rem;
@@ -1084,7 +1084,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   left: auto;
   right: 50%;
   -webkit-transform: translateX(50%) translateY(-78%) rotate(-45deg);
-  transform: translateX(50%) translateY(-78%) rotate(-45deg);
+          transform: translateX(50%) translateY(-78%) rotate(-45deg);
 }
 [dir=ltr] .q-chip-pointing-right {
   margin-right: 0.8rem;
@@ -1106,7 +1106,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   left: 2px;
   right: auto;
   -webkit-transform: translateX(-33%) translateY(-50%) rotate(-45deg);
-  transform: translateX(-33%) translateY(-50%) rotate(-45deg);
+          transform: translateX(-33%) translateY(-50%) rotate(-45deg);
 }
 [dir=ltr] .q-chip-pointing-left {
   margin-left: 0.8rem;
@@ -1128,7 +1128,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   right: 2px;
   left: auto;
   -webkit-transform: translateX(33%) translateY(-50%) rotate(-45deg);
-  transform: translateX(33%) translateY(-50%) rotate(-45deg);
+          transform: translateX(33%) translateY(-50%) rotate(-45deg);
 }
 .q-chip-detail {
   opacity: 0.8;
@@ -1304,8 +1304,6 @@ body.desktop .q-carousel-thumbnails img:hover {
   -webkit-box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 2px rgba(0,0,0,0.4);
 }
 [dir] .q-color-saturation-circle {
-  cursor: -webkit-grab;
-  cursor: grab;
           box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 2px rgba(0,0,0,0.4);
   border-radius: 50%;
 }
@@ -1315,7 +1313,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-color-saturation-circle {
   -webkit-transform: translate(5px, -5px);
-  transform: translate(5px, -5px);
+          transform: translate(5px, -5px);
 }
 [dir] .q-color-swatch, [dir] .q-color-alpha .q-slider-track {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAH0lEQVQoU2NkYGAwZkAFZ5G5jPRRgOYEVDeB3EBjBQBOZwTVugIGyAAAAABJRU5ErkJggg==") !important;
@@ -1745,7 +1743,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-fab-opened .q-fab-icon {
   -webkit-transform: rotate3d(0, 0, 1, -180deg);
-  transform: rotate3d(0, 0, 1, -180deg);
+          transform: rotate3d(0, 0, 1, -180deg);
 }
 .q-fab-opened .q-fab-active-icon {
   -webkit-transform: rotate3d(0, 0, 1, 0deg);
@@ -1779,7 +1777,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-fab-active-icon {
   -webkit-transform: rotate3d(0, 0, 1, 180deg);
-  transform: rotate3d(0, 0, 1, 180deg);
+          transform: rotate3d(0, 0, 1, 180deg);
 }
 .q-fab-actions {
   position: absolute;
@@ -1804,7 +1802,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-fab-right {
   -webkit-transform: scaleX(0.4) scaleY(0.4) translateX(100%);
-  transform: scaleX(0.4) scaleY(0.4) translateX(100%);
+          transform: scaleX(0.4) scaleY(0.4) translateX(100%);
   right: 120%;
 }
 .q-fab-left {
@@ -1822,7 +1820,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-fab-left {
   -webkit-transform: scaleX(0.4) scaleY(0.4) translateX(-100%);
-  transform: scaleX(0.4) scaleY(0.4) translateX(-100%);
+          transform: scaleX(0.4) scaleY(0.4) translateX(-100%);
   left: 120%;
 }
 .q-fab-up {
@@ -2181,7 +2179,7 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 [dir=rtl] .q-if-standard .q-if-label, [dir=rtl] .q-if-box .q-if-label, [dir=rtl] .q-if-inverted .q-if-label, [dir=rtl] .q-if-outline .q-if-label, [dir=rtl] .q-if-textarea .q-if-label {
   -webkit-transform-origin: top right;
-  transform-origin: top right;
+          transform-origin: top right;
 }
 .q-if-standard .q-if-label.q-if-label-above,
 .q-if-box .q-if-label.q-if-label-above,
@@ -2402,9 +2400,10 @@ body.desktop .q-carousel-thumbnails img:hover {
 .q-if-label-fake {
   visibility: hidden;
   height: 0;
+  white-space: nowrap;
 }
 .q-if-label {
-  height: 1.2em;
+  height: 1.15em;
   overflow: hidden;
 }
 [dir=ltr] .q-if-label {
@@ -2674,7 +2673,7 @@ input.q-input-target {
 [dir=rtl] .q-layout-drawer-left {
   right: 0;
   -webkit-transform: translateX(100%);
-  transform: translateX(100%);
+          transform: translateX(100%);
 }
 [dir=ltr] .q-layout-drawer-left.fixed {
   border-right: 1px solid #e0e0e0;
@@ -2690,7 +2689,7 @@ input.q-input-target {
 [dir=rtl] .q-layout-drawer-right {
   left: 0;
   -webkit-transform: translateX(-100%);
-  transform: translateX(-100%);
+          transform: translateX(-100%);
 }
 [dir=ltr] .q-layout-drawer-right.fixed {
   border-left: 1px solid #e0e0e0;
@@ -3126,7 +3125,7 @@ body.with-loading {
   }
   [dir=rtl] .modal.maximized.q-modal-enter .modal-content, [dir=rtl] .modal.maximized.q-modal-leave-active .modal-content {
     -webkit-transform: translateX(-30%);
-    transform: translateX(-30%);
+            transform: translateX(-30%);
   }
 }
 @media (max-width: 767px) {
@@ -3148,7 +3147,7 @@ body.with-loading {
   }
   [dir=rtl] .modal:not(.minimized).q-modal-enter .modal-content, [dir=rtl] .modal:not(.minimized).q-modal-leave-active .modal-content {
     -webkit-transform: translateX(-30%);
-    transform: translateX(-30%);
+            transform: translateX(-30%);
   }
   .modal.minimized.q-modal-enter .modal-content {
     -webkit-transform: scale(1.2);
@@ -3275,7 +3274,7 @@ body.with-loading {
 }
 [dir=rtl] .q-modal-right-enter .modal-content, [dir=rtl] .q-modal-right-leave-active .modal-content {
   -webkit-transform: translateX(-30%);
-  transform: translateX(-30%);
+          transform: translateX(-30%);
 }
 .q-modal-left-enter,
 .q-modal-left-leave-active {
@@ -3287,7 +3286,7 @@ body.with-loading {
 }
 [dir=rtl] .q-modal-left-enter .modal-content, [dir=rtl] .q-modal-left-leave-active .modal-content {
   -webkit-transform: translateX(30%);
-  transform: translateX(30%);
+          transform: translateX(30%);
 }
 .q-notifications > div {
   z-index: 9500;
@@ -3499,7 +3498,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-progress-model.animate {
   -webkit-animation:  q-progress-stripes-rtl 2s linear infinite;
-  animation:  q-progress-stripes-rtl 2s linear infinite;
+          animation:  q-progress-stripes-rtl 2s linear infinite;
 }
 .q-progress-model:not(.indeterminate) {
   position: absolute;
@@ -3533,7 +3532,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-progress-model.indeterminate:before {
   -webkit-animation:  q-progress-indeterminate-rtl 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
-  animation:  q-progress-indeterminate-rtl 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+          animation:  q-progress-indeterminate-rtl 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
 }
 [dir=ltr] .q-progress-model.indeterminate:after {
   -webkit-animation:  q-progress-indeterminate-short-ltr 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
@@ -3543,9 +3542,9 @@ body div .q-popover {
 }
 [dir=rtl] .q-progress-model.indeterminate:after {
   -webkit-animation:  q-progress-indeterminate-short-rtl 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
-  animation:  q-progress-indeterminate-short-rtl 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+          animation:  q-progress-indeterminate-short-rtl 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
   -webkit-animation-delay: 1.15s;
-  animation-delay: 1.15s;
+          animation-delay: 1.15s;
 }
 [dir] .q-progress-model.stripe, [dir] .q-progress-model.stripe:before, [dir] .q-progress-model.stripe:after {
   background-size: 40px 40px !important;
@@ -3778,7 +3777,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-slider-mark {
   -webkit-transform: translateX(50%) translateY(-50%);
-  transform: translateX(50%) translateY(-50%);
+          transform: translateX(50%) translateY(-50%);
 }
 .q-slider-handle-container {
   position: relative;
@@ -3809,7 +3808,7 @@ body div .q-popover {
 [dir=rtl] .q-slider-label {
   right: 11px;
   -webkit-transform: translateX(50%) translateY(0) scale(0);
-  transform: translateX(50%) translateY(0) scale(0);
+          transform: translateX(50%) translateY(0) scale(0);
 }
 .q-slider-label.label-always {
   opacity: 1;
@@ -3820,7 +3819,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-slider-label.label-always {
   -webkit-transform: translateX(50%) translateY(-139%) scale(1);
-  transform: translateX(50%) translateY(-139%) scale(1);
+          transform: translateX(50%) translateY(-139%) scale(1);
 }
 .q-slider-handle {
   position: absolute;
@@ -3843,7 +3842,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-slider-handle {
   -webkit-transform: translate3d(50%, -50%, 0);
-  transform: translate3d(50%, -50%, 0);
+          transform: translate3d(50%, -50%, 0);
 }
 .q-slider-handle .q-chip {
   max-width: unset;
@@ -3862,7 +3861,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-slider-handle.dragging {
   -webkit-transform: translate3d(50%, -50%, 0);
-  transform: translate3d(50%, -50%, 0);
+          transform: translate3d(50%, -50%, 0);
 }
 .q-slider-handle.dragging .q-slider-label {
   opacity: 1;
@@ -3873,7 +3872,7 @@ body div .q-popover {
 }
 [dir=rtl] .q-slider-handle.dragging .q-slider-label {
   -webkit-transform: translateX(50%) translateY(-139%) scale(1);
-  transform: translateX(50%) translateY(-139%) scale(1);
+          transform: translateX(50%) translateY(-139%) scale(1);
 }
 .q-slider-ring {
   position: absolute;
@@ -4639,7 +4638,7 @@ body.desktop .q-tab:hover:before {
 }
 [dir=rtl] .q-table th.sort-desc .q-table-sort-icon {
   -webkit-transform: rotate(-180deg);
-  transform: rotate(-180deg);
+          transform: rotate(-180deg);
 }
 .q-table tbody tr {
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
@@ -5384,7 +5383,7 @@ body.desktop .q-tab:hover:before {
 }
 [dir=rtl] .q-tree-arrow-rotate {
   -webkit-transform: rotate(-90deg);
-  transform: rotate(-90deg);
+          transform: rotate(-90deg);
 }
 [dir=rtl] .q-tree-arrow {
   -webkit-transform: rotate(180deg) /* rtl:ignore */;
@@ -9279,7 +9278,7 @@ a.q-link {
 }
 [dir=rtl] .animate-popup-up, [dir=rtl] .animate-popup-down {
   -webkit-animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+          animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 .animate-popup-down {
   -webkit-animation: q-popup-down 0.42s /* rtl:ignore */;
@@ -9301,9 +9300,9 @@ a.q-link {
 }
 [dir=rtl] .animated {
   -webkit-animation-duration: 1s;
-  animation-duration: 1s;
+          animation-duration: 1s;
   -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
+          animation-fill-mode: both;
 }
 [dir=ltr] .animated.infinite {
   -webkit-animation-iteration-count: infinite;
@@ -9311,7 +9310,7 @@ a.q-link {
 }
 [dir=rtl] .animated.infinite {
   -webkit-animation-iteration-count: infinite;
-  animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
 }
 [dir=ltr] .animated.hinge {
   -webkit-animation-duration: 2s;
@@ -9319,7 +9318,7 @@ a.q-link {
 }
 [dir=rtl] .animated.hinge {
   -webkit-animation-duration: 2s;
-  animation-duration: 2s;
+          animation-duration: 2s;
 }
 [dir=ltr] .animated.flipOutX, [dir=ltr] .animated.flipOutY, [dir=ltr] .animated.bounceIn, [dir=ltr] .animated.bounceOut {
   -webkit-animation-duration: 0.75s;
@@ -9327,7 +9326,7 @@ a.q-link {
 }
 [dir=rtl] .animated.flipOutX, [dir=rtl] .animated.flipOutY, [dir=rtl] .animated.bounceIn, [dir=rtl] .animated.bounceOut {
   -webkit-animation-duration: 0.75s;
-  animation-duration: 0.75s;
+          animation-duration: 0.75s;
 }
 .non-selectable {
   -webkit-user-select: none !important;
@@ -9568,7 +9567,7 @@ a.q-link {
 [dir=rtl] .fixed-center, [dir=rtl] .absolute-center {
   right: 50%;
   -webkit-transform: translate(50%, -50%);
-  transform: translate(50%, -50%);
+          transform: translate(50%, -50%);
 }
 .vertical-top {
   vertical-align: top !important;
@@ -9652,7 +9651,7 @@ a.q-link {
 }
 [dir=rtl] .q-radial-ripple {
   -webkit-transform: translate3d(25%, -25%, 0);
-  transform: translate3d(25%, -25%, 0);
+          transform: translate3d(25%, -25%, 0);
 }
 .q-radial-ripple,
 .q-radial-ripple:after {
@@ -11040,23 +11039,23 @@ body.ios .q-hoverable:active .q-focus-helper {
 @-webkit-keyframes q-rotate-rtl {
   0% {
     -webkit-transform: rotate(0) /* rtl:ignore */;
-    transform: rotate(0) /* rtl:ignore */;
+            transform: rotate(0) /* rtl:ignore */;
   }
   25% {
     -webkit-transform: rotate(90deg) /* rtl:ignore */;
-    transform: rotate(90deg) /* rtl:ignore */;
+            transform: rotate(90deg) /* rtl:ignore */;
   }
   50% {
     -webkit-transform: rotate(180deg) /* rtl:ignore */;
-    transform: rotate(180deg) /* rtl:ignore */;
+            transform: rotate(180deg) /* rtl:ignore */;
   }
   75% {
     -webkit-transform: rotate(270deg) /* rtl:ignore */;
-    transform: rotate(270deg) /* rtl:ignore */;
+            transform: rotate(270deg) /* rtl:ignore */;
   }
   100% {
     -webkit-transform: rotate(360deg) /* rtl:ignore */;
-    transform: rotate(360deg) /* rtl:ignore */;
+            transform: rotate(360deg) /* rtl:ignore */;
   }
 }
 @keyframes q-rotate {
@@ -11104,11 +11103,11 @@ body.ios .q-hoverable:active .q-focus-helper {
 @-webkit-keyframes q-spin-rtl {
   0% {
     -webkit-transform: rotate(0deg) /* rtl:ignore */;
-    transform: rotate(0deg) /* rtl:ignore */;
+            transform: rotate(0deg) /* rtl:ignore */;
   }
   100% {
     -webkit-transform: rotate(359deg) /* rtl:ignore */;
-    transform: rotate(359deg) /* rtl:ignore */;
+            transform: rotate(359deg) /* rtl:ignore */;
   }
 }
 @keyframes q-spin {

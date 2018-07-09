@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.8
+ * Quasar Framework v0.17.0-beta.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -990,8 +990,6 @@ body.desktop .q-carousel-thumbnails img:hover {
   background: linear-gradient(to top, #000, rgba(0,0,0,0));
 }
 .q-color-saturation-circle {
-  cursor: -webkit-grab;
-  cursor: grab;
   width: 10px;
   height: 10px;
   -webkit-box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 2px rgba(0,0,0,0.4);
@@ -2167,9 +2165,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-label-fake {
   visibility: hidden;
   height: 0;
+  white-space: nowrap;
 }
 .q-if-label {
-  height: 1.2em;
+  height: 1.15em;
   overflow: hidden;
   margin-right: 52px;
 }

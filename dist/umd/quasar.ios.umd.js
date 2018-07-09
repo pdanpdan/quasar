@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.8
+ * Quasar Framework v0.17.0-beta.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -425,7 +425,7 @@
     });
   }
 
-  var version = "0.17.0-beta.8";
+  var version = "0.17.0-beta.10";
 
   var History = {
     __history: [],
@@ -7024,141 +7024,10 @@
               var __vue_script__ = script;
               
   /* template */
-  var __vue_render__ = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "div",
-      {
-        staticClass: "q-if row no-wrap relative-position",
-        class: _vm.classes,
-        attrs: { tabindex: _vm.focusable && !_vm.disable ? 0 : -1 },
-        on: { click: _vm.__onClick }
-      },
-      [
-        _c("div", { staticClass: "q-if-baseline" }, [_vm._v("|")]),
-        _vm._v(" "),
-        _vm.before
-          ? _vm._l(_vm.before, function(item) {
-              return _c("q-icon", {
-                key: "b" + item.icon,
-                staticClass: "q-if-control q-if-control-before",
-                class: {
-                  hidden: _vm.__additionalHidden(
-                    item,
-                    _vm.hasError,
-                    _vm.hasWarning,
-                    _vm.length
-                  )
-                },
-                attrs: { name: item.icon },
-                nativeOn: {
-                  mousedown: function($event) {
-                    return _vm.__onMouseDown($event)
-                  },
-                  touchstart: function($event) {
-                    return _vm.__onMouseDown($event)
-                  },
-                  click: function($event) {
-                    _vm.__baHandler($event, item);
-                  }
-                }
-              })
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _c("div", { staticClass: "q-if-inner col" }, [
-          _c(
-            "div",
-            { staticClass: "row no-wrap" },
-            [
-              _vm.prefix && _vm.isFullWidth
-                ? _c("span", {
-                    staticClass: "q-if-addon q-if-addon-left",
-                    class: _vm.addonClass,
-                    domProps: { textContent: _vm._s(_vm.prefix) }
-                  })
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.hasLabel
-                ? _c("div", {
-                    staticClass: "q-if-label",
-                    class: {
-                      "q-if-label-above": _vm.labelIsAbove
-                    },
-                    domProps: { textContent: _vm._s(_vm.label) }
-                  })
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.prefix && !_vm.isFullWidth
-                ? _c("span", {
-                    staticClass: "q-if-addon q-if-addon-left",
-                    class: _vm.addonClass,
-                    domProps: { textContent: _vm._s(_vm.prefix) }
-                  })
-                : _vm._e(),
-              _vm._v(" "),
-              _vm._t("default"),
-              _vm._v(" "),
-              _vm.suffix
-                ? _c("span", {
-                    staticClass: "q-if-addon q-if-addon-right",
-                    class: _vm.addonClass,
-                    domProps: { textContent: _vm._s(_vm.suffix) }
-                  })
-                : _vm._e()
-            ],
-            2
-          ),
-          _vm._v(" "),
-          _vm.hasLabel
-            ? _c("div", {
-                staticClass: "q-if-label-fake",
-                domProps: { textContent: _vm._s(_vm.label) }
-              })
-            : _vm._e()
-        ]),
-        _vm._v(" "),
-        _vm.after
-          ? _vm._l(_vm.after, function(item) {
-              return _c("q-icon", {
-                key: "a" + item.icon,
-                staticClass: "q-if-control",
-                class: [
-                  item.class,
-                  {
-                    hidden: _vm.__additionalHidden(
-                      item,
-                      _vm.hasError,
-                      _vm.hasWarning,
-                      _vm.length
-                    )
-                  }
-                ],
-                attrs: { name: item.icon },
-                nativeOn: {
-                  mousedown: function($event) {
-                    return _vm.__onMouseDown($event)
-                  },
-                  touchstart: function($event) {
-                    return _vm.__onMouseDown($event)
-                  },
-                  click: function($event) {
-                    _vm.__baHandler($event, item);
-                  }
-                }
-              })
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _vm._t("after")
-      ],
-      2
-    )
-  };
+  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"q-if-baseline"},[_vm._v("|")]),_vm._v(" "),(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col"},[_c('div',{staticClass:"row no-wrap"},[(_vm.prefix && _vm.isFullWidth)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),(_vm.hasLabel)?_c('div',{staticClass:"q-if-label",class:{
+            'q-if-label-above': _vm.labelIsAbove
+          },domProps:{"textContent":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix && !_vm.isFullWidth)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),(_vm.hasLabel)?_c('div',{staticClass:"q-if-label-fake",domProps:{"textContent":_vm._s(_vm.label)}}):_vm._e()]),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:[item.class, {hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)}],attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_vm._t("after")],2)};
   var __vue_staticRenderFns__ = [];
-  __vue_render__._withStripped = true;
 
     /* style */
     var __vue_inject_styles__ = undefined;
@@ -7175,10 +7044,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input-frame\\QInputFrame.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -7211,6 +7076,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
@@ -7468,263 +7344,8 @@
               var __vue_script__$1 = script$1;
               
   /* template */
-  var __vue_render__$1 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "q-input-frame",
-      {
-        staticClass: "q-chips-input",
-        attrs: {
-          prefix: _vm.prefix,
-          suffix: _vm.suffix,
-          "stack-label": _vm.stackLabel,
-          "float-label": _vm.floatLabel,
-          error: _vm.error,
-          warning: _vm.warning,
-          disable: _vm.disable,
-          readonly: _vm.readonly,
-          inverted: _vm.inverted,
-          "inverted-light": _vm.invertedLight,
-          dark: _vm.dark,
-          dense: _vm.dense,
-          box: _vm.box,
-          "full-width": _vm.fullWidth,
-          outline: _vm.outline,
-          "hide-underline": _vm.hideUnderline,
-          before: _vm.before,
-          after: _vm.after,
-          color: _vm.color,
-          "no-parent-field": _vm.noParentField,
-          focused: _vm.focused,
-          length: _vm.length,
-          "additional-length": _vm.input.length > 0
-        },
-        on: { click: _vm.__onClick }
-      },
-      [
-        _c(
-          "div",
-          { staticClass: "col row q-input-chips items-center" },
-          [
-            _vm._l(_vm.model, function(label, index) {
-              return _c(
-                "div",
-                { key: label + "#" + index, staticClass: "col-auto" },
-                [
-                  _c(
-                    "q-chip",
-                    {
-                      attrs: {
-                        dense: "",
-                        closable: _vm.editable,
-                        color: _vm.computedChipBgColor,
-                        "text-color": _vm.computedChipTextColor,
-                        tabindex: _vm.editable && _vm.focused ? 0 : -1
-                      },
-                      on: {
-                        blur: _vm.__onInputBlur,
-                        focus: _vm.__clearTimer,
-                        hide: function($event) {
-                          _vm.remove(index);
-                        }
-                      },
-                      nativeOn: {
-                        blur: function($event) {
-                          return _vm.__onInputBlur($event)
-                        },
-                        focus: function($event) {
-                          return _vm.__clearTimer($event)
-                        }
-                      }
-                    },
-                    [_vm._v("\n        " + _vm._s(label) + "\n      ")]
-                  )
-                ],
-                1
-              )
-            }),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "q-input-chips-target col row items-center" },
-              [
-                _vm.$attrs.type === "checkbox"
-                  ? _c(
-                      "input",
-                      _vm._b(
-                        {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.input,
-                              expression: "input"
-                            }
-                          ],
-                          ref: "input",
-                          staticClass: "col q-input-target",
-                          class: _vm.inputClasses,
-                          attrs: {
-                            placeholder: _vm.inputPlaceholder,
-                            disabled: _vm.disable,
-                            readonly: _vm.readonly,
-                            type: "checkbox"
-                          },
-                          domProps: {
-                            checked: Array.isArray(_vm.input)
-                              ? _vm._i(_vm.input, null) > -1
-                              : _vm.input
-                          },
-                          on: {
-                            focus: _vm.__onFocus,
-                            blur: _vm.__onInputBlur,
-                            keydown: _vm.__handleKeyDown,
-                            keyup: _vm.__onKeyup,
-                            change: function($event) {
-                              var $$a = _vm.input,
-                                $$el = $event.target,
-                                $$c = $$el.checked ? true : false;
-                              if (Array.isArray($$a)) {
-                                var $$v = null,
-                                  $$i = _vm._i($$a, $$v);
-                                if ($$el.checked) {
-                                  $$i < 0 && (_vm.input = $$a.concat([$$v]));
-                                } else {
-                                  $$i > -1 &&
-                                    (_vm.input = $$a
-                                      .slice(0, $$i)
-                                      .concat($$a.slice($$i + 1)));
-                                }
-                              } else {
-                                _vm.input = $$c;
-                              }
-                            }
-                          }
-                        },
-                        "input",
-                        _vm.$attrs,
-                        false
-                      )
-                    )
-                  : _vm.$attrs.type === "radio"
-                    ? _c(
-                        "input",
-                        _vm._b(
-                          {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.input,
-                                expression: "input"
-                              }
-                            ],
-                            ref: "input",
-                            staticClass: "col q-input-target",
-                            class: _vm.inputClasses,
-                            attrs: {
-                              placeholder: _vm.inputPlaceholder,
-                              disabled: _vm.disable,
-                              readonly: _vm.readonly,
-                              type: "radio"
-                            },
-                            domProps: { checked: _vm._q(_vm.input, null) },
-                            on: {
-                              focus: _vm.__onFocus,
-                              blur: _vm.__onInputBlur,
-                              keydown: _vm.__handleKeyDown,
-                              keyup: _vm.__onKeyup,
-                              change: function($event) {
-                                _vm.input = null;
-                              }
-                            }
-                          },
-                          "input",
-                          _vm.$attrs,
-                          false
-                        )
-                      )
-                    : _c(
-                        "input",
-                        _vm._b(
-                          {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.input,
-                                expression: "input"
-                              }
-                            ],
-                            ref: "input",
-                            staticClass: "col q-input-target",
-                            class: _vm.inputClasses,
-                            attrs: {
-                              placeholder: _vm.inputPlaceholder,
-                              disabled: _vm.disable,
-                              readonly: _vm.readonly,
-                              type: _vm.$attrs.type
-                            },
-                            domProps: { value: _vm.input },
-                            on: {
-                              focus: _vm.__onFocus,
-                              blur: _vm.__onInputBlur,
-                              keydown: _vm.__handleKeyDown,
-                              keyup: _vm.__onKeyup,
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.input = $event.target.value;
-                              }
-                            }
-                          },
-                          "input",
-                          _vm.$attrs,
-                          false
-                        )
-                      )
-              ]
-            )
-          ],
-          2
-        ),
-        _vm._v(" "),
-        _vm.isLoading
-          ? _c("q-spinner", {
-              staticClass: "q-if-control",
-              attrs: { slot: "after", size: "24px" },
-              slot: "after"
-            })
-          : _vm.editable
-            ? _c("q-icon", {
-                staticClass: "q-if-control",
-                class: { invisible: !_vm.input.length },
-                attrs: { slot: "after", name: _vm.computedAddIcon },
-                nativeOn: {
-                  mousedown: function($event) {
-                    return _vm.__clearTimer($event)
-                  },
-                  touchstart: function($event) {
-                    return _vm.__clearTimer($event)
-                  },
-                  click: function($event) {
-                    _vm.add();
-                  }
-                },
-                slot: "after"
-              })
-            : _vm._e(),
-        _vm._v(" "),
-        _vm._t("default")
-      ],
-      2
-    )
-  };
+  var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row q-input-chips items-center"},[_vm._l((_vm.model),function(label,index){return _c('div',{key:(label + "#" + index),staticClass:"col-auto"},[_c('q-chip',{attrs:{"dense":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v("\n        "+_vm._s(label)+"\n      ")])],1)}),_vm._v(" "),_c('div',{staticClass:"q-input-chips-target col row items-center"},[(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))])],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)};
   var __vue_staticRenderFns__$1 = [];
-  __vue_render__$1._withStripped = true;
 
     /* style */
     var __vue_inject_styles__$1 = undefined;
@@ -7741,10 +7362,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script === 'function' ? script.options : script) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\chips-input\\QChipsInput.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -7777,6 +7394,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
@@ -10492,266 +10120,8 @@
               var __vue_script__$2 = script$2;
               
   /* template */
-  var __vue_render__$2 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _vm.canRender
-      ? _c(
-          "div",
-          { staticClass: "q-datetime", class: _vm.classes },
-          [
-            _vm._t("default"),
-            _vm._v(" "),
-            _c("div", { staticClass: "q-datetime-content non-selectable" }, [
-              _c(
-                "div",
-                {
-                  staticClass: "q-datetime-inner full-height flex justify-center",
-                  on: {
-                    touchstart: function($event) {
-                      $event.stopPropagation();
-                      $event.preventDefault();
-                    }
-                  }
-                },
-                [
-                  _vm.typeHasDate
-                    ? [
-                        _c(
-                          "div",
-                          {
-                            directives: [
-                              {
-                                name: "touch-pan",
-                                rawName: "v-touch-pan.vertical",
-                                value: _vm.__dragMonth,
-                                expression: "__dragMonth",
-                                modifiers: { vertical: true }
-                              }
-                            ],
-                            staticClass: "q-datetime-col q-datetime-col-month"
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                ref: "month",
-                                staticClass: "q-datetime-col-wrapper",
-                                style: _vm.__monthStyle
-                              },
-                              _vm._l(_vm.monthInterval, function(index) {
-                                return _c(
-                                  "div",
-                                  {
-                                    key: "mi" + index,
-                                    staticClass: "q-datetime-item"
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n              " +
-                                        _vm._s(
-                                          _vm.$q.i18n.date.months[
-                                            index + _vm.monthMin - 1
-                                          ]
-                                        ) +
-                                        "\n            "
-                                    )
-                                  ]
-                                )
-                              })
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            directives: [
-                              {
-                                name: "touch-pan",
-                                rawName: "v-touch-pan.vertical",
-                                value: _vm.__dragDate,
-                                expression: "__dragDate",
-                                modifiers: { vertical: true }
-                              }
-                            ],
-                            staticClass: "q-datetime-col q-datetime-col-day"
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                ref: "date",
-                                staticClass: "q-datetime-col-wrapper",
-                                style: _vm.__dayStyle
-                              },
-                              _vm._l(_vm.daysInterval, function(index) {
-                                return _c(
-                                  "div",
-                                  {
-                                    key: "di" + index,
-                                    staticClass: "q-datetime-item"
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n              " +
-                                        _vm._s(index + _vm.dayMin - 1) +
-                                        "\n            "
-                                    )
-                                  ]
-                                )
-                              })
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            directives: [
-                              {
-                                name: "touch-pan",
-                                rawName: "v-touch-pan.vertical",
-                                value: _vm.__dragYear,
-                                expression: "__dragYear",
-                                modifiers: { vertical: true }
-                              }
-                            ],
-                            staticClass: "q-datetime-col q-datetime-col-year"
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                ref: "year",
-                                staticClass: "q-datetime-col-wrapper",
-                                style: _vm.__yearStyle
-                              },
-                              _vm._l(_vm.yearInterval, function(n) {
-                                return _c(
-                                  "div",
-                                  {
-                                    key: "yi" + n,
-                                    staticClass: "q-datetime-item"
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n              " +
-                                        _vm._s(n + _vm.yearMin) +
-                                        "\n            "
-                                    )
-                                  ]
-                                )
-                              })
-                            )
-                          ]
-                        )
-                      ]
-                    : _vm._e(),
-                  _vm._v(" "),
-                  _vm.typeHasTime
-                    ? [
-                        _c(
-                          "div",
-                          {
-                            directives: [
-                              {
-                                name: "touch-pan",
-                                rawName: "v-touch-pan.vertical",
-                                value: _vm.__dragHour,
-                                expression: "__dragHour",
-                                modifiers: { vertical: true }
-                              }
-                            ],
-                            staticClass: "q-datetime-col q-datetime-col-hour"
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                ref: "hour",
-                                staticClass: "q-datetime-col-wrapper",
-                                style: _vm.__hourStyle
-                              },
-                              _vm._l(_vm.hourInterval, function(n) {
-                                return _c(
-                                  "div",
-                                  {
-                                    key: "hi" + n,
-                                    staticClass: "q-datetime-item"
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n              " +
-                                        _vm._s(n + _vm.hourMin - 1) +
-                                        "\n            "
-                                    )
-                                  ]
-                                )
-                              })
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          {
-                            directives: [
-                              {
-                                name: "touch-pan",
-                                rawName: "v-touch-pan.vertical",
-                                value: _vm.__dragMinute,
-                                expression: "__dragMinute",
-                                modifiers: { vertical: true }
-                              }
-                            ],
-                            staticClass: "q-datetime-col q-datetime-col-minute"
-                          },
-                          [
-                            _c(
-                              "div",
-                              {
-                                ref: "minute",
-                                staticClass: "q-datetime-col-wrapper",
-                                style: _vm.__minuteStyle
-                              },
-                              _vm._l(_vm.minuteInterval, function(n) {
-                                return _c(
-                                  "div",
-                                  {
-                                    key: "ni" + n,
-                                    staticClass: "q-datetime-item"
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n              " +
-                                        _vm._s(_vm.__pad(n + _vm.minuteMin - 1)) +
-                                        "\n            "
-                                    )
-                                  ]
-                                )
-                              })
-                            )
-                          ]
-                        )
-                      ]
-                    : _vm._e()
-                ],
-                2
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "q-datetime-mask" }),
-              _vm._v(" "),
-              _c("div", { staticClass: "q-datetime-highlight" })
-            ])
-          ],
-          2
-        )
-      : _vm._e()
-  };
+  var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.canRender)?_c('div',{staticClass:"q-datetime",class:_vm.classes},[_vm._t("default"),_vm._v(" "),_c('div',{staticClass:"q-datetime-content non-selectable"},[_c('div',{staticClass:"q-datetime-inner full-height flex justify-center",on:{"touchstart":function($event){$event.stopPropagation();$event.preventDefault();}}},[(_vm.typeHasDate)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMonth),expression:"__dragMonth",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-month"},[_c('div',{ref:"month",staticClass:"q-datetime-col-wrapper",style:(_vm.__monthStyle)},_vm._l((_vm.monthInterval),function(index){return _c('div',{key:("mi" + index),staticClass:"q-datetime-item"},[_vm._v("\n              "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+"\n            ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragDate),expression:"__dragDate",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-day"},[_c('div',{ref:"date",staticClass:"q-datetime-col-wrapper",style:(_vm.__dayStyle)},_vm._l((_vm.daysInterval),function(index){return _c('div',{key:("di" + index),staticClass:"q-datetime-item"},[_vm._v("\n              "+_vm._s(index + _vm.dayMin - 1)+"\n            ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragYear),expression:"__dragYear",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-year"},[_c('div',{ref:"year",staticClass:"q-datetime-col-wrapper",style:(_vm.__yearStyle)},_vm._l((_vm.yearInterval),function(n){return _c('div',{key:("yi" + n),staticClass:"q-datetime-item"},[_vm._v("\n              "+_vm._s(n + _vm.yearMin)+"\n            ")])}))])]:_vm._e(),_vm._v(" "),(_vm.typeHasTime)?[_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragHour),expression:"__dragHour",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-hour"},[_c('div',{ref:"hour",staticClass:"q-datetime-col-wrapper",style:(_vm.__hourStyle)},_vm._l((_vm.hourInterval),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-item"},[_vm._v("\n              "+_vm._s(n + _vm.hourMin - 1)+"\n            ")])}))]),_vm._v(" "),_c('div',{directives:[{name:"touch-pan",rawName:"v-touch-pan.vertical",value:(_vm.__dragMinute),expression:"__dragMinute",modifiers:{"vertical":true}}],staticClass:"q-datetime-col q-datetime-col-minute"},[_c('div',{ref:"minute",staticClass:"q-datetime-col-wrapper",style:(_vm.__minuteStyle)},_vm._l((_vm.minuteInterval),function(n){return _c('div',{key:("ni" + n),staticClass:"q-datetime-item"},[_vm._v("\n              "+_vm._s(_vm.__pad(n + _vm.minuteMin - 1))+"\n            ")])}))])]:_vm._e()],2),_vm._v(" "),_c('div',{staticClass:"q-datetime-mask"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-highlight"})])],2):_vm._e()};
   var __vue_staticRenderFns__$2 = [];
-  __vue_render__$2._withStripped = true;
 
     /* style */
     var __vue_inject_styles__$2 = undefined;
@@ -10768,10 +10138,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script === 'function' ? script.options : script) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\datetime\\QDatetimePicker.ios.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -10804,6 +10170,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
@@ -11562,221 +10939,8 @@
               var __vue_script__$3 = script$3;
               
   /* template */
-  var __vue_render__$3 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "q-input-frame",
-      {
-        staticClass: "q-input",
-        class: _vm.textClass,
-        attrs: {
-          prefix: _vm.prefix,
-          suffix: _vm.suffix,
-          "stack-label": _vm.stackLabel,
-          "float-label": _vm.floatLabel,
-          placeholder: _vm.placeholder,
-          error: _vm.error,
-          warning: _vm.warning,
-          disable: _vm.disable,
-          readonly: _vm.readonly,
-          inverted: _vm.inverted,
-          "inverted-light": _vm.invertedLight,
-          dark: _vm.dark,
-          dense: _vm.dense,
-          box: _vm.box,
-          "full-width": _vm.fullWidth,
-          outline: _vm.outline,
-          textarea: _vm.isFixedTextarea,
-          "hide-underline": _vm.hideUnderline,
-          before: _vm.before,
-          after: _vm.after,
-          color: _vm.color,
-          "no-parent-field": _vm.noParentField,
-          focused: _vm.focused,
-          length: _vm.autofilled + _vm.length
-        },
-        on: { click: _vm.__onClick, focus: _vm.__onFocus }
-      },
-      [
-        _vm._t("before"),
-        _vm._v(" "),
-        _vm.isTextarea
-          ? [
-              _c(
-                "div",
-                { staticClass: "col row relative-position q-input-area-holder" },
-                [
-                  _c("q-resize-observable", {
-                    on: {
-                      resize: function($event) {
-                        _vm.__updateArea();
-                      }
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c(
-                    "textarea",
-                    _vm._b(
-                      {
-                        ref: "shadow",
-                        staticClass:
-                          "col q-input-target q-input-shadow absolute-top",
-                        attrs: { rows: _vm.rows },
-                        domProps: { value: _vm.model }
-                      },
-                      "textarea",
-                      _vm.$attrs,
-                      false
-                    )
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "textarea",
-                    _vm._b(
-                      {
-                        ref: "input",
-                        staticClass: "col q-input-target q-input-area",
-                        attrs: {
-                          rows: _vm.rows,
-                          placeholder: _vm.inputPlaceholder,
-                          disabled: _vm.disable,
-                          readonly: _vm.readonly
-                        },
-                        domProps: { value: _vm.model },
-                        on: {
-                          input: _vm.__set,
-                          focus: _vm.__onFocus,
-                          blur: _vm.__onInputBlur,
-                          keydown: _vm.__onKeydown,
-                          keyup: _vm.__onKeyup
-                        }
-                      },
-                      "textarea",
-                      _vm.$attrs,
-                      false
-                    )
-                  )
-                ],
-                1
-              )
-            ]
-          : _c(
-              "input",
-              _vm._b(
-                {
-                  ref: "input",
-                  staticClass: "col q-input-target q-no-input-spinner",
-                  class: _vm.inputClasses,
-                  attrs: {
-                    placeholder: _vm.inputPlaceholder,
-                    disabled: _vm.disable,
-                    readonly: _vm.readonly,
-                    step: _vm.computedStep,
-                    type: _vm.inputType
-                  },
-                  domProps: { value: _vm.model },
-                  on: {
-                    input: _vm.__set,
-                    focus: _vm.__onFocus,
-                    blur: _vm.__onInputBlur,
-                    keydown: _vm.__onKeydown,
-                    keyup: _vm.__onKeyup,
-                    animationstart: _vm.__onAnimationStart
-                  }
-                },
-                "input",
-                _vm.$attrs,
-                false
-              )
-            ),
-        _vm._v(" "),
-        !_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length
-          ? _c("q-icon", {
-              staticClass: "q-if-control",
-              attrs: {
-                slot: "after",
-                name: _vm.$q.icon.input[_vm.showPass ? "showPass" : "hidePass"]
-              },
-              nativeOn: {
-                mousedown: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                touchstart: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                click: function($event) {
-                  return _vm.togglePass($event)
-                }
-              },
-              slot: "after"
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.editable && _vm.keyboardToggle
-          ? _c("q-icon", {
-              staticClass: "q-if-control",
-              attrs: {
-                slot: "after",
-                name:
-                  _vm.$q.icon.input[_vm.showNumber ? "showNumber" : "hideNumber"]
-              },
-              nativeOn: {
-                mousedown: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                touchstart: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                click: function($event) {
-                  return _vm.toggleNumber($event)
-                }
-              },
-              slot: "after"
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.isClearable
-          ? _c("q-icon", {
-              staticClass: "q-if-control",
-              attrs: {
-                slot: "after",
-                name:
-                  _vm.$q.icon.input["clear" + (_vm.isInverted ? "Inverted" : "")]
-              },
-              nativeOn: {
-                mousedown: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                touchstart: function($event) {
-                  return _vm.__clearTimer($event)
-                },
-                click: function($event) {
-                  return _vm.clear($event)
-                }
-              },
-              slot: "after"
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.isLoading
-          ? _c("q-spinner", {
-              staticClass: "q-if-control",
-              attrs: { slot: "after", size: "24px" },
-              slot: "after"
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _vm._t("after"),
-        _vm._v(" "),
-        _vm._t("default")
-      ],
-      2
-    )
-  };
+  var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClass,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"placeholder":_vm.placeholder,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"textarea":_vm.isFixedTextarea,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position q-input-area-holder"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isClearable)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)};
   var __vue_staticRenderFns__$3 = [];
-  __vue_render__$3._withStripped = true;
 
     /* style */
     var __vue_inject_styles__$3 = undefined;
@@ -11793,10 +10957,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script === 'function' ? script.options : script) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\input\\QInput.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -11829,6 +10989,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
@@ -17516,310 +16687,18 @@
               var __vue_script__$4 = script$4;
               
   /* template */
-  var __vue_render__$4 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "q-input-frame",
-      {
-        ref: "input",
-        staticClass: "q-select",
-        attrs: {
-          prefix: _vm.prefix,
-          suffix: _vm.suffix,
-          "stack-label": _vm.stackLabel,
-          "float-label": _vm.floatLabel,
-          error: _vm.error,
-          warning: _vm.warning,
-          disable: _vm.disable,
-          readonly: _vm.readonly,
-          inverted: _vm.inverted,
-          "inverted-light": _vm.invertedLight,
-          dark: _vm.dark,
-          dense: _vm.dense,
-          box: _vm.box,
-          "full-width": _vm.fullWidth,
-          outline: _vm.outline,
-          "hide-underline": _vm.hideUnderline,
-          before: _vm.before,
-          after: _vm.after,
-          color: _vm.color,
-          "no-parent-field": _vm.noParentField,
-          focused: _vm.focused,
-          focusable: "",
-          length: _vm.length,
-          "additional-length": _vm.additionalLength
-        },
-        nativeOn: {
-          click: function($event) {
-            return _vm.togglePopup($event)
-          },
-          focus: function($event) {
-            return _vm.__onFocus($event)
-          },
-          blur: function($event) {
-            return _vm.__onBlur($event)
-          },
-          keydown: function($event) {
-            return _vm.__keyboardHandleKey($event)
-          }
-        }
-      },
-      [
-        _vm.hasChips && _vm.selectedOptions.length
-          ? _c(
-              "div",
-              {
-                staticClass: "col row q-input-chips items-center",
-                class: _vm.alignClass
-              },
-              _vm._l(_vm.selectedOptions, function(opt) {
-                return _c(
-                  "div",
-                  { key: opt.label },
-                  [
-                    _c(
-                      "q-chip",
-                      {
-                        attrs: {
-                          dense: "",
-                          closable: _vm.editable && !opt.disable,
-                          color: _vm.__getChipBgColor(opt.color),
-                          "text-color": _vm.__getChipTextColor(opt.color),
-                          icon: opt.icon,
-                          "icon-right": opt.rightIcon,
-                          avatar: opt.avatar
-                        },
-                        on: {
-                          hide: function($event) {
-                            _vm.__toggleMultiple(
-                              opt.value,
-                              _vm.disable || opt.disable
-                            );
-                          }
-                        },
-                        nativeOn: {
-                          click: function($event) {
-                            $event.stopPropagation();
-                          }
-                        }
-                      },
-                      [_vm._v("\n        " + _vm._s(opt.label) + "\n      ")]
-                    )
-                  ],
-                  1
-                )
-              })
-            )
-          : _c(
-              "div",
-              {
-                staticClass: "col q-input-target ellipsis",
-                class: _vm.fakeInputClasses
-              },
-              [_vm._v("\n    " + _vm._s(_vm.fakeInputValue) + "\n  ")]
-            ),
-        _vm._v(" "),
-        _vm.isClearable
-          ? _c("q-icon", {
-              staticClass: "q-if-control",
-              attrs: {
-                slot: "after",
-                name:
-                  _vm.$q.icon.input["clear" + (_vm.isInverted ? "Inverted" : "")]
-              },
-              nativeOn: {
-                click: function($event) {
-                  return _vm.clear($event)
-                }
-              },
-              slot: "after"
-            })
-          : _vm._e(),
-        _vm._v(" "),
-        _c("q-icon", {
-          staticClass: "q-if-control",
-          attrs: { slot: "after", name: _vm.$q.icon.input.dropdown },
-          slot: "after"
-        }),
-        _vm._v(" "),
-        _c(
-          "q-popover",
-          {
-            ref: "popover",
-            staticClass: "column no-wrap",
-            class: _vm.dark ? "bg-dark" : null,
-            attrs: { fit: "", disable: !_vm.editable, "anchor-click": false },
-            on: {
-              show: _vm.__onShow,
-              hide: function($event) {
-                _vm.__onClose(true);
-              }
-            },
-            nativeOn: {
-              keydown: function($event) {
-                return _vm.__keyboardHandleKey($event)
-              }
-            }
-          },
-          [
-            _vm.filter
-              ? _c("q-search", {
-                  ref: "filter",
-                  staticClass: "col-auto q-my-none",
-                  staticStyle: { padding: "10px" },
-                  attrs: {
-                    placeholder:
-                      _vm.filterPlaceholder || _vm.$q.i18n.label.filter,
-                    debounce: 100,
-                    color: _vm.color,
-                    dark: _vm.dark,
-                    "no-parent-field": "",
-                    "no-icon": ""
-                  },
-                  on: { input: _vm.reposition },
-                  model: {
-                    value: _vm.terms,
-                    callback: function($$v) {
-                      _vm.terms = $$v;
-                    },
-                    expression: "terms"
-                  }
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.visibleOptions.length
-              ? _c(
-                  "q-list",
-                  {
-                    staticClass: "no-border scroll",
-                    attrs: { separator: _vm.separator, dark: _vm.dark }
-                  },
-                  [
-                    _vm.multiple
-                      ? _vm._l(_vm.visibleOptions, function(opt, index) {
-                          return _c(
-                            "q-item-wrapper",
-                            {
-                              key: index,
-                              class: [
-                                opt.disable ? "text-faded" : "cursor-pointer",
-                                index === _vm.keyboardIndex
-                                  ? "q-select-highlight"
-                                  : "",
-                                opt.disable ? "" : "cursor-pointer",
-                                opt.className || ""
-                              ],
-                              attrs: { cfg: opt, "slot-replace": "" },
-                              nativeOn: {
-                                "!click": function($event) {
-                                  _vm.__toggleMultiple(opt.value, opt.disable);
-                                },
-                                mouseenter: function($event) {
-                                  return (function(e) {
-                                    return (
-                                      !opt.disable &&
-                                      _vm.__mouseEnterHandler(e, index)
-                                    )
-                                  })($event)
-                                }
-                              }
-                            },
-                            [
-                              _vm.toggle
-                                ? _c("q-toggle", {
-                                    attrs: {
-                                      slot: "right",
-                                      "keep-color": "",
-                                      color: opt.color || _vm.color,
-                                      dark: _vm.dark,
-                                      value: _vm.optModel[opt.index],
-                                      disable: opt.disable,
-                                      "no-focus": ""
-                                    },
-                                    slot: "right"
-                                  })
-                                : _c("q-checkbox", {
-                                    attrs: {
-                                      slot: "left",
-                                      "keep-color": "",
-                                      color: opt.color || _vm.color,
-                                      dark: _vm.dark,
-                                      value: _vm.optModel[opt.index],
-                                      disable: opt.disable,
-                                      "no-focus": ""
-                                    },
-                                    slot: "left"
-                                  })
-                            ],
-                            1
-                          )
-                        })
-                      : _vm._l(_vm.visibleOptions, function(opt, index) {
-                          return _c(
-                            "q-item-wrapper",
-                            {
-                              key: index,
-                              class: [
-                                opt.disable ? "text-faded" : "cursor-pointer",
-                                index === _vm.keyboardIndex
-                                  ? "q-select-highlight"
-                                  : "",
-                                opt.disable ? "" : "cursor-pointer",
-                                opt.className || ""
-                              ],
-                              attrs: {
-                                cfg: opt,
-                                "slot-replace": "",
-                                active: _vm.value === opt.value
-                              },
-                              nativeOn: {
-                                "!click": function($event) {
-                                  _vm.__singleSelect(opt.value, opt.disable);
-                                },
-                                mouseenter: function($event) {
-                                  return (function(e) {
-                                    return (
-                                      !opt.disable &&
-                                      _vm.__mouseEnterHandler(e, index)
-                                    )
-                                  })($event)
-                                }
-                              }
-                            },
-                            [
-                              _vm.radio
-                                ? _c("q-radio", {
-                                    attrs: {
-                                      slot: "left",
-                                      "keep-color": "",
-                                      color: opt.color || _vm.color,
-                                      value: _vm.value,
-                                      val: opt.value,
-                                      disable: opt.disable,
-                                      "no-focus": ""
-                                    },
-                                    slot: "left"
-                                  })
-                                : _vm._e()
-                            ],
-                            1
-                          )
-                        })
-                  ],
-                  2
-                )
-              : _vm._e()
-          ],
-          1
-        )
-      ],
-      1
-    )
-  };
+  var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row q-input-chips items-center",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('div',{key:opt.label},[_c('q-chip',{attrs:{"dense":"","closable":_vm.editable && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"icon-right":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v("\n        "+_vm._s(opt.label)+"\n      ")])],1)})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v("\n    "+_vm._s(_vm.fakeInputValue)+"\n  ")]),_vm._v(" "),(_vm.isClearable)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":!_vm.editable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto q-my-none",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:index,class:[
+              opt.disable ? 'text-faded' : 'cursor-pointer',
+              index === _vm.keyboardIndex ? 'q-select-highlight' : '',
+              opt.disable ? '' : 'cursor-pointer',
+              opt.className || ''
+            ],attrs:{"cfg":opt,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:index,class:[
+              opt.disable ? 'text-faded' : 'cursor-pointer',
+              index === _vm.keyboardIndex ? 'q-select-highlight' : '',
+              opt.disable ? '' : 'cursor-pointer',
+              opt.className || ''
+            ],attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)};
   var __vue_staticRenderFns__$4 = [];
-  __vue_render__$4._withStripped = true;
 
     /* style */
     var __vue_inject_styles__$4 = undefined;
@@ -17836,10 +16715,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script === 'function' ? script.options : script) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\select\\QSelect.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -17872,6 +16747,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
@@ -23207,299 +22093,8 @@
               var __vue_script__$5 = script$5;
               
   /* template */
-  var __vue_render__$5 = function() {
-    var _vm = this;
-    var _h = _vm.$createElement;
-    var _c = _vm._self._c || _h;
-    return _c(
-      "div",
-      {
-        staticClass: "q-uploader relative-position",
-        class: _vm.classes,
-        on: {
-          dragover: function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            return _vm.__onDragOver($event)
-          }
-        }
-      },
-      [
-        _c(
-          "q-input-frame",
-          {
-            ref: "input",
-            attrs: {
-              prefix: _vm.prefix,
-              suffix: _vm.suffix,
-              "stack-label": _vm.stackLabel,
-              "float-label": _vm.floatLabel,
-              error: _vm.error,
-              warning: _vm.warning,
-              disable: _vm.disable,
-              readonly: _vm.readonly,
-              inverted: _vm.inverted,
-              "inverted-light": _vm.invertedLight,
-              dark: _vm.dark,
-              dense: _vm.dense,
-              box: _vm.box,
-              "full-width": _vm.fullWidth,
-              outline: _vm.outline,
-              "hide-underline": _vm.hideUnderline,
-              before: _vm.before,
-              after: _vm.after,
-              color: _vm.color,
-              align: _vm.align,
-              "no-parent-field": _vm.noParentField,
-              length: _vm.queueLength,
-              "additional-length": ""
-            }
-          },
-          [
-            _c(
-              "div",
-              {
-                staticClass: "col q-input-target ellipsis",
-                class: _vm.alignClass
-              },
-              [_vm._v("\n      " + _vm._s(_vm.label) + "\n    ")]
-            ),
-            _vm._v(" "),
-            _vm.uploading
-              ? _c("q-spinner", {
-                  staticClass: "q-if-end self-center",
-                  attrs: { slot: "after", size: "24px" },
-                  slot: "after"
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.uploading
-              ? _c("q-icon", {
-                  staticClass: "q-if-end self-center q-if-control",
-                  attrs: {
-                    slot: "after",
-                    name:
-                      _vm.$q.icon.uploader[
-                        "clear" + (_vm.isInverted ? "Inverted" : "")
-                      ]
-                  },
-                  nativeOn: {
-                    click: function($event) {
-                      return _vm.abort($event)
-                    }
-                  },
-                  slot: "after"
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            !_vm.uploading
-              ? _c(
-                  "q-icon",
-                  {
-                    staticClass:
-                      "q-uploader-pick-button self-center q-if-control relative-position overflow-hidden",
-                    attrs: {
-                      slot: "after",
-                      name: _vm.$q.icon.uploader.add,
-                      disabled: _vm.addDisabled
-                    },
-                    nativeOn: {
-                      click: function($event) {
-                        return _vm.__pick($event)
-                      }
-                    },
-                    slot: "after"
-                  },
-                  [
-                    _c(
-                      "input",
-                      _vm._b(
-                        {
-                          ref: "file",
-                          staticClass:
-                            "q-uploader-input absolute-full cursor-pointer",
-                          attrs: { type: "file", accept: _vm.extensions },
-                          on: { change: _vm.__add }
-                        },
-                        "input",
-                        { multiple: _vm.multiple },
-                        true
-                      )
-                    )
-                  ]
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            !_vm.hideUploadButton && !_vm.uploading
-              ? _c("q-icon", {
-                  staticClass: "q-if-control self-center",
-                  attrs: {
-                    slot: "after",
-                    name: _vm.$q.icon.uploader.upload,
-                    disabled: _vm.queueLength === 0
-                  },
-                  nativeOn: {
-                    click: function($event) {
-                      return _vm.upload($event)
-                    }
-                  },
-                  slot: "after"
-                })
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.hasExpandedContent
-              ? _c("q-icon", {
-                  staticClass: "q-if-control generic_transition self-center",
-                  class: { "rotate-180": _vm.expanded },
-                  attrs: { slot: "after", name: _vm.$q.icon.uploader.expand },
-                  nativeOn: {
-                    click: function($event) {
-                      _vm.expanded = !_vm.expanded;
-                    }
-                  },
-                  slot: "after"
-                })
-              : _vm._e()
-          ],
-          1
-        ),
-        _vm._v(" "),
-        _c("q-slide-transition", [
-          _c(
-            "div",
-            {
-              directives: [
-                {
-                  name: "show",
-                  rawName: "v-show",
-                  value: _vm.expanded,
-                  expression: "expanded"
-                }
-              ],
-              class: _vm.expandClass,
-              style: _vm.expandStyle
-            },
-            [
-              _c(
-                "q-list",
-                {
-                  staticClass: "q-uploader-files q-py-none scroll",
-                  style: _vm.filesStyle,
-                  attrs: { dark: _vm.dark }
-                },
-                _vm._l(_vm.files, function(file) {
-                  return _c(
-                    "q-item",
-                    {
-                      key: file.name + file.__timestamp,
-                      staticClass: "q-uploader-file q-pa-xs"
-                    },
-                    [
-                      !_vm.hideUploadProgress
-                        ? _c("q-progress", {
-                            staticClass: "q-uploader-progress-bg absolute-full",
-                            attrs: {
-                              color: file.__failed
-                                ? "negative"
-                                : _vm.progressColor,
-                              percentage: file.__progress,
-                              height: "100%"
-                            }
-                          })
-                        : _vm._e(),
-                      _vm._v(" "),
-                      !_vm.hideUploadProgress
-                        ? _c(
-                            "div",
-                            { staticClass: "q-uploader-progress-text absolute" },
-                            [
-                              _vm._v(
-                                "\n            " +
-                                  _vm._s(file.__progress) +
-                                  "%\n          "
-                              )
-                            ]
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
-                      file.__img
-                        ? _c("q-item-side", { attrs: { image: file.__img.src } })
-                        : _c("q-item-side", {
-                            attrs: {
-                              icon: _vm.$q.icon.uploader.file,
-                              color: _vm.color
-                            }
-                          }),
-                      _vm._v(" "),
-                      _c("q-item-main", {
-                        attrs: { label: file.name, sublabel: file.__size }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "q-item-side",
-                        { attrs: { right: "" } },
-                        [
-                          _c("q-item-tile", {
-                            staticClass: "cursor-pointer",
-                            attrs: {
-                              icon:
-                                _vm.$q.icon.uploader[
-                                  file.__doneUploading ? "done" : "clear"
-                                ],
-                              color: _vm.color
-                            },
-                            nativeOn: {
-                              click: function($event) {
-                                _vm.__remove(file);
-                              }
-                            }
-                          })
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                })
-              )
-            ],
-            1
-          )
-        ]),
-        _vm._v(" "),
-        _vm.dnd
-          ? _c("div", {
-              staticClass:
-                "q-uploader-dnd flex row items-center justify-center absolute-full",
-              class: _vm.dndClass,
-              on: {
-                dragenter: function($event) {
-                  $event.preventDefault();
-                  $event.stopPropagation();
-                },
-                dragover: function($event) {
-                  $event.preventDefault();
-                  $event.stopPropagation();
-                },
-                dragleave: function($event) {
-                  $event.preventDefault();
-                  $event.stopPropagation();
-                  return _vm.__onDragLeave($event)
-                },
-                drop: function($event) {
-                  $event.preventDefault();
-                  $event.stopPropagation();
-                  return _vm.__onDrop($event)
-                }
-              }
-            })
-          : _vm._e()
-      ],
-      1
-    )
-  };
+  var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v("\n      "+_vm._s(_vm.label)+"\n    ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button self-center q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition self-center",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v("\n            "+_vm._s(file.__progress)+"%\n          ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)};
   var __vue_staticRenderFns__$5 = [];
-  __vue_render__$5._withStripped = true;
 
     /* style */
     var __vue_inject_styles__$5 = undefined;
@@ -23516,10 +22111,6 @@
       createInjector, createInjectorSSR
     ) {
       var component = (typeof script === 'function' ? script.options : script) || {};
-
-      {
-        component.__file = "c:\\work\\quasar\\quasar\\src\\components\\uploader\\QUploader.vue";
-      }
 
       if (!component.render) {
         component.render = template.render;
@@ -23552,6 +22143,17 @@
           var index = style.ids.length;
 
           style.ids.push(id);
+
+          if (css.map) {
+            // https://developer.chrome.com/devtools/docs/javascript-debugging
+            // this makes source maps inside style tags work properly in Chrome
+            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
+            // http://stackoverflow.com/a/26603875
+            code +=
+              '\n/*# sourceMappingURL=data:application/json;base64,' +
+              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
+              ' */';
+          }
 
           if (isOldIE) {
             style.element = style.element || document.querySelector('style[data-group=' + group + ']');
