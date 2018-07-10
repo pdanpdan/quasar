@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.10
+ * Quasar Framework v0.17.0-beta.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -425,7 +425,7 @@
     });
   }
 
-  var version = "0.17.0-beta.10";
+  var version = "0.17.0-beta.12";
 
   var History = {
     __history: [],
@@ -2987,9 +2987,6 @@
 
   var BtnMixin = {
     mixins: [AlignMixin],
-    components: {
-      QIcon: QIcon
-    },
     directives: {
       Ripple: Ripple
     },
@@ -3357,7 +3354,7 @@
           ? [ this.$slots.loading || h(QSpinner) ]
           : [
             this.icon
-              ? h('QIcon', {
+              ? h(QIcon, {
                 'class': { 'on-left': this.label && this.isRectangle },
                 props: { name: this.icon }
               })
@@ -3368,7 +3365,7 @@
             this.$slots.default,
 
             this.iconRight && this.isRectangle
-              ? h('QIcon', {
+              ? h(QIcon, {
                 staticClass: 'on-right',
                 props: { name: this.iconRight }
               })
@@ -3536,12 +3533,6 @@
     }
   }
 
-  function getOverlapMode (anchor, target, median) {
-    if ([anchor, target].indexOf(median) >= 0) { return 'auto' }
-    if (anchor === target) { return 'inclusive' }
-    return 'exclusive'
-  }
-
   function getPositions (anchor, target) {
     var
       a = Object.assign({}, anchor),
@@ -3552,26 +3543,20 @@
       y: ['top', 'bottom'].filter(function (p) { return p !== t.vertical; })
     };
 
-    var overlap = {
-      x: getOverlapMode(a.horizontal, t.horizontal, 'middle'),
-      y: getOverlapMode(a.vertical, t.vertical, 'center')
+    var overlapAuto = {
+      x: [a.horizontal, t.horizontal].indexOf('middle') !== -1,
+      y: [a.vertical, t.vertical].indexOf('center') !== -1
     };
 
-    positions.x.splice(overlap.x === 'auto' ? 0 : 1, 0, 'middle');
-    positions.y.splice(overlap.y === 'auto' ? 0 : 1, 0, 'center');
+    positions.x.splice(overlapAuto.x ? 0 : 1, 0, 'middle');
+    positions.y.splice(overlapAuto.y ? 0 : 1, 0, 'center');
 
-    if (overlap.y !== 'auto') {
+    if (!overlapAuto.y) {
       a.vertical = a.vertical === 'top' ? 'bottom' : 'top';
-      if (overlap.y === 'inclusive') {
-        a.vertical = t.vertical;
-      }
     }
 
-    if (overlap.x !== 'auto') {
+    if (!overlapAuto.x) {
       a.horizontal = a.horizontal === 'left' ? 'right' : 'left';
-      if (overlap.x === 'inclusive') {
-        a.horizontal = t.horizontal;
-      }
     }
 
     return {
@@ -4509,20 +4494,17 @@
           },
           this.$slots.default
         ),
-        Icon = h(
-          'QIcon',
-          {
-            props: {
-              name: this.$q.icon.input.dropdown
-            },
-            staticClass: 'transition-generic',
-            'class': {
-              'rotate-180': this.showing,
-              'on-right': !this.split,
-              'q-btn-dropdown-arrow': !this.split
-            }
+        Icon = h(QIcon, {
+          props: {
+            name: this.$q.icon.input.dropdown
+          },
+          staticClass: 'transition-generic',
+          'class': {
+            'rotate-180': this.showing,
+            'on-right': !this.split,
+            'q-btn-dropdown-arrow': !this.split
           }
-        ),
+        }),
         Btn = h(QBtn, {
           props: Object.assign({}, this.$props, {
             iconRight: this.split ? this.iconRight : null
@@ -4542,44 +4524,37 @@
         return Btn
       }
 
-      return h(
-        QBtnGroup,
-        {
+      return h(QBtnGroup, {
+        props: {
+          outline: this.outline,
+          flat: this.flat,
+          rounded: this.rounded,
+          push: this.push
+        },
+        staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap q-btn-item'
+      },
+      [
+        Btn,
+        h(QBtn, {
           props: {
+            disable: this.disable,
             outline: this.outline,
             flat: this.flat,
             rounded: this.rounded,
-            push: this.push
+            push: this.push,
+            size: this.size,
+            color: this.color,
+            textColor: this.textColor,
+            dense: this.dense,
+            glossy: this.glossy,
+            noRipple: this.noRipple,
+            waitForRipple: this.waitForRipple
           },
-          staticClass: 'q-btn-dropdown q-btn-dropdown-split no-wrap q-btn-item'
-        },
-        [
-          Btn,
-          h(
-            QBtn,
-            {
-              props: {
-                disable: this.disable,
-                outline: this.outline,
-                flat: this.flat,
-                rounded: this.rounded,
-                push: this.push,
-                size: this.size,
-                color: this.color,
-                textColor: this.textColor,
-                dense: this.dense,
-                glossy: this.glossy,
-                noRipple: this.noRipple,
-                waitForRipple: this.waitForRipple
-              },
-              staticClass: 'q-btn-dropdown-arrow',
-              on: { click: function () { this$1.toggle(); } }
-            },
-            [ Icon ]
-          ),
-          [ Popover ]
-        ]
-      )
+          staticClass: 'q-btn-dropdown-arrow',
+          on: { click: function () { this$1.toggle(); } }
+        }, [ Icon ]),
+        [ Popover ]
+      ])
     },
     methods: {
       toggle: function toggle () {
@@ -6456,9 +6431,6 @@
 
   var FrameMixin = {
     mixins: [AlignMixin],
-    components: {
-      QIcon: QIcon
-    },
     props: {
       prefix: String,
       suffix: String,
@@ -6638,7 +6610,7 @@
         });
       },
       __onKeydown: function __onKeydown (e) {
-        if (e.keyCode === 13) {
+        if (this.type !== 'textarea' && e.keyCode === 13) {
           this.__emit();
         }
         this.$emit('keydown', e);
@@ -6699,9 +6671,7 @@
     }
   };
 
-  //
-
-  var script = {
+  var QInputFrame = {
     name: 'QInputFrame',
     mixins: [FrameMixin, ParentFieldMixin],
     props: {
@@ -6788,139 +6758,105 @@
           item.handler(evt);
         }
       }
+    },
+
+    render: function render (h) {
+      var this$1 = this;
+
+      return h('div', {
+        staticClass: 'q-if row no-wrap relative-position',
+        'class': this.classes,
+        attrs: { tabindex: this.focusable && !this.disable ? 0 : -1 },
+        on: { click: this.__onClick }
+      }, [
+        h('div', { staticClass: 'q-if-baseline' }, '|'),
+
+        (this.before && this.before.map(function (item) {
+          return h(QIcon, {
+            key: ("b" + (item.icon)),
+            staticClass: 'q-if-control q-if-control-before',
+            'class': {
+              hidden: this$1.__additionalHidden(item, this$1.hasError, this$1.hasWarning, this$1.length)
+            },
+            props: {
+              name: item.icon
+            },
+            nativeOn: {
+              mousedown: this$1.__onMouseDown,
+              touchstart: this$1.__onMouseDown,
+              click: function (e) { this$1.__baHandler(e, item); }
+            }
+          })
+        })) || void 0,
+
+        h('div', {
+          staticClass: 'q-if-inner col'
+        }, [
+          h('div', { staticClass: 'row no-wrap' }, [
+            (this.prefix && this.isFullWidth && h('span', {
+              staticClass: 'q-if-addon q-if-addon-left',
+              'class': this.addonClass,
+              domProps: {
+                innerHTML: this.prefix
+              }
+            })) || void 0,
+
+            (this.hasLabel && h('div', {
+              staticClass: 'q-if-label',
+              'class': { 'q-if-label-above': this.labelIsAbove },
+              domProps: {
+                innerHTML: this.label
+              }
+            })) || void 0,
+
+            (this.prefix && !this.isFullWidth && h('span', {
+              staticClass: 'q-if-addon q-if-addon-left',
+              'class': this.addonClass,
+              domProps: {
+                innerHTML: this.prefix
+              }
+            })) || void 0
+          ].concat(this.$slots.default).concat([
+            (this.suffix && h('span', {
+              staticClass: 'q-if-addon q-if-addon-right',
+              'class': this.addonClass,
+              domProps: {
+                innerHTML: this.suffix
+              }
+            })) || void 0
+          ])),
+          (this.hasLabel && h('div', {
+            staticClass: 'q-if-label-fake',
+            domProps: {
+              innerHTML: this.label
+            }
+          })) || void 0
+        ]),
+
+        (this.after && this.after.map(function (item) {
+          return h(QIcon, {
+            key: ("a" + (item.icon)),
+            staticClass: 'q-if-control',
+            'class': [item.class, {
+              hidden: this$1.__additionalHidden(item, this$1.hasError, this$1.hasWarning, this$1.length)
+            }],
+            props: {
+              name: item.icon
+            },
+            nativeOn: {
+              mousedown: this$1.__onMouseDown,
+              touchstart: this$1.__onMouseDown,
+              click: function (e) { this$1.__baHandler(e, item); }
+            }
+          })
+        })) || void 0
+      ].concat(this.$slots.after))
     }
   };
 
-  /* script */
-              var __vue_script__ = script;
-              
-  /* template */
-  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-if row no-wrap relative-position",class:_vm.classes,attrs:{"tabindex":_vm.focusable && !_vm.disable ? 0 : -1},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"q-if-baseline"},[_vm._v("|")]),_vm._v(" "),(_vm.before)?_vm._l((_vm.before),function(item){return _c('q-icon',{key:("b" + (item.icon)),staticClass:"q-if-control q-if-control-before",class:{hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)},attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-if-inner col"},[_c('div',{staticClass:"row no-wrap"},[(_vm.prefix && _vm.isFullWidth)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),(_vm.hasLabel)?_c('div',{staticClass:"q-if-label",class:{
-            'q-if-label-above': _vm.labelIsAbove
-          },domProps:{"textContent":_vm._s(_vm.label)}}):_vm._e(),_vm._v(" "),(_vm.prefix && !_vm.isFullWidth)?_c('span',{staticClass:"q-if-addon q-if-addon-left",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.prefix)}}):_vm._e(),_vm._v(" "),_vm._t("default"),_vm._v(" "),(_vm.suffix)?_c('span',{staticClass:"q-if-addon q-if-addon-right",class:_vm.addonClass,domProps:{"textContent":_vm._s(_vm.suffix)}}):_vm._e()],2),_vm._v(" "),(_vm.hasLabel)?_c('div',{staticClass:"q-if-label-fake",domProps:{"textContent":_vm._s(_vm.label)}}):_vm._e()]),_vm._v(" "),(_vm.after)?_vm._l((_vm.after),function(item){return _c('q-icon',{key:("a" + (item.icon)),staticClass:"q-if-control",class:[item.class, {hidden: _vm.__additionalHidden(item, _vm.hasError, _vm.hasWarning, _vm.length)}],attrs:{"name":item.icon},nativeOn:{"mousedown":function($event){return _vm.__onMouseDown($event)},"touchstart":function($event){return _vm.__onMouseDown($event)},"click":function($event){_vm.__baHandler($event, item);}}})}):_vm._e(),_vm._v(" "),_vm._t("after")],2)};
-  var __vue_staticRenderFns__ = [];
-
-    /* style */
-    var __vue_inject_styles__ = undefined;
-    /* scoped */
-    var __vue_scope_id__ = undefined;
-    /* module identifier */
-    var __vue_module_identifier__ = undefined;
-    /* functional template */
-    var __vue_is_functional_template__ = false;
-    /* component normalizer */
-    function __vue_normalize__(
-      template, style, script$$1,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script$$1 === 'function' ? script$$1.options : script$$1) || {};
-
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__.styles || (__vue_create_injector__.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
-            }
-
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
-        }
-      }
-    }
-    /* style inject SSR */
-    
-
-    
-    var QInputFrame = __vue_normalize__(
-      { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
-      __vue_inject_styles__,
-      __vue_script__,
-      __vue_scope_id__,
-      __vue_is_functional_template__,
-      __vue_module_identifier__,
-      __vue_create_injector__,
-      undefined
-    );
-
-  //
-
-  var script$1 = {
+  var QChipsInput = {
     name: 'QChipsInput',
     mixins: [FrameMixin, InputMixin],
-    components: {
-      QInputFrame: QInputFrame,
-      QChip: QChip,
-      QSpinner: QSpinner
-    },
     props: {
       value: {
         type: Array,
@@ -7108,126 +7044,115 @@
     },
     beforeDestroy: function beforeDestroy () {
       this.__watcherUnregister(true);
+    },
+
+    render: function render (h) {
+      var this$1 = this;
+
+      return h(QInputFrame, {
+        staticClass: 'q-chips-input',
+        props: {
+          prefix: this.prefix,
+          suffix: this.suffix,
+          stackLabel: this.stackLabel,
+          floatLabel: this.floatLabel,
+          error: this.error,
+          warning: this.warning,
+          disable: this.disable,
+          readonly: this.readonly,
+          inverted: this.inverted,
+          invertedLight: this.invertedLight,
+          dark: this.dark,
+          dense: this.dense,
+          box: this.box,
+          fullWidth: this.fullWidth,
+          outline: this.outline,
+          hideUnderline: this.hideUnderline,
+          before: this.before,
+          after: this.after,
+          color: this.color,
+          noParentField: this.noParentField,
+          focused: this.focused,
+          length: this.length,
+          additionalLength: this.input.length > 0
+        },
+        on: { click: this.__onClick }
+      }, [
+        h('div', {
+          staticClass: 'col row items-center q-input-chips'
+        },
+        this.model.map(function (label, index) {
+          return h('div', {
+            key: (label + "#" + index),
+            staticClass: 'col-auto'
+          }, [
+            h(QChip, {
+              props: {
+                dense: true,
+                closable: this$1.editable,
+                color: this$1.computedChipBgColor,
+                textColor: this$1.computedChipTextColor
+              },
+              attrs: {
+                tabindex: this$1.editable && this$1.focused ? 0 : -1
+              },
+              on: {
+                blur: this$1.__onInputBlur,
+                focus: this$1.__clearTimer,
+                hide: function () { this$1.remove(index); }
+              },
+              nativeOn: {
+                blur: this$1.__onInputBlur,
+                focus: this$1.__onInputBlur
+              }
+            }, label)
+          ])
+        }).concat([
+          h('div', {
+            staticClass: 'q-input-chips-target col row items-center'
+          }, [
+            h('input', {
+              ref: 'input',
+              staticClass: 'col q-input-target',
+              'class': this.inputClasses,
+              domProps: {
+                value: this.input
+              },
+              attrs: Object.assign({}, this.$attrs, {
+                placeholder: this.inputPlaceholder,
+                disabled: this.disable,
+                readonly: this.readonly
+              }),
+              on: {
+                input: function (e) { this$1.input = e.target.value; },
+                focus: this.__onFocus,
+                blur: this.__onInputBlur,
+                keydown: this.__handleKeyDown,
+                keyup: this.__onKeyup
+              }
+            })
+          ])
+        ])),
+
+        this.isLoading
+          ? h(QSpinner, {
+            slot: 'after',
+            staticClass: 'q-if-control',
+            props: { size: '24px' }
+          })
+          : ((this.editable && h(QIcon, {
+            slot: 'after',
+            staticClass: 'q-if-control',
+            'class': {invisible: this.input.length === 0},
+            nativeOn: {
+              mousedown: this.__clearTimer,
+              touchstart: this.__clearTimer,
+              click: function () { this$1.add(); }
+            }
+          })) || void 0)
+      ].concat(this.$slots.default))
     }
   };
-
-  /* script */
-              var __vue_script__$1 = script$1;
-              
-  /* template */
-  var __vue_render__$1 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-chips-input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.length,"additional-length":_vm.input.length > 0},on:{"click":_vm.__onClick}},[_c('div',{staticClass:"col row q-input-chips items-center"},[_vm._l((_vm.model),function(label,index){return _c('div',{key:(label + "#" + index),staticClass:"col-auto"},[_c('q-chip',{attrs:{"dense":"","closable":_vm.editable,"color":_vm.computedChipBgColor,"text-color":_vm.computedChipTextColor,"tabindex":_vm.editable && _vm.focused ? 0 : -1},on:{"blur":_vm.__onInputBlur,"focus":_vm.__clearTimer,"hide":function($event){_vm.remove(index);}},nativeOn:{"blur":function($event){return _vm.__onInputBlur($event)},"focus":function($event){return _vm.__clearTimer($event)}}},[_vm._v("\n        "+_vm._s(label)+"\n      ")])],1)}),_vm._v(" "),_c('div',{staticClass:"q-input-chips-target col row items-center"},[(((_vm.$attrs).type)==='checkbox')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"checkbox"},domProps:{"checked":Array.isArray(_vm.input)?_vm._i(_vm.input,null)>-1:(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){var $$a=_vm.input,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=null,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.input=$$a.concat([$$v]));}else{$$i>-1&&(_vm.input=$$a.slice(0,$$i).concat($$a.slice($$i+1)));}}else{_vm.input=$$c;}}}},'input',_vm.$attrs,false)):(((_vm.$attrs).type)==='radio')?_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":"radio"},domProps:{"checked":_vm._q(_vm.input,null)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"change":function($event){_vm.input=null;}}},'input',_vm.$attrs,false)):_c('input',_vm._b({directives:[{name:"model",rawName:"v-model",value:(_vm.input),expression:"input"}],ref:"input",staticClass:"col q-input-target",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"type":(_vm.$attrs).type},domProps:{"value":(_vm.input)},on:{"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__handleKeyDown,"keyup":_vm.__onKeyup,"input":function($event){if($event.target.composing){ return; }_vm.input=$event.target.value;}}},'input',_vm.$attrs,false))])],2),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):(_vm.editable)?_c('q-icon',{staticClass:"q-if-control",class:{invisible: !_vm.input.length},attrs:{"slot":"after","name":_vm.computedAddIcon},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){_vm.add();}},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("default")],2)};
-  var __vue_staticRenderFns__$1 = [];
-
-    /* style */
-    var __vue_inject_styles__$1 = undefined;
-    /* scoped */
-    var __vue_scope_id__$1 = undefined;
-    /* module identifier */
-    var __vue_module_identifier__$1 = undefined;
-    /* functional template */
-    var __vue_is_functional_template__$1 = false;
-    /* component normalizer */
-    function __vue_normalize__$1(
-      template, style, script,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script === 'function' ? script.options : script) || {};
-
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__$1() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__$1.styles || (__vue_create_injector__$1.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
-            }
-
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
-        }
-      }
-    }
-    /* style inject SSR */
-    
-
-    
-    var QChipsInput = __vue_normalize__$1(
-      { render: __vue_render__$1, staticRenderFns: __vue_staticRenderFns__$1 },
-      __vue_inject_styles__$1,
-      __vue_script__$1,
-      __vue_scope_id__$1,
-      __vue_is_functional_template__$1,
-      __vue_module_identifier__$1,
-      __vue_create_injector__$1,
-      undefined
-    );
 
   var QItemTile = {
     name: 'QItemTile',
@@ -7916,20 +7841,22 @@
     if ( limit === void 0 ) limit = 250;
 
     var wait = false;
+    var result;
 
     return function () {
       var args = [], len = arguments.length;
       while ( len-- ) args[ len ] = arguments[ len ];
 
       if (wait) {
-        return
+        return result
       }
 
       wait = true;
-      fn.apply(this, args);
+      result = fn.apply(this, args);
       setTimeout(function () {
         wait = false;
       }, limit);
+      return result
     }
   }
 
@@ -8695,7 +8622,7 @@
           }, this.__getPicker(h, true)),
 
         this.isClearable
-          ? h('QIcon', {
+          ? h(QIcon, {
             slot: 'after',
             props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
             nativeOn: { click: this.clear },
@@ -8703,7 +8630,7 @@
           })
           : null,
 
-        h('QIcon', {
+        h(QIcon, {
           slot: 'after',
           props: { name: this.$q.icon.input.dropdown },
           staticClass: 'q-if-control'
@@ -9641,13 +9568,11 @@
     }
   };
 
-  //
-
   function convertToAmPm (hour) {
     return hour === 0 ? 12 : (hour >= 13 ? hour - 12 : hour)
   }
 
-  var script$2 = {
+  var QDatetimePicker = {
     name: 'QDatetimePicker',
     mixins: [DateMixin, ParentFieldMixin, CanRenderMixin],
     props: {
@@ -9662,10 +9587,22 @@
       Ripple: Ripple
     },
     data: function data () {
+      var this$1 = this;
+
       return {
         view: this.__calcView(this.defaultView),
         dragging: false,
-        centerClockPos: 0
+        centerClockPos: 0,
+
+        __amPmEvents: {
+          keyup: function (e) {
+            var key = getEventKey(e);
+            if (key === 13 || key === 32) { // enter, space
+              stopAndPrevent(e);
+              this$1.toggleAmPm();
+            }
+          }
+        }
       }
     },
     watch: {
@@ -9753,11 +9690,9 @@
         var after = this.pmax === null || this.afterMaxDays === false ? 0 : this.afterMaxDays;
         if (this.beforeMinDays > 0 || after) {
           var min = this.beforeMinDays > 0 ? this.beforeMinDays + 1 : 1;
-          return Array.apply(null, {length: this.daysInMonth - min - after + 1}).map(function (day, index) {
-            return index + min
-          })
+          return { min: min, max: this.daysInMonth - after + 1 }
         }
-        return this.daysInMonth
+        return { min: 1, max: this.daysInMonth }
       },
 
       hour: function hour () {
@@ -9940,6 +9875,441 @@
       },
       __repeatTimeout: function __repeatTimeout (count) {
         return Math.max(100, 300 - count * count * 10)
+      },
+
+      __getTopSection: function __getTopSection (h) {
+        var this$1 = this;
+
+        var child = [];
+
+        if (this.typeHasDate) {
+          var content = [
+            h('div', { staticClass: 'q-datetime-weekdaystring col-12' }, [
+              this.weekDayString
+            ]),
+
+            h('div', { staticClass: 'q-datetime-datestring row flex-center' }, [
+              h('span', {
+                staticClass: 'q-datetime-link small col-auto col-md-12',
+                'class': {active: this.view === 'month'},
+                attrs: { tabindex: 0 },
+                on: {
+                  keydown: function (e) {
+                    var key = getEventKey(e);
+                    if (key === 40 || key === 37) { // down, left
+                      stopAndPrevent(e);
+                      this$1.setMonth(this$1.month - 1, true);
+                    }
+                    else if (key === 38 || key === 39) { // up, right
+                      stopAndPrevent(e);
+                      this$1.setMonth(this$1.month + 1, true);
+                    }
+                  }
+                }
+              }, [
+                h('span', {
+                  attrs: { tabindex: -1 },
+                  on: this.disable ? {} : {
+                    click: function () { this$1.view = 'month'; }
+                  }
+                }, [ this.monthString ])
+              ]),
+
+              h('span', {
+                staticClass: 'q-datetime-link col-auto col-md-12',
+                'class': {active: this.view === 'day'},
+                attrs: { tabindex: 0 },
+                on: {
+                  keydown: function (e) {
+                    var key = getEventKey(e);
+                    if (key === 37 || key === 38) { // left, up
+                      stopAndPrevent(e);
+                      this$1.setDay(this$1.day - (key === 37 ? 1 : 7), true);
+                    }
+                    else if (key === 39 || key === 40) { // right, down
+                      stopAndPrevent(e);
+                      this$1.setDay(this$1.day + (key === 39 ? 1 : 7), true);
+                    }
+                  }
+                }
+              }, [
+                h('span', {
+                  attrs: { tabindex: -1 },
+                  on: this.disable ? {} : {
+                    click: function () { this$1.view = 'day'; }
+                  }
+                }, [ this.day ])
+              ]),
+
+              h('span', {
+                staticClass: 'q-datetime-link small col-auto col-md-12',
+                'class': {active: this.view === 'year'},
+                attrs: { tabindex: 0 },
+                on: {
+                  keydown: function (e) {
+                    var key = getEventKey(e);
+                    if (key === 40 || key === 37) { // down, left
+                      stopAndPrevent(e);
+                      this$1.setYear(this$1.year - 1, true);
+                    }
+                    else if (key === 38 || key === 39) { // up, right
+                      stopAndPrevent(e);
+                      this$1.setYear(this$1.year + 1, true);
+                    }
+                  }
+                }
+              }, [
+                h('span', {
+                  attrs: { tabindex: -1 },
+                  on: this.disable ? {} : {
+                    click: function () { this$1.view = 'year'; }
+                  }
+                }, [ this.year ])
+              ])
+            ])
+          ];
+
+          child.push(h('div', content));
+        }
+
+        if (this.typeHasTime) {
+          var content$1 = [
+            h('span', {
+              staticClass: 'q-datetime-link col-md text-right q-pr-sm',
+              'class': {active: this.view === 'hour'},
+              attrs: { tabindex: 0 },
+              on: {
+                keydown: function (e) {
+                  var key = getEventKey(e);
+                  if (key === 40 || key === 37) { // down, left
+                    stopAndPrevent(e);
+                    this$1.setHour(this$1.hour - 1, true);
+                  }
+                  else if (key === 38 || key === 39) { // up, right
+                    stopAndPrevent(e);
+                    this$1.setHour(this$1.hour + 1, true);
+                  }
+                }
+              }
+            }, [
+              h('span', {
+                attrs: { tabindex: -1 },
+                on: this.disable ? {} : {
+                  click: function () { this$1.view = 'hour'; }
+                }
+              }, [ this.hour ])
+            ]),
+
+            h('span', { style: 'opacity:0.6;' }, [ ':' ]),
+
+            h('span', {
+              staticClass: 'q-datetime-link col-md text-left q-pl-sm',
+              'class': {active: this.view === 'minute'},
+              attrs: { tabindex: 0 },
+              on: {
+                keydown: function (e) {
+                  var key = getEventKey(e);
+                  if (key === 40 || key === 37) { // down, left
+                    stopAndPrevent(e);
+                    this$1.setMinute(this$1.minute - 1, true);
+                  }
+                  else if (key === 38 || key === 39) { // up, right
+                    stopAndPrevent(e);
+                    this$1.setHour(this$1.minute + 1, true);
+                  }
+                }
+              }
+            }, [
+              h('span', {
+                attrs: { tabindex: -1 },
+                on: this.disable ? {} : {
+                  click: function () { this$1.view = 'minute'; }
+                }
+              }, [ this.__pad(this.minute) ])
+            ])
+          ];
+
+          child.push(h('div', {
+            staticClass: 'q-datetime-time row flex-center'
+          }, [
+            h('div', {
+              staticClass: 'q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center'
+            }, content$1),
+
+            (!this.computedFormat24h && h('div', {
+              staticClass: 'q-datetime-ampm column col-auto col-md-12 justify-around'
+            }, [
+              h('div', {
+                staticClass: 'q-datetime-link',
+                'class': { active: this.am },
+                attrs: { tabindex: 0 },
+                on: this.__amPmEvents
+              }, [
+                h('span', {
+                  attrs: { tabindex: -1 },
+                  on: { click: this.toggleAmPm }
+                }, [ 'AM' ])
+              ]),
+
+              h('div', {
+                staticClass: 'q-datetime-link',
+                'class': { active: !this.am },
+                attrs: { tabindex: 0 },
+                on: this.__amPmEvents
+              }, [
+                h('span', {
+                  attrs: { tabindex: -1 },
+                  on: { click: this.toggleAmPm }
+                }, [ 'PM' ])
+              ])
+            ]))
+          ]));
+        }
+
+        return h('div', {
+          staticClass: 'q-datetime-header column col-xs-12 col-md-4 justify-center'
+        }, child)
+      },
+
+      __getYearView: function __getYearView (h) {
+        var this$1 = this;
+
+        var
+          content = [],
+          max = this.yearInterval + this.yearMin;
+
+        var loop = function ( i ) {
+          content.push(h(QBtn, {
+            key: ("yi" + i),
+            staticClass: 'q-datetime-btn full-width',
+            'class': {active: i === this$1.year},
+            attrs: { tabindex: -1 },
+            props: {
+              flat: true,
+              disable: !this$1.editable
+            },
+            on: {
+              click: function () {
+                this$1.setYear(i);
+              }
+            }
+          }, [ i ]));
+        };
+
+        for (var i = this.yearMin; i <= max; i++) loop( i );
+
+        return h('div', {
+          staticClass: "q-datetime-view-year full-width full-height"
+        }, content)
+      },
+
+      __getMonthView: function __getMonthView (h) {
+        var this$1 = this;
+
+        var content = [];
+
+        var loop = function ( i ) {
+          content.push(h(QBtn, {
+            key: ("mi" + i),
+            staticClass: 'q-datetime-btn full-width',
+            'class': {active: i + 1 === this$1.month},
+            attrs: { tabindex: -1 },
+            props: {
+              flat: true,
+              disable: !this$1.editable
+            },
+            on: {
+              click: function () {
+                this$1.setMonth(i + 1, true);
+              }
+            }
+          }, [ this$1.$q.i18n.date.months[i] ]));
+        };
+
+        for (var i = this.monthMin; i <= this.monthInterval; i++) loop( i );
+
+        return h('div', {
+          staticClass: "q-datetime-view-month full-width full-height"
+        }, content)
+      },
+
+      __getDayView: function __getDayView (h) {
+        var this$1 = this;
+
+        var days = [];
+
+        for (var i = 1; i <= this.fillerDays; i++) {
+          days.push(h('div', {
+            key: ("fd" + i),
+            staticClass: 'q-datetime-fillerday'
+          }));
+        }
+
+        if (this.min) {
+          for (var i$1 = 1; i$1 <= this.beforeMinDays; i$1++) {
+            days.push(h('div', {
+              key: ("fb" + i$1),
+              staticClass: 'row items-center content-center justify-center disabled'
+            }, [ i$1 ]));
+          }
+        }
+
+        var ref = this.daysInterval;
+        var min = ref.min;
+        var max = ref.max;
+        var loop = function ( i ) {
+          days.push(h('div', {
+            key: ("md" + i),
+            staticClass: 'row items-center content-center justify-center cursor-pointer',
+            'class': [this$1.color && i === this$1.day ? ("text-" + (this$1.color)) : null, {
+              'q-datetime-day-active': this$1.isValid && i === this$1.day,
+              'q-datetime-day-today': i === this$1.today,
+              'disabled': !this$1.editable
+            }],
+            on: {
+              click: function () { this$1.setDay(i); }
+            }
+          }, [
+            h('span', [ i ])
+          ]));
+        };
+
+        for (var i$2 = min; i$2 <= max; i$2++) loop( i$2 );
+
+        if (this.max) {
+          for (var i$3 = 1; i$3 <= this.afterMaxDays; i$3++) {
+            days.push(h('div', {
+              key: ("fa" + i$3),
+              staticClass: 'row items-center content-center justify-center disabled'
+            }, [ (i$3 + this$1.maxDay) ]));
+          }
+        }
+
+        return h('div', { staticClass: 'q-datetime-view-day' }, [
+          h('div', { staticClass: 'row items-center content-center' }, [
+            h(QBtn, {
+              staticClass: 'q-datetime-arrow',
+              attrs: { tabindex: -1 },
+              props: {
+                round: true,
+                dense: true,
+                flat: true,
+                icon: this.dateArrow[0],
+                repeatTimeout: this.__repeatTimeout,
+                disable: this.beforeMinDays > 0 || this.disable || this.readonly
+              },
+              on: {
+                click: function () { this$1.setMonth(this$1.month - 1); }
+              }
+            }),
+
+            h('div', { staticClass: 'col q-datetime-month-stamp' }, [
+              this.monthStamp
+            ]),
+
+            h(QBtn, {
+              staticClass: 'q-datetime-arrow',
+              attrs: { tabindex: -1 },
+              props: {
+                round: true,
+                dense: true,
+                flat: true,
+                icon: this.dateArrow[1],
+                repeatTimeout: this.__repeatTimeout,
+                disable: this.afterMaxDays > 0 || this.disable || this.readonly
+              },
+              on: {
+                click: function () { this$1.setMonth(this$1.month + 1); }
+              }
+            })
+          ]),
+
+          h('div', {
+            staticClass: 'q-datetime-weekdays row items-center justify-start'
+          }, this.headerDayNames.map(function (day) { return h('div', { key: ("dh" + day) }, [ day ]); })),
+
+          h('div', {
+            staticClass: 'q-datetime-days row wrap items-center justify-start content-center'
+          }, days)
+        ])
+      },
+
+      __getClockView: function __getClockView (h) {
+        var this$1 = this;
+
+        var content = [];
+
+        if (this.view === 'hour') {
+          var init, max, cls = '';
+          if (this.computedFormat24h) {
+            init = 0;
+            max = 24;
+            cls = ' fmt24';
+          }
+          else {
+            init = 1;
+            max = 13;
+          }
+          for (var i = init; i < max; i++) {
+            content.push(h('div', {
+              key: ("hi" + i),
+              staticClass: ("q-datetime-clock-position" + cls),
+              'class': [("q-datetime-clock-pos-" + i), i === this$1.hour ? 'active' : '']
+            }, [ h('span', [ i ]) ]));
+          }
+        }
+        else {
+          for (var i$1 = 0; i$1 < 12; i$1++) {
+            var five = i$1 * 5;
+            content.push(h('div', {
+              key: ("mi" + i$1),
+              staticClass: 'q-datetime-clock-position',
+              'class': ['q-datetime-clock-pos-' + i$1, five === this$1.minute ? 'active' : '']
+            }, [
+              h('span', [ five ])
+            ]));
+          }
+        }
+
+        return h('div', {
+          ref: 'clock',
+          staticClass: 'column items-center content-center justify-center'
+        }, [
+          h('div', {
+            staticClass: 'q-datetime-clock cursor-pointer',
+            on: {
+              mousedown: this.__dragStart,
+              mousemove: this.__dragMove,
+              mouseup: this.__dragStop,
+              touchstart: this.__dragStart,
+              touchmove: this.__dragMove,
+              touchend: this.__dragStop
+            }
+          }, [
+            h('div', { staticClass: 'q-datetime-clock-circle full-width full-height' }, [
+              h('div', { staticClass: 'q-datetime-clock-center' }),
+              h('div', {
+                staticClass: 'q-datetime-clock-pointer',
+                style: this.clockPointerStyle
+              }, [ h('span') ]),
+              content
+            ])
+          ])
+        ])
+      },
+
+      __getViewSection: function __getViewSection (h) {
+        switch (this.view) {
+          case 'year':
+            return this.__getYearView(h)
+          case 'month':
+            return this.__getMonthView(h)
+          case 'day':
+            return this.__getDayView(h)
+          case 'hour':
+          case 'minute':
+            return this.__getClockView(h)
+        }
       }
     },
     mounted: function mounted () {
@@ -9948,130 +10318,31 @@
       this.$nextTick(function () {
         this$1.__scrollView();
       });
+    },
+
+    render: function render (h) {
+      if (!this.canRender) { return }
+
+      return h('div', {
+        staticClass: 'q-datetime row',
+        'class': this.classes
+      }, [
+        (!this.minimal && this.__getTopSection(h)) || void 0,
+
+        h('div', {
+          staticClass: 'q-datetime-content col-xs-12 column',
+          'class': this.contentClasses
+        }, [
+          h('div', {
+            ref: 'selector',
+            staticClass: 'q-datetime-selector auto row flex-center'
+          }, [
+            this.__getViewSection(h)
+          ])
+        ].concat(this.$slots.default))
+      ])
     }
   };
-
-  /* script */
-              var __vue_script__$2 = script$2;
-              
-  /* template */
-  var __vue_render__$2 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.canRender)?_c('div',{staticClass:"q-datetime row",class:_vm.classes},[(!_vm.minimal)?_c('div',{staticClass:"q-datetime-header column col-xs-12 col-md-4 justify-center"},[(_vm.typeHasDate)?_c('div',[_c('div',{staticClass:"q-datetime-weekdaystring col-12"},[_vm._v(_vm._s(_vm.weekDayString))]),_vm._v(" "),_c('div',{staticClass:"q-datetime-datestring row flex-center"},[_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'month'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setMonth(_vm.month - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setMonth(_vm.month + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'month');}}},[_vm._v("\n            "+_vm._s(_vm.monthString)+"\n          ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-auto col-md-12",class:{active: _vm.view === 'day'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setDay(_vm.day - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setDay(_vm.day + 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setDay(_vm.day + 7, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setDay(_vm.day - 7, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'day');}}},[_vm._v("\n            "+_vm._s(_vm.day)+"\n          ")])]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link small col-auto col-md-12",class:{active: _vm.view === 'year'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setYear(_vm.year - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setYear(_vm.year + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'year');}}},[_vm._v("\n            "+_vm._s(_vm.year)+"\n          ")])])])]):_vm._e(),_vm._v(" "),(_vm.typeHasTime)?_c('div',{staticClass:"q-datetime-time row flex-center"},[_c('div',{staticClass:"q-datetime-clockstring col-auto col-md-12 row no-wrap flex-center"},[_c('span',{staticClass:"q-datetime-link col-md text-right q-pr-sm",class:{active: _vm.view === 'hour'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setHour(_vm.hour - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setHour(_vm.hour + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'hour');}}},[_vm._v("\n            "+_vm._s(_vm.hour)+"\n          ")])]),_vm._v(" "),_c('span',{staticStyle:{"opacity":"0.6"}},[_vm._v(":")]),_vm._v(" "),_c('span',{staticClass:"q-datetime-link col-md text-left q-pl-sm",class:{active: _vm.view === 'minute'},attrs:{"tabindex":0},on:{"keydown":[function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"down",40,$event.key,["Down","ArrowDown"])&&_vm._k($event.keyCode,"left",37,$event.key,["Left","ArrowLeft"])){ return null; }if('button' in $event && $event.button !== 0){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setMinute(_vm.minute - 1, true);},function($event){if(!('button' in $event)&&_vm._k($event.keyCode,"up",38,$event.key,["Up","ArrowUp"])&&_vm._k($event.keyCode,"right",39,$event.key,["Right","ArrowRight"])){ return null; }if('button' in $event && $event.button !== 2){ return null; }$event.preventDefault();$event.stopPropagation();_vm.setMinute(_vm.minute + 1, true);}]}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){!_vm.disable && (_vm.view = 'minute');}}},[_vm._v("\n            "+_vm._s(_vm.__pad(_vm.minute))+"\n          ")])])]),_vm._v(" "),(!_vm.computedFormat24h)?_c('div',{staticClass:"q-datetime-ampm column col-auto col-md-12 justify-around"},[_c('div',{staticClass:"q-datetime-link",class:{active: _vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }$event.preventDefault();$event.stopPropagation();_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("\n            AM\n          ")])]),_vm._v(" "),_c('div',{staticClass:"q-datetime-link",class:{active: !_vm.am},attrs:{"tabindex":0},on:{"keyup":function($event){if(!('button' in $event)&&$event.keyCode!==13&&$event.keyCode!==32){ return null; }$event.preventDefault();$event.stopPropagation();_vm.toggleAmPm();}}},[_c('span',{attrs:{"tabindex":-1},on:{"click":function($event){_vm.toggleAmPm();}}},[_vm._v("\n            PM\n          ")])])]):_vm._e()]):_vm._e()]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"q-datetime-content col-xs-12 column",class:_vm.contentClasses},[_c('div',{ref:"selector",staticClass:"q-datetime-selector auto row flex-center"},[(_vm.view === 'year')?_c('div',{staticClass:"q-datetime-view-year full-width full-height"},_vm._l((_vm.yearInterval),function(n){return _c('q-btn',{key:("yi" + n),staticClass:"q-datetime-btn full-width",class:{active: n + _vm.yearMin === _vm.year},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setYear(n + _vm.yearMin);}}},[_vm._v("\n          "+_vm._s(n + _vm.yearMin)+"\n        ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'month')?_c('div',{staticClass:"q-datetime-view-month full-width full-height"},_vm._l((_vm.monthInterval),function(index){return _c('q-btn',{key:("mi" + index),staticClass:"q-datetime-btn full-width",class:{active: _vm.month === index + _vm.monthMin},attrs:{"flat":"","disable":!_vm.editable,"tabindex":-1},on:{"click":function($event){_vm.setMonth(index + _vm.monthMin, true);}}},[_vm._v("\n          "+_vm._s(_vm.$q.i18n.date.months[index + _vm.monthMin - 1])+"\n        ")])})):_vm._e(),_vm._v(" "),(_vm.view === 'day')?_c('div',{staticClass:"q-datetime-view-day"},[_c('div',{staticClass:"row items-center content-center"},[_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[0],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.beforeMinDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month - 1);}}}),_vm._v(" "),_c('div',{staticClass:"col q-datetime-month-stamp"},[_vm._v("\n            "+_vm._s(_vm.monthStamp)+"\n          ")]),_vm._v(" "),_c('q-btn',{staticClass:"q-datetime-arrow",attrs:{"round":"","dense":"","flat":"","icon":_vm.dateArrow[1],"repeat-timeout":_vm.__repeatTimeout,"disable":_vm.afterMaxDays > 0 || _vm.disable || _vm.readonly,"tabindex":-1},on:{"click":function($event){_vm.setMonth(_vm.month + 1);}}})],1),_vm._v(" "),_c('div',{staticClass:"q-datetime-weekdays row items-center justify-start"},_vm._l((_vm.headerDayNames),function(day){return _c('div',{key:("dh" + day)},[_vm._v(_vm._s(day))])})),_vm._v(" "),_c('div',{staticClass:"q-datetime-days row wrap items-center justify-start content-center"},[_vm._l((_vm.fillerDays),function(fillerDay){return _c('div',{key:("fd" + fillerDay),staticClass:"q-datetime-fillerday"})}),_vm._v(" "),(_vm.min)?_vm._l((_vm.beforeMinDays),function(fillerDay){return _c('div',{key:("fb" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v("\n              "+_vm._s(fillerDay)+"\n            ")])}):_vm._e(),_vm._v(" "),_vm._l((_vm.daysInterval),function(monthDay){return _c('div',{key:("md" + monthDay),staticClass:"row items-center content-center justify-center cursor-pointer",class:[_vm.color && monthDay === _vm.day ? ("text-" + _vm.color) : null, {
-                'q-datetime-day-active': _vm.isValid && monthDay === _vm.day,
-                'q-datetime-day-today': monthDay === _vm.today,
-                'disabled': !_vm.editable
-              }],on:{"click":function($event){_vm.setDay(monthDay);}}},[_c('span',[_vm._v(_vm._s(monthDay))])])}),_vm._v(" "),(_vm.max)?_vm._l((_vm.afterMaxDays),function(fillerDay){return _c('div',{key:("fa" + fillerDay),staticClass:"row items-center content-center justify-center disabled"},[_vm._v("\n              "+_vm._s(fillerDay + _vm.maxDay)+"\n            ")])}):_vm._e()],2)]):_vm._e(),_vm._v(" "),(_vm.view === 'hour' || _vm.view === 'minute')?_c('div',{ref:"clock",staticClass:"column items-center content-center justify-center"},[(_vm.view === 'hour')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),(_vm.computedFormat24h)?_c('div',_vm._l((24),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position fmt24",class:[("q-datetime-clock-pos-" + (n-1)), (n - 1) === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n - 1))])])})):_c('div',_vm._l((12),function(n){return _c('div',{key:("hi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + n, n === _vm.hour ? 'active' : '']},[_c('span',[_vm._v(_vm._s(n))])])}))])]):_vm._e(),_vm._v(" "),(_vm.view === 'minute')?_c('div',{staticClass:"q-datetime-clock cursor-pointer",on:{"mousedown":_vm.__dragStart,"mousemove":_vm.__dragMove,"mouseup":_vm.__dragStop,"touchstart":_vm.__dragStart,"touchmove":_vm.__dragMove,"touchend":_vm.__dragStop}},[_c('div',{staticClass:"q-datetime-clock-circle full-width full-height"},[_c('div',{staticClass:"q-datetime-clock-center"}),_vm._v(" "),_c('div',{staticClass:"q-datetime-clock-pointer",style:(_vm.clockPointerStyle)},[_c('span')]),_vm._v(" "),_vm._l((12),function(n){return _c('div',{key:("mi" + n),staticClass:"q-datetime-clock-position",class:['q-datetime-clock-pos-' + (n - 1), (n - 1) * 5 === _vm.minute ? 'active' : '']},[_c('span',[_vm._v(_vm._s((n - 1) * 5))])])})],2)]):_vm._e()]):_vm._e()]),_vm._v(" "),_vm._t("default")],2)]):_vm._e()};
-  var __vue_staticRenderFns__$2 = [];
-
-    /* style */
-    var __vue_inject_styles__$2 = undefined;
-    /* scoped */
-    var __vue_scope_id__$2 = undefined;
-    /* module identifier */
-    var __vue_module_identifier__$2 = undefined;
-    /* functional template */
-    var __vue_is_functional_template__$2 = false;
-    /* component normalizer */
-    function __vue_normalize__$2(
-      template, style, script,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script === 'function' ? script.options : script) || {};
-
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__$2() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__$2.styles || (__vue_create_injector__$2.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
-            }
-
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
-        }
-      }
-    }
-    /* style inject SSR */
-    
-
-    
-    var QDatetimePicker = __vue_normalize__$2(
-      { render: __vue_render__$2, staticRenderFns: __vue_staticRenderFns__$2 },
-      __vue_inject_styles__$2,
-      __vue_script__$2,
-      __vue_scope_id__$2,
-      __vue_is_functional_template__$2,
-      __vue_module_identifier__$2,
-      __vue_create_injector__$2,
-      undefined
-    );
 
   var contentCss$1 = {
       maxWidth: '95vw',
@@ -10396,7 +10667,7 @@
           }, this.__getPicker(h, true)),
 
         this.isClearable
-          ? h('QIcon', {
+          ? h(QIcon, {
             slot: 'after',
             props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
             nativeOn: { click: this.clear },
@@ -10404,7 +10675,7 @@
           })
           : null,
 
-        h('QIcon', {
+        h(QIcon, {
           slot: 'after',
           props: { name: this.$q.icon.input.dropdown },
           staticClass: 'q-if-control'
@@ -10523,9 +10794,7 @@
     }
   };
 
-  //
-
-  var script$3 = {
+  var QInput = {
     name: 'QInput',
     mixins: [FrameMixin, InputMixin],
     components: {
@@ -10747,7 +11016,7 @@
       },
       __watcher: function __watcher (value) {
         if (this.isTextarea) {
-          this.__updateArea(value);
+          this.__updateArea();
         }
         if (this.shadow.watched) {
           this.shadow.val = value;
@@ -10766,6 +11035,66 @@
           this.watcher();
           this.watcher = null;
         }
+      },
+
+      __getTextarea: function __getTextarea (h) {
+        return h('div', {
+          staticClass: 'col row relative-position q-input-area-holder'
+        }, [
+          h(QResizeObservable, {
+            on: { resize: this.__updateArea }
+          }),
+
+          h('textarea', {
+            ref: 'shadow',
+            staticClass: 'col q-input-target q-input-shadow absolute-top',
+            domProps: { value: this.model },
+            attrs: Object.assign({}, this.$attrs, { rows: this.rows })
+          }),
+
+          h('textarea', {
+            ref: 'input',
+            staticClass: 'col q-input-target q-input-area',
+            attrs: Object.assign({}, this.$attrs, {
+              placeholder: this.inputPlaceholder,
+              rows: this.rows,
+              disabled: this.disable,
+              readonly: this.readonly
+            }),
+            domProps: { value: this.model },
+            on: {
+              input: this.__set,
+              focus: this.__onFocus,
+              blur: this.__onInputBlur,
+              keydown: this.__onKeydown,
+              keyup: this.__onKeyup
+            }
+          })
+        ])
+      },
+
+      __getInput: function __getInput (h) {
+        return h('input', {
+          ref: 'input',
+          staticClass: 'col q-input-target q-no-input-spinner',
+          'class': this.inputClasses,
+          attrs: Object.assign({}, this.$attrs, {
+            type: this.inputType,
+            placeholder: this.inputPlaceholder,
+            disabled: this.disable,
+            readonly: this.readonly,
+            step: this.computedStep
+          }),
+          domProps: { value: this.model },
+          on: {
+            input: this.__set,
+            focus: this.__onFocus,
+            blur: this.__onInputBlur,
+            keydown: this.__onKeydown,
+            keyup: this.__onKeyup,
+            animationstart: this.__onAnimationStart
+          }
+        })
       }
     },
     mounted: function mounted () {
@@ -10777,126 +11106,92 @@
     },
     beforeDestroy: function beforeDestroy () {
       this.__watcherUnregister(true);
+    },
+
+    render: function render (h) {
+      return h(QInputFrame, {
+        staticClass: 'q-input',
+        'class': this.textClass,
+        props: {
+          prefix: this.prefix,
+          suffix: this.suffix,
+          stackLabel: this.stackLabel,
+          floatLabel: this.floatLabel,
+          placeholder: this.placeholder,
+          error: this.error,
+          warning: this.warning,
+          disable: this.disable,
+          readonly: this.readonly,
+          inverted: this.inverted,
+          invertedLight: this.invertedLight,
+          dark: this.dark,
+          dense: this.dense,
+          box: this.box,
+          fullWidth: this.fullWidth,
+          outline: this.outline,
+          hideUnderline: this.hideUnderline,
+          before: this.before,
+          after: this.after,
+          color: this.color,
+          noParentField: this.noParentField,
+          focused: this.focused,
+          length: this.autofilled + this.length
+        },
+        on: {
+          click: this.__onClick,
+          focus: this.__onFocus
+        }
+      },
+      [].concat(this.$slots.before).concat([
+        this.isTextarea ? this.__getTextarea(h) : this.__getInput(h),
+
+        (!this.disable && this.isPassword && !this.noPassToggle && this.length && h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: {
+            name: this.$q.icon.input[this.showPass ? 'showPass' : 'hidePass']
+          },
+          nativeOn: {
+            mousedown: this.__clearTimer,
+            touchstart: this.__clearTimer,
+            click: this.togglePass
+          }
+        })) || void 0,
+
+        (this.editable && this.keyboardToggle && h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: {
+            name: this.$q.icon.input[this.showNumber ? 'showNumber' : 'hideNumber']
+          },
+          nativeOn: {
+            mousedown: this.__clearTimer,
+            touchstart: this.__clearTimer,
+            click: this.toggleNumber
+          }
+        })) || void 0,
+
+        (this.isClearable && h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: {
+            name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))]
+          },
+          nativeOn: {
+            mousedown: this.__clearTimer,
+            touchstart: this.__clearTimer,
+            click: this.clear
+          }
+        })) || void 0,
+
+        (this.isLoading && h(QSpinner, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: { size: '24px' }
+        })) || void 0
+      ].concat(this.$slots.after).concat(this.$slots.default)))
     }
   };
-
-  /* script */
-              var __vue_script__$3 = script$3;
-              
-  /* template */
-  var __vue_render__$3 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{staticClass:"q-input",class:_vm.textClass,attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"placeholder":_vm.placeholder,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"textarea":_vm.isFixedTextarea,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"length":_vm.autofilled + _vm.length},on:{"click":_vm.__onClick,"focus":_vm.__onFocus}},[_vm._t("before"),_vm._v(" "),(_vm.isTextarea)?[_c('div',{staticClass:"col row relative-position q-input-area-holder"},[_c('q-resize-observable',{on:{"resize":function($event){_vm.__updateArea();}}}),_vm._v(" "),_c('textarea',_vm._b({ref:"shadow",staticClass:"col q-input-target q-input-shadow absolute-top",attrs:{"rows":_vm.rows},domProps:{"value":_vm.model}},'textarea',_vm.$attrs,false)),_vm._v(" "),_c('textarea',_vm._b({ref:"input",staticClass:"col q-input-target q-input-area",attrs:{"rows":_vm.rows,"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup}},'textarea',_vm.$attrs,false))],1)]:_c('input',_vm._b({ref:"input",staticClass:"col q-input-target q-no-input-spinner",class:_vm.inputClasses,attrs:{"placeholder":_vm.inputPlaceholder,"disabled":_vm.disable,"readonly":_vm.readonly,"step":_vm.computedStep,"type":_vm.inputType},domProps:{"value":_vm.model},on:{"input":_vm.__set,"focus":_vm.__onFocus,"blur":_vm.__onInputBlur,"keydown":_vm.__onKeydown,"keyup":_vm.__onKeyup,"animationstart":_vm.__onAnimationStart}},'input',_vm.$attrs,false)),_vm._v(" "),(!_vm.disable && _vm.isPassword && !_vm.noPassToggle && _vm.length)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showPass ? 'showPass' : 'hidePass']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.togglePass($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.editable && _vm.keyboardToggle)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[_vm.showNumber ? 'showNumber' : 'hideNumber']},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.toggleNumber($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isClearable)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"mousedown":function($event){return _vm.__clearTimer($event)},"touchstart":function($event){return _vm.__clearTimer($event)},"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.isLoading)?_c('q-spinner',{staticClass:"q-if-control",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),_vm._t("after"),_vm._v(" "),_vm._t("default")],2)};
-  var __vue_staticRenderFns__$3 = [];
-
-    /* style */
-    var __vue_inject_styles__$3 = undefined;
-    /* scoped */
-    var __vue_scope_id__$3 = undefined;
-    /* module identifier */
-    var __vue_module_identifier__$3 = undefined;
-    /* functional template */
-    var __vue_is_functional_template__$3 = false;
-    /* component normalizer */
-    function __vue_normalize__$3(
-      template, style, script,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script === 'function' ? script.options : script) || {};
-
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__$3() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__$3.styles || (__vue_create_injector__$3.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
-            }
-
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
-        }
-      }
-    }
-    /* style inject SSR */
-    
-
-    
-    var QInput = __vue_normalize__$3(
-      { render: __vue_render__$3, staticRenderFns: __vue_staticRenderFns__$3 },
-      __vue_inject_styles__$3,
-      __vue_script__$3,
-      __vue_scope_id__$3,
-      __vue_is_functional_template__$3,
-      __vue_module_identifier__$3,
-      __vue_create_injector__$3,
-      undefined
-    );
 
   var QRadio = {
     name: 'QRadio',
@@ -14751,14 +15046,13 @@
           ? val
           : otherwise
       },
-      __getBtn: function __getBtn (h, props) {
-        return h(QBtn, Object.assign({
-          props: {
-            color: this.color,
-            flat: true,
-            size: this.size
-          }
-        }, props))
+      __getBtn: function __getBtn (h, data, props) {
+        data.props = Object.assign({
+          color: this.color,
+          flat: true,
+          size: this.size
+        }, props);
+        return h(QBtn, data)
       }
     },
     render: function render (h) {
@@ -14772,46 +15066,42 @@
       if (this.__boundaryLinks) {
         contentStart.push(this.__getBtn(h, {
           key: 'bls',
-          props: {
-            disable: this.disable || this.value <= this.min,
-            icon: this.icons[0]
-          },
           on: {
             click: function () { return this$1.set(this$1.min); }
           }
+        }, {
+          disable: this.disable || this.value <= this.min,
+          icon: this.icons[0]
         }));
         contentEnd.unshift(this.__getBtn(h, {
           key: 'ble',
-          props: {
-            disable: this.disable || this.value >= this.max,
-            icon: this.icons[3]
-          },
           on: {
             click: function () { return this$1.set(this$1.max); }
           }
+        }, {
+          disable: this.disable || this.value >= this.max,
+          icon: this.icons[3]
         }));
       }
 
       if (this.__directionLinks) {
         contentStart.push(this.__getBtn(h, {
           key: 'bdp',
-          props: {
-            disable: this.disable || this.value <= this.min,
-            icon: this.icons[1]
-          },
           on: {
             click: function () { return this$1.setByOffset(-1); }
           }
+        }, {
+          disable: this.disable || this.value <= this.min,
+          icon: this.icons[1]
         }));
         contentEnd.unshift(this.__getBtn(h, {
           key: 'bdn',
-          props: {
-            disable: this.disable || this.value >= this.max,
-            icon: this.icons[2]
-          },
           on: {
             click: function () { return this$1.setByOffset(1); }
           }
+        }, {
+          disable: this.disable || this.value >= this.max,
+          icon: this.icons[2]
         }));
       }
 
@@ -14834,7 +15124,7 @@
           },
           on: {
             input: function (value) { return (this$1.newPage = value); },
-            keydown: function (event$$1) { return (getEventKey(event$$1) === 13 && this$1.__update()); },
+            keydown: function (e) { return (getEventKey(e) === 13 && this$1.__update()); },
             blur: function () { return this$1.__update(); }
           }
         }));
@@ -14881,16 +15171,15 @@
           contentStart.push(this.__getBtn(h, {
             key: 'bns',
             style: style,
-            props: {
-              disable: this.disable,
-              flat: !active,
-              textColor: active ? this.textColor : null,
-              label: this.min,
-              noRipple: true
-            },
             on: {
               click: function () { return this$1.set(this$1.min); }
             }
+          }, {
+            disable: this.disable,
+            flat: !active,
+            textColor: active ? this.textColor : null,
+            label: this.min,
+            noRipple: true
           }));
         }
         if (boundaryEnd) {
@@ -14898,42 +15187,39 @@
           contentEnd.unshift(this.__getBtn(h, {
             key: 'bne',
             style: style,
-            props: {
-              disable: this.disable,
-              flat: !active$1,
-              textColor: active$1 ? this.textColor : null,
-              label: this.max,
-              noRipple: true
-            },
             on: {
               click: function () { return this$1.set(this$1.max); }
             }
+          }, {
+            disable: this.disable,
+            flat: !active$1,
+            textColor: active$1 ? this.textColor : null,
+            label: this.max,
+            noRipple: true
           }));
         }
         if (ellipsesStart) {
           contentStart.push(this.__getBtn(h, {
             key: 'bes',
             style: style,
-            props: {
-              disable: this.disable,
-              label: '…'
-            },
             on: {
               click: function () { return this$1.set(pgFrom - 1); }
             }
+          }, {
+            disable: this.disable,
+            label: '…'
           }));
         }
         if (ellipsesEnd) {
           contentEnd.unshift(this.__getBtn(h, {
             key: 'bee',
             style: style,
-            props: {
-              disable: this.disable,
-              label: '…'
-            },
             on: {
               click: function () { return this$1.set(pgTo + 1); }
             }
+          }, {
+            disable: this.disable,
+            label: '…'
           }));
         }
         var loop = function ( i ) {
@@ -14941,16 +15227,15 @@
           contentMiddle.push(this$1.__getBtn(h, {
             key: ("bpg" + i),
             style: style,
-            props: {
-              disable: this$1.disable,
-              flat: !active$2,
-              textColor: active$2 ? this$1.textColor : null,
-              label: i,
-              noRipple: true
-            },
             on: {
               click: function () { return this$1.set(i); }
             }
+          }, {
+            disable: this$1.disable,
+            flat: !active$2,
+            textColor: active$2 ? this$1.textColor : null,
+            label: i,
+            noRipple: true
           }));
         };
 
@@ -16207,13 +16492,11 @@
     }
   };
 
-  //
-
   function defaultFilterFn (terms, obj) {
     return obj.label.toLowerCase().indexOf(terms) > -1
   }
 
-  var script$4 = {
+  var QSelect = {
     name: 'QSelect',
     mixins: [FrameMixin, KeyboardSelectionMixin],
     components: {
@@ -16232,6 +16515,7 @@
       filter: [Function, Boolean],
       filterPlaceholder: String,
       radio: Boolean,
+      placeholder: String,
       separator: Boolean,
       value: { required: true },
       multiple: Boolean,
@@ -16522,136 +16806,202 @@
           ? 'white'
           : optColor || this.color
       }
+    },
+
+    render: function render (h) {
+      var this$1 = this;
+
+      var child = [];
+
+      if (this.hasChips && this.selectedOptions.length) {
+        var el = h('div', {
+          staticClass: 'col row items-center q-input-chips',
+          'class': this.alignClass
+        }, this.selectedOptions.map(function (opt) {
+          return h('div', {
+            key: opt.label,
+            staticClass: 'col-auto'
+          }, [
+            h(QChip, {
+              props: {
+                dense: true,
+                closable: this$1.editable && !opt.disable,
+                color: this$1.__getChipBgColor(opt.color),
+                textColor: this$1.__getChipTextColor(opt.color),
+                icon: opt.icon,
+                iconRight: opt.rightIcon,
+                avatar: opt.avatar
+              },
+              on: {
+                hide: function () { this$1.__toggleMultiple(opt.value, this$1.disable || opt.disable); }
+              },
+              nativeOn: {
+                click: function (e) { e.stopPropagation(); }
+              }
+            }, [ opt.label ])
+          ])
+        }));
+        child.push(el);
+      }
+      else {
+        var el$1 = h('div', {
+          staticClass: 'col q-input-target ellipsis',
+          'class': this.fakeInputClasses
+        }, [ this.fakeInputValue ]);
+        child.push(el$1);
+      }
+
+      if (this.isClearable) {
+        child.push(h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
+          nativeOn: {
+            click: this.clear
+          }
+        }));
+      }
+
+      child.push(h(QIcon, {
+        slot: 'after',
+        staticClass: 'q-if-control',
+        props: { name: this.$q.icon.input.dropdown }
+      }));
+
+      child.push(h(QPopover, {
+        ref: 'popover',
+        staticClass: 'column no-wrap',
+        'class': this.dark ? 'bg-dark' : null,
+        props: {
+          fit: true,
+          disable: !this.editable,
+          anchorClick: false
+        },
+        on: {
+          show: this.__onShow,
+          hide: function () { this$1.__onClose(true); }
+        },
+        nativeOn: {
+          keydown: this.__keyboardHandleKey
+        }
+      }, [
+        (this.filter && h(QSearch, {
+          ref: 'filter',
+          staticClass: 'col-auto',
+          style: 'padding: 10px;',
+          props: {
+            value: this.terms,
+            placeholder: this.filterPlaceholder || this.$q.i18n.label.filter,
+            debounce: 100,
+            color: this.color,
+            dark: this.dark,
+            noParentField: true,
+            noIcon: true
+          },
+          on: {
+            input: function (val) {
+              this$1.terms = val;
+              this$1.reposition();
+            }
+          }
+        })) || void 0,
+
+        (this.visibleOptions.length && h(QList, {
+          staticClass: 'no-border scroll',
+          props: {
+            separator: this.separator,
+            dark: this.dark
+          }
+        }, this.visibleOptions.map(function (opt, index) {
+          return h(QItemWrapper, {
+            key: index,
+            'class': [
+              opt.disable ? 'text-faded' : 'cursor-pointer',
+              index === this$1.keyboardIndex ? 'q-select-highlight' : '',
+              opt.disable ? '' : 'cursor-pointer',
+              opt.className || ''
+            ],
+            props: {
+              cfg: opt,
+              slotReplace: true,
+              active: this$1.multiple ? void 0 : this$1.value === opt.value
+            },
+            nativeOn: {
+              '!click': function () {
+                var action = this$1.multiple ? '__toggleMultiple' : '__singleSelect';
+                this$1[action](opt.value, opt.disable);
+              },
+              mouseenter: function (e) {
+                !opt.disable && this$1.__mouseEnterHandler(e, index);
+              }
+            }
+          }, [
+            this$1.multiple
+              ? h(this$1.toggle ? QToggle : QCheckbox, {
+                slot: this$1.toggle ? 'right' : 'left',
+                props: {
+                  keepColor: true,
+                  color: opt.color || this$1.color,
+                  dark: this$1.dark,
+                  value: this$1.optModel[opt.index],
+                  disable: opt.disable,
+                  noFocus: true
+                }
+              })
+              : (this$1.radio && h(QRadio, {
+                slot: 'left',
+                props: {
+                  keepColor: true,
+                  color: opt.color || this$1.color,
+                  dark: this$1.dark,
+                  value: this$1.value,
+                  val: opt.value,
+                  disable: opt.disable,
+                  noFocus: true
+                }
+              })) || void 0
+          ])
+        }))) || void 0
+      ]));
+
+      return h(QInputFrame, {
+        ref: 'input',
+        staticClass: 'q-select',
+        props: {
+          prefix: this.prefix,
+          suffix: this.suffix,
+          stackLabel: this.stackLabel,
+          floatLabel: this.floatLabel,
+          error: this.error,
+          warning: this.warning,
+          disable: this.disable,
+          readonly: this.readonly,
+          inverted: this.inverted,
+          invertedLight: this.invertedLight,
+          dark: this.dark,
+          dense: this.dense,
+          box: this.box,
+          fullWidth: this.fullWidth,
+          outline: this.outline,
+          hideUnderline: this.hideUnderline,
+          before: this.before,
+          after: this.after,
+          color: this.color,
+          noParentField: this.noParentField,
+          focused: this.focused,
+          focusable: true,
+          length: this.length,
+          additionalLength: this.additionalLength
+        },
+        nativeOn: {
+          click: this.togglePopup,
+          focus: this.__onFocus,
+          blur: this.__onBlur,
+          keydown: this.__keyboardHandleKey
+        }
+      }, child)
     }
   };
-
-  /* script */
-              var __vue_script__$4 = script$4;
-              
-  /* template */
-  var __vue_render__$4 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('q-input-frame',{ref:"input",staticClass:"q-select",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"no-parent-field":_vm.noParentField,"focused":_vm.focused,"focusable":"","length":_vm.length,"additional-length":_vm.additionalLength},nativeOn:{"click":function($event){return _vm.togglePopup($event)},"focus":function($event){return _vm.__onFocus($event)},"blur":function($event){return _vm.__onBlur($event)},"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.hasChips && _vm.selectedOptions.length)?_c('div',{staticClass:"col row q-input-chips items-center",class:_vm.alignClass},_vm._l((_vm.selectedOptions),function(opt){return _c('div',{key:opt.label},[_c('q-chip',{attrs:{"dense":"","closable":_vm.editable && !opt.disable,"color":_vm.__getChipBgColor(opt.color),"text-color":_vm.__getChipTextColor(opt.color),"icon":opt.icon,"icon-right":opt.rightIcon,"avatar":opt.avatar},on:{"hide":function($event){_vm.__toggleMultiple(opt.value, _vm.disable || opt.disable);}},nativeOn:{"click":function($event){$event.stopPropagation();}}},[_vm._v("\n        "+_vm._s(opt.label)+"\n      ")])],1)})):_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.fakeInputClasses},[_vm._v("\n    "+_vm._s(_vm.fakeInputValue)+"\n  ")]),_vm._v(" "),(_vm.isClearable)?_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.clear($event)}},slot:"after"}):_vm._e(),_vm._v(" "),_c('q-icon',{staticClass:"q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.input.dropdown},slot:"after"}),_vm._v(" "),_c('q-popover',{ref:"popover",staticClass:"column no-wrap",class:_vm.dark ? 'bg-dark' : null,attrs:{"fit":"","disable":!_vm.editable,"anchor-click":false},on:{"show":_vm.__onShow,"hide":function($event){_vm.__onClose(true);}},nativeOn:{"keydown":function($event){return _vm.__keyboardHandleKey($event)}}},[(_vm.filter)?_c('q-search',{ref:"filter",staticClass:"col-auto q-my-none",staticStyle:{"padding":"10px"},attrs:{"placeholder":_vm.filterPlaceholder || _vm.$q.i18n.label.filter,"debounce":100,"color":_vm.color,"dark":_vm.dark,"no-parent-field":"","no-icon":""},on:{"input":_vm.reposition},model:{value:(_vm.terms),callback:function ($$v) {_vm.terms=$$v;},expression:"terms"}}):_vm._e(),_vm._v(" "),(_vm.visibleOptions.length)?_c('q-list',{staticClass:"no-border scroll",attrs:{"separator":_vm.separator,"dark":_vm.dark}},[(_vm.multiple)?_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:index,class:[
-              opt.disable ? 'text-faded' : 'cursor-pointer',
-              index === _vm.keyboardIndex ? 'q-select-highlight' : '',
-              opt.disable ? '' : 'cursor-pointer',
-              opt.className || ''
-            ],attrs:{"cfg":opt,"slot-replace":""},nativeOn:{"!click":function($event){_vm.__toggleMultiple(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.toggle)?_c('q-toggle',{attrs:{"slot":"right","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"right"}):_c('q-checkbox',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"dark":_vm.dark,"value":_vm.optModel[opt.index],"disable":opt.disable,"no-focus":""},slot:"left"})],1)}):_vm._l((_vm.visibleOptions),function(opt,index){return _c('q-item-wrapper',{key:index,class:[
-              opt.disable ? 'text-faded' : 'cursor-pointer',
-              index === _vm.keyboardIndex ? 'q-select-highlight' : '',
-              opt.disable ? '' : 'cursor-pointer',
-              opt.className || ''
-            ],attrs:{"cfg":opt,"slot-replace":"","active":_vm.value === opt.value},nativeOn:{"!click":function($event){_vm.__singleSelect(opt.value, opt.disable);},"mouseenter":function($event){return (function (e) { return !opt.disable && _vm.__mouseEnterHandler(e, index); })($event)}}},[(_vm.radio)?_c('q-radio',{attrs:{"slot":"left","keep-color":"","color":opt.color || _vm.color,"value":_vm.value,"val":opt.value,"disable":opt.disable,"no-focus":""},slot:"left"}):_vm._e()],1)})],2):_vm._e()],1)],1)};
-  var __vue_staticRenderFns__$4 = [];
-
-    /* style */
-    var __vue_inject_styles__$4 = undefined;
-    /* scoped */
-    var __vue_scope_id__$4 = undefined;
-    /* module identifier */
-    var __vue_module_identifier__$4 = undefined;
-    /* functional template */
-    var __vue_is_functional_template__$4 = false;
-    /* component normalizer */
-    function __vue_normalize__$4(
-      template, style, script,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script === 'function' ? script.options : script) || {};
-
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__$4() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__$4.styles || (__vue_create_injector__$4.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
-            }
-
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
-        }
-      }
-    }
-    /* style inject SSR */
-    
-
-    
-    var QSelect = __vue_normalize__$4(
-      { render: __vue_render__$4, staticRenderFns: __vue_staticRenderFns__$4 },
-      __vue_inject_styles__$4,
-      __vue_script__$4,
-      __vue_scope_id__$4,
-      __vue_is_functional_template__$4,
-      __vue_module_identifier__$4,
-      __vue_create_injector__$4,
-      undefined
-    );
 
   var QSpinnerAudio = {
     name: 'QSpinnerAudio',
@@ -21733,8 +22083,6 @@
     }
   };
 
-  //
-
   function initFile (file) {
     file.__doneUploading = false;
     file.__failed = false;
@@ -21742,21 +22090,9 @@
     file.__progress = 0;
   }
 
-  var script$5 = {
+  var QUploader = {
     name: 'QUploader',
     mixins: [FrameMixin],
-    components: {
-      QInputFrame: QInputFrame,
-      QSpinner: QSpinner,
-      QIcon: QIcon,
-      QProgress: QProgress,
-      QList: QList,
-      QItem: QItem,
-      QItemSide: QItemSide,
-      QItemMain: QItemMain,
-      QItemTile: QItemTile,
-      QSlideTransition: QSlideTransition
-    },
     props: {
       name: {
         type: String,
@@ -21878,13 +22214,16 @@
         }
       },
 
-      __onDragOver: function __onDragOver () {
+      __onDragOver: function __onDragOver (e) {
+        stopAndPrevent(e);
         this.dnd = true;
       },
-      __onDragLeave: function __onDragLeave () {
+      __onDragLeave: function __onDragLeave (e) {
+        stopAndPrevent(e);
         this.dnd = false;
       },
       __onDrop: function __onDrop (e) {
+        stopAndPrevent(e);
         this.dnd = false;
         var files = e.dataTransfer.files;
 
@@ -22152,126 +22491,208 @@
         this.__computeTotalSize();
         this.$emit('reset');
       }
-    }
-  };
+    },
 
-  /* script */
-              var __vue_script__$5 = script$5;
-              
-  /* template */
-  var __vue_render__$5 = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"q-uploader relative-position",class:_vm.classes,on:{"dragover":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragOver($event)}}},[_c('q-input-frame',{ref:"input",attrs:{"prefix":_vm.prefix,"suffix":_vm.suffix,"stack-label":_vm.stackLabel,"float-label":_vm.floatLabel,"error":_vm.error,"warning":_vm.warning,"disable":_vm.disable,"readonly":_vm.readonly,"inverted":_vm.inverted,"inverted-light":_vm.invertedLight,"dark":_vm.dark,"dense":_vm.dense,"box":_vm.box,"full-width":_vm.fullWidth,"outline":_vm.outline,"hide-underline":_vm.hideUnderline,"before":_vm.before,"after":_vm.after,"color":_vm.color,"align":_vm.align,"no-parent-field":_vm.noParentField,"length":_vm.queueLength,"additional-length":""}},[_c('div',{staticClass:"col q-input-target ellipsis",class:_vm.alignClass},[_vm._v("\n      "+_vm._s(_vm.label)+"\n    ")]),_vm._v(" "),(_vm.uploading)?_c('q-spinner',{staticClass:"q-if-end self-center",attrs:{"slot":"after","size":"24px"},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.uploading)?_c('q-icon',{staticClass:"q-if-end self-center q-if-control",attrs:{"slot":"after","name":_vm.$q.icon.uploader[("clear" + (_vm.isInverted ? 'Inverted' : ''))]},nativeOn:{"click":function($event){return _vm.abort($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(!_vm.uploading)?_c('q-icon',{staticClass:"q-uploader-pick-button self-center q-if-control relative-position overflow-hidden",attrs:{"slot":"after","name":_vm.$q.icon.uploader.add,"disabled":_vm.addDisabled},nativeOn:{"click":function($event){return _vm.__pick($event)}},slot:"after"},[_c('input',_vm._b({ref:"file",staticClass:"q-uploader-input absolute-full cursor-pointer",attrs:{"type":"file","accept":_vm.extensions},on:{"change":_vm.__add}},'input',{multiple: _vm.multiple},true))]):_vm._e(),_vm._v(" "),(!_vm.hideUploadButton && !_vm.uploading)?_c('q-icon',{staticClass:"q-if-control self-center",attrs:{"slot":"after","name":_vm.$q.icon.uploader.upload,"disabled":_vm.queueLength === 0},nativeOn:{"click":function($event){return _vm.upload($event)}},slot:"after"}):_vm._e(),_vm._v(" "),(_vm.hasExpandedContent)?_c('q-icon',{staticClass:"q-if-control generic_transition self-center",class:{'rotate-180': _vm.expanded},attrs:{"slot":"after","name":_vm.$q.icon.uploader.expand},nativeOn:{"click":function($event){_vm.expanded = !_vm.expanded;}},slot:"after"}):_vm._e()],1),_vm._v(" "),_c('q-slide-transition',[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.expanded),expression:"expanded"}],class:_vm.expandClass,style:(_vm.expandStyle)},[_c('q-list',{staticClass:"q-uploader-files q-py-none scroll",style:(_vm.filesStyle),attrs:{"dark":_vm.dark}},_vm._l((_vm.files),function(file){return _c('q-item',{key:file.name + file.__timestamp,staticClass:"q-uploader-file q-pa-xs"},[(!_vm.hideUploadProgress)?_c('q-progress',{staticClass:"q-uploader-progress-bg absolute-full",attrs:{"color":file.__failed ? 'negative' : _vm.progressColor,"percentage":file.__progress,"height":"100%"}}):_vm._e(),_vm._v(" "),(!_vm.hideUploadProgress)?_c('div',{staticClass:"q-uploader-progress-text absolute"},[_vm._v("\n            "+_vm._s(file.__progress)+"%\n          ")]):_vm._e(),_vm._v(" "),(file.__img)?_c('q-item-side',{attrs:{"image":file.__img.src}}):_c('q-item-side',{attrs:{"icon":_vm.$q.icon.uploader.file,"color":_vm.color}}),_vm._v(" "),_c('q-item-main',{attrs:{"label":file.name,"sublabel":file.__size}}),_vm._v(" "),_c('q-item-side',{attrs:{"right":""}},[_c('q-item-tile',{staticClass:"cursor-pointer",attrs:{"icon":_vm.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],"color":_vm.color},nativeOn:{"click":function($event){_vm.__remove(file);}}})],1)],1)}))],1)]),_vm._v(" "),(_vm.dnd)?_c('div',{staticClass:"q-uploader-dnd flex row items-center justify-center absolute-full",class:_vm.dndClass,on:{"dragenter":function($event){$event.preventDefault();$event.stopPropagation();},"dragover":function($event){$event.preventDefault();$event.stopPropagation();},"dragleave":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDragLeave($event)},"drop":function($event){$event.preventDefault();$event.stopPropagation();return _vm.__onDrop($event)}}}):_vm._e()],1)};
-  var __vue_staticRenderFns__$5 = [];
+    render: function render (h) {
+      var this$1 = this;
 
-    /* style */
-    var __vue_inject_styles__$5 = undefined;
-    /* scoped */
-    var __vue_scope_id__$5 = undefined;
-    /* module identifier */
-    var __vue_module_identifier__$5 = undefined;
-    /* functional template */
-    var __vue_is_functional_template__$5 = false;
-    /* component normalizer */
-    function __vue_normalize__$5(
-      template, style, script,
-      scope, functional, moduleIdentifier,
-      createInjector, createInjectorSSR
-    ) {
-      var component = (typeof script === 'function' ? script.options : script) || {};
+      var child = [
+        h('div', {
+          staticClass: 'col q-input-target ellipsis',
+          'class': this.alignClass
+        }, [ this.label ])
+      ];
 
-      if (!component.render) {
-        component.render = template.render;
-        component.staticRenderFns = template.staticRenderFns;
-        component._compiled = true;
-
-        if (functional) { component.functional = true; }
-      }
-
-      component._scopeId = scope;
-
-      return component
-    }
-    /* style inject */
-    function __vue_create_injector__$5() {
-      var head = document.head || document.getElementsByTagName('head')[0];
-      var styles = __vue_create_injector__$5.styles || (__vue_create_injector__$5.styles = {});
-      var isOldIE =
-        typeof navigator !== 'undefined' &&
-        /msie [6-9]\\b/.test(navigator.userAgent.toLowerCase());
-
-      return function addStyle(id, css) {
-        if (document.querySelector('style[data-vue-ssr-id~="' + id + '"]')) { return } // SSR styles are present.
-
-        var group = isOldIE ? css.media || 'default' : id;
-        var style = styles[group] || (styles[group] = { ids: [], parts: [], element: undefined });
-
-        if (!style.ids.includes(id)) {
-          var code = css.source;
-          var index = style.ids.length;
-
-          style.ids.push(id);
-
-          if (css.map) {
-            // https://developer.chrome.com/devtools/docs/javascript-debugging
-            // this makes source maps inside style tags work properly in Chrome
-            code += '\n/*# sourceURL=' + css.map.sources[0] + ' */';
-            // http://stackoverflow.com/a/26603875
-            code +=
-              '\n/*# sourceMappingURL=data:application/json;base64,' +
-              btoa(unescape(encodeURIComponent(JSON.stringify(css.map)))) +
-              ' */';
-          }
-
-          if (isOldIE) {
-            style.element = style.element || document.querySelector('style[data-group=' + group + ']');
-          }
-
-          if (!style.element) {
-            var el = style.element = document.createElement('style');
-            el.type = 'text/css';
-
-            if (css.media) { el.setAttribute('media', css.media); }
-            if (isOldIE) {
-              el.setAttribute('data-group', group);
-              el.setAttribute('data-next-index', '0');
+      if (this.uploading) {
+        child.push(
+          h(QSpinner, {
+            slot: 'after',
+            staticClass: 'q-if-end self-center',
+            props: { size: '24px' }
+          }),
+          h(QIcon, {
+            slot: 'after',
+            staticClass: 'q-if-end self-center q-if-control',
+            props: {
+              name: this.$q.icon.uploader[("clear" + (this.isInverted ? 'Inverted' : ''))]
+            },
+            nativeOn: {
+              click: this.abort
             }
+          })
+        );
+      }
+      else { // not uploading
+        child.push(
+          h(QIcon, {
+            slot: 'after',
+            staticClass: 'q-uploader-pick-button self-center q-if-control relative-position overflow-hidden',
+            props: {
+              name: this.$q.icon.uploader.add
+            },
+            attrs: {
+              disabled: this.addDisabled
+            }
+          }, [
+            h('input', {
+              ref: 'file',
+              staticClass: 'q-uploader-input absolute-full cursor-pointer',
+              attrs: Object.assign({
+                type: 'file',
+                accept: this.extensions
+              }, this.multiple ? { multiple: true } : {}),
+              on: {
+                change: this.__add
+              }
+            })
+          ])
+        );
 
-            head.appendChild(el);
-          }
-
-          if (isOldIE) {
-            index = parseInt(style.element.getAttribute('data-next-index'));
-            style.element.setAttribute('data-next-index', index + 1);
-          }
-
-          if (style.element.styleSheet) {
-            style.parts.push(code);
-            style.element.styleSheet.cssText = style.parts
-              .filter(Boolean)
-              .join('\n');
-          } else {
-            var textNode = document.createTextNode(code);
-            var nodes = style.element.childNodes;
-            if (nodes[index]) { style.element.removeChild(nodes[index]); }
-            if (nodes.length) { style.element.insertBefore(textNode, nodes[index]); }
-            else { style.element.appendChild(textNode); }
-          }
+        if (!this.hideUploadButton) {
+          child.push(
+            h(QIcon, {
+              slot: 'after',
+              staticClass: 'q-if-control self-center',
+              props: {
+                name: this.$q.icon.uploader.upload
+              },
+              attrs: {
+                disabled: this.queueLength === 0
+              },
+              nativeOn: {
+                click: this.upload
+              }
+            })
+          );
         }
       }
-    }
-    /* style inject SSR */
-    
 
-    
-    var QUploader = __vue_normalize__$5(
-      { render: __vue_render__$5, staticRenderFns: __vue_staticRenderFns__$5 },
-      __vue_inject_styles__$5,
-      __vue_script__$5,
-      __vue_scope_id__$5,
-      __vue_is_functional_template__$5,
-      __vue_module_identifier__$5,
-      __vue_create_injector__$5,
-      undefined
-    );
+      if (this.hasExpandedContent) {
+        child.push(
+          h(QIcon, {
+            slot: 'after',
+            staticClass: 'q-if-control generic_transition self-center',
+            'class': { 'rotate-180': this.expanded },
+            props: {
+              name: this.$q.icon.uploader.expand
+            },
+            nativeOn: {
+              click: function () { this$1.expanded = !this$1.expanded; }
+            }
+          })
+        );
+      }
+
+      return h('div', {
+        staticClass: 'q-uploader relative-position',
+        'class': this.classes,
+        on: { dragover: this.__onDragOver }
+      }, [
+        h(QInputFrame, {
+          ref: 'input',
+          props: {
+            prefix: this.prefix,
+            suffix: this.suffix,
+            stackLabel: this.stackLabel,
+            floatLabel: this.floatLabel,
+            error: this.error,
+            warning: this.warning,
+            readonly: this.readonly,
+            inverted: this.inverted,
+            invertedLight: this.invertedLight,
+            dark: this.dark,
+            dense: this.dense,
+            box: this.box,
+            fullWidth: this.fullWidth,
+            outline: this.outline,
+            hideUnderline: this.hideUnderline,
+            before: this.before,
+            after: this.after,
+            color: this.color,
+            align: this.align,
+            noParentField: this.noParentField,
+            length: this.queueLength,
+            additionalLength: true
+          }
+        }, child),
+
+        h(QSlideTransition, [
+          h('div', {
+            'class': this.expandClass,
+            style: this.expandStyle,
+            directives: [{
+              name: 'show',
+              value: this.expanded
+            }]
+          }, [
+            h(QList, {
+              staticClass: 'q-uploader-files q-py-none scroll',
+              style: this.filesStyle,
+              props: { dark: this.dark }
+            }, this.files.map(function (file) {
+              return h(QItem, {
+                key: file.name + file.__timestamp,
+                staticClass: 'q-uploader-file q-pa-xs'
+              }, [
+                (!this$1.hideUploadProgress && h(QProgress, {
+                  staticClass: 'q-uploader-progress-bg absolute-full',
+                  props: {
+                    color: file.__failed ? 'negative' : this$1.progressColor,
+                    percentage: file.__progress,
+                    height: '100%'
+                  }
+                })) || void 0,
+
+                (!this$1.hideUploadProgress && h('div', {
+                  staticClass: 'q-uploader-progress-text absolute'
+                }, [ file.__progress + '%' ])) || void 0,
+
+                h(QItemSide, {
+                  props: file.__img
+                    ? { image: file.__img.src }
+                    : {
+                      icon: this$1.$q.icon.uploader.file,
+                      color: this$1.color
+                    }
+                }),
+
+                h(QItemMain, {
+                  props: {
+                    label: file.name,
+                    sublabel: file.__size
+                  }
+                }),
+
+                h(QItemSide, { props: { right: true } }, [
+                  h(QItemTile, {
+                    staticClass: 'cursor-pointer',
+                    props: {
+                      icon: this$1.$q.icon.uploader[file.__doneUploading ? 'done' : 'clear'],
+                      color: this$1.color
+                    },
+                    nativeOn: {
+                      click: function () { this$1.__remove(file); }
+                    }
+                  })
+                ])
+              ])
+            }))
+          ])
+        ]),
+
+        (this.dnd && h('div', {
+          staticClass: 'q-uploader-dnd flex row items-center justify-center absolute-full',
+          'class': this.dndClass,
+          on: {
+            dragenter: stopAndPrevent,
+            dragover: stopAndPrevent,
+            dragleave: this.__onDragLeave,
+            drop: this.__onDrop
+          }
+        })) || void 0
+      ])
+    }
+  };
 
   var QVideo = {
     name: 'QVideo',

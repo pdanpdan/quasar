@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.0-beta.10
+ * Quasar Framework v0.17.0-beta.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1221,8 +1221,11 @@ body.desktop .q-carousel-thumbnails img:hover {
 .q-chip-dense .q-icon {
   font-size: 16px;
 }
-.q-input-chips-target {
+.q-input-chips .q-input-chips-target {
   min-width: 70px;
+}
+[dir] .q-input-chips .q-input-chips-target {
+  padding-top: 5px;
 }
 [dir] .q-collapsible-sub-item {
   padding: 8px 16px;
@@ -2331,10 +2334,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-field-label,
 .q-if-control,
 .q-field-bottom {
-  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1), display 0s 0s;
 }
 [dir] .q-if, [dir] .q-if:before, [dir] .q-if-label, [dir] .q-if-addon, [dir] .q-field-icon, [dir] .q-field-label, [dir] .q-if-control, [dir] .q-field-bottom {
-  -webkit-transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  -webkit-transition: all 0.45s cubic-bezier(0.23, 1, 0.32, 1), display 0s 0s;
 }
 .q-if.q-if-full-width:after,
 .q-if.q-if-hide-underline:before,

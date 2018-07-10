@@ -109,23 +109,23 @@ $margin-top-box-dense
   .q-if-label
     position absolute
     transform-origin top left
-    transform translate(0, 0)
+    transform $input-label-transform-base
     &.q-if-label-above
       font-size ($input-font-size * $input-label-top-scale)
-      transform translate(0, (-100 / $input-label-top-scale)%)
+      transform $input-label-transform
       .q-if-dense&
-        transform translate(0, (-120 / $input-dense-label-top-scale)%)
+        transform $input-label-dense-transform
 
 .q-if-box, .q-if-inverted:not(.q-if-textarea)
   .q-if-label
     top 50%
-    transform translate(0, -50%)
+    transform $input-label-box-transform-base
     &.q-if-label-above
       top 4px
-      transform translate(0, 50%)
+      transform $input-label-box-transform
       .q-if-dense&
         top 2px
-        transform translate(0, 50%)
+        transform $input-label-box-dense-transform
   @extends $padding-x
   .q-if-inner
     @extends $margin-y-box
@@ -175,9 +175,9 @@ $margin-top-box-dense
       left $input-padding-x - $input-outline-label-padding-x
       padding-left $input-outline-label-padding-x
       padding-right $input-outline-label-padding-x
-      transform translate(0, (-145 / $input-label-top-scale)%)
+      transform $input-label-outline-transform
       .q-if-dense&
-        transform translate(0, (-150 / $input-dense-label-top-scale)%)
+        transform $input-label-outline-dense-transform
   .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)
     left $input-padding-x + $input-control-size + $input-control-margin
   .q-if-control + .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)

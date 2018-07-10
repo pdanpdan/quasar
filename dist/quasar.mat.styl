@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.10
+ * Quasar Framework v0.17.0-beta.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -707,7 +707,15 @@ $input-textarea-dense-padding-bottom ?= 12px
 $input-textarea-dense-padding-top    ?= 2 * $input-textarea-dense-padding-bottom
 $input-outline-label-padding-x ?= 4px
 $input-inverted-border-radius  ?= $generic-border-radius
-$input-frame-transition        ?= all .45s cubic-bezier(.23, 1, .32, 1)
+$input-label-transform-base          ?= translate(0, 0)
+$input-label-box-transform-base      ?= translate(0, -50%)
+$input-label-transform               ?= translate(0, (-100 / $input-label-top-scale)%)
+$input-label-dense-transform         ?= translate(0, (-120 / $input-dense-label-top-scale)%)
+$input-label-outline-transform       ?= translate(0, (-145 / $input-label-top-scale)%)
+$input-label-outline-dense-transform ?= translate(0, (-150 / $input-dense-label-top-scale)%)
+$input-label-box-transform           ?= translate(0, 50%)
+$input-label-box-dense-transform     ?= translate(0, 50%)
+$input-frame-transition        ?= all .45s cubic-bezier(.23, 1, .32, 1), display 0s 0s
 $input-frame-transition-border ?= transform .45s cubic-bezier(.23, 1, .32, 1), border-left-width 0s .45s, border-right-width 0s .45s
 $toolbar-min-height          ?= 50px
 $toolbar-padding             ?= 4px 12px
@@ -1416,7 +1424,8 @@ $checkbox-size = 21px
     margin-right -2px
   .q-icon
     font-size 16px
-.q-input-chips-target
+.q-input-chips .q-input-chips-target
+  padding-top 5px
   min-width 70px
 .q-collapsible-sub-item
   padding $collapsible-padding
@@ -2064,22 +2073,22 @@ $margin-top-box-dense
   .q-if-label
     position absolute
     transform-origin top left
-    transform translate(0, 0)
+    transform $input-label-transform-base
     &.q-if-label-above
       font-size ($input-font-size * $input-label-top-scale)
-      transform translate(0, (-100 / $input-label-top-scale)%)
+      transform $input-label-transform
       .q-if-dense&
-        transform translate(0, (-120 / $input-dense-label-top-scale)%)
+        transform $input-label-dense-transform
 .q-if-box, .q-if-inverted:not(.q-if-textarea)
   .q-if-label
     top 50%
-    transform translate(0, -50%)
+    transform $input-label-box-transform-base
     &.q-if-label-above
       top 4px
-      transform translate(0, 50%)
+      transform $input-label-box-transform
       .q-if-dense&
         top 2px
-        transform translate(0, 50%)
+        transform $input-label-box-dense-transform
   @extends $padding-x
   .q-if-inner
     @extends $margin-y-box
@@ -2125,9 +2134,9 @@ $margin-top-box-dense
       left $input-padding-x - $input-outline-label-padding-x
       padding-left $input-outline-label-padding-x
       padding-right $input-outline-label-padding-x
-      transform translate(0, (-145 / $input-label-top-scale)%)
+      transform $input-label-outline-transform
       .q-if-dense&
-        transform translate(0, (-150 / $input-dense-label-top-scale)%)
+        transform $input-label-outline-dense-transform
   .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)
     left $input-padding-x + $input-control-size + $input-control-margin
   .q-if-control + .q-if-control + .q-if-inner > div > .q-if-label:not(.q-if-label-above)
