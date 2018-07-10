@@ -7021,8 +7021,8 @@
         h('div', {
           staticClass: 'q-if-inner col'
         }, [
-          h('div', { staticClass: 'row no-wrap' }, [
-            (this.prefix && this.isFullWidth && h('span', {
+          h('div', { staticClass: 'row no-wrap relative-position' }, [
+            (this.prefix && h('span', {
               staticClass: 'q-if-addon q-if-addon-left',
               'class': this.addonClass,
               domProps: {
@@ -7032,20 +7032,15 @@
 
             (this.hasLabel && h('div', {
               staticClass: 'q-if-label',
-              'class': { 'q-if-label-above': this.labelIsAbove },
-              domProps: {
-                innerHTML: this.label
-              }
-            })) || void 0,
-
-            (this.prefix && !this.isFullWidth && h('span', {
-              staticClass: 'q-if-addon q-if-addon-left',
-              'class': this.addonClass,
-              domProps: {
-                innerHTML: this.prefix
-              }
-            })) || void 0
-          ].concat(this.$slots.default).concat([
+              'class': { 'q-if-label-above': this.labelIsAbove }
+            }, [
+              this.isFullWidth ? this.$slots.default : void 0,
+              h('div', {
+                staticClass: 'q-if-label-inner ellipsis',
+                domProps: { innerHTML: this.label }
+              })
+            ])) || void 0
+          ].concat(this.hasLabel && this.isFullWidth ? [] : this.$slots.default).concat([
             (this.suffix && h('span', {
               staticClass: 'q-if-addon q-if-addon-right',
               'class': this.addonClass,
@@ -7317,7 +7312,8 @@
           }, [
             h(QChip, {
               props: {
-                dense: true,
+                small: true,
+                dense: this$1.dense,
                 closable: this$1.editable,
                 color: this$1.computedChipBgColor,
                 textColor: this$1.computedChipTextColor
@@ -10953,6 +10949,7 @@
           fullWidth: this.fullWidth,
           outline: this.outline,
           hideUnderline: this.hideUnderline,
+          textarea: this.isFixedTextarea,
           before: this.before,
           after: this.after,
           color: this.color,
@@ -16650,7 +16647,8 @@
           }, [
             h(QChip, {
               props: {
-                dense: true,
+                small: true,
+                dense: this$1.dense,
                 closable: this$1.editable && !opt.disable,
                 color: this$1.__getChipBgColor(opt.color),
                 textColor: this$1.__getChipTextColor(opt.color),

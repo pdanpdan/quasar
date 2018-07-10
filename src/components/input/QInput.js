@@ -338,6 +338,7 @@ export default {
         fullWidth: this.fullWidth,
         outline: this.outline,
         hideUnderline: this.hideUnderline,
+        textarea: this.isFixedTextarea,
         before: this.before,
         after: this.after,
         color: this.color,

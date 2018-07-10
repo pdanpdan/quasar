@@ -325,7 +325,8 @@ export default {
         }, [
           h(QChip, {
             props: {
-              dense: true,
+              small: true,
+              dense: this.dense,
               closable: this.editable && !opt.disable,
               color: this.__getChipBgColor(opt.color),
               textColor: this.__getChipTextColor(opt.color),

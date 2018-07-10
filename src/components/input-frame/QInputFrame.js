@@ -119,8 +119,8 @@ export default {
       h('div', {
         staticClass: 'q-if-inner col'
       }, [
-        h('div', { staticClass: 'row no-wrap' }, [
-          (this.prefix && this.isFullWidth && h('span', {
+        h('div', { staticClass: 'row no-wrap relative-position' }, [
+          (this.prefix && h('span', {
             staticClass: 'q-if-addon q-if-addon-left',
             'class': this.addonClass,
             domProps: {
@@ -130,20 +130,15 @@ export default {
 
           (this.hasLabel && h('div', {
             staticClass: 'q-if-label',
-            'class': { 'q-if-label-above': this.labelIsAbove },
-            domProps: {
-              innerHTML: this.label
-            }
-          })) || void 0,
-
-          (this.prefix && !this.isFullWidth && h('span', {
-            staticClass: 'q-if-addon q-if-addon-left',
-            'class': this.addonClass,
-            domProps: {
-              innerHTML: this.prefix
-            }
-          })) || void 0
-        ].concat(this.$slots.default).concat([
+            'class': { 'q-if-label-above': this.labelIsAbove }
+          }, [
+            this.isFullWidth ? this.$slots.default : void 0,
+            h('div', {
+              staticClass: 'q-if-label-inner ellipsis',
+              domProps: { innerHTML: this.label }
+            })
+          ])) || void 0
+        ].concat(this.hasLabel && this.isFullWidth ? [] : this.$slots.default).concat([
           (this.suffix && h('span', {
             staticClass: 'q-if-addon q-if-addon-right',
             'class': this.addonClass,

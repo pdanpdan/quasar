@@ -232,7 +232,8 @@ export default {
         }, [
           h(QChip, {
             props: {
-              dense: true,
+              small: true,
+              dense: this.dense,
               closable: this.editable,
               color: this.computedChipBgColor,
               textColor: this.computedChipTextColor
