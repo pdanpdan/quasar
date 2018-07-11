@@ -59,6 +59,7 @@ export default {
               value: rowsPerPage,
               options: this.computedRowsPerPageOptions,
               dark: this.dark,
+              dense: true,
               hideUnderline: true
             },
             on: {

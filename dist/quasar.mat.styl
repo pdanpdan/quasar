@@ -707,14 +707,15 @@ $input-textarea-dense-padding-bottom ?= 12px
 $input-textarea-dense-padding-top    ?= 2 * $input-textarea-dense-padding-bottom
 $input-outline-label-padding-x ?= 4px
 $input-inverted-border-radius  ?= $generic-border-radius
-$input-label-transform-base          ?= translate(0, 0)
-$input-label-box-transform-base      ?= translate(0, -100%)
-$input-label-transform               ?= translate(0, (-100 / $input-label-top-scale)%)
-$input-label-dense-transform         ?= translate(0, (-120 / $input-dense-label-top-scale)%)
-$input-label-outline-transform       ?= translate(0, (-145 / $input-label-top-scale)%)
-$input-label-outline-dense-transform ?= translate(0, (-150 / $input-dense-label-top-scale)%)
-$input-label-box-transform           ?= translate(0, -150%)
-$input-label-box-dense-transform     ?= translate(0, -150%)
+$input-label-transform-base           ?= translate(0, 0)
+$input-label-box-transform-base       ?= translate(0, -21px)
+$input-label-box-dense-transform-base ?= translate(0, -22px)
+$input-label-transform                ?= translate(0, -100%)
+$input-label-dense-transform          ?= translate(0, -100%)
+$input-label-outline-transform        ?= translate(0, -140%)
+$input-label-outline-dense-transform  ?= translate(0, -115%)
+$input-label-box-transform            ?= translate(0, -125%)
+$input-label-box-dense-transform      ?= translate(0, -120%)
 $input-frame-transition        ?= all .45s cubic-bezier(.23, 1, .32, 1), display 0s 0s
 $input-frame-transition-border ?= transform .45s cubic-bezier(.23, 1, .32, 1), border-left-width 0s .45s, border-right-width 0s .45s
 $toolbar-min-height          ?= 50px
@@ -1425,22 +1426,17 @@ $checkbox-size = 21px
   .q-icon
     font-size 16px
 .q-input-chips
-  margin-top -8px
+  line-height 28px
+  margin-top -6px
   margin-bottom -2px
   margin-left -8px
   > div
-    padding-top 4px
-    padding-left 8px
+    margin-top 4px
+    margin-left 8px
   .q-input-chips-target
-    padding-top 4px
     min-width 70px
-    min-height 30px
-  .q-if-dense &
-    margin-top -5px
-    margin-bottom 1px
-    .q-input-chips-target
-      margin-top -2px
-      min-height 24px
+    .q-input-target
+      line-height 28px
 .q-collapsible-sub-item
   padding $collapsible-padding
   &.indent
@@ -2065,8 +2061,6 @@ $margin-top-box-dense
   margin-bottom $input-margin-bottom
   .q-if-inner
     min-height $input-min-height
-    align-items flex-start
-    padding-top 4px
 .q-if-dense
   font-size $input-dense-font-size
   margin-top $input-dense-margin-top
@@ -2089,17 +2083,20 @@ $margin-top-box-dense
     &.q-if-label-above
       font-size ($input-font-size * $input-label-top-scale)
       transform $input-label-transform
+      line-height $input-control-size * $input-label-top-scale
       .q-if-dense&
         transform $input-label-dense-transform
 .q-if-box, .q-if-inverted:not(.q-if-textarea)
   .q-if-label
     top 50%
     transform $input-label-box-transform-base
+    .q-if-dense&
+      transform $input-label-box-dense-transform-base
     &.q-if-label-above
       top 4px
       transform $input-label-box-transform
       .q-if-dense&
-        top 2px
+        top 3px
         transform $input-label-box-dense-transform
   @extends $padding-x
   .q-if-inner
@@ -2207,6 +2204,8 @@ $margin-top-box-dense
 .q-if-focusable
   outline 0
   cursor pointer
+.q-if-label, .q-input-target, .q-input-target-placeholder
+  line-height $input-control-size
 .q-if-control
   font-size $input-control-size
   width $input-control-size
@@ -2222,8 +2221,7 @@ $margin-top-box-dense
 .q-if-baseline
   width 0
   visibility hidden
-  .q-if-standard &
-    padding-top 4px
+  line-height $input-control-size
 .q-if-label-inner, .q-if-label-fake, .q-if-baseline
   pointer-events none
   user-select none
@@ -2236,6 +2234,7 @@ $margin-top-box-dense
   overflow hidden
 .q-if-label, .q-if-addon, .q-if-control
   color $form-dark
+  line-height $input-control-size
 .q-if-inverted
   .q-if-label, .q-if-addon, .q-if-control
     color #ddd
@@ -2271,7 +2270,7 @@ $margin-top-box-dense
   display flex
   align-items center
   color black
-  line-height inherit
+  line-height $input-control-size
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -2284,13 +2283,11 @@ $margin-top-box-dense
     height 0
   &:invalid
     box-shadow inherit
-.q-input-target
-  min-width 24px !important
-  &:before
-    content '|'
-    line-height inherit
-    width 0
-    color transparent
+.q-input-target:before
+  content '|'
+  line-height $input-control-size
+  width 0
+  color transparent
 .q-input-shadow
   overflow hidden
   visibility hidden
@@ -3506,8 +3503,6 @@ body.desktop .q-tab
   width 1px
 .q-table-bottom-item
   margin-right 24px
-  &.q-if
-    font-size 13px
 .q-table-horizontal-separator
   thead, tbody td
     border-width 0 0 1px 0

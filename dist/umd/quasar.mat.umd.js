@@ -7099,7 +7099,7 @@
               },
               nativeOn: {
                 blur: this$1.__onInputBlur,
-                focus: this$1.__onInputBlur
+                focus: this$1.__clearTimer
               }
             }, label)
           ])
@@ -7139,7 +7139,8 @@
           : ((this.editable && h(QIcon, {
             slot: 'after',
             staticClass: 'q-if-control',
-            'class': {invisible: this.input.length === 0},
+            'class': { invisible: this.input.length === 0 },
+            props: { name: this.computedAddIcon },
             nativeOn: {
               mousedown: this.__clearTimer,
               touchstart: this.__clearTimer,
@@ -20666,6 +20667,7 @@
                 value: rowsPerPage,
                 options: this.computedRowsPerPageOptions,
                 dark: this.dark,
+                dense: true,
                 hideUnderline: true
               },
               on: {

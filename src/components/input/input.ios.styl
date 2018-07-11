@@ -17,7 +17,7 @@
   display flex
   align-items center
   color black
-  line-height inherit
+  line-height $input-control-size
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -31,11 +31,9 @@
   &:invalid
     box-shadow inherit
 
-.q-input-target
-  min-width 24px !important
-  &:before
+.q-input-target:before
     content '|'
-    line-height inherit
+    line-height $input-control-size
     width 0
     color transparent
 

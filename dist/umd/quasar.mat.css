@@ -920,26 +920,20 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 16px;
 }
 .q-input-chips {
-  margin-top: -8px;
+  line-height: 28px;
+  margin-top: -6px;
   margin-bottom: -2px;
   margin-left: -8px;
 }
 .q-input-chips > div {
-  padding-top: 4px;
-  padding-left: 8px;
+  margin-top: 4px;
+  margin-left: 8px;
 }
 .q-input-chips .q-input-chips-target {
-  padding-top: 4px;
   min-width: 70px;
-  min-height: 30px;
 }
-.q-if-dense .q-input-chips {
-  margin-top: -5px;
-  margin-bottom: 1px;
-}
-.q-if-dense .q-input-chips .q-input-chips-target {
-  margin-top: -2px;
-  min-height: 24px;
+.q-input-chips .q-input-chips-target .q-input-target {
+  line-height: 28px;
 }
 .q-collapsible-sub-item {
   padding: 8px 16px;
@@ -1964,10 +1958,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if .q-if-inner {
   min-height: 24px;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  padding-top: 4px;
 }
 .q-if-dense {
   font-size: 0.813rem;
@@ -2005,34 +1995,40 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-outline .q-if-label.q-if-label-above,
 .q-if-textarea .q-if-label.q-if-label-above {
   font-size: 0.75rem;
-  -webkit-transform: translate(0, -133.33333333333334%);
-          transform: translate(0, -133.33333333333334%);
+  -webkit-transform: translate(0, -100%);
+          transform: translate(0, -100%);
+  line-height: 18px;
 }
 .q-if-dense.q-if-standard .q-if-label.q-if-label-above,
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
 .q-if-dense.q-if-inverted .q-if-label.q-if-label-above,
 .q-if-dense.q-if-outline .q-if-label.q-if-label-above,
 .q-if-dense.q-if-textarea .q-if-label.q-if-label-above {
-  -webkit-transform: translate(0, -133.347001537673%);
-          transform: translate(0, -133.347001537673%);
+  -webkit-transform: translate(0, -100%);
+          transform: translate(0, -100%);
 }
 .q-if-box .q-if-label,
 .q-if-inverted:not(.q-if-textarea) .q-if-label {
   top: 50%;
-  -webkit-transform: translate(0, -100%);
-          transform: translate(0, -100%);
+  -webkit-transform: translate(0, -21px);
+          transform: translate(0, -21px);
+}
+.q-if-dense.q-if-box .q-if-label,
+.q-if-dense.q-if-inverted:not(.q-if-textarea) .q-if-label {
+  -webkit-transform: translate(0, -22px);
+          transform: translate(0, -22px);
 }
 .q-if-box .q-if-label.q-if-label-above,
 .q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
   top: 4px;
-  -webkit-transform: translate(0, -150%);
-          transform: translate(0, -150%);
+  -webkit-transform: translate(0, -125%);
+          transform: translate(0, -125%);
 }
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
 .q-if-dense.q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
-  top: 2px;
-  -webkit-transform: translate(0, -150%);
-          transform: translate(0, -150%);
+  top: 3px;
+  -webkit-transform: translate(0, -120%);
+          transform: translate(0, -120%);
 }
 .q-if-box {
   background: rgba(0,0,0,0.06);
@@ -2068,12 +2064,12 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   left: -4px;
   padding-left: 4px;
   padding-right: 4px;
-  -webkit-transform: translate(0, -193.33333333333334%);
-          transform: translate(0, -193.33333333333334%);
+  -webkit-transform: translate(0, -140%);
+          transform: translate(0, -140%);
 }
 .q-if-dense.q-if-outline .q-if-label.q-if-label-above {
-  -webkit-transform: translate(0, -166.68375192209123%);
-          transform: translate(0, -166.68375192209123%);
+  -webkit-transform: translate(0, -115%);
+          transform: translate(0, -115%);
 }
 .q-if-outline .q-if-control + .q-if-inner > div > .q-if-label-above {
   left: -32px;
@@ -2151,6 +2147,11 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   outline: 0;
   cursor: pointer;
 }
+.q-if-label,
+.q-input-target,
+.q-input-target-placeholder {
+  line-height: 24px;
+}
 .q-if-control {
   font-size: 24px;
   width: 24px;
@@ -2172,9 +2173,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-baseline {
   width: 0;
   visibility: hidden;
-}
-.q-if-standard .q-if-baseline {
-  padding-top: 4px;
+  line-height: 24px;
 }
 .q-if-label-inner,
 .q-if-label-fake,
@@ -2198,6 +2197,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-addon,
 .q-if-control {
   color: #979797;
+  line-height: 24px;
 }
 .q-if-inverted .q-if-label,
 .q-if-inverted .q-if-addon,
@@ -2241,7 +2241,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
       -ms-flex-align: center;
           align-items: center;
   color: #000;
-  line-height: inherit;
+  line-height: 24px;
 }
 .q-input-target:-webkit-autofill,
 .q-input-shadow:-webkit-autofill {
@@ -2266,12 +2266,9 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   -webkit-box-shadow: inherit;
           box-shadow: inherit;
 }
-.q-input-target {
-  min-width: 24px !important;
-}
 .q-input-target:before {
   content: '|';
-  line-height: inherit;
+  line-height: 24px;
   width: 0;
   color: transparent;
 }
@@ -4000,9 +3997,6 @@ body.desktop .q-tab:hover:before {
 }
 .q-table-bottom-item {
   margin-right: 24px;
-}
-.q-table-bottom-item.q-if {
-  font-size: 13px;
 }
 .q-table-horizontal-separator thead,
 .q-table-horizontal-separator tbody td {
