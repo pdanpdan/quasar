@@ -22818,8 +22818,14 @@
     TouchSwipe: TouchSwipe
   });
 
+  function objectWithoutProperties (obj, exclude) { var target = {}; for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k) && exclude.indexOf(k) === -1) target[k] = obj[k]; return target; }
+
   function modalFn (Component, Vue$$1) {
-    return function (props, resolver) {
+    return function (ref, resolver) {
+      var className = ref.className;
+      var rest = objectWithoutProperties( ref, ["className"] );
+      var props = rest;
+
       return new Promise(function (resolve, reject) {
         if (isSSR) { return resolve() }
 
@@ -22842,8 +22848,9 @@
             return { props: props }
           },
           render: function (h) { return h(Component, {
-            props: props,
             ref: 'modal',
+            props: props,
+            'class': className,
             on: {
               ok: ok,
               cancel: cancel
@@ -23214,6 +23221,38 @@
       var Vue$$1 = ref.Vue;
 
       this.create = $q.dialog = modalFn(QDialog, Vue$$1);
+    }
+  };
+
+  var loadingBar = {
+    start: function start () {},
+    stop: function stop () {},
+    increment: function increment () {},
+
+    install: function install (ref) {
+      var $q = ref.$q;
+      var Vue$$1 = ref.Vue;
+      var cfg = ref.cfg;
+
+      if (isSSR) {
+        $q.loadingBar = this;
+        return
+      }
+
+      var bar = $q.loadingBar = new Vue$$1({
+        render: function (h) { return h(QAjaxBar, {
+          ref: 'bar',
+          props: cfg.loadingBar
+        }); }
+      }).$mount().$refs.bar;
+
+      Object.assign(this, {
+        start: bar.start,
+        stop: bar.stop,
+        increment: bar.increment
+      });
+
+      document.body.appendChild($q.loadingBar.$parent.$el);
     }
   };
 
@@ -23820,6 +23859,7 @@
     AppVisibility: appVisibility,
     Cookies: cookies,
     Dialog: dialog,
+    LoadingBar: loadingBar,
     Loading: loading,
     Notify: notify,
     Platform: Platform,

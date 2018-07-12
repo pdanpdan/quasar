@@ -134,6 +134,7 @@ const map = {
   "AppVisibility": "src\\plugins\\app-visibility.js",
   "Cookies": "src\\plugins\\cookies.js",
   "Dialog": "src\\plugins\\dialog.js",
+  "LoadingBar": "src\\plugins\\loading-bar.js",
   "Loading": "src\\plugins\\loading.js",
   "LocalStorage": "src\\plugins\\local-storage.js",
   "Notify": "src\\plugins\\notify.js",
