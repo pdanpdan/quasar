@@ -24,7 +24,6 @@ export default {
   },
   render (h) {
     return h(QSelect, {
-      staticClass: 'q-my-none q-py-none',
       props: {
         multiple: true,
         toggle: true,

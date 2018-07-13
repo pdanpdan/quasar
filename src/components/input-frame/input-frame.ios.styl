@@ -77,15 +77,11 @@ $margin-top-box-dense
   outline 0
   align-items center
   font-size $input-font-size
-  margin-top $input-margin-top
-  margin-bottom $input-margin-bottom
   .q-if-inner
     min-height $input-min-height
 
 .q-if-dense
   font-size $input-dense-font-size
-  margin-top $input-dense-margin-top
-  margin-bottom $input-dense-margin-bottom
 
 .q-if-standard
   padding-top $input-padding-bottom
@@ -101,6 +97,7 @@ $margin-top-box-dense
 .q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline, .q-if-textarea
   .q-if-label
     position absolute
+    left 0
     transform-origin top left
     transform $input-label-transform-base
     &.q-if-label-above
@@ -165,7 +162,6 @@ $margin-top-box-dense
   &.q-if-dense
     @extends $padding-y-full-width-dense
   .q-if-label
-    left 0
     z-index 1
     &.q-if-label-above
       left -($input-outline-label-padding-x)
@@ -181,11 +177,15 @@ $margin-top-box-dense
 
 .q-if-textarea
   .q-if-inner
-    margin-top $input-textarea-padding-top
+    margin-top $input-textarea-padding-bottom
     margin-bottom $input-textarea-padding-bottom
     .q-if-dense&
-      margin-top $input-textarea-dense-padding-top
+      margin-top $input-textarea-dense-padding-bottom
       margin-bottom $input-textarea-dense-padding-bottom
+  &.q-if-has-label .q-if-inner
+    margin-top $input-textarea-padding-top
+    .q-if-dense&
+      margin-top $input-textarea-dense-padding-top
 
 .q-if-full-width
   @extends $padding-y-full-width
@@ -258,16 +258,16 @@ $margin-top-box-dense
     cursor pointer
 
 .q-if-baseline
-  width 0
-  visibility hidden
   line-height $input-control-size
+  width 0
+  color transparent
 
-.q-if-label-inner, .q-if-label-fake, .q-if-baseline
+.q-if-label-inner, .q-if-label-spacer, .q-if-baseline
   pointer-events none
   user-select none
-.q-if-label-fake
+.q-if-label-spacer
   visibility hidden
-  height 0
+  height 0 !important
   white-space nowrap
 .q-if-label
   max-width 100%

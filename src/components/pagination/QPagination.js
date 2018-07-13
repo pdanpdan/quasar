@@ -185,7 +185,7 @@ export default {
 
     if (this.input) {
       contentMiddle.push(h(QInput, {
-        staticClass: 'inline q-my-none q-py-none',
+        staticClass: 'inline no-padding',
         style: {
           width: `${this.inputPlaceholder.length}rem`
         },

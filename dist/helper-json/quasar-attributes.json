@@ -839,10 +839,6 @@
     "type": "number",
     "description": "Number value."
   },
-  "q-chips-input/rows": {
-    "type": "number",
-    "description": "Number value."
-  },
   "q-chips-input/loading": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1732,10 +1728,6 @@
     "description": "One of boolean or string."
   },
   "q-input/max-height": {
-    "type": "number",
-    "description": "Number value."
-  },
-  "q-input/rows": {
     "type": "number",
     "description": "Number value."
   },
@@ -2896,10 +2888,6 @@
     "description": "One of boolean or string."
   },
   "q-search/max-height": {
-    "type": "number",
-    "description": "Number value."
-  },
-  "q-search/rows": {
     "type": "number",
     "description": "Number value."
   },

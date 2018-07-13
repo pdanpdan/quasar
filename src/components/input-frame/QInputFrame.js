@@ -102,9 +102,9 @@ export default {
         return h(QIcon, {
           key: `b${item.icon}`,
           staticClass: 'q-if-control q-if-control-before',
-          'class': {
+          'class': [item.class, {
             hidden: this.__additionalHidden(item, this.hasError, this.hasWarning, this.length)
-          },
+          }],
           props: {
             name: item.icon
           },
@@ -117,9 +117,9 @@ export default {
       })) || void 0,
 
       h('div', {
-        staticClass: 'q-if-inner col'
+        staticClass: 'q-if-inner col row'
       }, [
-        h('div', { staticClass: 'row no-wrap relative-position' }, [
+        h('div', { staticClass: 'col-12 row no-wrap relative-position' }, [
           (this.prefix && h('span', {
             staticClass: 'q-if-addon q-if-addon-left',
             'class': this.addonClass,
@@ -148,7 +148,7 @@ export default {
           })) || void 0
         ])),
         (this.hasLabel && h('div', {
-          staticClass: 'q-if-label-fake',
+          staticClass: 'q-if-label-spacer col-12',
           domProps: {
             innerHTML: this.label
           }

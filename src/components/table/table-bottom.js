@@ -53,13 +53,12 @@ export default {
             this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
           ]),
           h(QSelect, {
-            staticClass: 'q-table-bottom-item q-my-none q-py-none',
+            staticClass: 'inline q-table-bottom-item',
             props: {
               color: this.color,
               value: rowsPerPage,
               options: this.computedRowsPerPageOptions,
               dark: this.dark,
-              dense: true,
               hideUnderline: true
             },
             on: {

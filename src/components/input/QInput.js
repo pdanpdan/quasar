@@ -11,11 +11,6 @@ import QIcon from '../icon/QIcon.js'
 export default {
   name: 'QInput',
   mixins: [FrameMixin, InputMixin],
-  components: {
-    QInputFrame,
-    QSpinner,
-    QResizeObservable
-  },
   props: {
     value: { required: true },
     type: {
@@ -126,12 +121,7 @@ export default {
       return this.step || (this.decimals ? 10 ** -this.decimals : 'any')
     },
     isFixedTextarea () {
-      return this.isTextarea && (this.maxHeight > 0 || this.rows > 1)
-    },
-    textClass () {
-      if (this.isTextarea) {
-        return 'q-if-text'
-      }
+      return this.isTextarea && (this.maxHeight > 0 || this.$attrs.rows > 1)
     }
   },
   methods: {
@@ -246,8 +236,10 @@ export default {
     },
 
     __getTextarea (h) {
+      const attrs = Object.assign({ rows: 1 }, this.$attrs)
+
       return h('div', {
-        staticClass: 'col row relative-position q-input-area-holder'
+        staticClass: 'col row relative-position'
       }, [
         h(QResizeObservable, {
           on: { resize: this.__updateArea }
@@ -257,15 +249,14 @@ export default {
           ref: 'shadow',
           staticClass: 'col q-input-target q-input-shadow absolute-top',
           domProps: { value: this.model },
-          attrs: Object.assign({}, this.$attrs, { rows: this.rows })
+          attrs
         }),
 
         h('textarea', {
           ref: 'input',
           staticClass: 'col q-input-target q-input-area',
-          attrs: Object.assign({}, this.$attrs, {
+          attrs: Object.assign({}, attrs, {
             placeholder: this.inputPlaceholder,
-            rows: this.rows,
             disabled: this.disable,
             readonly: this.readonly
           }),
@@ -319,7 +310,6 @@ export default {
   render (h) {
     return h(QInputFrame, {
       staticClass: 'q-input',
-      'class': this.textClass,
       props: {
         prefix: this.prefix,
         suffix: this.suffix,
@@ -398,6 +388,9 @@ export default {
         staticClass: 'q-if-control',
         props: { size: '24px' }
       })) || void 0
-    ].concat(this.$slots.after).concat(this.$slots.default)))
+    ]).concat(this.$slots.after).concat(this.$slots.default
+      ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
+      : void 0
+    ))
   }
 }

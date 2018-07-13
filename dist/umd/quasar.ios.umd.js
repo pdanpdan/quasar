@@ -6773,10 +6773,6 @@
     props: {
       autofocus: [Boolean, String],
       maxHeight: Number,
-      rows: {
-        type: Number,
-        default: 1
-      },
       loading: Boolean
     },
     data: function data () {
@@ -7004,9 +7000,9 @@
           return h(QIcon, {
             key: ("b" + (item.icon)),
             staticClass: 'q-if-control q-if-control-before',
-            'class': {
+            'class': [item.class, {
               hidden: this$1.__additionalHidden(item, this$1.hasError, this$1.hasWarning, this$1.length)
-            },
+            }],
             props: {
               name: item.icon
             },
@@ -7019,9 +7015,9 @@
         })) || void 0,
 
         h('div', {
-          staticClass: 'q-if-inner col'
+          staticClass: 'q-if-inner col row'
         }, [
-          h('div', { staticClass: 'row no-wrap relative-position' }, [
+          h('div', { staticClass: 'col-12 row no-wrap relative-position' }, [
             (this.prefix && h('span', {
               staticClass: 'q-if-addon q-if-addon-left',
               'class': this.addonClass,
@@ -7050,7 +7046,7 @@
             })) || void 0
           ])),
           (this.hasLabel && h('div', {
-            staticClass: 'q-if-label-fake',
+            staticClass: 'q-if-label-spacer col-12',
             domProps: {
               innerHTML: this.label
             }
@@ -7303,60 +7299,52 @@
         on: { click: this.__onClick }
       }, [
         h('div', {
-          staticClass: 'col row items-center q-input-chips'
+          staticClass: 'col row items-center group q-input-chips'
         },
         this.model.map(function (label, index) {
-          return h('div', {
+          return h(QChip, {
             key: (label + "#" + index),
-            staticClass: 'col-auto'
-          }, [
-            h(QChip, {
-              props: {
-                small: true,
-                dense: this$1.dense,
-                closable: this$1.editable,
-                color: this$1.computedChipBgColor,
-                textColor: this$1.computedChipTextColor
-              },
-              attrs: {
-                tabindex: this$1.editable && this$1.focused ? 0 : -1
-              },
-              on: {
-                blur: this$1.__onInputBlur,
-                focus: this$1.__clearTimer,
-                hide: function () { this$1.remove(index); }
-              },
-              nativeOn: {
-                blur: this$1.__onInputBlur,
-                focus: this$1.__clearTimer
-              }
-            }, label)
-          ])
+            props: {
+              small: true,
+              dense: this$1.dense,
+              closable: this$1.editable,
+              color: this$1.computedChipBgColor,
+              textColor: this$1.computedChipTextColor
+            },
+            attrs: {
+              tabindex: this$1.editable && this$1.focused ? 0 : -1
+            },
+            on: {
+              blur: this$1.__onInputBlur,
+              focus: this$1.__clearTimer,
+              hide: function () { this$1.remove(index); }
+            },
+            nativeOn: {
+              blur: this$1.__onInputBlur,
+              focus: this$1.__clearTimer
+            }
+          }, label)
         }).concat([
-          h('div', {
-            staticClass: 'q-input-chips-target col row items-center'
-          }, [
-            h('input', {
-              ref: 'input',
-              staticClass: 'col q-input-target',
-              'class': this.inputClasses,
-              domProps: {
-                value: this.input
-              },
-              attrs: Object.assign({}, this.$attrs, {
-                placeholder: this.inputPlaceholder,
-                disabled: this.disable,
-                readonly: this.readonly
-              }),
-              on: {
-                input: function (e) { this$1.input = e.target.value; },
-                focus: this.__onFocus,
-                blur: this.__onInputBlur,
-                keydown: this.__handleKeyDown,
-                keyup: this.__onKeyup
-              }
-            })
-          ])
+          h('input', {
+            ref: 'input',
+            staticClass: 'col q-input-target',
+            'class': this.inputClasses,
+            domProps: {
+              value: this.input
+            },
+            attrs: Object.assign({}, this.$attrs, {
+              placeholder: this.inputPlaceholder,
+              disabled: this.disable,
+              readonly: this.readonly
+            }),
+            on: {
+              input: function (e) { this$1.input = e.target.value; },
+              focus: this.__onFocus,
+              blur: this.__onInputBlur,
+              keydown: this.__handleKeyDown,
+              keyup: this.__onKeyup
+            }
+          })
         ])),
 
         this.isLoading
@@ -7376,7 +7364,10 @@
               click: function () { this$1.add(); }
             }
           })) || void 0)
-      ].concat(this.$slots.default))
+      ].concat(this.$slots.default
+        ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
+        : void 0
+      ))
     }
   };
 
@@ -8830,6 +8821,7 @@
               anchorClick: false,
               maxHeight: '100vh'
             },
+            slot: 'after',
             on: {
               show: this.__onFocus,
               hide: function () { return this$1.__onHide(true, true); }
@@ -10467,6 +10459,7 @@
               anchorClick: false,
               maxHeight: '100vh'
             },
+            slot: 'after',
             on: {
               show: this.__onFocus,
               hide: function () { return this$1.__onHide(true, true); }
@@ -10604,7 +10597,7 @@
       clearTimeout(this.timer);
 
       if (this.hasObserver) {
-        this.observer.unobserve(this.$el.parentNode);
+        this.$el.parentNode && this.observer.unobserve(this.$el.parentNode);
         return
       }
 
@@ -10617,11 +10610,6 @@
   var QInput = {
     name: 'QInput',
     mixins: [FrameMixin, InputMixin],
-    components: {
-      QInputFrame: QInputFrame,
-      QSpinner: QSpinner,
-      QResizeObservable: QResizeObservable
-    },
     props: {
       value: { required: true },
       type: {
@@ -10734,12 +10722,7 @@
         return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
       },
       isFixedTextarea: function isFixedTextarea () {
-        return this.isTextarea && (this.maxHeight > 0 || this.rows > 1)
-      },
-      textClass: function textClass () {
-        if (this.isTextarea) {
-          return 'q-if-text'
-        }
+        return this.isTextarea && (this.maxHeight > 0 || this.$attrs.rows > 1)
       }
     },
     methods: {
@@ -10858,8 +10841,10 @@
       },
 
       __getTextarea: function __getTextarea (h) {
+        var attrs = Object.assign({ rows: 1 }, this.$attrs);
+
         return h('div', {
-          staticClass: 'col row relative-position q-input-area-holder'
+          staticClass: 'col row relative-position'
         }, [
           h(QResizeObservable, {
             on: { resize: this.__updateArea }
@@ -10869,15 +10854,14 @@
             ref: 'shadow',
             staticClass: 'col q-input-target q-input-shadow absolute-top',
             domProps: { value: this.model },
-            attrs: Object.assign({}, this.$attrs, { rows: this.rows })
+            attrs: attrs
           }),
 
           h('textarea', {
             ref: 'input',
             staticClass: 'col q-input-target q-input-area',
-            attrs: Object.assign({}, this.$attrs, {
+            attrs: Object.assign({}, attrs, {
               placeholder: this.inputPlaceholder,
-              rows: this.rows,
               disabled: this.disable,
               readonly: this.readonly
             }),
@@ -10931,7 +10915,6 @@
     render: function render (h) {
       return h(QInputFrame, {
         staticClass: 'q-input',
-        'class': this.textClass,
         props: {
           prefix: this.prefix,
           suffix: this.suffix,
@@ -11010,7 +10993,10 @@
           staticClass: 'q-if-control',
           props: { size: '24px' }
         })) || void 0
-      ].concat(this.$slots.after).concat(this.$slots.default)))
+      ]).concat(this.$slots.after).concat(this.$slots.default
+        ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
+        : void 0
+      ))
     }
   };
 
@@ -11116,14 +11102,15 @@
     }
   };
 
+  var components = {
+    radio: QRadio,
+    checkbox: QCheckbox,
+    toggle: QToggle
+  };
+
   var QOptionGroup = {
     name: 'QOptionGroup',
     mixins: [ParentFieldMixin],
-    components: {
-      QRadio: QRadio,
-      QCheckbox: QCheckbox,
-      QToggle: QToggle
-    },
     props: {
       value: {
         required: true
@@ -11148,7 +11135,7 @@
     },
     computed: {
       component: function component () {
-        return ("q-" + (this.type))
+        return components[this.type]
       },
       model: function model () {
         return Array.isArray(this.value) ? this.value.slice() : this.value
@@ -11889,7 +11876,7 @@
         h('div', { staticClass: 'q-mx-xs', 'class': ("text-" + color) }, [((vm.$q.i18n.editor.url) + ": ")]),
         h(QInput, {
           key: 'qedt_btm_input',
-          staticClass: 'q-ma-none col q-editor-input',
+          staticClass: 'q-ma-none q-pa-none col q-editor-input',
           props: {
             value: link,
             color: color,
@@ -14931,7 +14918,7 @@
 
       if (this.input) {
         contentMiddle.push(h(QInput, {
-          staticClass: 'inline q-my-none q-py-none',
+          staticClass: 'inline no-padding',
           style: {
             width: ((this.inputPlaceholder.length) + "rem")
           },
@@ -16323,18 +16310,6 @@
   var QSelect = {
     name: 'QSelect',
     mixins: [FrameMixin, KeyboardSelectionMixin],
-    components: {
-      QSearch: QSearch,
-      QPopover: QPopover,
-      QList: QList,
-      QItemWrapper: QItemWrapper,
-      QCheckbox: QCheckbox,
-      QRadio: QRadio,
-      QToggle: QToggle,
-      QIcon: QIcon,
-      QInputFrame: QInputFrame,
-      QChip: QChip
-    },
     props: {
       filter: [Function, Boolean],
       filterPlaceholder: String,
@@ -16637,34 +16612,30 @@
 
       var child = [];
 
-      if (this.hasChips && this.selectedOptions.length) {
+      if (this.hasChips) {
         var el = h('div', {
-          staticClass: 'col row items-center q-input-chips',
+          staticClass: 'col row items-center group q-input-chips',
           'class': this.alignClass
         }, this.selectedOptions.map(function (opt) {
-          return h('div', {
+          return h(QChip, {
             key: opt.label,
-            staticClass: 'col-auto'
-          }, [
-            h(QChip, {
-              props: {
-                small: true,
-                dense: this$1.dense,
-                closable: this$1.editable && !opt.disable,
-                color: this$1.__getChipBgColor(opt.color),
-                textColor: this$1.__getChipTextColor(opt.color),
-                icon: opt.icon,
-                iconRight: opt.rightIcon,
-                avatar: opt.avatar
-              },
-              on: {
-                hide: function () { this$1.__toggleMultiple(opt.value, this$1.disable || opt.disable); }
-              },
-              nativeOn: {
-                click: function (e) { e.stopPropagation(); }
-              }
-            }, [ opt.label ])
-          ])
+            props: {
+              small: true,
+              dense: this$1.dense,
+              closable: this$1.editable && !opt.disable,
+              color: this$1.__getChipBgColor(opt.color),
+              textColor: this$1.__getChipTextColor(opt.color),
+              icon: opt.icon,
+              iconRight: opt.rightIcon,
+              avatar: opt.avatar
+            },
+            on: {
+              hide: function () { this$1.__toggleMultiple(opt.value, this$1.disable || opt.disable); }
+            },
+            nativeOn: {
+              click: function (e) { e.stopPropagation(); }
+            }
+          }, [ opt.label ])
         }));
         child.push(el);
       }
@@ -16676,23 +16647,6 @@
         child.push(el$1);
       }
 
-      if (this.isClearable) {
-        child.push(h(QIcon, {
-          slot: 'after',
-          staticClass: 'q-if-control',
-          props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
-          nativeOn: {
-            click: this.clear
-          }
-        }));
-      }
-
-      child.push(h(QIcon, {
-        slot: 'after',
-        staticClass: 'q-if-control',
-        props: { name: this.$q.icon.input.dropdown }
-      }));
-
       child.push(h(QPopover, {
         ref: 'popover',
         staticClass: 'column no-wrap',
@@ -16702,6 +16656,7 @@
           disable: !this.editable,
           anchorClick: false
         },
+        slot: 'after',
         on: {
           show: this.__onShow,
           hide: function () { this$1.__onClose(true); }
@@ -16788,6 +16743,23 @@
           ])
         }))) || void 0
       ]));
+
+      if (this.isClearable) {
+        child.push(h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: { name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))] },
+          nativeOn: {
+            click: this.clear
+          }
+        }));
+      }
+
+      child.push(h(QIcon, {
+        slot: 'after',
+        staticClass: 'q-if-control',
+        props: { name: this.$q.icon.input.dropdown }
+      }));
 
       return h(QInputFrame, {
         ref: 'input',
@@ -18789,9 +18761,6 @@
 
   var StepTab = {
     name: 'QStepTab',
-    components: {
-      QIcon: QIcon
-    },
     directives: {
       Ripple: Ripple
     },
@@ -18971,9 +18940,6 @@
 
   var QStepper = {
     name: 'QStepper',
-    components: {
-      StepTab: StepTab
-    },
     props: {
       value: [Number, String],
       color: {
@@ -20265,13 +20231,12 @@
               this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
             ]),
             h(QSelect, {
-              staticClass: 'q-table-bottom-item q-my-none q-py-none',
+              staticClass: 'inline q-table-bottom-item',
               props: {
                 color: this.color,
                 value: rowsPerPage,
                 options: this.computedRowsPerPageOptions,
                 dark: this.dark,
-                dense: true,
                 hideUnderline: true
               },
               on: {
@@ -20924,7 +20889,6 @@
       var this$1 = this;
 
       return h(QSelect, {
-        staticClass: 'q-my-none q-py-none',
         props: {
           multiple: true,
           toggle: true,
@@ -22326,7 +22290,7 @@
 
 
 
-  var components = /*#__PURE__*/Object.freeze({
+  var components$1 = /*#__PURE__*/Object.freeze({
     QActionSheet: QActionSheet,
     QAjaxBar: QAjaxBar,
     QAlert: QAlert,
@@ -23913,7 +23877,7 @@
   }
   else {
     Vue.use({ install: install }, {
-      components: components,
+      components: components$1,
       directives: directives,
       plugins: plugins,
       config: typeof window !== 'undefined'
@@ -23928,7 +23892,7 @@
 
     i18n: i18n,
     icons: Icons,
-    components: components,
+    components: components$1,
     directives: directives,
     plugins: plugins,
     utils: utils

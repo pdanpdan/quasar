@@ -676,9 +676,11 @@ $table-dark-color               ?= white
 $table-dark-header-color        ?= rgba(255, 255, 255, .64)
 $table-dark-hover-background    ?= rgba(255, 255, 255, .1)
 $table-dark-selected-background ?= rgba(255, 255, 255, .2)
+$input-margin-top            ?= 16px
+$input-margin-bottom         ?= 8px
+$input-dense-margin-top      ?= 12px
+$input-dense-margin-bottom   ?= 4px
 $input-border-radius   ?= 4px
-$input-margin-top      ?= 16px
-$input-margin-bottom   ?= 8px
 $input-font-size       ?= 1rem
 $input-label-top-scale ?= .75
 $input-padding-x       ?= 16px
@@ -687,8 +689,6 @@ $input-padding-bottom  ?= 7px
 $input-control-size    ?= 24px
 $input-control-margin  ?= 4px
 $input-min-height      ?= $input-control-size
-$input-dense-margin-top      ?= 12px
-$input-dense-margin-bottom   ?= 4px
 $input-dense-font-size       ?= .813rem
 $input-dense-label-top-scale ?= unit($input-font-size / $input-dense-font-size * $input-label-top-scale * .9755, '')
 $input-dense-padding-x       ?= 12px
@@ -743,7 +743,7 @@ $modal-border-radius     ?= 13px
 $label-offset ?= 8px
 $paralax-text-shadow ?= 0 0 5px white
 $popover-background   ?= white
-$popover-box-shadow   ?= $shadow-24
+$popover-box-shadow   ?= $shadow-4
 $popover-max-width    ?= 100vw
 $progress-track-height         ?= 5px
 $progress-track-color          ?= currentColor
@@ -1420,17 +1420,16 @@ $checkbox-size = 21px
   .q-icon
     font-size 16px
 .q-input-chips
-  line-height 28px
   margin-top -6px
+  margin-bottom -6px
+  input.q-input-target
+    min-width 70px !important
+    height 26px
+.q-if-dense .q-input-chips
+  margin-top -2px
   margin-bottom -2px
-  margin-left -8px
-  > div
-    margin-top 4px
-    margin-left 8px
-  .q-input-chips-target
-    min-width 70px
-    .q-input-target
-      line-height 28px
+  input.q-input-target
+    height 18px
 .q-collapsible-sub-item
   padding $collapsible-padding
   &.indent
@@ -1778,23 +1777,15 @@ $checkbox-size = 21px
   min-height $field-icon-size
 .q-field-label-hint
   padding-left 8px
-.q-field-content
-  .q-if
-    margin-top 0
-    &:not(.q-if-has-label)
-      padding-top 0
 .q-field-bottom
   font-size 12px
+  padding-top $input-margin-bottom
   color $form-dark
-  &.q-field-no-input
-    padding-top 8px
-    .q-if-dense + &
-      padding-top 4px
-.q-field-no-input
-  margin-top 6px
-  border-top 1px solid rgba(0, 0, 0, .12)
   .q-if-dense + &
-    margin-top 2px
+    padding-top $input-dense-margin-bottom
+.q-field-no-input
+  margin-top 8px
+  border-top 1px solid rgba(0, 0, 0, .12)
 .q-field-counter
   color $field-label-color
   padding-left 8px
@@ -1817,18 +1808,20 @@ $checkbox-size = 21px
   .q-field-no-input
     border-top 1px solid $warning
     border-top 1px solid var(--q-color-warning)
+.q-field-content > .q-if-standard
+  padding-top 0
 qfield-vertical()
+  .q-field-label + .q-field-content
+    padding-top 8px
   &.q-field-floating.q-field-no-label
     .q-field-margin
-      margin-top calc(.75em - 5px)
+      margin-top 12px
   &.q-field-no-label .q-field-label
     display none
 qfield-horizontal()
   &.q-field-floating
     .q-field-margin
-      margin-top calc(.75em - 5px)
-    .q-field-label
-      padding-top 10px
+      margin-top 12px
   .q-field-label + .q-field-content
     padding-top 0
 .q-field-vertical
@@ -1921,14 +1914,10 @@ $margin-top-box-dense
   outline 0
   align-items center
   font-size $input-font-size
-  margin-top $input-margin-top
-  margin-bottom $input-margin-bottom
   .q-if-inner
     min-height $input-min-height
 .q-if-dense
   font-size $input-dense-font-size
-  margin-top $input-dense-margin-top
-  margin-bottom $input-dense-margin-bottom
 .q-if-standard
   padding-top $input-padding-bottom
   padding-bottom $input-padding-bottom
@@ -1942,6 +1931,7 @@ $margin-top-box-dense
 .q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline, .q-if-textarea
   .q-if-label
     position absolute
+    left 0
     transform-origin top left
     transform $input-label-transform-base
     &.q-if-label-above
@@ -2001,7 +1991,6 @@ $margin-top-box-dense
   &.q-if-dense
     @extends $padding-y-full-width-dense
   .q-if-label
-    left 0
     z-index 1
     &.q-if-label-above
       left -($input-outline-label-padding-x)
@@ -2016,11 +2005,15 @@ $margin-top-box-dense
     left -(2 * ($input-control-size + $input-control-margin) + $input-outline-label-padding-x)
 .q-if-textarea
   .q-if-inner
-    margin-top $input-textarea-padding-top
+    margin-top $input-textarea-padding-bottom
     margin-bottom $input-textarea-padding-bottom
     .q-if-dense&
-      margin-top $input-textarea-dense-padding-top
+      margin-top $input-textarea-dense-padding-bottom
       margin-bottom $input-textarea-dense-padding-bottom
+  &.q-if-has-label .q-if-inner
+    margin-top $input-textarea-padding-top
+    .q-if-dense&
+      margin-top $input-textarea-dense-padding-top
 .q-if-full-width
   @extends $padding-y-full-width
   margin-top 0
@@ -2083,15 +2076,15 @@ $margin-top-box-dense
   &.q-icon
     cursor pointer
 .q-if-baseline
-  width 0
-  visibility hidden
   line-height $input-control-size
-.q-if-label-inner, .q-if-label-fake, .q-if-baseline
+  width 0
+  color transparent
+.q-if-label-inner, .q-if-label-spacer, .q-if-baseline
   pointer-events none
   user-select none
-.q-if-label-fake
+.q-if-label-spacer
   visibility hidden
-  height 0
+  height 0 !important
   white-space nowrap
 .q-if-label
   max-width 100%
@@ -2127,14 +2120,13 @@ $margin-top-box-dense
   border 0
   outline 0
   padding 0
-  margin 0
   background transparent
+  line-height $input-control-size
   font-size inherit
   resize none
   display flex
   align-items center
   color black
-  line-height $input-control-size
   &:-webkit-autofill
     -webkit-animation-name webkit-autofill-on
     -webkit-animation-fill-mode both
@@ -2152,12 +2144,8 @@ $margin-top-box-dense
     line-height $input-control-size
     width 0
     color transparent
-.q-input-shadow
-  overflow hidden
-  visibility hidden
-  pointer-events none
-  height auto
 input.q-input-target
+  height $input-control-size
   outline 0
   display inline-block
   -webkit-appearance none
@@ -2171,26 +2159,31 @@ input.q-input-target
       color $form-dark !important
     &:-ms-input-placeholder 
       color $form-dark !important
-  &.q-if-dark
-    .q-input-target-placeholder
+.q-if-dark
+  .q-input-target-placeholder
+    color #979797 !important
+  .q-input-target
+    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
       color #979797 !important
-    .q-input-target
-      &::-webkit-input-placeholder /* Chrome/Opera/Safari */
-        color #979797 !important
-      &::-moz-placeholder 
-        color #979797 !important
-      &:-ms-input-placeholder 
-        color #979797 !important
-  &.q-if-inverted:not(.q-if-inverted-light)
-    .q-input-target-placeholder
+    &::-moz-placeholder 
+      color #979797 !important
+    &:-ms-input-placeholder 
+      color #979797 !important
+.q-if-inverted:not(.q-if-inverted-light)
+  .q-input-target-placeholder
+    color #ddd !important
+  .q-input-target
+    &::-webkit-input-placeholder /* Chrome/Opera/Safari */
       color #ddd !important
-    .q-input-target
-      &::-webkit-input-placeholder /* Chrome/Opera/Safari */
-        color #ddd !important
-      &::-moz-placeholder 
-        color #ddd !important
-      &:-ms-input-placeholder 
-        color #ddd !important
+    &::-moz-placeholder 
+      color #ddd !important
+    &:-ms-input-placeholder 
+      color #ddd !important
+.q-input-shadow
+  overflow hidden
+  visibility hidden
+  pointer-events none
+  height auto
 .q-jumbotron
   position relative
   padding $jumbotron-padding
@@ -5060,15 +5053,18 @@ fe(selector, name, noProc, i = '')
     return fr(selector, name, i)
   return unquote(join(',', fr(selector, '', i) fr(selector, name, i)))
 fg($name, $size)
+  $noProcNotZero = $size > 0
   @media (min-width $size)
-    {fe('.col<name>', $name, $size > 0)}
+    {fe('.col<name>', $name, $noProcNotZero)}
       &, &-auto, &-grow
-        height auto
-        min-height 0
-        max-height 100%
-        width auto
-        min-width 0
-        max-width 100%
+        .row > &, .flex > &
+          width auto
+          min-width 0
+          max-width 100%
+        .column > &, .flex > &
+          height auto
+          min-height 0
+          max-height 100%
       &
         flex 10**4 1 0%
       &-auto
@@ -5077,17 +5073,17 @@ fg($name, $size)
         flex 1 0 auto
     for $i in (0..$flex-cols)
       $ic = s('%s', $i)
-      {fe('.col<name>-<i>', $name, $size > 0, $ic)}
+      {fe('.col<name>-<i>', $name, $noProcNotZero, $ic)}
         @extend .col{$name}-auto
       .row
-        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
+        {fe('> .col<name>-<i>', $name, $noProcNotZero, $ic)}
           height auto
           width (round($i / $flex-cols * 100, 4))%
         if $i != 0 || $name != ''
-          {fe('> .offset<name>-<i>', $name, $size > 0, $ic)}
+          {fe('> .offset<name>-<i>', $name, $noProcNotZero, $ic)}
             margin-left (round($i / $flex-cols * 100, 4))%
       .column
-        {fe('> .col<name>-<i>', $name, $size > 0, $ic)}
+        {fe('> .col<name>-<i>', $name, $noProcNotZero, $ic)}
           height (round($i / $flex-cols * 100, 4))%
           width auto
 .row, .column, .flex
@@ -5561,14 +5557,18 @@ for $space, $value in $spaces
     @extends .q-ml-{$space}, .q-mr-{$space}
   .q-my-{$space}
     @extends .q-mt-{$space}, .q-mb-{$space}
-.q-mt-dense
-  margin-top $input-dense-margin-top
 .q-ml-auto
   margin-left auto
 .q-mr-auto
   margin-right auto
 .q-mx-auto
   @extends .q-ml-auto, .q-mr-auto
+.q-my-form:not(.q-if-full-width)
+  margin-top $input-margin-top
+  margin-bottom $input-margin-bottom
+  &.q-if-dense
+    margin-top $input-dense-margin-top
+    margin-bottom $input-dense-margin-bottom
 .q-touch
   user-select none
   user-drag none
@@ -5880,12 +5880,9 @@ ie_style = @block
   .q-item-main
     min-width 1px
   
-  .modal-content
-    height 100%
   .q-modal-layout
-    flex 1 1 auto
-  .q-layout-header, .q-layout-footer
-    display flex
+    min-height 80vh !important
+    overflow hidden
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none)
   {ie_style}
 @supports (-ms-ime-align:auto)

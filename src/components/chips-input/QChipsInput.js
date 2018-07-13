@@ -223,60 +223,52 @@ export default {
       on: { click: this.__onClick }
     }, [
       h('div', {
-        staticClass: 'col row items-center q-input-chips'
+        staticClass: 'col row items-center group q-input-chips'
       },
       this.model.map((label, index) => {
-        return h('div', {
+        return h(QChip, {
           key: `${label}#${index}`,
-          staticClass: 'col-auto'
-        }, [
-          h(QChip, {
-            props: {
-              small: true,
-              dense: this.dense,
-              closable: this.editable,
-              color: this.computedChipBgColor,
-              textColor: this.computedChipTextColor
-            },
-            attrs: {
-              tabindex: this.editable && this.focused ? 0 : -1
-            },
-            on: {
-              blur: this.__onInputBlur,
-              focus: this.__clearTimer,
-              hide: () => { this.remove(index) }
-            },
-            nativeOn: {
-              blur: this.__onInputBlur,
-              focus: this.__clearTimer
-            }
-          }, label)
-        ])
+          props: {
+            small: true,
+            dense: this.dense,
+            closable: this.editable,
+            color: this.computedChipBgColor,
+            textColor: this.computedChipTextColor
+          },
+          attrs: {
+            tabindex: this.editable && this.focused ? 0 : -1
+          },
+          on: {
+            blur: this.__onInputBlur,
+            focus: this.__clearTimer,
+            hide: () => { this.remove(index) }
+          },
+          nativeOn: {
+            blur: this.__onInputBlur,
+            focus: this.__clearTimer
+          }
+        }, label)
       }).concat([
-        h('div', {
-          staticClass: 'q-input-chips-target col row items-center'
-        }, [
-          h('input', {
-            ref: 'input',
-            staticClass: 'col q-input-target',
-            'class': this.inputClasses,
-            domProps: {
-              value: this.input
-            },
-            attrs: Object.assign({}, this.$attrs, {
-              placeholder: this.inputPlaceholder,
-              disabled: this.disable,
-              readonly: this.readonly
-            }),
-            on: {
-              input: e => { this.input = e.target.value },
-              focus: this.__onFocus,
-              blur: this.__onInputBlur,
-              keydown: this.__handleKeyDown,
-              keyup: this.__onKeyup
-            }
-          })
-        ])
+        h('input', {
+          ref: 'input',
+          staticClass: 'col q-input-target',
+          'class': this.inputClasses,
+          domProps: {
+            value: this.input
+          },
+          attrs: Object.assign({}, this.$attrs, {
+            placeholder: this.inputPlaceholder,
+            disabled: this.disable,
+            readonly: this.readonly
+          }),
+          on: {
+            input: e => { this.input = e.target.value },
+            focus: this.__onFocus,
+            blur: this.__onInputBlur,
+            keydown: this.__handleKeyDown,
+            keyup: this.__onKeyup
+          }
+        })
       ])),
 
       this.isLoading
@@ -296,6 +288,9 @@ export default {
             click: () => { this.add() }
           }
         })) || void 0)
-    ].concat(this.$slots.default))
+    ].concat(this.$slots.default
+      ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
+      : void 0
+    ))
   }
 }

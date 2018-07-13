@@ -14,24 +14,15 @@
 .q-field-label-hint
   padding-left 8px
 
-.q-field-content
-  .q-if
-    margin-top 0
-    &:not(.q-if-has-label)
-      padding-top 0
-
 .q-field-bottom
   font-size 12px
+  padding-top $input-margin-bottom
   color $form-dark
-  &.q-field-no-input
-    padding-top 8px
-    .q-if-dense + &
-      padding-top 4px
-.q-field-no-input
-  margin-top 6px
-  border-top 1px solid rgba(0, 0, 0, .12)
   .q-if-dense + &
-    margin-top 2px
+    padding-top $input-dense-margin-bottom
+.q-field-no-input
+  margin-top 8px
+  border-top 1px solid rgba(0, 0, 0, .12)
 .q-field-counter
   color $field-label-color
   padding-left 8px
@@ -58,19 +49,22 @@
     border-top 1px solid $warning
     border-top 1px solid var(--q-color-warning)
 
+.q-field-content > .q-if-standard
+  padding-top 0
+
 qfield-vertical()
+  .q-field-label + .q-field-content
+    padding-top 8px
   &.q-field-floating.q-field-no-label
     .q-field-margin
-      margin-top calc(.75em - 5px)
+      margin-top 12px
   &.q-field-no-label .q-field-label
     display none
 
 qfield-horizontal()
   &.q-field-floating
     .q-field-margin
-      margin-top calc(.75em - 5px)
-    .q-field-label
-      padding-top 10px
+      margin-top 12px
   .q-field-label + .q-field-content
     padding-top 0
 
