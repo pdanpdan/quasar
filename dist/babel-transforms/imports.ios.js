@@ -137,6 +137,7 @@ const map = {
   "LoadingBar": "src/plugins/loading-bar.js",
   "Loading": "src/plugins/loading.js",
   "LocalStorage": "src/plugins/local-storage.js",
+  "Meta": "src/plugins/meta.js",
   "Notify": "src/plugins/notify.js",
   "Platform": "src/plugins/platform.js",
   "Screen": "src/plugins/screen.js",
@@ -160,5 +161,8 @@ const map = {
 }
 
 module.exports = function (importName) {
+  if (typeof map[importName] === 'undefined') {
+    throw new Error('Unknown import from Quasar: ' + importName)
+  }
   return 'quasar-framework/' + map[importName]
 }

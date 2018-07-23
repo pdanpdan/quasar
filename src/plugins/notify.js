@@ -2,7 +2,6 @@ import QAlert from '../components/alert/QAlert.js'
 import uid from '../utils/uid.js'
 import clone from '../utils/clone.js'
 import { isSSR } from './platform.js'
-import { ready } from '../utils/dom.js'
 
 let defaults
 
@@ -13,13 +12,6 @@ const positionList = [
 ]
 
 function init ({ Vue }) {
-  if (!document.body) {
-    ready(() => {
-      init.call(this, { Vue })
-    })
-    return
-  }
-
   const node = document.createElement('div')
   document.body.appendChild(node)
 
@@ -167,25 +159,6 @@ function init ({ Vue }) {
 export default {
   create (opts) {
     if (isSSR) { return () => {} }
-
-    if (!document.body) {
-      let
-        cancelled = false,
-        cancelFn = () => {},
-        cancelFnWrapper = () => {
-          cancelled = true
-          cancelFn()
-        }
-
-      ready(() => {
-        if (!cancelled) {
-          cancelFn = this.create(opts)
-        }
-      })
-
-      return cancelFnWrapper
-    }
-
     return this.__vm.add(opts)
   },
   setDefaults (opts) {

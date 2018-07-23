@@ -1,7 +1,6 @@
 {
   "q-action-sheet": {
     "attributes": [
-      "value",
       "title",
       "grid",
       "actions",
@@ -138,7 +137,6 @@
       "tabindex",
       "to",
       "replace",
-      "value",
       "split",
       "content-class",
       "content-style",
@@ -149,8 +147,6 @@
   },
   "q-btn-toggle": {
     "attributes": [
-      "value",
-      "type",
       "color",
       "text-color",
       "toggle-color",
@@ -211,7 +207,6 @@
   },
   "q-carousel": {
     "attributes": [
-      "value",
       "color",
       "height",
       "arrows",
@@ -263,7 +258,6 @@
       "val",
       "true-value",
       "false-value",
-      "value",
       "label",
       "left-label",
       "color",
@@ -326,9 +320,7 @@
       "clear-value",
       "no-parent-field",
       "autofocus",
-      "max-height",
       "loading",
-      "value",
       "chips-color",
       "chips-bg-color",
       "add-icon",
@@ -339,15 +331,14 @@
   },
   "q-collapsible": {
     "attributes": [
-      "value",
       "dark",
-      "link",
       "dense",
       "sparse",
       "separator",
       "inset-separator",
       "multiline",
       "highlight",
+      "tag",
       "icon",
       "right-icon",
       "image",
@@ -360,7 +351,6 @@
       "sublabel",
       "label-lines",
       "sublabel-lines",
-      "tag",
       "disable",
       "popup",
       "indent",
@@ -402,7 +392,6 @@
       "no-parent-field",
       "popover",
       "modal",
-      "value",
       "default-value",
       "format-model",
       "display-value",
@@ -414,7 +403,6 @@
   "q-color-picker": {
     "attributes": [
       "no-parent-field",
-      "value",
       "default-value",
       "format-model",
       "disable",
@@ -462,14 +450,13 @@
       "ok-label",
       "cancel-label",
       "display-value",
-      "value",
       "default-value",
       "type",
       "min",
       "max",
       "first-day-of-week",
       "format-model",
-      "format-24-h",
+      "format24h",
       "default-view",
       "minimal"
     ],
@@ -477,7 +464,6 @@
   },
   "q-datetime-picker": {
     "attributes": [
-      "value",
       "default-value",
       "type",
       "color",
@@ -486,7 +472,7 @@
       "max",
       "first-day-of-week",
       "format-model",
-      "format-24-h",
+      "format24h",
       "default-view",
       "minimal",
       "no-parent-field",
@@ -497,7 +483,6 @@
   },
   "q-dialog": {
     "attributes": [
-      "value",
       "title",
       "message",
       "prompt",
@@ -516,7 +501,6 @@
   },
   "q-editor": {
     "attributes": [
-      "value",
       "readonly",
       "disable",
       "min-height",
@@ -546,7 +530,6 @@
       "color",
       "text-color",
       "glossy",
-      "value",
       "icon",
       "active-icon",
       "direction"
@@ -638,7 +621,6 @@
       "autofocus",
       "max-height",
       "loading",
-      "value",
       "type",
       "no-pass-toggle",
       "numeric-keyboard-toggle",
@@ -646,40 +628,6 @@
       "step",
       "upper-case",
       "lower-case"
-    ],
-    "description": ""
-  },
-  "q-input-frame": {
-    "attributes": [
-      "align",
-      "prefix",
-      "suffix",
-      "stack-label",
-      "float-label",
-      "placeholder",
-      "error",
-      "warning",
-      "disable",
-      "readonly",
-      "clearable",
-      "color",
-      "dark",
-      "before",
-      "after",
-      "inverted",
-      "inverted-light",
-      "dense",
-      "box",
-      "full-width",
-      "outline",
-      "textarea",
-      "hide-underline",
-      "clear-value",
-      "no-parent-field",
-      "focused",
-      "length",
-      "focusable",
-      "additional-length"
     ],
     "description": ""
   },
@@ -694,7 +642,6 @@
   },
   "q-knob": {
     "attributes": [
-      "value",
       "min",
       "max",
       "color",
@@ -716,7 +663,6 @@
   },
   "q-layout-drawer": {
     "attributes": [
-      "value",
       "overlay",
       "side",
       "width",
@@ -734,14 +680,12 @@
   },
   "q-layout-footer": {
     "attributes": [
-      "value",
       "reveal"
     ],
     "description": ""
   },
   "q-layout-header": {
     "attributes": [
-      "value",
       "reveal",
       "reveal-offset"
     ],
@@ -776,18 +720,6 @@
       "inset-separator",
       "multiline",
       "highlight",
-      "icon",
-      "right-icon",
-      "image",
-      "right-image",
-      "avatar",
-      "right-avatar",
-      "letter",
-      "right-letter",
-      "label",
-      "sublabel",
-      "label-lines",
-      "sublabel-lines",
       "tag",
       "to",
       "exact",
@@ -848,13 +780,6 @@
     ],
     "description": ""
   },
-  "q-item-wrapper": {
-    "attributes": [
-      "cfg",
-      "slot-replace"
-    ],
-    "description": ""
-  },
   "q-list": {
     "attributes": [
       "no-border",
@@ -879,7 +804,6 @@
   },
   "q-modal": {
     "attributes": [
-      "value",
       "position",
       "transition",
       "enter-class",
@@ -935,7 +859,6 @@
   "q-option-group": {
     "attributes": [
       "no-parent-field",
-      "value",
       "type",
       "color",
       "keep-color",
@@ -950,7 +873,6 @@
   },
   "q-pagination": {
     "attributes": [
-      "value",
       "min",
       "max",
       "color",
@@ -976,7 +898,6 @@
   },
   "q-popover": {
     "attributes": [
-      "value",
       "anchor",
       "self",
       "fit",
@@ -1018,7 +939,6 @@
   },
   "q-radio": {
     "attributes": [
-      "value",
       "label",
       "left-label",
       "color",
@@ -1050,7 +970,6 @@
       "warning",
       "readonly",
       "disable",
-      "value",
       "drag-range",
       "drag-only-range",
       "left-label-color",
@@ -1062,7 +981,6 @@
   },
   "q-rating": {
     "attributes": [
-      "value",
       "max",
       "icon",
       "color",
@@ -1111,7 +1029,6 @@
       "autofocus",
       "max-height",
       "loading",
-      "value",
       "type",
       "debounce",
       "icon",
@@ -1152,7 +1069,6 @@
       "filter-placeholder",
       "radio",
       "separator",
-      "value",
       "multiple",
       "toggle",
       "chips",
@@ -1186,7 +1102,6 @@
       "warning",
       "readonly",
       "disable",
-      "value",
       "label-value"
     ],
     "description": ""
@@ -1363,7 +1278,6 @@
   },
   "q-stepper": {
     "attributes": [
-      "value",
       "color",
       "vertical",
       "alternative-labels",
@@ -1426,7 +1340,6 @@
   },
   "q-tabs": {
     "attributes": [
-      "value",
       "align",
       "position",
       "color",
@@ -1451,6 +1364,7 @@
       "data",
       "row-key",
       "color",
+      "grid",
       "dense",
       "columns",
       "loading",
@@ -1492,7 +1406,6 @@
   },
   "q-table-columns": {
     "attributes": [
-      "value",
       "label",
       "columns",
       "color"
@@ -1523,7 +1436,6 @@
       "val",
       "true-value",
       "false-value",
-      "value",
       "label",
       "left-label",
       "color",
@@ -1555,7 +1467,6 @@
   },
   "q-tooltip": {
     "attributes": [
-      "value",
       "anchor",
       "self",
       "offset",

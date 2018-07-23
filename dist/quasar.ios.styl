@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.12
+ * Quasar Framework v0.17.0-beta.16
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2140,10 +2140,10 @@ $margin-top-box-dense
   &:invalid
     box-shadow inherit
 .q-input-target:before
-    content '|'
-    line-height $input-control-size
-    width 0
-    color transparent
+  content '|'
+  line-height $input-control-size
+  width 0
+  color transparent
 input.q-input-target
   height $input-control-size
   outline 0
@@ -3355,6 +3355,14 @@ body.desktop .q-tab
   width 1px
 .q-table-bottom-item
   margin-right 24px
+.q-table-grid
+  box-shadow none
+  .q-table-bottom
+    border-top 0
+  .q-table
+    height 2px
+    thead
+      border 0
 .q-table-horizontal-separator
   thead, tbody td
     border-width 0 0 1px 0

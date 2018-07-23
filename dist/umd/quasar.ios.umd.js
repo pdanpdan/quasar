@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.12
+ * Quasar Framework v0.17.0-beta.16
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -219,21 +219,23 @@
       touch: false,
       webStorage: false
     },
-    within: {
-      iframe: false
+    within: { iframe: false },
+
+    parseSSR: function parseSSR (/* ssrContext */ ssr) {
+      return ssr ? {
+        is: getPlatform(ssr.req.headers['user-agent']),
+        has: this.has,
+        within: this.within
+      } : Object.assign({}, {is: getPlatform()},
+        getClientProperties())
     },
 
     install: function install ($q, queues, Vue$$1) {
+      var this$1 = this;
+
       if (isSSR) {
         queues.server.push(function (q, ctx) {
-          q.platform = {
-            is: getPlatform(ctx.ssr.req.headers['user-agent']),
-            has: {
-              touch: false,
-              webStorage: false
-            },
-            within: { iframe: false }
-          };
+          q.platform = this$1.parseSSR(ctx.ssr);
         });
         return
       }
@@ -425,7 +427,7 @@
     });
   }
 
-  var version = "0.17.0-beta.12";
+  var version = "0.17.0-beta.16";
 
   var History = {
     __history: [],
@@ -501,12 +503,12 @@
       noData: 'No data available',
       noResults: 'No matching records found',
       loading: 'Loading...',
-      selectedRows: function (rows) {
+      selectedRecords: function (rows) {
         return rows === 1
-          ? '1 row selected.'
-          : (rows === 0 ? 'No' : rows) + ' rows selected.'
+          ? '1 record selected.'
+          : (rows === 0 ? 'No' : rows) + ' records selected.'
       },
-      rowsPerPage: 'Rows per page:',
+      recordsPerPage: 'Records per page:',
       allRows: 'All',
       pagination: function (start, end, total) {
         return start + '-' + end + ' of ' + total
@@ -563,86 +565,26 @@
     }
   };
 
-  function offset (el) {
-    if (!el || el === window) {
-      return {top: 0, left: 0}
-    }
-    var ref = el.getBoundingClientRect();
-    var top = ref.top;
-    var left = ref.left;
-
-    return {top: top, left: left}
-  }
-
-  function style (el, property) {
-    return window.getComputedStyle(el).getPropertyValue(property)
-  }
-
-  function height (el) {
-    if (el === window) {
-      return window.innerHeight
-    }
-    return parseFloat(style(el, 'height'))
-  }
-
-  function width (el) {
-    if (el === window) {
-      return window.innerWidth
-    }
-    return parseFloat(style(el, 'width'))
-  }
-
-  function css (element, css) {
-    var style = element.style;
-
-    Object.keys(css).forEach(function (prop) {
-      style[prop] = css[prop];
-    });
-  }
-
-  function ready (fn) {
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    if (document.readyState !== 'loading') {
-      return fn()
-    }
-
-    document.addEventListener('DOMContentLoaded', fn, false);
-  }
-
-  var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
-  function cssTransform (val) {
-    var o = {transform: val};
-    prefix.forEach(function (p) {
-      o[p + 'transform'] = val;
-    });
-    return o
-  }
-
-  var dom = {
-    offset: offset,
-    style: style,
-    height: height,
-    width: width,
-    css: css,
-    ready: ready,
-    cssTransform: cssTransform
-  };
-
   var i18n = {
     install: function install ($q, queues, Vue$$1, lang) {
       var this$1 = this;
 
       if (isSSR) {
         queues.server.push(function (q, ctx) {
-          var fn = ctx.ssr.setHtmlAttrs;
-          if (typeof fn === 'function') {
-            fn({
+          var
+            opt = {
               lang: q.i18n.lang,
               dir: q.i18n.rtl ? 'rtl' : 'ltr'
-            });
+            },
+            fn = ctx.ssr.setHtmlAttrs;
+
+          if (typeof fn === 'function') {
+            fn(opt);
+          }
+          else {
+            ctx.ssr.Q_HTML_ATTRS = Object.keys(opt)
+              .map(function (key) { return (key + "=" + (opt[key])); })
+              .join(' ');
           }
         });
       }
@@ -655,11 +597,9 @@
         lang.rtl = lang.rtl || false;
 
         if (!isSSR) {
-          ready(function () {
-            var el = document.documentElement;
-            el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr');
-            el.setAttribute('lang', lang.lang);
-          });
+          var el = document.documentElement;
+          el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr');
+          el.setAttribute('lang', lang.lang);
         }
 
         if (isSSR || $q.i18n) {
@@ -966,10 +906,10 @@
       if (is.ios && (cfg.cordova === void 0 || cfg.cordova.iosStatusBarPadding !== false)) {
         var
           ratio = window.devicePixelRatio || 1,
-          width$$1 = window.screen.width * ratio,
-          height$$1 = window.screen.height * ratio;
+          width = window.screen.width * ratio,
+          height = window.screen.height * ratio;
 
-        if (width$$1 !== 1125 && height$$1 !== 2001 /* 2436 for iPhoneX fullscreen */) {
+        if (width !== 1125 && height !== 2001 /* 2436 for iPhoneX fullscreen */) {
           cls.push('q-ios-statusbar-padding');
         }
       }
@@ -1006,20 +946,22 @@
     install: function install ($q, queues, cfg) {
       if (isSSR) {
         queues.server.push(function (q, ctx) {
-          var update = ctx.ssr.setBodyClasses;
-          if (typeof update === 'function') {
-            update(getBodyClasses(q.platform, cfg));
+          var
+            cls = getBodyClasses(q.platform, cfg),
+            fn = ctx.ssr.setBodyClasses;
+
+          if (typeof fn === 'function') {
+            fn(cls);
+          }
+          else {
+            ctx.ssr.Q_BODY_CLASSES = cls.join(' ');
           }
         });
         return
       }
 
-      var init = cfg.brand && document.body;
-      init && setColors(cfg.brand);
-      ready(function () {
-        !init && setColors(cfg.brand);
-        bodyInit($q.platform, cfg);
-      });
+      cfg.brand && setColors(cfg.brand);
+      bodyInit($q.platform, cfg);
     }
   };
 
@@ -1383,10 +1325,7 @@
           this.$emit('input', false);
         }
 
-        if (this.__historyEntry) {
-          History.remove(this.__historyEntry);
-          this.__historyEntry = null;
-        }
+        this.__removeHistory();
 
         if (!this.__hide) {
           this.$emit('hide', evt);
@@ -1408,6 +1347,13 @@
 
         this.__hide(evt);
         return this.hidePromise || Promise.resolve(evt)
+      },
+
+      __removeHistory: function __removeHistory () {
+        if (this.__historyEntry) {
+          History.remove(this.__historyEntry);
+          this.__historyEntry = null;
+        }
       }
     },
     beforeDestroy: function beforeDestroy () {
@@ -1415,6 +1361,7 @@
         this.showPromise && this.showPromiseReject();
         this.hidePromise && this.hidePromiseReject();
         this.$emit('input', false);
+        this.__removeHistory();
         this.__hide && this.__hide();
       }
     }
@@ -1611,6 +1558,74 @@
     stopAndPrevent: stopAndPrevent
   };
 
+  function offset (el) {
+    if (!el || el === window) {
+      return {top: 0, left: 0}
+    }
+    var ref = el.getBoundingClientRect();
+    var top = ref.top;
+    var left = ref.left;
+
+    return {top: top, left: left}
+  }
+
+  function style (el, property) {
+    return window.getComputedStyle(el).getPropertyValue(property)
+  }
+
+  function height (el) {
+    if (el === window) {
+      return window.innerHeight
+    }
+    return parseFloat(style(el, 'height'))
+  }
+
+  function width (el) {
+    if (el === window) {
+      return window.innerWidth
+    }
+    return parseFloat(style(el, 'width'))
+  }
+
+  function css (element, css) {
+    var style = element.style;
+
+    Object.keys(css).forEach(function (prop) {
+      style[prop] = css[prop];
+    });
+  }
+
+  function ready (fn) {
+    if (typeof fn !== 'function') {
+      return
+    }
+
+    if (document.readyState !== 'loading') {
+      return fn()
+    }
+
+    document.addEventListener('DOMContentLoaded', fn, false);
+  }
+
+  var prefix = ['-webkit-', '-moz-', '-ms-', '-o-'];
+  function cssTransform (val) {
+    var o = {transform: val};
+    prefix.forEach(function (p) {
+      o[p + 'transform'] = val;
+    });
+    return o
+  }
+
+  var dom = {
+    offset: offset,
+    style: style,
+    height: height,
+    width: width,
+    css: css,
+    ready: ready,
+    cssTransform: cssTransform
+  };
+
   function getScrollTarget (el) {
     return el.closest('.scroll,.scroll-y') || window
   }
@@ -1624,6 +1639,13 @@
       return window.pageYOffset || window.scrollY || document.body.scrollTop || 0
     }
     return scrollTarget.scrollTop
+  }
+
+  function getHorizontalScrollPosition (scrollTarget) {
+    if (scrollTarget === window) {
+      return window.pageXOffset || window.scrollX || document.body.scrollLeft || 0
+    }
+    return scrollTarget.scrollLeft
   }
 
   function animScrollTo (el, to, duration) {
@@ -2163,6 +2185,21 @@
       : {overflow: 'hidden', display: '-webkit-box', '-webkit-box-orient': 'vertical', '-webkit-line-clamp': n}
   }
 
+  var subItemProps = {
+    icon: String,
+    rightIcon: String,
+    image: String,
+    rightImage: String,
+    avatar: String,
+    rightAvatar: String,
+    letter: String,
+    rightLetter: String,
+    label: String,
+    sublabel: String,
+    labelLines: [String, Number],
+    sublabelLines: [String, Number]
+  };
+
   var ItemMixin = {
     props: {
       dark: Boolean,
@@ -2174,19 +2211,6 @@
       insetSeparator: Boolean,
       multiline: Boolean,
       highlight: Boolean,
-
-      icon: String,
-      rightIcon: String,
-      image: String,
-      rightImage: String,
-      avatar: String,
-      rightAvatar: String,
-      letter: String,
-      rightLetter: String,
-      label: String,
-      sublabel: String,
-      labelLines: [String, Number],
-      sublabelLines: [String, Number],
 
       tag: {
         type: String,
@@ -2249,8 +2273,7 @@
   var QItem = {
     name: 'QItem',
     mixins: [
-      ItemMixin,
-      { props: routerLinkProps }
+      ItemMixin, { props: routerLinkProps }
     ],
     props: {
       active: Boolean,
@@ -2258,10 +2281,12 @@
     },
     computed: {
       classes: function classes () {
-        var cls = this.itemClasses;
-        return this.to !== void 0
-          ? ['q-link', cls]
-          : [{active: this.active}, cls]
+        return [
+          this.to !== void 0
+            ? 'q-link'
+            : {active: this.active},
+          this.itemClasses
+        ]
       }
     },
     render: function render (h) {
@@ -4813,7 +4838,6 @@
       value: {
         required: true
       },
-      type: String,
       // To avoid seeing the active raise shadow through the transparent button, give it a color (even white).
       color: String,
       textColor: String,
@@ -4880,7 +4904,6 @@
           key: ("" + (opt.label) + (opt.icon) + (opt.iconRight)),
           on: { click: function () { return this$1.set(opt.value, opt); } },
           props: {
-            type: opt.hasOwnProperty('type') ? opt.type : this$1.type,
             disable: this$1.disable,
             label: opt.label,
             // Colors come from the button specific options first, then from general props
@@ -7564,7 +7587,11 @@
 
   var QCollapsible = {
     name: 'QCollapsible',
-    mixins: [ModelToggleMixin, ItemMixin],
+    mixins: [
+      ModelToggleMixin,
+      ItemMixin,
+      { props: subItemProps }
+    ],
     modelToggle: {
       history: false
     },
@@ -7586,6 +7613,7 @@
           'q-collapsible-opened': this.popup && this.showing,
           'q-collapsible-closed': this.popup && !this.showing,
           'q-collapsible-cursor-pointer': !this.iconToggle,
+          'q-item-dark': this.dark,
           'q-item-separator': this.separator,
           'q-item-inset-separator': this.insetSeparator,
           disabled: this.disable
@@ -10691,8 +10719,7 @@
       keyboardToggle: function keyboardToggle () {
         return this.$q.platform.is.mobile &&
           this.isNumber &&
-          this.numericKeyboardToggle &&
-          length
+          this.numericKeyboardToggle
       },
       inputType: function inputType () {
         if (this.isPassword) {
@@ -13021,6 +13048,7 @@
       },
       stop: function stop () {
         this.working = false;
+        this.fetching = false;
         this.scrollContainer.removeEventListener('scroll', this.poll, listenOpts.passive);
       }
     },
@@ -16406,7 +16434,7 @@
         }
       },
       hasChips: function hasChips () {
-        return this.multiple && this.chips
+        return this.multiple && this.chips && this.length > 0
       },
       length: function length () {
         return this.multiple
@@ -19954,10 +19982,6 @@
   var TableHeader = {
     methods: {
       getTableHeader: function getTableHeader (h) {
-        if (this.hideHeader) {
-          return
-        }
-
         var child = [ this.getTableHeaderRow(h) ];
 
         if (this.loading) {
@@ -20007,7 +20031,7 @@
         }
         var child = this.computedCols.map(mapFn);
 
-        if (this.singleSelection) {
+        if (this.singleSelection && !this.grid) {
           child.unshift(h('th', { staticClass: 'q-table-col-auto-width' }, [' ']));
         }
         else if (this.multipleSelection) {
@@ -20221,14 +20245,14 @@
           h('div', { staticClass: 'q-table-control' }, [
             h('div', [
               this.hasSelectionMode && this.rowsSelectedNumber > 0
-                ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRows)(this.rowsSelectedNumber)
+                ? (this.selectedRowsLabel || this.$q.i18n.table.selectedRecords)(this.rowsSelectedNumber)
                 : ''
             ])
           ]),
           h('div', { staticClass: 'q-table-separator col' }),
           h('div', { staticClass: 'q-table-control' }, [
             h('span', { staticClass: 'q-table-bottom-item' }, [
-              this.rowsPerPageLabel || this.$q.i18n.table.rowsPerPage
+              this.rowsPerPageLabel || this.$q.i18n.table.recordsPerPage
             ]),
             h(QSelect, {
               staticClass: 'inline q-table-bottom-item',
@@ -20296,7 +20320,7 @@
       sortMethod: {
         type: Function,
         default: function default$1 (data, sortBy, descending) {
-          var col = this.computedCols.find(function (def) { return def.name === sortBy; });
+          var col = this.columns.find(function (def) { return def.name === sortBy; });
           if (col === null || col.field === void 0) {
             return data
           }
@@ -20348,8 +20372,7 @@
         var sortBy = ref.sortBy;
 
         if (sortBy) {
-          var col = this.computedCols.find(function (def) { return def.name === sortBy; });
-          return col || null
+          return this.columns.find(function (def) { return def.name === sortBy; }) || null
         }
       }
     },
@@ -20695,6 +20718,7 @@
         type: String,
         default: 'grey-8'
       },
+      grid: Boolean,
       dense: Boolean,
       columns: Array,
       loading: Boolean,
@@ -20779,6 +20803,7 @@
       return h('div',
         {
           'class': {
+            'q-table-grid': this.grid,
             'q-table-container': true,
             'q-table-dark': this.dark,
             'q-table-dense': this.dense,
@@ -20788,14 +20813,7 @@
         },
         [
           this.getTop(h),
-          h('div', { staticClass: 'q-table-middle scroll', 'class': this.tableClass, style: this.tableStyle }, [
-            h('table', { staticClass: ("q-table q-table-" + (this.separator) + "-separator" + (this.dark ? ' q-table-dark' : '')) },
-              [
-                this.getTableHeader(h),
-                this.getTableBody(h)
-              ]
-            )
-          ]),
+          this.getBody(h),
           this.getBottom(h)
         ]
       )
@@ -20811,6 +20829,47 @@
             getCellValue: this$1.getCellValue
           });
         });
+      },
+      getBody: function getBody (h) {
+        var this$1 = this;
+
+        var hasHeader = !this.hideHeader;
+
+        if (this.grid) {
+          var item = this.$scopedSlots.item;
+
+          if (item !== void 0) {
+            return [
+              (hasHeader && h('div', { staticClass: 'q-table-middle scroll' }, [
+                h('table', { staticClass: ("q-table" + (this.dark ? ' q-table-dark' : '')) }, [
+                  this.getTableHeader(h)
+                ])
+              ])) || null,
+              h('div', { staticClass: 'row' }, this.computedRows.map(function (row) {
+                var
+                  key = row[this$1.rowKey],
+                  selected = this$1.isRowSelected(key);
+
+                return item(this$1.addBodyRowMeta({
+                  key: key,
+                  row: row,
+                  cols: this$1.computedCols,
+                  colsMap: this$1.computedColsMap,
+                  __trClass: selected ? 'selected' : ''
+                }))
+              }))
+            ]
+          }
+        }
+
+        return h('div', { staticClass: 'q-table-middle scroll', 'class': this.tableClass, style: this.tableStyle }, [
+          h('table', { staticClass: ("q-table q-table-" + (this.separator) + "-separator" + (this.dark ? ' q-table-dark' : '')) },
+            [
+              (hasHeader && this.getTableHeader(h)) || null,
+              this.getTableBody(h)
+            ]
+          )
+        ])
       }
     }
   };
@@ -22662,7 +22721,10 @@
     bind: function bind (el, binding) {
       var ctx = {
         scroll: function scroll$$1 () {
-          ctx.handler(getScrollPosition(ctx.scrollTarget));
+          ctx.handler(
+            getScrollPosition(ctx.scrollTarget),
+            getHorizontalScrollPosition(ctx.scrollTarget)
+          );
         }
       };
       el.__qscroll = ctx;
@@ -22878,7 +22940,7 @@
     metaTag.setAttribute('content', hexColor);
 
     if (newTag) {
-      document.getElementsByTagName('HEAD')[0].appendChild(metaTag);
+      document.head.appendChild(metaTag);
     }
   }
 
@@ -22886,6 +22948,7 @@
     install: function install (ref) {
       var $q = ref.$q;
       var Vue$$1 = ref.Vue;
+      var cfg = ref.cfg;
 
       this.set = !isSSR && Platform.is.mobile && (
         Platform.is.cordova ||
@@ -22893,20 +22956,20 @@
         Platform.is.webkit || Platform.is.vivaldi
       )
         ? function (hexColor) {
-          ready(function () {
-            var val = hexColor || getBrand('primary');
+          var val = hexColor || getBrand('primary');
 
-            if (Platform.is.cordova && window.StatusBar) {
-              window.StatusBar.backgroundColorByHexString(val);
-            }
-            else {
-              setColor(val);
-            }
-          });
+          if (Platform.is.cordova && window.StatusBar) {
+            window.StatusBar.backgroundColorByHexString(val);
+          }
+          else {
+            setColor(val);
+          }
         }
         : function () {};
 
       $q.addressbarColor = this;
+
+      cfg.addressbarColor && this.set(cfg.addressbarColor);
     }
   };
 
@@ -23163,6 +23226,10 @@
   }
 
   var cookies = {
+    parseSSR: function parseSSR (/* ssrContext */ ssr) {
+      return ssr ? getObject({ ssr: ssr }) : this
+    },
+
     install: function install (ref) {
       var $q = ref.$q;
       var queues = ref.queues;
@@ -23225,7 +23292,7 @@
     timeout,
     props = {},
     defaults = {
-      delay: 500,
+      delay: 0,
       message: false,
       spinnerSize: 80,
       spinnerColor: 'white',
@@ -23326,6 +23393,304 @@
     }
   };
 
+  var updateId, ssrTakeover;
+
+  function normalize (meta) {
+    if (meta.title) {
+      meta.title = meta.titleTemplate
+        ? meta.titleTemplate(meta.title || '')
+        : meta.title;
+      delete meta.titleTemplate;
+    }
+  [['meta', 'content'], ['link', 'href']].forEach(function (type) {
+      var
+        metaType = meta[type[0]],
+        metaProp = type[1];
+
+      for (var name in metaType) {
+        var metaLink = metaType[name];
+        if (metaLink.template) {
+          if (Object.keys(metaLink).length === 1) {
+            delete metaType[name];
+          }
+          else {
+            metaLink[metaProp] = metaLink.template(metaLink[metaProp] || '');
+            delete metaLink.template;
+          }
+        }
+      }
+    });
+  }
+
+  function changed (old, def) {
+    if (Object.keys(old).length !== Object.keys(def).length) {
+      return true
+    }
+    for (var key in old) {
+      if (old[key] !== def[key]) { return true }
+    }
+  }
+
+  function bodyFilter (name) {
+    return !['class', 'style'].includes(name)
+  }
+
+  function htmlFilter (name) {
+    return !['lang', 'dir'].includes(name)
+  }
+
+  function diff (meta, other) {
+    var add = {}, remove = {};
+
+    if (!meta) {
+      return { add: other, remove: remove }
+    }
+
+    if (meta.title !== other.title) {
+      add.title = other.title;
+    }
+  ['meta', 'link', 'script', 'htmlAttr', 'bodyAttr'].forEach(function (type) {
+      var old = meta[type], cur = other[type];
+      remove[type] = [];
+
+      if (!old) {
+        add[type] = cur;
+        return
+      }
+
+      add[type] = {};
+
+      for (var key in old) {
+        if (!cur.hasOwnProperty(key)) { remove[type].push(key); }
+      }
+      for (var key$1 in cur) {
+        if (!old.hasOwnProperty(key$1)) { add[type][key$1] = cur[key$1]; }
+        else if (changed(old[key$1], cur[key$1])) {
+          remove[type].push(key$1);
+          add[type][key$1] = cur[key$1];
+        }
+      }
+    });
+
+    return { add: add, remove: remove }
+  }
+
+  function apply (ref) {
+    var add = ref.add;
+    var remove = ref.remove;
+
+    if (add.title) {
+      document.title = add.title;
+    }
+
+    if (Object.keys(remove).length > 0) {
+      ['meta', 'link', 'script'].forEach(function (type) {
+        remove[type].forEach(function (name) {
+          document.head.querySelector((type + "[data-qmeta=\"" + name + "\"]")).remove();
+        });
+      });
+      remove.htmlAttr.filter(htmlFilter).forEach(function (name) {
+        document.documentElement.removeAttribute(name);
+      });
+      remove.bodyAttr.filter(bodyFilter).forEach(function (name) {
+        document.body.removeAttribute(name);
+      });
+    }
+  ['meta', 'link', 'script'].forEach(function (type) {
+      var metaType = add[type];
+
+      for (var name in metaType) {
+        var tag = document.createElement(type);
+        for (var att in metaType[name]) {
+          if (att !== 'innerHTML') {
+            tag.setAttribute(att, metaType[name][att]);
+          }
+        }
+        tag.setAttribute('data-qmeta', name);
+        if (type === 'script') {
+          tag.innerHTML = metaType[name].innerHTML || '';
+        }
+        document.head.appendChild(tag);
+      }
+    });
+    Object.keys(add.htmlAttr).filter(htmlFilter).forEach(function (name) {
+      document.documentElement.setAttribute(name, add.htmlAttr[name] || '');
+    });
+    Object.keys(add.bodyAttr).filter(bodyFilter).forEach(function (name) {
+      document.body.setAttribute(name, add.bodyAttr[name] || '');
+    });
+  }
+
+  function parseMeta (component, meta) {
+    if (component._inactive) { return }
+
+    var hasMeta = component.$options.meta;
+    if (hasMeta) {
+      extend(true, meta, component.__qMeta);
+      if (hasMeta.stopPropagation) { return }
+    }
+
+    component.$children && component.$children.forEach(function (child) {
+      parseMeta(child, meta);
+    });
+  }
+
+  function updateClient () {
+    if (ssrTakeover) {
+      ssrTakeover = false;
+      this.$root.__currentMeta = window.__Q_META__;
+      document.body.querySelector('script[data-qmeta-init]').remove();
+      return
+    }
+
+    var meta = {
+      title: '',
+      titleTemplate: null,
+      meta: {},
+      link: {},
+      script: {},
+      htmlAttr: {},
+      bodyAttr: {}
+    };
+    parseMeta(this.$root, meta);
+    normalize(meta);
+
+    apply(diff(this.$root.__currentMeta, meta));
+    this.$root.__currentMeta = meta;
+  }
+
+  function getAttr (seed) {
+    return function (att) {
+      var val = seed[att];
+      return att + (val !== void 0 ? ("=\"" + val + "\"") : '')
+    }
+  }
+
+  function getHead (meta) {
+    var output = '';
+    if (meta.title) {
+      output += "<title>" + (meta.title) + "</title>";
+    }
+  ['meta', 'link', 'script'].forEach(function (type) {
+      var metaType = meta[type];
+
+      for (var att in metaType) {
+        var attrs = Object.keys(metaType[att])
+          .filter(function (att) { return att !== 'innerHTML'; })
+          .map(getAttr(metaType[att]));
+
+        output += "<" + type + " " + (attrs.join(' ')) + " data-qmeta=\"" + att + "\">";
+        if (type === 'script') {
+          output += (metaType[att].innerHTML || '') + "</script>";
+        }
+      }
+    });
+    return output
+  }
+
+  function getServerMeta (app, html) {
+    var meta = {
+      title: '',
+      titleTemplate: null,
+      meta: {},
+      link: {},
+      htmlAttr: {},
+      bodyAttr: {},
+      noscript: {}
+    };
+
+    parseMeta(app, meta);
+    normalize(meta);
+
+    var tokens = {
+      '%%Q_HTML_ATTRS%%': Object.keys(meta.htmlAttr)
+        .filter(htmlFilter)
+        .map(getAttr(meta.htmlAttr))
+        .join(' '),
+      '%%Q_HEAD_TAGS%%': getHead(meta),
+      '%%Q_BODY_ATTRS%%': Object.keys(meta.bodyAttr)
+        .filter(bodyFilter)
+        .map(getAttr(meta.bodyAttr))
+        .join(' '),
+      '%%Q_BODY_TAGS%%': Object.keys(meta.noscript)
+        .map(function (name) { return ("<noscript data-qmeta=\"" + name + "\">" + (meta.noscript[name]) + "</noscript>"); })
+        .join('') +
+        "<script data-qmeta-init>window.__Q_META__=" + (delete meta.noscript && JSON.stringify(meta)) + "</script>"
+    };
+
+    Object.keys(tokens).forEach(function (key) {
+      html = html.replace(key, tokens[key]);
+    });
+
+    return html
+  }
+
+  function beforeCreate () {
+    if (this.$options.meta) {
+      if (typeof this.$options.meta === 'function') {
+        if (!this.$options.computed) {
+          this.$options.computed = {};
+        }
+        this.$options.computed.__qMeta = this.$options.meta;
+      }
+      else {
+        this.__qMeta = this.$options.meta;
+      }
+    }
+  }
+
+  function triggerMeta () {
+    this.$options.meta && this.__qMetaUpdate();
+  }
+
+  var meta = {
+    install: function install (ref) {
+      var queues = ref.queues;
+      var Vue$$1 = ref.Vue;
+
+      if (isSSR) {
+        Vue$$1.prototype.$getMetaHTML = function (app) { return function (html) { return getServerMeta(app, html); }; };
+        Vue$$1.mixin({ beforeCreate: beforeCreate });
+
+        queues.server.push(function (q, ctx) {
+          ctx.ssr.Q_HTML_ATTRS += ' %%Q_HTML_ATTRS%%';
+          Object.assign(ctx.ssr, {
+            Q_HEAD_TAGS: '%%Q_HEAD_TAGS%%',
+            Q_BODY_ATTRS: '%%Q_BODY_ATTRS%%',
+            Q_BODY_TAGS: '%%Q_BODY_TAGS%%'
+          });
+        });
+      }
+      else {
+        ssrTakeover = fromSSR;
+
+        Vue$$1.mixin({
+          beforeCreate: beforeCreate,
+          created: function created () {
+            if (this.$options.meta) {
+              this.__qMetaUnwatch = this.$watch('__qMeta', this.__qMetaUpdate);
+            }
+          },
+          activated: triggerMeta,
+          deactivated: triggerMeta,
+          beforeMount: triggerMeta,
+          destroyed: function destroyed () {
+            if (this.$options.meta) {
+              this.__qMetaUnwatch();
+              this.__qMetaUpdate();
+            }
+          },
+          methods: {
+            __qMetaUpdate: function __qMetaUpdate () {
+              clearTimeout(updateId);
+              updateId = setTimeout(updateClient.bind(this), 50);
+            }
+          }
+        });
+      }
+    }
+  };
+
   var defaults$1;
 
   var positionList = [
@@ -23335,15 +23700,7 @@
   ];
 
   function init (ref) {
-    var this$1 = this;
     var Vue$$1 = ref.Vue;
-
-    if (!document.body) {
-      ready(function () {
-        init.call(this$1, { Vue: Vue$$1 });
-      });
-      return
-    }
 
     var node = document.createElement('div');
     document.body.appendChild(node);
@@ -23495,28 +23852,7 @@
 
   var notify = {
     create: function create (opts) {
-      var this$1 = this;
-
       if (isSSR) { return function () {} }
-
-      if (!document.body) {
-        var
-          cancelled = false,
-          cancelFn = function () {},
-          cancelFnWrapper = function () {
-            cancelled = true;
-            cancelFn();
-          };
-
-        ready(function () {
-          if (!cancelled) {
-            cancelFn = this$1.create(opts);
-          }
-        });
-
-        return cancelFnWrapper
-      }
-
       return this.__vm.add(opts)
     },
     setDefaults: function setDefaults (opts) {
@@ -23825,6 +24161,7 @@
     Dialog: dialog,
     LoadingBar: loadingBar,
     Loading: loading,
+    Meta: meta,
     Notify: notify,
     Platform: Platform,
     Screen: screen,

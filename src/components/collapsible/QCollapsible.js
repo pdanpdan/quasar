@@ -4,13 +4,17 @@ import QItemTile from '../list/QItemTile.js'
 import QItemWrapper from '../list/QItemWrapper.js'
 import QSlideTransition from '../slide-transition/QSlideTransition.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
-import ItemMixin from '../../mixins/item.js'
+import ItemMixin, { subItemProps } from '../../mixins/item.js'
 
 const eventName = 'q:collapsible:close'
 
 export default {
   name: 'QCollapsible',
-  mixins: [ModelToggleMixin, ItemMixin],
+  mixins: [
+    ModelToggleMixin,
+    ItemMixin,
+    { props: subItemProps }
+  ],
   modelToggle: {
     history: false
   },
@@ -32,6 +36,7 @@ export default {
         'q-collapsible-opened': this.popup && this.showing,
         'q-collapsible-closed': this.popup && !this.showing,
         'q-collapsible-cursor-pointer': !this.iconToggle,
+        'q-item-dark': this.dark,
         'q-item-separator': this.separator,
         'q-item-inset-separator': this.insetSeparator,
         disabled: this.disable

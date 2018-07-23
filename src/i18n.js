@@ -1,17 +1,24 @@
 import langEn from '../i18n/en-us.js'
 import { isSSR } from './plugins/platform.js'
-import { ready } from './utils/dom.js'
 
 export default {
   install ($q, queues, Vue, lang) {
     if (isSSR) {
       queues.server.push((q, ctx) => {
-        const fn = ctx.ssr.setHtmlAttrs
-        if (typeof fn === 'function') {
-          fn({
+        const
+          opt = {
             lang: q.i18n.lang,
             dir: q.i18n.rtl ? 'rtl' : 'ltr'
-          })
+          },
+          fn = ctx.ssr.setHtmlAttrs
+
+        if (typeof fn === 'function') {
+          fn(opt)
+        }
+        else {
+          ctx.ssr.Q_HTML_ATTRS = Object.keys(opt)
+            .map(key => `${key}=${opt[key]}`)
+            .join(' ')
         }
       })
     }
@@ -22,11 +29,9 @@ export default {
       lang.rtl = lang.rtl || false
 
       if (!isSSR) {
-        ready(() => {
-          const el = document.documentElement
-          el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr')
-          el.setAttribute('lang', lang.lang)
-        })
+        const el = document.documentElement
+        el.setAttribute('dir', lang.rtl ? 'rtl' : 'ltr')
+        el.setAttribute('lang', lang.lang)
       }
 
       if (isSSR || $q.i18n) {

@@ -1,4 +1,3 @@
-import { ready } from './utils/dom.js'
 import { setBrand } from './utils/colors.js'
 import { isSSR } from './plugins/platform.js'
 
@@ -56,19 +55,21 @@ export default {
   install ($q, queues, cfg) {
     if (isSSR) {
       queues.server.push((q, ctx) => {
-        const update = ctx.ssr.setBodyClasses
-        if (typeof update === 'function') {
-          update(getBodyClasses(q.platform, cfg))
+        const
+          cls = getBodyClasses(q.platform, cfg),
+          fn = ctx.ssr.setBodyClasses
+
+        if (typeof fn === 'function') {
+          fn(cls)
+        }
+        else {
+          ctx.ssr.Q_BODY_CLASSES = cls.join(' ')
         }
       })
       return
     }
 
-    const init = cfg.brand && document.body
-    init && setColors(cfg.brand)
-    ready(() => {
-      !init && setColors(cfg.brand)
-      bodyInit($q.platform, cfg)
-    })
+    cfg.brand && setColors(cfg.brand)
+    bodyInit($q.platform, cfg)
   }
 }
