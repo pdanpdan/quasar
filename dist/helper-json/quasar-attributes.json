@@ -1691,6 +1691,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-input/ellipsis": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-input/no-pass-toggle": {
     "type": "boolean",
     "description": "Boolean value."
@@ -3279,6 +3283,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-tabs/panes-container-class": {
+    "type": "string",
+    "description": "String value."
+  },
   "q-table/sort-method": {
     "type": "function",
     "description": "Function value."
@@ -3766,6 +3774,10 @@
   "q-uploader/expand-class": {
     "type": "array|string|object",
     "description": "One of array, string, or object."
+  },
+  "q-uploader/with-credentials": {
+    "type": "boolean",
+    "description": "Boolean value."
   },
   "q-uploader/send-raw": {
     "type": "boolean",

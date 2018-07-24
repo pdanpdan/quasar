@@ -6848,7 +6848,9 @@
 
         var isNumberError = this.isNumber && this.isNumberError;
         var value = isNumberError ? (this.isNegZero ? -0 : null) : this.model;
-        this.model = this.value;
+        if (this.isNumber) {
+          this.model = this.value;
+        }
         if (isNumberError) {
           this.$emit('input', value);
         }
@@ -10655,6 +10657,7 @@
         type: String,
         validator: function (v) { return ['left', 'center', 'right'].includes(v); }
       },
+      ellipsis: Boolean,
       noPassToggle: Boolean,
       numericKeyboardToggle: Boolean,
       readonly: Boolean,
@@ -10744,6 +10747,7 @@
         var classes = [];
         this.align && classes.push(("text-" + (this.align)));
         this.autofilled && classes.push('q-input-autofill');
+        this.ellipsis && classes.push('ellipsis');
         return classes
       },
       length: function length () {
@@ -19475,7 +19479,8 @@
       inverted: Boolean,
       twoLines: Boolean,
       noPaneBorder: Boolean,
-      glossy: Boolean
+      glossy: Boolean,
+      panesContainerClass: String
     },
     data: function data () {
       return {
@@ -19831,7 +19836,10 @@
           ])
         ]),
 
-        h('div', { staticClass: 'q-tabs-panes' }, this.$slots.default)
+        h('div', {
+          staticClass: 'q-tabs-panes',
+          'class': this.panesContainerClass
+        }, this.$slots.default)
       ])
     },
     created: function created () {
@@ -21767,6 +21775,7 @@
       autoExpand: Boolean,
       expandStyle: [Array, String, Object],
       expandClass: [Array, String, Object],
+      withCredentials: Boolean,
       sendRaw: {
         type: Boolean,
         default: false
@@ -22068,6 +22077,9 @@
 
           resolver.then(function (url) {
             xhr.open(this$1.method, url, true);
+            if (this$1.withCredentials) {
+              xhr.withCredentials = true;
+            }
             if (this$1.headers) {
               Object.keys(this$1.headers).forEach(function (key) {
                 xhr.setRequestHeader(key, this$1.headers[key]);

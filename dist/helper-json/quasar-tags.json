@@ -622,6 +622,7 @@
       "max-height",
       "loading",
       "type",
+      "ellipsis",
       "no-pass-toggle",
       "numeric-keyboard-toggle",
       "decimals",
@@ -1347,7 +1348,8 @@
       "inverted",
       "two-lines",
       "no-pane-border",
-      "glossy"
+      "glossy",
+      "panes-container-class"
     ],
     "description": ""
   },
@@ -1541,6 +1543,7 @@
       "auto-expand",
       "expand-style",
       "expand-class",
+      "with-credentials",
       "send-raw"
     ],
     "description": ""
