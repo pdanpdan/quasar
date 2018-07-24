@@ -6848,11 +6848,17 @@
 
         var isNumberError = this.isNumber && this.isNumberError;
         var value = isNumberError ? (this.isNegZero ? -0 : null) : this.model;
+        this.model = this.value;
         if (isNumberError) {
           this.$emit('input', value);
         }
         this.$nextTick(function () {
-          if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
+          if (this$1.isNumber) {
+            if (String(1 / value) !== String(1 / this$1.value)) {
+              this$1.$emit('change', value);
+            }
+          }
+          else if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
             this$1.$emit('change', value);
           }
         });
@@ -10690,7 +10696,12 @@
     },
     watch: {
       value: function value (v) {
-        this.model = v;
+        var
+          vOldNum = parseFloat(this.model),
+          vNewNum = parseFloat(v);
+        if (!this.isNumber || this.isNumberError || isNaN(vOldNum) || isNaN(vNewNum) || vOldNum !== vNewNum) {
+          this.model = v;
+        }
         this.isNumberError = false;
         this.isNegZero = false;
       },
@@ -10799,13 +10810,16 @@
         if (this.isNumber) {
           this.isNegZero = (1 / val) === -Infinity;
           var forcedValue = this.isNegZero ? -0 : val;
+
+          this.model = val;
+
           val = parseFloat(val);
           if (isNaN(val) || this.isNegZero) {
             this.isNumberError = true;
             if (forceUpdate) {
               this.$emit('input', forcedValue);
               this.$nextTick(function () {
-                if (JSON.stringify(forcedValue) !== JSON.stringify(this$1.value)) {
+                if (String(1 / forcedValue) !== String(1 / this$1.value)) {
                   this$1.$emit('change', forcedValue);
                 }
               });
@@ -10817,14 +10831,17 @@
             val = parseFloat(val.toFixed(this.decimals));
           }
         }
-        else if (this.lowerCase) {
-          val = val.toLowerCase();
-        }
-        else if (this.upperCase) {
-          val = val.toUpperCase();
+        else {
+          if (this.lowerCase) {
+            val = val.toLowerCase();
+          }
+          else if (this.upperCase) {
+            val = val.toUpperCase();
+          }
+
+          this.model = val;
         }
 
-        this.model = val;
         this.$emit('input', val);
         if (forceUpdate) {
           this.$nextTick(function () {
