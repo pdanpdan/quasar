@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.0-beta.16
+ * Quasar Framework v0.17.0
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.0-beta.16";
+  var version = "0.17.0";
 
   var History = {
     __history: [],
@@ -4320,6 +4320,10 @@
         default: filter
       },
       staticData: Object,
+      valueField: {
+        type: [String, Function],
+        default: 'value'
+      },
       separator: Boolean
     },
     inject: {
@@ -4354,6 +4358,9 @@
         return this.maxResults && this.results.length > 0
           ? this.results.slice(0, this.maxResults)
           : []
+      },
+      computedValueField: function computedValueField () {
+        return this.valueField || (this.staticData ? this.staticData.field : 'value')
       },
       keyboardMaxIndex: function keyboardMaxIndex () {
         return this.computedResults.length - 1
@@ -4468,7 +4475,7 @@
         return index > -1 && index < this.computedResults.length && !this.computedResults[index].disable
       },
       setValue: function setValue (result, kbdNav) {
-        var value = this.staticData ? result[this.staticData.field] : result.value;
+        var value = typeof this.computedValueField === 'function' ? this.computedValueField(result) : result[this.computedValueField];
         var suffix = this.__inputDebounce ? 'Debounce' : '';
 
         if (this.inputEl && this.__input && !this.__input.hasFocus()) {

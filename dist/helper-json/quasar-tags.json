@@ -39,6 +39,7 @@
       "debounce",
       "filter",
       "static-data",
+      "value-field",
       "separator"
     ],
     "description": ""

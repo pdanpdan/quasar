@@ -91,6 +91,10 @@
     "type": "object",
     "description": "Object value."
   },
+  "q-autocomplete/value-field": {
+    "type": "string|function",
+    "description": "One of string or function."
+  },
   "q-autocomplete/separator": {
     "type": "boolean",
     "description": "Boolean value."
