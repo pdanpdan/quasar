@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.1
+ * Quasar Framework v0.17.2
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.1";
+  var version = "0.17.2";
 
   var History = {
     __history: [],
@@ -8739,11 +8739,15 @@
       __mobileTouchStartHandler: function __mobileTouchStartHandler (evt) {
         var this$1 = this;
 
+        this.__mobileCleanup();
+        if (evt.touches.length > 1) {
+          return
+        }
         this.target.classList.add('non-selectable');
         this.touchTimer = setTimeout(function () {
           evt && stopAndPrevent(evt);
+          this$1.__mobileCleanup();
           setTimeout(function () {
-            this$1.__mobileCleanup();
             this$1.show(evt);
           }, 10);
         }, 600);
@@ -11092,7 +11096,8 @@
             attrs: Object.assign({}, attrs, {
               placeholder: this.inputPlaceholder,
               disabled: this.disable,
-              readonly: this.readonly
+              readonly: this.readonly,
+              rows: this.$attrs.rows || 1
             }),
             domProps: { value: this.model },
             on: {
