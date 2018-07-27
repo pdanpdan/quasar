@@ -2402,7 +2402,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   content: '';
 }
 [dir] .q-if:before, [dir] .q-if:after {
-  border: 1px none currentColor;
+  border: 1px hidden currentColor;
   border-bottom-style: solid;
   background: transparent;
 }

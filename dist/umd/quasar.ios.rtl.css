@@ -2078,7 +2078,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   content: '';
 }
 [dir] .q-if:before, [dir] .q-if:after {
-  border: 1px none currentColor;
+  border: 1px hidden currentColor;
   border-bottom-style: solid;
   background: transparent;
 }

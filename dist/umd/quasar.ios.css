@@ -1575,7 +1575,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  border: 1px none currentColor;
+  border: 1px hidden currentColor;
   border-bottom-style: solid;
   background: transparent;
   pointer-events: none;
