@@ -4217,7 +4217,7 @@
         var this$1 = this;
 
         this.__clearSearch();
-        setTimeout(function () { return this$1.hide(); }, 300);
+        this.timer = setTimeout(function () { return this$1.hide(); }, 300);
       },
       __clearSearch: function __clearSearch () {
         clearTimeout(this.timer);
@@ -4240,7 +4240,10 @@
         this.trigger();
       },
       __focusShowTrigger: function __focusShowTrigger () {
-        this.trigger(true);
+        var this$1 = this;
+
+        clearTimeout(this.timer);
+        setTimeout(function () { return this$1.trigger(true); }, 100);
       },
       __keyboardIsSelectableIndex: function __keyboardIsSelectableIndex (index) {
         return index > -1 && index < this.computedResults.length && !this.computedResults[index].disable
