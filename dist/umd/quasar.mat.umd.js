@@ -11055,7 +11055,7 @@
           input = this.$refs.input;
         if (shadow && input) {
           var h = shadow.scrollHeight;
-          input.style.minHeight = (between(h, shadow.offsetHeight, this.maxHeight || h)) + "px";
+          input.style.height = (between(h, shadow.offsetHeight, this.maxHeight || h)) + "px";
           input.style.overflowY = this.maxHeight && this.maxHeight < h ? 'scroll' : 'hidden';
         }
       },
