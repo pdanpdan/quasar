@@ -270,8 +270,7 @@ export default {
           attrs: Object.assign({}, attrs, {
             placeholder: this.inputPlaceholder,
             disabled: this.disable,
-            readonly: this.readonly,
-            rows: this.$attrs.rows || 1
+            readonly: this.readonly
           }),
           domProps: { value: this.model },
           on: {

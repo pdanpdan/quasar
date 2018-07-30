@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.2
+ * Quasar Framework v0.17.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.2";
+  var version = "0.17.4";
 
   var History = {
     __history: [],
@@ -909,7 +909,10 @@
           width = window.screen.width * ratio,
           height = window.screen.height * ratio;
 
-        if (width !== 1125 && height !== 2001 /* 2436 for iPhoneX fullscreen */) {
+        if (width === 1125 && height === 2436) { // iPhoneX fullscreen
+          cls.push('q-ios-statusbar-x');
+        }
+        if (width !== 1125 || height !== 2001) { // not iPhoneX on non-fullscreen
           cls.push('q-ios-statusbar-padding');
         }
       }
@@ -5175,6 +5178,7 @@
           };
 
           if (ctx.event.detected) {
+            el.classList.add('q-touch');
             stopPropagation && evt.stopPropagation();
             preventDefault && evt.preventDefault();
           }
@@ -5216,6 +5220,7 @@
           ctx.move(evt);
         },
         end: function end (evt) {
+          el.classList.remove('q-touch');
           if (ctx.event.abort || !ctx.event.detected || ctx.event.isFirst) {
             return
           }
@@ -5227,7 +5232,6 @@
       };
 
       el.__qtouchpan = ctx;
-      el.classList.add('q-touch');
 
       if (mouse) {
         el.addEventListener('mousedown', ctx.mouseStart, evtOpts);
@@ -6213,6 +6217,8 @@
             detected: false,
             abort: false
           };
+
+          el.classList.add('q-touch');
         },
         move: function move (evt) {
           if (ctx.event.abort) {
@@ -6254,6 +6260,7 @@
           ctx.move(evt);
         },
         end: function end (evt) {
+          el.classList.remove('q-touch');
           if (ctx.event.abort || !ctx.event.detected) {
             return
           }
@@ -6302,7 +6309,6 @@
       };
 
       el.__qtouchswipe = ctx;
-      el.classList.add('q-touch');
 
       if (mouse) {
         el.addEventListener('mousedown', ctx.mouseStart);
@@ -8974,7 +8980,7 @@
         var this$1 = this;
 
         this.__mobileCleanup();
-        if (evt.touches.length > 1) {
+        if (evt && evt.touches && evt.touches.length > 1) {
           return
         }
         this.target.classList.add('non-selectable');
@@ -10590,7 +10596,7 @@
         this.$emit('resize', this.size);
       },
       trigger: function trigger (immediately) {
-        if (immediately || this.debounce === 0) {
+        if (immediately === true || this.debounce === 0) {
           this.onResize();
         }
         else if (!this.timer) {
@@ -10925,8 +10931,7 @@
             attrs: Object.assign({}, attrs, {
               placeholder: this.inputPlaceholder,
               disabled: this.disable,
-              readonly: this.readonly,
-              rows: this.$attrs.rows || 1
+              readonly: this.readonly
             }),
             domProps: { value: this.model },
             on: {
@@ -13530,7 +13535,7 @@
         }
       },
       trigger: function trigger (immediately) {
-        if (immediately || this.debounce === 0) {
+        if (immediately === true || this.debounce === 0) {
           this.emit();
         }
         else if (!this.timer) {

@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.2
+ * Quasar Framework v0.17.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2313,9 +2313,6 @@ input.q-input-target {
   height: auto;
   width: 100% !important;
 }
-textarea.q-input-target {
-  height: 0;
-}
 .q-jumbotron {
   position: relative;
   padding: 2rem 1rem;
@@ -2454,6 +2451,17 @@ body.q-ios-statusbar-padding .q-layout-header > .q-toolbar:nth-child(2),
 body.q-ios-statusbar-padding .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
 body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
   padding-top: 20px;
+  min-height: 70px;
+}
+body.q-ios-statusbar-x .q-layout-header > .q-toolbar:nth-child(2),
+body.q-ios-statusbar-x .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
+body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+  padding-top: env(safe-area-inset-top);
+}
+body.q-ios-statusbar-x .q-layout-footer > .q-toolbar:last-child,
+body.q-ios-statusbar-x .q-layout-footer > .q-tabs:last-child .q-tabs-head,
+body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+  padding-bottom: env(safe-area-inset-bottom);
   min-height: 70px;
 }
 .q-layout-animate .q-layout-transition {
@@ -2911,6 +2919,14 @@ body.with-loading {
 }
 .q-notification-list-bottom {
   bottom: 0;
+}
+body.q-ios-statusbar-x .q-notification-list-center,
+body.q-ios-statusbar-x .q-notification-list-top {
+  top: env(safe-area-inset-top);
+}
+body.q-ios-statusbar-x .q-notification-list-center,
+body.q-ios-statusbar-x .q-notification-list-bottom {
+  bottom: env(safe-area-inset-bottom);
 }
 .q-notification {
   border-radius: 5px;

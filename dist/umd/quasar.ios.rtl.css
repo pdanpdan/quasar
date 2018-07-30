@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.2
+ * Quasar Framework v0.17.4
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2563,9 +2563,6 @@ input.q-input-target {
   height: auto;
   width: 100% !important;
 }
-textarea.q-input-target {
-  height: 0;
-}
 .q-jumbotron {
   position: relative;
 }
@@ -2741,6 +2738,17 @@ body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
 }
 [dir] body.q-ios-statusbar-padding .q-layout-header > .q-toolbar:nth-child(2), [dir] body.q-ios-statusbar-padding .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head, [dir] body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
   padding-top: 20px;
+}
+[dir] body.q-ios-statusbar-x .q-layout-header > .q-toolbar:nth-child(2), [dir] body.q-ios-statusbar-x .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head, [dir] body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+  padding-top: env(safe-area-inset-top);
+}
+body.q-ios-statusbar-x .q-layout-footer > .q-toolbar:last-child,
+body.q-ios-statusbar-x .q-layout-footer > .q-tabs:last-child .q-tabs-head,
+body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+  min-height: 70px;
+}
+[dir] body.q-ios-statusbar-x .q-layout-footer > .q-toolbar:last-child, [dir] body.q-ios-statusbar-x .q-layout-footer > .q-tabs:last-child .q-tabs-head, [dir] body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .q-layout-animate .q-layout-transition {
   transition: all 0.12s ease-in;
@@ -3301,6 +3309,14 @@ body.with-loading {
 }
 .q-notification-list-bottom {
   bottom: 0;
+}
+body.q-ios-statusbar-x .q-notification-list-center,
+body.q-ios-statusbar-x .q-notification-list-top {
+  top: env(safe-area-inset-top);
+}
+body.q-ios-statusbar-x .q-notification-list-center,
+body.q-ios-statusbar-x .q-notification-list-bottom {
+  bottom: env(safe-area-inset-bottom);
 }
 .q-notification {
   pointer-events: all;
