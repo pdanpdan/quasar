@@ -4475,7 +4475,7 @@
         var this$1 = this;
 
         clearTimeout(this.timer);
-        setTimeout(function () { return this$1.trigger(true); }, 100);
+        this.timer = setTimeout(function () { return this$1.trigger(true); }, 100);
       },
       __keyboardIsSelectableIndex: function __keyboardIsSelectableIndex (index) {
         return index > -1 && index < this.computedResults.length && !this.computedResults[index].disable
@@ -6131,7 +6131,7 @@
           this.$slots.avatar || (
             this.avatar
               ? h('img', {
-                staticClass: 'q-message-avatar',
+                staticClass: 'q-message-avatar col-auto',
                 attrs: { src: this.avatar }
               })
               : null
