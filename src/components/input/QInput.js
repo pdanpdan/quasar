@@ -126,8 +126,32 @@ export default {
     computedStep () {
       return this.step || (this.decimals ? 10 ** -this.decimals : 'any')
     },
-    isFixedTextarea () {
-      return this.isTextarea && (this.maxHeight > 0 || this.$attrs.rows > 1)
+    frameProps () {
+      return {
+        prefix: this.prefix,
+        suffix: this.suffix,
+        stackLabel: this.stackLabel,
+        floatLabel: this.floatLabel,
+        placeholder: this.placeholder,
+        error: this.error,
+        warning: this.warning,
+        disable: this.disable,
+        readonly: this.readonly,
+        inverted: this.inverted,
+        invertedLight: this.invertedLight,
+        dark: this.dark,
+        dense: this.dense,
+        box: this.box,
+        fullWidth: this.fullWidth,
+        outline: this.outline,
+        hideUnderline: this.hideUnderline,
+        before: this.before,
+        after: this.after,
+        color: this.color,
+        noParentField: this.noParentField,
+        focused: this.focused,
+        length: this.autofilled + this.length
+      }
     }
   },
   methods: {
@@ -322,32 +346,7 @@ export default {
   render (h) {
     return h(QInputFrame, {
       staticClass: 'q-input',
-      props: {
-        prefix: this.prefix,
-        suffix: this.suffix,
-        stackLabel: this.stackLabel,
-        floatLabel: this.floatLabel,
-        placeholder: this.placeholder,
-        error: this.error,
-        warning: this.warning,
-        disable: this.disable,
-        readonly: this.readonly,
-        inverted: this.inverted,
-        invertedLight: this.invertedLight,
-        dark: this.dark,
-        dense: this.dense,
-        box: this.box,
-        fullWidth: this.fullWidth,
-        outline: this.outline,
-        hideUnderline: this.hideUnderline,
-        textarea: this.isFixedTextarea,
-        before: this.before,
-        after: this.after,
-        color: this.color,
-        noParentField: this.noParentField,
-        focused: this.focused,
-        length: this.autofilled + this.length
-      },
+      props: this.frameProps,
       on: {
         click: this.__onClick,
         focus: this.__onFocus

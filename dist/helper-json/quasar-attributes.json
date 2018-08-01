@@ -807,10 +807,6 @@
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-chips-input/textarea": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
   "q-chips-input/hide-underline": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1043,10 +1039,6 @@
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-color/textarea": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
   "q-color/hide-underline": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1188,10 +1180,6 @@
     "description": "Boolean value."
   },
   "q-datetime/outline": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-datetime/textarea": {
     "type": "boolean",
     "description": "Boolean value."
   },
@@ -1664,10 +1652,6 @@
     "description": "Boolean value."
   },
   "q-input/outline": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-input/textarea": {
     "type": "boolean",
     "description": "Boolean value."
   },
@@ -2631,10 +2615,6 @@
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-search/textarea": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
   "q-search/hide-underline": {
     "type": "boolean",
     "description": "Boolean value."
@@ -2756,10 +2736,6 @@
     "description": "Boolean value."
   },
   "q-select/outline": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-select/textarea": {
     "type": "boolean",
     "description": "Boolean value."
   },
@@ -3700,10 +3676,6 @@
     "description": "Boolean value."
   },
   "q-uploader/outline": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-uploader/textarea": {
     "type": "boolean",
     "description": "Boolean value."
   },

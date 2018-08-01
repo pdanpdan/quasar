@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.4
+ * Quasar Framework v0.17.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.4";
+  var version = "0.17.5";
 
   var History = {
     __history: [],
@@ -6726,7 +6726,6 @@
       box: Boolean,
       fullWidth: Boolean,
       outline: Boolean,
-      textarea: Boolean,
       hideUnderline: Boolean,
       clearValue: {},
       noParentField: Boolean
@@ -6737,23 +6736,20 @@
           return this.placeholder
         }
       },
-      isFullWidth: function isFullWidth () {
-        return !this.textarea && this.fullWidth
-      },
       isOutline: function isOutline () {
-        return !this.textarea && !this.isFullWidth && this.outline
+        return !this.fullWidth && this.outline
       },
       isBox: function isBox () {
-        return !this.textarea && !this.isFullWidth && !this.isOutline && this.box
+        return !this.fullWidth && !this.isOutline && this.box
       },
       isInverted: function isInverted () {
-        return !this.isFullWidth && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
+        return !this.fullWidth && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
       },
       isInvertedLight: function isInvertedLight () {
         return this.isInverted && ((this.invertedLight && !this.hasError) || (this.inverted && this.hasWarning))
       },
       isStandard: function isStandard () {
-        return !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && !this.isInverted
+        return !this.fullWidth && !this.isOutline && !this.isBox && !this.isInverted
       },
       isHideUnderline: function isHideUnderline () {
         return this.isStandard && this.hideUnderline
@@ -6982,8 +6978,7 @@
         this.lightColor && cls.push('q-if-light-color');
         this.dark && cls.push('q-if-dark');
         this.dense && cls.push('q-if-dense');
-        this.textarea && cls.push('q-if-textarea');
-        this.isFullWidth && cls.push('q-if-full-width');
+        this.fullWidth && cls.push('q-if-full-width');
         this.isOutline && cls.push('q-if-outline');
         this.isBox && cls.push('q-if-box');
         this.isHideUnderline && cls.push('q-if-hide-underline');
@@ -7077,13 +7072,13 @@
               staticClass: 'q-if-label',
               'class': { 'q-if-label-above': this.labelIsAbove }
             }, [
-              this.isFullWidth ? this.$slots.default : void 0,
+              this.fullWidth ? this.$slots.default : void 0,
               h('div', {
                 staticClass: 'q-if-label-inner ellipsis',
                 domProps: { innerHTML: this.label }
               })
             ])) || void 0
-          ].concat(this.hasLabel && this.isFullWidth ? [] : this.$slots.default).concat([
+          ].concat(this.hasLabel && this.fullWidth ? [] : this.$slots.default).concat([
             (this.suffix && h('span', {
               staticClass: 'q-if-addon q-if-addon-right',
               'class': this.addonClass,
@@ -10783,8 +10778,32 @@
       computedStep: function computedStep () {
         return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
       },
-      isFixedTextarea: function isFixedTextarea () {
-        return this.isTextarea && (this.maxHeight > 0 || this.$attrs.rows > 1)
+      frameProps: function frameProps () {
+        return {
+          prefix: this.prefix,
+          suffix: this.suffix,
+          stackLabel: this.stackLabel,
+          floatLabel: this.floatLabel,
+          placeholder: this.placeholder,
+          error: this.error,
+          warning: this.warning,
+          disable: this.disable,
+          readonly: this.readonly,
+          inverted: this.inverted,
+          invertedLight: this.invertedLight,
+          dark: this.dark,
+          dense: this.dense,
+          box: this.box,
+          fullWidth: this.fullWidth,
+          outline: this.outline,
+          hideUnderline: this.hideUnderline,
+          before: this.before,
+          after: this.after,
+          color: this.color,
+          noParentField: this.noParentField,
+          focused: this.focused,
+          length: this.autofilled + this.length
+        }
       }
     },
     methods: {
@@ -10983,32 +11002,7 @@
     render: function render (h) {
       return h(QInputFrame, {
         staticClass: 'q-input',
-        props: {
-          prefix: this.prefix,
-          suffix: this.suffix,
-          stackLabel: this.stackLabel,
-          floatLabel: this.floatLabel,
-          placeholder: this.placeholder,
-          error: this.error,
-          warning: this.warning,
-          disable: this.disable,
-          readonly: this.readonly,
-          inverted: this.inverted,
-          invertedLight: this.invertedLight,
-          dark: this.dark,
-          dense: this.dense,
-          box: this.box,
-          fullWidth: this.fullWidth,
-          outline: this.outline,
-          hideUnderline: this.hideUnderline,
-          textarea: this.isFixedTextarea,
-          before: this.before,
-          after: this.after,
-          color: this.color,
-          noParentField: this.noParentField,
-          focused: this.focused,
-          length: this.autofilled + this.length
-        },
+        props: this.frameProps,
         on: {
           click: this.__onClick,
           focus: this.__onFocus

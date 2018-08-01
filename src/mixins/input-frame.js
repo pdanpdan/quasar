@@ -35,7 +35,6 @@ export default {
     box: Boolean,
     fullWidth: Boolean,
     outline: Boolean,
-    textarea: Boolean,
     hideUnderline: Boolean,
     clearValue: {},
     noParentField: Boolean
@@ -46,23 +45,20 @@ export default {
         return this.placeholder
       }
     },
-    isFullWidth () {
-      return !this.textarea && this.fullWidth
-    },
     isOutline () {
-      return !this.textarea && !this.isFullWidth && this.outline
+      return !this.fullWidth && this.outline
     },
     isBox () {
-      return !this.textarea && !this.isFullWidth && !this.isOutline && this.box
+      return !this.fullWidth && !this.isOutline && this.box
     },
     isInverted () {
-      return !this.isFullWidth && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
+      return !this.fullWidth && !this.isOutline && !this.isBox && (this.inverted || this.invertedLight)
     },
     isInvertedLight () {
       return this.isInverted && ((this.invertedLight && !this.hasError) || (this.inverted && this.hasWarning))
     },
     isStandard () {
-      return !this.textarea && !this.isFullWidth && !this.isOutline && !this.isBox && !this.isInverted
+      return !this.fullWidth && !this.isOutline && !this.isBox && !this.isInverted
     },
     isHideUnderline () {
       return this.isStandard && this.hideUnderline

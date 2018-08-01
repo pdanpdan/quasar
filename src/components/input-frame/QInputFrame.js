@@ -41,8 +41,7 @@ export default {
       this.lightColor && cls.push('q-if-light-color')
       this.dark && cls.push('q-if-dark')
       this.dense && cls.push('q-if-dense')
-      this.textarea && cls.push('q-if-textarea')
-      this.isFullWidth && cls.push('q-if-full-width')
+      this.fullWidth && cls.push('q-if-full-width')
       this.isOutline && cls.push('q-if-outline')
       this.isBox && cls.push('q-if-box')
       this.isHideUnderline && cls.push('q-if-hide-underline')
@@ -132,13 +131,13 @@ export default {
             staticClass: 'q-if-label',
             'class': { 'q-if-label-above': this.labelIsAbove }
           }, [
-            this.isFullWidth ? this.$slots.default : void 0,
+            this.fullWidth ? this.$slots.default : void 0,
             h('div', {
               staticClass: 'q-if-label-inner ellipsis',
               domProps: { innerHTML: this.label }
             })
           ])) || void 0
-        ].concat(this.hasLabel && this.isFullWidth ? [] : this.$slots.default).concat([
+        ].concat(this.hasLabel && this.fullWidth ? [] : this.$slots.default).concat([
           (this.suffix && h('span', {
             staticClass: 'q-if-addon q-if-addon-right',
             'class': this.addonClass,

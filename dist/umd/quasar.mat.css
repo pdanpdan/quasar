@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.4
+ * Quasar Framework v0.17.5
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1836,24 +1836,19 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   border-radius: 4px 4px 0 0;
 }
 .q-if-outline:before,
-.q-if-textarea:before,
 .q-if-outline:after,
-.q-if-textarea:after,
-.q-if-outline,
-.q-if-textarea {
+.q-if-outline {
   border-radius: 4px;
 }
 .q-if-box,
-.q-if-inverted:not(.q-if-textarea),
-.q-if-outline,
-.q-if-textarea {
+.q-if-inverted,
+.q-if-outline {
   padding-left: 16px;
   padding-right: 16px;
 }
 .q-if-box.q-if-dense,
-.q-if-inverted:not(.q-if-textarea).q-if-dense,
-.q-if-outline.q-if-dense,
-.q-if-textarea.q-if-dense {
+.q-if-inverted.q-if-dense,
+.q-if-outline.q-if-dense {
   padding-left: 12px;
   padding-right: 12px;
 }
@@ -1868,21 +1863,21 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   padding-bottom: 12px;
 }
 .q-if-box .q-if-inner,
-.q-if-inverted:not(.q-if-textarea) .q-if-inner {
+.q-if-inverted .q-if-inner {
   margin-top: 7px;
   margin-bottom: 7px;
 }
 .q-if-box.q-if-dense .q-if-inner,
-.q-if-inverted:not(.q-if-textarea).q-if-dense .q-if-inner {
+.q-if-inverted.q-if-dense .q-if-inner {
   margin-top: 2px;
   margin-bottom: 2px;
 }
 .q-if-box.q-if-has-label .q-if-inner,
-.q-if-inverted:not(.q-if-textarea).q-if-has-label .q-if-inner {
+.q-if-inverted.q-if-has-label .q-if-inner {
   margin-top: 25px;
 }
 .q-if-box.q-if-has-label.q-if-dense .q-if-inner,
-.q-if-inverted:not(.q-if-textarea).q-if-has-label.q-if-dense .q-if-inner {
+.q-if-inverted.q-if-has-label.q-if-dense .q-if-inner {
   margin-top: 22px;
 }
 .q-if:before,
@@ -1924,9 +1919,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   border-width: 1px;
 }
 .q-if-outline:before,
-.q-if-textarea:before,
-.q-if-outline:after,
-.q-if-textarea:after {
+.q-if-outline:after {
   border-style: solid;
 }
 .q-if-focused:after {
@@ -1968,8 +1961,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-standard .q-if-label,
 .q-if-box .q-if-label,
 .q-if-inverted .q-if-label,
-.q-if-outline .q-if-label,
-.q-if-textarea .q-if-label {
+.q-if-outline .q-if-label {
   position: absolute;
   left: 0;
   -webkit-transform-origin: top left;
@@ -1980,8 +1972,7 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-standard .q-if-label.q-if-label-above,
 .q-if-box .q-if-label.q-if-label-above,
 .q-if-inverted .q-if-label.q-if-label-above,
-.q-if-outline .q-if-label.q-if-label-above,
-.q-if-textarea .q-if-label.q-if-label-above {
+.q-if-outline .q-if-label.q-if-label-above {
   font-size: 0.75rem;
   -webkit-transform: translate(0, -100%);
           transform: translate(0, -100%);
@@ -1990,30 +1981,29 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 .q-if-dense.q-if-standard .q-if-label.q-if-label-above,
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
 .q-if-dense.q-if-inverted .q-if-label.q-if-label-above,
-.q-if-dense.q-if-outline .q-if-label.q-if-label-above,
-.q-if-dense.q-if-textarea .q-if-label.q-if-label-above {
+.q-if-dense.q-if-outline .q-if-label.q-if-label-above {
   -webkit-transform: translate(0, -100%);
           transform: translate(0, -100%);
 }
 .q-if-box .q-if-label,
-.q-if-inverted:not(.q-if-textarea) .q-if-label {
+.q-if-inverted .q-if-label {
   top: 50%;
   -webkit-transform: translate(0, -21px);
           transform: translate(0, -21px);
 }
 .q-if-dense.q-if-box .q-if-label,
-.q-if-dense.q-if-inverted:not(.q-if-textarea) .q-if-label {
+.q-if-dense.q-if-inverted .q-if-label {
   -webkit-transform: translate(0, -22px);
           transform: translate(0, -22px);
 }
 .q-if-box .q-if-label.q-if-label-above,
-.q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
+.q-if-inverted .q-if-label.q-if-label-above {
   top: 4px;
   -webkit-transform: translate(0, -125%);
           transform: translate(0, -125%);
 }
 .q-if-dense.q-if-box .q-if-label.q-if-label-above,
-.q-if-dense.q-if-inverted:not(.q-if-textarea) .q-if-label.q-if-label-above {
+.q-if-dense.q-if-inverted .q-if-label.q-if-label-above {
   top: 3px;
   -webkit-transform: translate(0, -120%);
           transform: translate(0, -120%);
@@ -2063,20 +2053,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-outline .q-if-control + .q-if-control + .q-if-inner > div > .q-if-label-above {
   left: -60px;
-}
-.q-if-textarea .q-if-inner {
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-.q-if-dense.q-if-textarea .q-if-inner {
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-.q-if-textarea.q-if-has-label .q-if-inner {
-  margin-top: 32px;
-}
-.q-if-dense.q-if-textarea.q-if-has-label .q-if-inner {
-  margin-top: 24px;
 }
 .q-if-full-width {
   margin-top: 0;

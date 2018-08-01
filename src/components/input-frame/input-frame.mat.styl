@@ -66,7 +66,7 @@ $margin-top-box-dense
     border-width 1px
   &:before, &:after
     @extends $border-radius-top
-.q-if-outline, .q-if-textarea
+.q-if-outline
   &:before, &:after
     border-style solid
     @extends $border-radius-all
@@ -96,7 +96,7 @@ $margin-top-box-dense
     &.q-if-dense
       padding-top $input-dense-padding-top
 
-.q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline, .q-if-textarea
+.q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline
   .q-if-label
     position absolute
     left 0
@@ -109,7 +109,7 @@ $margin-top-box-dense
       .q-if-dense&
         transform $input-label-dense-transform
 
-.q-if-box, .q-if-inverted:not(.q-if-textarea)
+.q-if-box, .q-if-inverted
   .q-if-label
     top 50%
     transform $input-label-box-transform-base
@@ -151,7 +151,7 @@ $margin-top-box-dense
   .q-input-target
     color inherit
 
-.q-if-outline, .q-if-textarea
+.q-if-outline
   @extends $border-radius-all
   @extends $padding-x
   &.q-if-dense
@@ -176,18 +176,6 @@ $margin-top-box-dense
     left -($input-control-size + $input-control-margin + $input-outline-label-padding-x)
   .q-if-control + .q-if-control + .q-if-inner > div > .q-if-label-above
     left -(2 * ($input-control-size + $input-control-margin) + $input-outline-label-padding-x)
-
-.q-if-textarea
-  .q-if-inner
-    margin-top $input-textarea-padding-bottom
-    margin-bottom $input-textarea-padding-bottom
-    .q-if-dense&
-      margin-top $input-textarea-dense-padding-bottom
-      margin-bottom $input-textarea-dense-padding-bottom
-  &.q-if-has-label .q-if-inner
-    margin-top $input-textarea-padding-top
-    .q-if-dense&
-      margin-top $input-textarea-dense-padding-top
 
 .q-if-full-width
   @extends $padding-y-full-width
