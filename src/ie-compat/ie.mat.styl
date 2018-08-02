@@ -4,11 +4,32 @@ ie_style = @block
     flex-basis auto
     display inline-flex
     > div
-      min-width 100%
+      min-width 6rem
       > .q-input-target
         flex-basis auto
+      > input.q-input-target
+        flex-basis 0% !important
   .q-input-target:before
     display block
+
+  /* QEditor */
+  .q-editor-toolbar
+    .q-btn-group.row.inline
+      display block
+      white-space nowrap
+
+  /* Min Height */
+  .q-toolbar
+  .q-actionsheet-title
+  .q-layout-page
+  .q-field-label-inner
+  .q-if-full-width .q-if-label
+  .q-item
+    height 0px
+
+  /* QCarousel */
+  .q-carousel-slide
+    max-width 100%
 
   /* QAlert */
   .row > .col
@@ -18,21 +39,21 @@ ie_style = @block
   /* QSlider, QRange */
   .q-slider-handle
     > .q-chip.inline.row
-      display -ms-inline-grid
+      display table
 
   /* QBtn */
+  a.q-btn:not(.q-btn-round)
+    height 0px
   .q-btn
     .q-btn-inner
       flex-basis auto
-    &:not(.q-btn-round)
-      height 1px
     &:active
     &.active
       .q-btn-inner
         margin -1px 1px 1px -1px
       &.q-btn-push
         .q-btn-inner
-          margin 1px 0 -1px 0
+          margin 1px 1px -1px -1px
         &.disabled
           .q-btn-inner
             margin -1px 1px 1px -1px
@@ -59,6 +80,11 @@ ie_style = @block
   /* QList */
   .q-item-main
     min-width 1px
+
+  /* QLayout Drawer Mini*/
+  .q-layout-drawer-mini .q-item
+    padding-left 0
+    padding-right 0
 
   /* QModalLayout */
   .q-modal-layout

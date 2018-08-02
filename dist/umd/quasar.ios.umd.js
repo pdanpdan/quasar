@@ -14517,7 +14517,7 @@
       }
     },
     render: function render (h) {
-      return h('main', {
+      return h('div', {
         staticClass: 'q-layout-page',
         style: this.computedStyle,
         'class': this.computedClass
