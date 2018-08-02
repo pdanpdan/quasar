@@ -14688,7 +14688,7 @@
       }
     },
     render: function render (h) {
-      return h('div', {
+      return h('main', {
         staticClass: 'q-layout-page',
         style: this.computedStyle,
         'class': this.computedClass
@@ -14839,7 +14839,7 @@
     },
     render: function render (h) {
       return h('div', {
-        staticClass: 'q-page-sticky q-layout-transition z-fixed row flex-center',
+        staticClass: 'q-page-sticky q-layout-transition row flex-center',
         'class': this.classes,
         style: this.computedStyle
       },

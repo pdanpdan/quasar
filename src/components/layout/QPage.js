@@ -29,7 +29,7 @@ export default {
     }
   },
   render (h) {
-    return h('div', {
+    return h('main', {
       staticClass: 'q-layout-page',
       style: this.computedStyle,
       'class': this.computedClass

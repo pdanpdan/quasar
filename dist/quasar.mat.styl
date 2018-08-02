@@ -3767,7 +3767,7 @@ $toggle-base-height = round($toggle-handle-size / 1.7)
 .q-toolbar-inverted
   background white
 .q-toolbar-title
-  flex 1
+  flex 1 1 0%
   min-width 1px
   max-width 100%
   font-size $toolbar-title-font-size
@@ -5208,8 +5208,6 @@ fg($name, $size)
           height auto
           min-height 0
           max-height 100%
-        .column > &
-          flex-basis auto
       &
         flex 10**4 1 0%
       &-auto
@@ -5975,10 +5973,10 @@ ie_style = @block
     flex-basis auto
     display inline-flex
     > div
-      min-width 6rem
       > .q-input-target
         flex-basis auto
       > input.q-input-target
+        min-width 6rem
         flex-basis 0% !important
   .q-input-target:before
     display block
@@ -5993,7 +5991,6 @@ ie_style = @block
   .q-layout-page
   .q-field-label-inner
   .q-if-full-width .q-if-label
-  .q-item
     height 0px
   
   .q-carousel-slide
