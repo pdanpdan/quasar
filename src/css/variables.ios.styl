@@ -142,7 +142,7 @@ $input-dense-margin-bottom   ?= 4px
 $input-border-radius   ?= 4px
 $input-font-size       ?= 1rem
 $input-label-top-scale ?= .75
-$input-padding-x       ?= 16px
+$input-padding-x       ?= 12px
 $input-padding-top     ?= 25px
 $input-padding-bottom  ?= 7px
 $input-control-size    ?= 24px
@@ -151,7 +151,7 @@ $input-min-height      ?= $input-control-size
 
 $input-dense-font-size       ?= .813rem
 $input-dense-label-top-scale ?= unit($input-font-size / $input-dense-font-size * $input-label-top-scale * .9755, '')
-$input-dense-padding-x       ?= 12px
+$input-dense-padding-x       ?= 8px
 $input-dense-padding-top     ?= 22px
 $input-dense-padding-bottom  ?= 2px
 
@@ -163,7 +163,9 @@ $input-box-dense-padding-bottom ?= $input-dense-padding-bottom
 $input-fullwidth-padding-y       ?= 16px
 $input-fullwidth-dense-padding-y ?= 12px
 
-$input-outline-label-padding-x ?= 4px
+$input-outline-padding-left      ?= $input-padding-x
+$input-outline-padding-right     ?= $input-dense-padding-x
+$input-outline-label-padding-x   ?= 4px
 
 $input-inverted-border-radius  ?= $generic-border-radius
 

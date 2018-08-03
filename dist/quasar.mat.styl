@@ -684,7 +684,7 @@ $input-dense-margin-bottom   ?= 4px
 $input-border-radius   ?= 4px
 $input-font-size       ?= 1rem
 $input-label-top-scale ?= .75
-$input-padding-x       ?= 16px
+$input-padding-x       ?= 12px
 $input-padding-top     ?= 25px
 $input-padding-bottom  ?= 7px
 $input-control-size    ?= 24px
@@ -692,7 +692,7 @@ $input-control-margin  ?= 4px
 $input-min-height      ?= $input-control-size
 $input-dense-font-size       ?= .813rem
 $input-dense-label-top-scale ?= unit($input-font-size / $input-dense-font-size * $input-label-top-scale * .9755, '')
-$input-dense-padding-x       ?= 12px
+$input-dense-padding-x       ?= 8px
 $input-dense-padding-top     ?= 22px
 $input-dense-padding-bottom  ?= 2px
 $input-box-padding-top          ?= $input-padding-top
@@ -701,7 +701,9 @@ $input-box-dense-padding-top    ?= $input-dense-padding-top
 $input-box-dense-padding-bottom ?= $input-dense-padding-bottom
 $input-fullwidth-padding-y       ?= 16px
 $input-fullwidth-dense-padding-y ?= 12px
-$input-outline-label-padding-x ?= 4px
+$input-outline-padding-left      ?= $input-padding-x
+$input-outline-padding-right     ?= $input-dense-padding-x
+$input-outline-label-padding-x   ?= 4px
 $input-inverted-border-radius  ?= $generic-border-radius
 $input-label-transform-base           ?= translate(0, 0)
 $input-label-box-transform-base       ?= translate(0, -21px)
@@ -1914,7 +1916,7 @@ for $pos in 0..23
   color $form-dark
   .q-if-dense + &
     padding-top $input-dense-margin-bottom
-.q-field-no-input
+.q-field-no-input .q-field-bottom
   margin-top 8px
   border-top 1px solid rgba(0, 0, 0, .12)
 .q-field-counter
@@ -1923,48 +1925,52 @@ for $pos in 0..23
 .q-field-dark
   .q-field-label, .q-field-icon, .q-field-counter, .q-field-bottom
     color $form-light
-  .q-field-no-input
+  .q-field-no-input .q-field-bottom
     border-top 1px solid $field-label-color
 .q-field-with-error
   .q-field-icon, .q-field-label, .q-field-bottom
     color $negative
     color var(--q-color-negative)
-  .q-field-no-input
+  .q-field-no-input .q-field-bottom
     border-top 1px solid $negative
     border-top 1px solid var(--q-color-negative)
 .q-field-with-warning
   .q-field-icon, .q-field-label, .q-field-bottom
     color $warning
     color var(--q-color-warning)
-  .q-field-no-input
+  .q-field-no-input .q-field-bottom
     border-top 1px solid $warning
     border-top 1px solid var(--q-color-warning)
-.q-field-content > .q-if-standard
-  padding-top 0
+.q-field-margin
+  margin-top 5px
+.q-field-floating .q-field-margin
+  margin-top 23px
+.q-field-no-input .q-field-margin
+  margin-top 3px
+.q-field-content
+  .q-if.q-if-has-label:not(.q-if-standard)
+    margin-top 9px
+  .q-if-standard:not(.q-if-has-label)
+    padding-top 6px
+  .q-option-group
+    padding-top 0
+.q-field-no-input .q-field-content
+  padding-top 6px
 qfield-vertical()
-  .q-field-label + .q-field-content
-    padding-top 8px
-  &.q-field-floating.q-field-no-label
+  &:not(.q-field-no-label)
     .q-field-margin
-      margin-top 12px
+      margin-top 0
+    .q-if-standard:not(.q-if-has-label)
+      padding-top 0
+    .q-if.q-if-has-label:not(.q-if-standard)
+      margin-top 0px
   &.q-field-no-label .q-field-label
     display none
-qfield-horizontal()
-  &.q-field-floating
-    .q-field-margin
-      margin-top 12px
-  .q-field-label + .q-field-content
-    padding-top 0
 .q-field-vertical
   qfield-vertical()
-.q-field-horizontal
-  qfield-horizontal()
 @media (max-width $breakpoint-xs-max)
   .q-field-responsive
     qfield-vertical()
-@media (min-width $breakpoint-sm-min)
-  .q-field-responsive
-    qfield-horizontal()
 .q-inner-loading
   background $light-dimmed-background
   &.dark
@@ -1983,6 +1989,9 @@ $padding-x
 $padding-x-dense
   padding-left $input-dense-padding-x
   padding-right $input-dense-padding-x
+$padding-x-outline
+  padding-left $input-outline-padding-left
+  padding-right $input-outline-padding-right
 $padding-y-full-width
   padding-top $input-fullwidth-padding-y
   padding-bottom $input-fullwidth-padding-y
@@ -2074,6 +2083,7 @@ $margin-top-box-dense
       .q-if-dense&
         transform $input-label-dense-transform
 .q-if-box, .q-if-inverted
+  @extends $padding-x
   .q-if-label
     top 50%
     transform $input-label-box-transform-base
@@ -2085,7 +2095,6 @@ $margin-top-box-dense
       .q-if-dense&
         top 3px
         transform $input-label-box-dense-transform
-  @extends $padding-x
   .q-if-inner
     @extends $margin-y-box
   &.q-if-dense
@@ -2114,10 +2123,7 @@ $margin-top-box-dense
     color inherit
 .q-if-outline
   @extends $border-radius-all
-  @extends $padding-x
-  &.q-if-dense
-    @extends $padding-x-dense
-.q-if-outline
+  @extends $padding-x-outline
   @extends $padding-y-full-width
   &, .q-if-inner, .q-if-inner > div, .q-if-label
     background-color inherit
@@ -2948,6 +2954,8 @@ $radio-size = 21px
   background rgba(255, 255, 255, .25)
 body.desktop .q-select-highlight
   background $item-highlight-color !important
+.q-slide-transition
+  transition .3s cubic-bezier(.25, .8, .50, 1)
 $slider-height              = 28px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px

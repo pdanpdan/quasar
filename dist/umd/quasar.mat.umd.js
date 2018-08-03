@@ -7267,84 +7267,28 @@
     }
   };
 
-  function getHeight (el, style$$1) {
-    var initial = {
-      visibility: el.style.visibility,
-      maxHeight: el.style.maxHeight
-    };
-
-    css(el, {
-      visibility: 'hidden',
-      maxHeight: ''
-    });
-    var height$$1 = style$$1.height;
-    css(el, initial);
-
-    return parseFloat(height$$1)
-  }
-
-  function parseSize (padding) {
-    return padding.split(' ').map(function (t) {
-      var unit = t.match(/[a-zA-Z]+/) || '';
-      if (unit) {
-        unit = unit[0];
-      }
-      return [parseFloat(t), unit]
-    })
-  }
-
-  function toggleSlide (el, showing, done) {
-    var store = el.__qslidetoggle || {};
-    function anim () {
-      store.uid = start({
-        to: showing ? 100 : 0,
-        from: store.pos !== null ? store.pos : showing ? 0 : 100,
-        apply: function apply (pos) {
-          store.pos = pos;
-          css(el, {
-            maxHeight: ((store.height * pos / 100) + "px"),
-            padding: store.padding ? store.padding.map(function (t) { return (t[0] * pos / 100) + t[1]; }).join(' ') : '',
-            margin: store.margin ? store.margin.map(function (t) { return (t[0] * pos / 100) + t[1]; }).join(' ') : ''
-          });
-        },
-        done: function done$1 () {
-          store.uid = null;
-          store.pos = null;
-          done();
-          css(el, store.css);
-        }
-      });
-      el.__qslidetoggle = store;
-    }
-
-    if (store.uid) {
-      stop(store.uid);
-      return anim()
-    }
-
-    store.css = {
-      overflowY: el.style.overflowY,
-      maxHeight: el.style.maxHeight,
-      padding: el.style.padding,
-      margin: el.style.margin
-    };
-    var style$$1 = window.getComputedStyle(el);
-    if (style$$1.padding && style$$1.padding !== '0px') {
-      store.padding = parseSize(style$$1.padding);
-    }
-    if (style$$1.margin && style$$1.margin !== '0px') {
-      store.margin = parseSize(style$$1.margin);
-    }
-    store.height = getHeight(el, style$$1);
-    store.pos = null;
-    el.style.overflowY = 'hidden';
-    anim();
-  }
-
   var QSlideTransition = {
     name: 'QSlideTransition',
     props: {
       appear: Boolean
+    },
+    methods: {
+      __cleanup: function __cleanup () {
+        if (this.animListener) {
+          this.el.removeEventListener('transitionend', this.animListener);
+        }
+        clearTimeout(this.timer);
+        this.timer = null;
+      },
+      __finalize: function __finalize (el) {
+        el.style.overflowY = null;
+        el.style.height = null;
+        el.classList.remove('q-slide-transition');
+        this.__cleanup();
+      }
+    },
+    beforeDestroy: function beforeDestroy () {
+      this.__cleanup();
     },
     render: function render (h) {
       var this$1 = this;
@@ -7357,16 +7301,50 @@
         },
         on: {
           enter: function (el, done) {
-            toggleSlide(el, true, function () {
+            this$1.animListener = function () {
               this$1.$emit('show');
+              this$1.__finalize(el);
               done();
-            });
+            };
+            el.addEventListener('transitionend', this$1.animListener);
+            this$1.el = el;
+
+            if (!this$1.timer) {
+              // Get height that is to be scrolled
+              el.style.overflowY = 'hidden';
+              el.style.height = 0;
+              el.classList.add('q-slide-transition');
+            }
+
+            this$1.timer = setTimeout(function () {
+              el.style.height = !el.scrollHeight
+                ? 'auto'
+                : ((el.scrollHeight) + "px");
+            }, 1);
+          },
+          enterCancelled: function () {
+            this$1.__cleanup();
           },
           leave: function (el, done) {
-            toggleSlide(el, false, function () {
+            this$1.animListener = function () {
               this$1.$emit('hide');
+              this$1.__finalize(el);
               done();
-            });
+            };
+            el.addEventListener('transitionend', this$1.animListener);
+            this$1.el = el;
+
+            if (!this$1.timer) {
+              // Set height before we transition to 0
+              el.style.overflowY = 'hidden';
+              el.style.height = (el.scrollHeight) + "px";
+              el.classList.add('q-slide-transition');
+            }
+
+            this$1.timer = setTimeout(function () { el.style.height = 0; }, 1);
+          },
+          leaveCancelled: function () {
+            this$1.__cleanup();
           }
         }
       }, this.$slots.default)
@@ -13073,7 +13051,8 @@
           'q-field-no-label': !this.label && !this.$slots.label,
           'q-field-with-error': this.hasError,
           'q-field-with-warning': this.hasWarning,
-          'q-field-dark': this.isDark
+          'q-field-dark': this.isDark,
+          'q-field-no-input': this.hasNoInput
         }
       },
       computedLabelWidth: function computedLabelWidth () {
@@ -13174,8 +13153,7 @@
             this.$slots.default,
             this.__hasBottom()
               ? h('div', {
-                staticClass: 'q-field-bottom row no-wrap',
-                'class': { 'q-field-no-input': this.hasNoInput }
+                staticClass: 'q-field-bottom row no-wrap'
               }, [
                 this.__getBottomContent(h),
                 this.counter
@@ -14916,7 +14894,7 @@
         'class': this.contentClass
       }, this.$slots.default));
 
-      if (this.$slots.footer || ('mat' === 'ios')) {
+      if (this.$slots.footer || ('mat' === 'ios' && this.$slots.navigation)) {
         child.push(h('div', {
           staticClass: 'q-layout-footer',
           style: this.footerStyle,
