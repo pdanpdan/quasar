@@ -7219,6 +7219,9 @@
         this.lowerCase && cls.push('lowercase');
 
         return cls
+      },
+      isClearable: function isClearable () {
+        return this.editable && this.clearable && this.model.length !== 0
       }
     },
     methods: {
@@ -7256,6 +7259,14 @@
         if (this.editable && index >= 0 && index < this.length) {
           this.$emit('remove', { index: index, value: this.model.splice(index, 1) });
           this.$emit('input', this.model);
+        }
+      },
+      clear: function clear (evt) {
+        clearTimeout(this.timer);
+        evt && stopAndPrevent(evt);
+        if (this.editable) {
+          this.$emit('input', []);
+          this.$emit('clear');
         }
       },
       __clearTimer: function __clearTimer () {
@@ -7405,7 +7416,20 @@
               touchstart: this.__clearTimer,
               click: function () { this$1.add(); }
             }
-          })) || void 0)
+          })) || void 0),
+
+        (this.isClearable && h(QIcon, {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: {
+            name: this.$q.icon.input[("clear" + (this.isInverted ? 'Inverted' : ''))]
+          },
+          nativeOn: {
+            mousedown: this.__clearTimer,
+            touchstart: this.__clearTimer,
+            click: this.clear
+          }
+        })) || void 0
       ].concat(this.$slots.default
         ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
         : void 0
@@ -7502,79 +7526,73 @@
       appear: Boolean
     },
     methods: {
-      __cleanup: function __cleanup () {
-        if (this.animListener) {
-          this.el.removeEventListener('transitionend', this.animListener);
-        }
-        clearTimeout(this.timer);
-        this.timer = null;
+      __begin: function __begin (el, height) {
+        el.style.overflowY = 'hidden';
+        el.style.height = height + "px";
+        el.classList.add('q-slide-transition');
+        this.animating = true;
       },
-      __finalize: function __finalize (el) {
+      __end: function __end (el, event) {
         el.style.overflowY = null;
         el.style.height = null;
         el.classList.remove('q-slide-transition');
         this.__cleanup();
+        event !== this.lastEvent && this.$emit(event);
+        this.animating = false;
+      },
+      __cleanup: function __cleanup () {
+        clearTimeout(this.timer);
+        this.el.removeEventListener('transitionend', this.animListener);
       }
     },
     beforeDestroy: function beforeDestroy () {
-      this.__cleanup();
+      this.animating && this.__cleanup();
     },
     render: function render (h) {
       var this$1 = this;
 
       return h('transition', {
         props: {
-          mode: 'out-in',
           css: false,
           appear: this.appear
         },
         on: {
           enter: function (el, done) {
-            this$1.animListener = function () {
-              this$1.$emit('show');
-              this$1.__finalize(el);
-              done();
-            };
-            el.addEventListener('transitionend', this$1.animListener);
             this$1.el = el;
 
-            if (!this$1.timer) {
-              // Get height that is to be scrolled
-              el.style.overflowY = 'hidden';
-              el.style.height = 0;
-              el.classList.add('q-slide-transition');
+            if (this$1.animating !== true) {
+              this$1.lastEvent = 'hide';
+              this$1.__begin(el, 0);
             }
 
             this$1.timer = setTimeout(function () {
-              el.style.height = !el.scrollHeight
-                ? 'auto'
-                : ((el.scrollHeight) + "px");
-            }, 1);
+              el.style.height = (el.scrollHeight) + "px";
+              this$1.animListener = function () {
+                this$1.__end(el, 'show');
+                done();
+              };
+              el.addEventListener('transitionend', this$1.animListener);
+            }, 100);
           },
-          enterCancelled: function () {
-            this$1.__cleanup();
-          },
+          enterCancelled: this.__cleanup,
           leave: function (el, done) {
-            this$1.animListener = function () {
-              this$1.$emit('hide');
-              this$1.__finalize(el);
-              done();
-            };
-            el.addEventListener('transitionend', this$1.animListener);
             this$1.el = el;
 
-            if (!this$1.timer) {
-              // Set height before we transition to 0
-              el.style.overflowY = 'hidden';
-              el.style.height = (el.scrollHeight) + "px";
-              el.classList.add('q-slide-transition');
+            if (this$1.animating !== true) {
+              this$1.lastEvent = 'show';
+              this$1.__begin(el, el.scrollHeight);
             }
 
-            this$1.timer = setTimeout(function () { el.style.height = 0; }, 1);
+            this$1.timer = setTimeout(function () {
+              el.style.height = 0;
+              this$1.animListener = function () {
+                this$1.__end(el, 'hide');
+                done();
+              };
+              el.addEventListener('transitionend', this$1.animListener);
+            }, 100);
           },
-          leaveCancelled: function () {
-            this$1.__cleanup();
-          }
+          leaveCancelled: this.__cleanup
         }
       }, this.$slots.default)
     }

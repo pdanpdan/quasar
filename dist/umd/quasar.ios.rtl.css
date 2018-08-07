@@ -3728,10 +3728,10 @@ body div .q-popover {
   background: rgba(189,189,189,0.5) !important;
 }
 .q-slide-transition {
-  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
 }
 [dir] .q-slide-transition {
-  -webkit-transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+  -webkit-transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
 }
 .q-slider-track,
 .q-slider-mark {
@@ -5243,6 +5243,7 @@ body.desktop .q-tab:hover:before {
 }
 .q-tooltip {
   position: fixed;
+  font-size: 12px;
   color: #000;
   -webkit-box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px rgba(0,0,0,0.14), 0 1px 18px rgba(0,0,0,0.12);
   z-index: 9000;

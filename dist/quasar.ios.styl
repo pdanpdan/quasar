@@ -2839,7 +2839,7 @@ $radio-size = 21px
 body.desktop .q-select-highlight
   background $item-highlight-color !important
 .q-slide-transition
-  transition .3s cubic-bezier(.25, .8, .50, 1)
+  transition height .3s cubic-bezier(.25, .8, .50, 1) !important
 $slider-height              = 32px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px
@@ -3657,6 +3657,7 @@ $toggle-handle-size     = $toggle-height - 2 * $toggle-span
   overflow hidden
 .q-tooltip
   position fixed
+  font-size 12px
   color $tooltip-color
   background $tooltip-background
   box-shadow $tooltip-box-shadow
