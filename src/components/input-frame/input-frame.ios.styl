@@ -64,7 +64,7 @@ $margin-top-box-dense
 .q-if-box
   &:before
     border-width 0
-  &:not(.q-if-disabled):hover:before
+  &:not(.q-if-disabled):not(.q-if-error):not(.q-if-warning):hover:before
     border-width 1px
   &:before, &:after
     @extends $border-radius-top
@@ -75,6 +75,9 @@ $margin-top-box-dense
 .q-if-focused:after
   opacity 1
   transition $input-frame-transition-border
+.q-if-error:before
+.q-if-warning:before
+  border-width 2px
 
 .q-if
   outline 0
@@ -96,6 +99,16 @@ $margin-top-box-dense
     padding-top $input-padding-top
     &.q-if-dense
       padding-top $input-dense-padding-top
+.q-if-hide-underline
+  padding-top 0
+  padding-bottom 0
+  &.q-if-dense
+    padding-top 0
+    padding-bottom 0
+  &.q-if-has-label
+    padding-top $input-hide-underline-padding-top
+    &.q-if-dense
+      padding-top $input-hide-underline-padding-top
 
 .q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline
   .q-if-label
@@ -199,18 +212,18 @@ $margin-top-box-dense
     color currentColor
 
 .q-if-warning
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label-above
     color $warning
     color var(--q-color-warning)
-  &:not(.q-if-full-width):hover:before
+  &.q-if-standard:hover:before
     color lighten($warning, 46%)
     color var(--q-color-warning-l)
 
 .q-if-error
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label-above
     color $negative
     color var(--q-color-negative)
-  &:not(.q-if-full-width):hover:before
+  &.q-if-standard:hover:before
     color lighten($negative, 46%)
     color var(--q-color-negative-l)
 

@@ -9,6 +9,8 @@ const sizes = {
   xl: 24,
   form: 14.777,
   'form-label': 21.777,
+  'form-hide-underline': 9.333,
+  'form-label-hide-underline': 16.333,
   'form-dense': 10.888,
   'form-label-dense': 18.666
 }

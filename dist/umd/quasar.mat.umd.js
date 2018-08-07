@@ -3009,6 +3009,8 @@
     xl: 24,
     form: 14.777,
     'form-label': 21.777,
+    'form-hide-underline': 9.333,
+    'form-label-hide-underline': 16.333,
     'form-dense': 10.888,
     'form-label-dense': 18.666
   };
@@ -5189,6 +5191,9 @@
     watch: {
       $route: function $route () {
         this.exitFullscreen();
+      },
+      inFullscreen: function inFullscreen (v) {
+        this.$emit('fullscreen', v);
       }
     },
     methods: {
@@ -7396,8 +7401,10 @@
     computed: {
       classes: function classes () {
         return {
-          'q-collapsible-opened': this.popup && this.showing,
-          'q-collapsible-closed': this.popup && !this.showing,
+          'q-collapsible-opened': this.showing,
+          'q-collapsible-closed': !this.showing,
+          'q-collapsible-popup-opened': this.popup && this.showing,
+          'q-collapsible-popup-closed': this.popup && !this.showing,
           'q-collapsible-cursor-pointer': !this.iconToggle,
           'q-item-dark': this.dark,
           'q-item-separator': this.separator,

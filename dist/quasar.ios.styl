@@ -689,6 +689,7 @@ $input-padding-bottom  ?= 7px
 $input-control-size    ?= 24px
 $input-control-margin  ?= 4px
 $input-min-height      ?= $input-control-size
+$input-hide-underline-padding-top ?= 18px
 $input-dense-font-size       ?= .813rem
 $input-dense-label-top-scale ?= unit($input-font-size / $input-dense-font-size * $input-label-top-scale * .9755, '')
 $input-dense-padding-x       ?= 8px
@@ -1439,14 +1440,14 @@ $checkbox-size = 21px
   background $collapsible-active-color
 .q-collapsible
   transition padding .5s
-.q-collapsible-closed
+.q-collapsible-popup-closed
   padding 0 15px
   .q-collapsible-inner
     border 1px solid $item-separator-color
   & + &
     .q-collapsible-inner
       border-top 0
-.q-collapsible-opened
+.q-collapsible-popup-opened
   padding 15px 0
   .q-collapsible-inner
     box-shadow $shadow-2
@@ -1905,7 +1906,7 @@ $margin-top-box-dense
 .q-if-box
   &:before
     border-width 0
-  &:not(.q-if-disabled):hover:before
+  &:not(.q-if-disabled):not(.q-if-error):not(.q-if-warning):hover:before
     border-width 1px
   &:before, &:after
     @extends $border-radius-top
@@ -1916,6 +1917,9 @@ $margin-top-box-dense
 .q-if-focused:after
   opacity 1
   transition $input-frame-transition-border
+.q-if-error:before
+.q-if-warning:before
+  border-width 2px
 .q-if
   outline 0
   align-items center
@@ -1934,6 +1938,16 @@ $margin-top-box-dense
     padding-top $input-padding-top
     &.q-if-dense
       padding-top $input-dense-padding-top
+.q-if-hide-underline
+  padding-top 0
+  padding-bottom 0
+  &.q-if-dense
+    padding-top 0
+    padding-bottom 0
+  &.q-if-has-label
+    padding-top $input-hide-underline-padding-top
+    &.q-if-dense
+      padding-top $input-hide-underline-padding-top
 .q-if-standard, .q-if-box, .q-if-inverted, .q-if-outline
   .q-if-label
     position absolute
@@ -2029,17 +2043,17 @@ $margin-top-box-dense
   .q-if-label, .q-if-addon, .q-if-control
     color currentColor
 .q-if-warning
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label-above
     color $warning
     color var(--q-color-warning)
-  &:not(.q-if-full-width):hover:before
+  &.q-if-standard:hover:before
     color lighten($warning, 46%)
     color var(--q-color-warning-l)
 .q-if-error
-  &:before, &:after, &:not(.q-if-inverted) .q-if-label
+  &:before, &:after, &:not(.q-if-inverted) .q-if-label-above
     color $negative
     color var(--q-color-negative)
-  &:not(.q-if-full-width):hover:before
+  &.q-if-standard:hover:before
     color lighten($negative, 46%)
     color var(--q-color-negative-l)
 .q-if-disabled
@@ -2337,8 +2351,10 @@ body.q-ios-statusbar-x
   min-width 0
 .q-item-main-inset
   margin-left ($item-gutter + $item-primary-size)
-.q-item-label > span
-  color $item-content-secondary-text-color
+.q-item-label
+  line-height 1.2
+  > span
+    color $item-content-secondary-text-color
 .q-item-sublabel
   color $item-content-secondary-text-color
   font-size 90%
