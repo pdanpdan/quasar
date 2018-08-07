@@ -16684,7 +16684,7 @@
           'class': this.alignClass
         }, this.selectedOptions.map(function (opt) {
           return h(QChip, {
-            key: opt.label,
+            key: opt.value,
             props: {
               small: true,
               dense: this$1.dense,
