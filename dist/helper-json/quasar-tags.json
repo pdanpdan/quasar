@@ -331,6 +331,13 @@
   },
   "q-collapsible": {
     "attributes": [
+      "to",
+      "exact",
+      "append",
+      "replace",
+      "event",
+      "active-class",
+      "exact-active-class",
       "dark",
       "dense",
       "sparse",
@@ -619,7 +626,6 @@
       "max-height",
       "loading",
       "type",
-      "ellipsis",
       "no-pass-toggle",
       "numeric-keyboard-toggle",
       "decimals",
@@ -710,6 +716,13 @@
   },
   "q-item": {
     "attributes": [
+      "to",
+      "exact",
+      "append",
+      "replace",
+      "event",
+      "active-class",
+      "exact-active-class",
       "dark",
       "link",
       "dense",
@@ -719,13 +732,6 @@
       "multiline",
       "highlight",
       "tag",
-      "to",
-      "exact",
-      "append",
-      "replace",
-      "event",
-      "active-class",
-      "exact-active-class",
       "active"
     ],
     "description": ""
@@ -1412,6 +1418,8 @@
   "q-timeline": {
     "attributes": [
       "color",
+      "responsive",
+      "no-hover",
       "dark"
     ],
     "description": ""
@@ -1529,6 +1537,7 @@
       "additional-fields",
       "no-content-type",
       "method",
+      "filter",
       "extensions",
       "multiple",
       "hide-upload-button",

@@ -107,6 +107,14 @@ export default {
       if (!this.noRouteDismiss) {
         this.hide()
       }
+    },
+    maximized (newV, oldV) {
+      this.__register(false, oldV)
+      this.__register(true, newV)
+    },
+    minimized (newV, oldV) {
+      this.__register(false, this.maximized, oldV)
+      this.__register(true, this.maximized, newV)
     }
   },
   computed: {
@@ -161,6 +169,7 @@ export default {
   methods: {
     __dismiss () {
       if (this.noBackdropDismiss) {
+        this.__shake()
         return
       }
       this.hide().then(() => {
@@ -177,7 +186,10 @@ export default {
       this.__preventScroll(true)
 
       EscapeKey.register(() => {
-        if (!this.noEscDismiss) {
+        if (this.noEscDismiss) {
+          this.__shake()
+        }
+        else {
           this.hide().then(() => {
             this.$emit('escape-key')
             this.$emit('dismiss')
@@ -207,25 +219,33 @@ export default {
     __stopPropagation (e) {
       e.stopPropagation()
     },
-    __register (opening) {
+    __register (opening, maximized = this.maximized, minimized = this.minimized) {
       let state = opening
         ? { action: 'add', step: 1 }
         : { action: 'remove', step: -1 }
 
-      if (this.maximized) {
+      if (maximized) {
         modals.maximized += state.step
         if (!opening && modals.maximized > 0) {
           return
         }
         document.body.classList[state.action]('q-maximized-modal')
       }
-      else if (!this.minimized) {
+      else if (!minimized) {
         modals.responsive += state.step
         if (!opening && modals.responsive > 0) {
           return
         }
         document.body.classList[state.action]('q-responsive-modal')
       }
+    },
+    __shake () {
+      this.$el.classList.remove('animate-shake')
+      this.$el.classList.add('animate-shake')
+      clearTimeout(this.shakeTimeout)
+      this.shakeTimeout = setTimeout(() => {
+        this.$el.classList.remove('animate-shake')
+      }, 150)
     }
   },
   mounted () {
@@ -234,6 +254,7 @@ export default {
     }
   },
   beforeDestroy () {
+    clearTimeout(this.shakeTimeout)
     this.$el.remove()
   },
   render (h) {

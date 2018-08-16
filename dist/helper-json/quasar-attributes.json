@@ -843,6 +843,34 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-collapsible/to": {
+    "type": "string|object",
+    "description": "One of string or object."
+  },
+  "q-collapsible/exact": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-collapsible/append": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-collapsible/replace": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-collapsible/event": {
+    "type": "string|array",
+    "description": "One of string or array."
+  },
+  "q-collapsible/active-class": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-collapsible/exact-active-class": {
+    "type": "string",
+    "description": "String value."
+  },
   "q-collapsible/dark": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1679,10 +1707,6 @@
     "type": "string",
     "description": "String value."
   },
-  "q-input/ellipsis": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
   "q-input/no-pass-toggle": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1847,6 +1871,34 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-item/to": {
+    "type": "string|object",
+    "description": "One of string or object."
+  },
+  "q-item/exact": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-item/append": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-item/replace": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-item/event": {
+    "type": "string|array",
+    "description": "One of string or array."
+  },
+  "q-item/active-class": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-item/exact-active-class": {
+    "type": "string",
+    "description": "String value."
+  },
   "q-item/dark": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1880,34 +1932,6 @@
     "description": "Boolean value."
   },
   "q-item/tag": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-item/to": {
-    "type": "string|object",
-    "description": "One of string or object."
-  },
-  "q-item/exact": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-item/append": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-item/replace": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-item/event": {
-    "type": "string|array",
-    "description": "One of string or array."
-  },
-  "q-item/active-class": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-item/exact-active-class": {
     "type": "string",
     "description": "String value."
   },
@@ -3272,8 +3296,8 @@
     "description": "Function value."
   },
   "q-table/filter": {
-    "type": "string",
-    "description": "String value."
+    "type": "string|object",
+    "description": "One of string or object."
   },
   "q-table/filter-method": {
     "type": "function",
@@ -3414,6 +3438,14 @@
   "q-timeline/color": {
     "type": "string",
     "description": "String value."
+  },
+  "q-timeline/responsive": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-timeline/no-hover": {
+    "type": "boolean",
+    "description": "Boolean value."
   },
   "q-timeline/dark": {
     "type": "boolean",
@@ -3718,6 +3750,10 @@
   "q-uploader/method": {
     "type": "string",
     "description": "String value."
+  },
+  "q-uploader/filter": {
+    "type": "function",
+    "description": "Function value."
   },
   "q-uploader/extensions": {
     "type": "string",

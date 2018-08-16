@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.6
+ * Quasar Framework v0.17.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.6";
+  var version = "0.17.8";
 
   var History = {
     __history: [],
@@ -1881,6 +1881,14 @@
         if (!this.noRouteDismiss) {
           this.hide();
         }
+      },
+      maximized: function maximized (newV, oldV) {
+        this.__register(false, oldV);
+        this.__register(true, newV);
+      },
+      minimized: function minimized (newV, oldV) {
+        this.__register(false, this.maximized, oldV);
+        this.__register(true, this.maximized, newV);
       }
     },
     computed: {
@@ -1937,6 +1945,7 @@
         var this$1 = this;
 
         if (this.noBackdropDismiss) {
+          this.__shake();
           return
         }
         this.hide().then(function () {
@@ -1955,7 +1964,10 @@
         this.__preventScroll(true);
 
         EscapeKey.register(function () {
-          if (!this$1.noEscDismiss) {
+          if (this$1.noEscDismiss) {
+            this$1.__shake();
+          }
+          else {
             this$1.hide().then(function () {
               this$1.$emit('escape-key');
               this$1.$emit('dismiss');
@@ -1985,25 +1997,38 @@
       __stopPropagation: function __stopPropagation (e) {
         e.stopPropagation();
       },
-      __register: function __register (opening) {
+      __register: function __register (opening, maximized, minimized) {
+        if ( maximized === void 0 ) maximized = this.maximized;
+        if ( minimized === void 0 ) minimized = this.minimized;
+
         var state = opening
           ? { action: 'add', step: 1 }
           : { action: 'remove', step: -1 };
 
-        if (this.maximized) {
+        if (maximized) {
           modals.maximized += state.step;
           if (!opening && modals.maximized > 0) {
             return
           }
           document.body.classList[state.action]('q-maximized-modal');
         }
-        else if (!this.minimized) {
+        else if (!minimized) {
           modals.responsive += state.step;
           if (!opening && modals.responsive > 0) {
             return
           }
           document.body.classList[state.action]('q-responsive-modal');
         }
+      },
+      __shake: function __shake () {
+        var this$1 = this;
+
+        this.$el.classList.remove('animate-shake');
+        this.$el.classList.add('animate-shake');
+        clearTimeout(this.shakeTimeout);
+        this.shakeTimeout = setTimeout(function () {
+          this$1.$el.classList.remove('animate-shake');
+        }, 150);
       }
     },
     mounted: function mounted () {
@@ -2012,6 +2037,7 @@
       }
     },
     beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.shakeTimeout);
       this.$el.remove();
     },
     render: function render (h) {
@@ -2167,6 +2193,40 @@
     }
   };
 
+  var routerLinkEventName = 'qrouterlinkclick';
+
+  var evt = null;
+
+  if (!isSSR) {
+    try {
+      evt = new Event(routerLinkEventName);
+    }
+    catch (e) {
+      // IE doesn't support `new Event()`, so...`
+      evt = document.createEvent('Event');
+      evt.initEvent(routerLinkEventName, true, false);
+    }
+  }
+
+  var routerLinkProps = {
+    to: [String, Object],
+    exact: Boolean,
+    append: Boolean,
+    replace: Boolean,
+    event: [String, Array],
+    activeClass: String,
+    exactActiveClass: String
+  };
+
+  var RouterLinkMixin = {
+    props: routerLinkProps,
+    data: function data () {
+      return {
+        routerLinkEventName: routerLinkEventName
+      }
+    }
+  };
+
   function textStyle (n) {
     return n === void 0 || n < 2
       ? {}
@@ -2189,6 +2249,7 @@
   };
 
   var ItemMixin = {
+    mixins: [{ props: routerLinkProps }],
     props: {
       dark: Boolean,
 
@@ -2224,45 +2285,9 @@
     }
   };
 
-  var routerLinkEventName = 'qrouterlinkclick';
-
-  var evt = null;
-
-  if (!isSSR) {
-    try {
-      evt = new Event(routerLinkEventName);
-    }
-    catch (e) {
-      // IE doesn't support `new Event()`, so...`
-      evt = document.createEvent('Event');
-      evt.initEvent(routerLinkEventName, true, false);
-    }
-  }
-
-  var routerLinkProps = {
-    to: [String, Object],
-    exact: Boolean,
-    append: Boolean,
-    replace: Boolean,
-    event: [String, Array],
-    activeClass: String,
-    exactActiveClass: String
-  };
-
-  var RouterLinkMixin = {
-    props: routerLinkProps,
-    data: function data () {
-      return {
-        routerLinkEventName: routerLinkEventName
-      }
-    }
-  };
-
   var QItem = {
     name: 'QItem',
-    mixins: [
-      ItemMixin, { props: routerLinkProps }
-    ],
+    mixins: [ ItemMixin ],
     props: {
       active: Boolean,
       link: Boolean
@@ -4162,7 +4187,8 @@
         var
           terms = [null, void 0].includes(this.__input.val) ? '' : String(this.__input.val),
           termsLength = terms.length,
-          searchId = uid();
+          searchId = uid(),
+          popover = this.$refs.popover;
 
         this.searchId = searchId;
 
@@ -4178,19 +4204,12 @@
         if (this.staticData) {
           this.searchId = '';
           this.results = this.filter(terms, this.staticData);
-          var popover = this.$refs.popover;
           if (this.results.length) {
-            this.__keyboardShow(-1);
-            if (popover && popover.showing) {
-              this.$nextTick(function () { return popover && popover.reposition(); });
-            }
-            else {
-              popover.show();
-            }
+            this.__showResults();
+            return
           }
-          else {
-            popover.hide();
-          }
+
+          popover.hide();
           return
         }
 
@@ -4204,8 +4223,7 @@
 
           if (Array.isArray(results) && results.length > 0) {
             this$1.results = results;
-            this$1.__keyboardShow(-1);
-            this$1.$refs.popover.show();
+            this$1.__showResults();
             return
           }
 
@@ -4283,6 +4301,17 @@
           return
         }
         this.timer = setTimeout(this.trigger, this.debounce);
+      },
+      __showResults: function __showResults () {
+        var popover = this.$refs.popover;
+
+        this.__keyboardShow(-1);
+        if (popover.showing) {
+          this.$nextTick(function () { return popover.showing && popover.reposition(); });
+        }
+        else {
+          popover.show();
+        }
       }
     },
     mounted: function mounted () {
@@ -7304,7 +7333,9 @@
     methods: {
       __begin: function __begin (el, height) {
         el.style.overflowY = 'hidden';
-        el.style.height = height + "px";
+        if (height !== void 0) {
+          el.style.height = height + "px";
+        }
         el.classList.add('q-slide-transition');
         this.animating = true;
       },
@@ -7334,12 +7365,18 @@
         },
         on: {
           enter: function (el, done) {
+            var pos = 0;
             this$1.el = el;
 
-            if (this$1.animating !== true) {
-              this$1.lastEvent = 'hide';
-              this$1.__begin(el, 0);
+            if (this$1.animating === true) {
+              this$1.__cleanup();
+              pos = el.offsetHeight === el.scrollHeight ? 0 : void 0;
             }
+            else {
+              this$1.lastEvent = 'hide';
+            }
+
+            this$1.__begin(el, pos);
 
             this$1.timer = setTimeout(function () {
               el.style.height = (el.scrollHeight) + "px";
@@ -7350,14 +7387,19 @@
               el.addEventListener('transitionend', this$1.animListener);
             }, 100);
           },
-          enterCancelled: this.__cleanup,
           leave: function (el, done) {
+            var pos;
             this$1.el = el;
 
-            if (this$1.animating !== true) {
-              this$1.lastEvent = 'show';
-              this$1.__begin(el, el.scrollHeight);
+            if (this$1.animating === true) {
+              this$1.__cleanup();
             }
+            else {
+              this$1.lastEvent = 'show';
+              pos = el.scrollHeight;
+            }
+
+            this$1.__begin(el, pos);
 
             this$1.timer = setTimeout(function () {
               el.style.height = 0;
@@ -7367,8 +7409,7 @@
               };
               el.addEventListener('transitionend', this$1.animListener);
             }, 100);
-          },
-          leaveCancelled: this.__cleanup
+          }
         }
       }, this.$slots.default)
     }
@@ -7405,12 +7446,15 @@
           'q-collapsible-closed': !this.showing,
           'q-collapsible-popup-opened': this.popup && this.showing,
           'q-collapsible-popup-closed': this.popup && !this.showing,
-          'q-collapsible-cursor-pointer': !this.iconToggle,
+          'q-collapsible-cursor-pointer': !this.separateToggle,
           'q-item-dark': this.dark,
           'q-item-separator': this.separator,
           'q-item-inset-separator': this.insetSeparator,
           disabled: this.disable
         }
+      },
+      separateToggle: function separateToggle () {
+        return this.iconToggle || this.to !== void 0
       }
     },
     watch: {
@@ -7422,13 +7466,13 @@
     },
     methods: {
       __toggleItem: function __toggleItem () {
-        if (!this.iconToggle) {
+        if (!this.separateToggle) {
           this.toggle();
         }
       },
       __toggleIcon: function __toggleIcon (e) {
-        if (this.iconToggle) {
-          e && e.stopPropagation();
+        if (this.separateToggle) {
+          e && stopAndPrevent(e);
           this.toggle();
         }
       },
@@ -10726,7 +10770,7 @@
   };
 
   var inputTypes = [
-    'text', 'textarea', 'email',
+    'text', 'textarea', 'email', 'search',
     'tel', 'file', 'number',
     'password', 'url', 'time', 'date'
   ];
@@ -10849,7 +10893,6 @@
         type: String,
         validator: function (v) { return ['left', 'center', 'right'].includes(v); }
       },
-      ellipsis: Boolean,
       noPassToggle: Boolean,
       numericKeyboardToggle: Boolean,
       readonly: Boolean,
@@ -10939,7 +10982,6 @@
         var classes = [];
         this.align && classes.push(("text-" + (this.align)));
         this.autofilled && classes.push('q-input-autofill');
-        this.ellipsis && classes.push('ellipsis');
         return classes
       },
       length: function length () {
@@ -11144,7 +11186,7 @@
       __getInput: function __getInput (h) {
         return h('input', {
           ref: 'input',
-          staticClass: 'col q-input-target q-no-input-spinner',
+          staticClass: 'col q-input-target q-no-input-spinner ellipsis',
           'class': this.inputClasses,
           attrs: Object.assign({}, this.$attrs, {
             type: this.inputType,
@@ -14005,6 +14047,7 @@
         this.__update('offset', val);
       },
       onLayout: function onLayout (val) {
+        this.$emit('on-layout', val);
         this.__update('space', val);
       },
       $route: function $route () {
@@ -14463,7 +14506,7 @@
     },
     render: function render (h) {
       return h('footer', {
-        staticClass: 'q-layout-footer q-layout-transition',
+        staticClass: 'q-layout-footer q-layout-marginal q-layout-transition',
         'class': this.computedClass,
         style: this.computedStyle
       }, [
@@ -14616,7 +14659,7 @@
     },
     render: function render (h) {
       return h('header', {
-        staticClass: 'q-layout-header q-layout-transition',
+        staticClass: 'q-layout-header q-layout-marginal q-layout-transition',
         'class': this.computedClass,
         style: this.computedStyle
       }, [
@@ -15308,10 +15351,7 @@
   var QParallax = {
     name: 'QParallax',
     props: {
-      src: {
-        type: String,
-        required: true
-      },
+      src: String,
       height: {
         type: Number,
         default: 500
@@ -15319,51 +15359,34 @@
       speed: {
         type: Number,
         default: 1,
-        validator: function validator (value) {
-          return value >= 0 && value <= 1
-        }
+        validator: function (v) { return v >= 0 && v <= 1; }
       }
     },
     data: function data () {
       return {
-        imageHasBeenLoaded: false,
         scrolling: false
       }
     },
     watch: {
-      src: function src () {
-        this.imageHasBeenLoaded = false;
-      },
       height: function height$$1 () {
         this.__updatePos();
       }
     },
     methods: {
-      __processImage: function __processImage () {
-        this.imageHasBeenLoaded = true;
-        this.__onResize();
-      },
       __onResize: function __onResize () {
-        if (!this.imageHasBeenLoaded || !this.scrollTarget) {
+        if (!this.scrollTarget) {
           return
         }
 
-        if (this.scrollTarget === window) {
-          this.viewportHeight = window.innerHeight;
-        }
-        this.imageHeight = height(this.image);
+        this.mediaHeight = this.media.naturalHeight || height(this.media);
         this.__updatePos();
       },
       __updatePos: function __updatePos () {
-        if (!this.imageHasBeenLoaded) {
-          return
-        }
-
         var containerTop, containerHeight, containerBottom, top, bottom;
 
         if (this.scrollTarget === window) {
           containerTop = 0;
-          containerHeight = this.viewportHeight;
+          containerHeight = window.innerHeight;
           containerBottom = containerHeight;
         }
         else {
@@ -15371,16 +15394,17 @@
           containerHeight = height(this.scrollTarget);
           containerBottom = containerTop + containerHeight;
         }
-        top = offset(this.container).top;
+
+        top = offset(this.$el).top;
         bottom = top + this.height;
 
         if (bottom > containerTop && top < containerBottom) {
           var percentScrolled = (containerBottom - top) / (this.height + containerHeight);
-          this.__setPos(Math.round((this.imageHeight - this.height) * percentScrolled * this.speed));
+          this.__setPos((this.mediaHeight - this.height) * percentScrolled * this.speed);
         }
       },
       __setPos: function __setPos (offset$$1) {
-        css(this.$refs.img, cssTransform(("translate3D(-50%," + offset$$1 + "px, 0)")));
+        css(this.media, cssTransform(("translate3D(-50%," + offset$$1 + "px, 0)")));
       }
     },
     render: function render (h) {
@@ -15389,26 +15413,20 @@
         style: { height: ((this.height) + "px") }
       }, [
         h('div', {
-          staticClass: 'q-parallax-image absolute-full'
+          staticClass: 'q-parallax-media absolute-full'
         }, [
-          h('img', {
-            ref: 'img',
+          this.$slots.media || h('img', {
+            ref: 'media',
             attrs: {
               src: this.src
-            },
-            'class': { ready: this.imageHasBeenLoaded },
-            on: {
-              load: this.__processImage
             }
           })
         ]),
 
         h(
           'div',
-          { staticClass: 'q-parallax-text absolute-full column flex-center' },
-          this.imageHasBeenLoaded
-            ? this.$slots.default
-            : [ this.$slots.loading ]
+          { staticClass: 'q-parallax-text absolute-full column flex-center no-pointer-events' },
+          this.$slots.default
         )
       ])
     },
@@ -15419,20 +15437,25 @@
       var this$1 = this;
 
       this.$nextTick(function () {
-        this$1.container = this$1.$el;
-        this$1.image = this$1.$refs.img;
+        this$1.media = this$1.$slots.media
+          ? this$1.$slots.media[0].elm
+          : this$1.$refs.media;
+
+        this$1.media.onload = this$1.media.onloadstart = this$1.__onResize;
 
         this$1.scrollTarget = getScrollTarget(this$1.$el);
         this$1.resizeHandler = debounce(this$1.__onResize, 50);
 
         window.addEventListener('resize', this$1.resizeHandler, listenOpts.passive);
         this$1.scrollTarget.addEventListener('scroll', this$1.__updatePos, listenOpts.passive);
+
         this$1.__onResize();
       });
     },
     beforeDestroy: function beforeDestroy () {
       window.removeEventListener('resize', this.resizeHandler, listenOpts.passive);
       this.scrollTarget.removeEventListener('scroll', this.__updatePos, listenOpts.passive);
+      this.media.onload = this.media.onloadstart = null;
     }
   };
 
@@ -16396,7 +16419,10 @@
     mixins: [FrameMixin, InputMixin],
     props: {
       value: { required: true },
-      type: String,
+      type: {
+        type: String,
+        default: 'search'
+      },
       debounce: {
         type: Number,
         default: 300
@@ -16853,9 +16879,9 @@
         var el = h('div', {
           staticClass: 'col row items-center group q-input-chips',
           'class': this.alignClass
-        }, this.selectedOptions.map(function (opt) {
+        }, this.selectedOptions.map(function (opt, index) {
           return h(QChip, {
-            key: opt.value,
+            key: index,
             props: {
               small: true,
               dense: this$1.dense,
@@ -20461,7 +20487,9 @@
                 sort: this$1.sort,
                 colsMap: this$1.computedColsMap
               }
-            }
+            },
+            style: col.style,
+            'class': col.classes
           }, col.label); };
         }
         var child = this.computedCols.map(mapFn);
@@ -20560,7 +20588,11 @@
                   var slot = this$1.$scopedSlots[("body-cell-" + (col.name))];
                   return slot
                     ? slot(this$1.addBodyCellMetaData({ row: row, col: col }))
-                    : h('td', { staticClass: col.__tdClass }, this$1.getCellValue(col, row))
+                    : h('td', {
+                      staticClass: col.__tdClass,
+                      style: col.style,
+                      'class': col.classes
+                    }, this$1.getCellValue(col, row))
                 });
 
             if (this$1.hasSelectionMode) {
@@ -20839,7 +20871,7 @@
 
   var Filter = {
     props: {
-      filter: String,
+      filter: [String, Object],
       filterMethod: {
         type: Function,
         default: function default$1 (rows, terms, cols, cellValue) {
@@ -20851,11 +20883,6 @@
             function (row) { return cols.some(function (col) { return (cellValue(col, row) + '').toLowerCase().indexOf(lowerTerms) !== -1; }); }
           )
         }
-      }
-    },
-    computed: {
-      hasFilter: function hasFilter () {
-        return this.filter !== void 0 && this.filter.length > 0
       }
     },
     watch: {
@@ -21203,7 +21230,7 @@
         var descending = ref.descending;
         var rowsPerPage = ref.rowsPerPage;
 
-        if (this.hasFilter) {
+        if (this.filter) {
           rows = this.filterMethod(rows, this.filter, this.computedCols, this.getCellValue);
         }
 
@@ -21412,12 +21439,18 @@
         type: String,
         default: 'primary'
       },
+      responsive: Boolean,
+      noHover: Boolean,
       dark: Boolean
     },
     render: function render (h) {
       return h('ul', {
         staticClass: 'q-timeline',
-        'class': { 'q-timeline-dark': this.dark }
+        'class': {
+          'q-timeline-dark': this.dark,
+          'q-timeline-responsive': this.responsive,
+          'q-timeline-hover': !this.noHover
+        }
       }, this.$slots.default)
     }
   };
@@ -21484,7 +21517,10 @@
           'class': this.colorClass
         }, [
           this.icon
-            ? h(QIcon, { props: { name: this.icon } })
+            ? h(QIcon, {
+              staticClass: 'row items-center justify-center',
+              props: { name: this.icon }
+            })
             : null
         ]),
 
@@ -21950,7 +21986,7 @@
         if (node.icon) {
           return h(QIcon, {
             staticClass: "q-tree-icon q-mr-sm",
-            props: { name: node.icon }
+            props: { name: node.icon, color: node.iconColor }
           })
         }
         if (node.img || node.avatar) {
@@ -22179,6 +22215,7 @@
         type: String,
         default: 'POST'
       },
+      filter: Function,
       extensions: String,
       multiple: Boolean,
       hideUploadButton: Boolean,
@@ -22325,35 +22362,40 @@
         this.$refs.file.value = '';
 
         var filesReady = []; // List of image load promises
-        files = files.filter(function (file) { return !this$1.queue.some(function (f) { return file.name === f.name; }); })
-          .map(function (file) {
-            initFile(file);
-            file.__size = humanStorageSize(file.size);
-            file.__timestamp = new Date().getTime();
+        files = files.filter(function (file) { return !this$1.queue.some(function (f) { return file.name === f.name; }); });
 
-            if (this$1.noThumbnails || !file.type.toUpperCase().startsWith('IMAGE')) {
-              this$1.queue.push(file);
-            }
-            else {
-              var reader = new FileReader();
-              var p = new Promise(function (resolve, reject) {
-                reader.onload = function (e) {
-                  var img = new Image();
-                  img.src = e.target.result;
-                  file.__img = img;
-                  this$1.queue.push(file);
-                  this$1.__computeTotalSize();
-                  resolve(true);
-                };
-                reader.onerror = function (e) { reject(e); };
-              });
+        if (typeof this.filter === 'function') {
+          files = this.filter(files);
+        }
 
-              reader.readAsDataURL(file);
-              filesReady.push(p);
-            }
+        files = files.map(function (file) {
+          initFile(file);
+          file.__size = humanStorageSize(file.size);
+          file.__timestamp = new Date().getTime();
 
-            return file
-          });
+          if (this$1.noThumbnails || !file.type.toUpperCase().startsWith('IMAGE')) {
+            this$1.queue.push(file);
+          }
+          else {
+            var reader = new FileReader();
+            var p = new Promise(function (resolve, reject) {
+              reader.onload = function (e) {
+                var img = new Image();
+                img.src = e.target.result;
+                file.__img = img;
+                this$1.queue.push(file);
+                this$1.__computeTotalSize();
+                resolve(true);
+              };
+              reader.onerror = function (e) { reject(e); };
+            });
+
+            reader.readAsDataURL(file);
+            filesReady.push(p);
+          }
+
+          return file
+        });
 
         if (files.length > 0) {
           this.files = this.files.concat(files);
@@ -24329,6 +24371,7 @@
     lt: {
       sm: true,
       md: true,
+      lg: true,
       xl: true
     },
     gt: {},
@@ -24423,14 +24466,14 @@
         }
       };
 
-      Vue$$1.util.defineReactive($q, 'screen', this);
-
       if (fromSSR) {
         queues.takeover.push(start);
       }
       else {
         start();
       }
+
+      Vue$$1.util.defineReactive($q, 'screen', this);
     }
   };
 

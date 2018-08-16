@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.6
+ * Quasar Framework v0.17.8
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2130,20 +2130,23 @@ input.q-input-target {
 .q-page-sticky-shrink > span {
   pointer-events: auto;
 }
-body.q-ios-statusbar-padding .q-layout-header > .q-toolbar:nth-child(2),
-body.q-ios-statusbar-padding .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
-body.q-ios-statusbar-padding .q-layout-drawer.top-padding {
+body.q-ios-statusbar-padding .q-layout .q-layout-header > .q-toolbar:nth-child(2),
+body.q-ios-statusbar-padding .q-layout .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
+body.q-ios-statusbar-padding .q-layout .q-layout-drawer.top-padding,
+body.q-ios-statusbar-padding .modal:not(.minimized) .q-layout-header > .q-toolbar:nth-child(1) {
   padding-top: 20px;
   min-height: 70px;
 }
-body.q-ios-statusbar-x .q-layout-header > .q-toolbar:nth-child(2),
-body.q-ios-statusbar-x .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
-body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+body.q-ios-statusbar-x .q-layout .q-layout-header > .q-toolbar:nth-child(2),
+body.q-ios-statusbar-x .q-layout .q-layout-header > .q-tabs:nth-child(2) .q-tabs-head,
+body.q-ios-statusbar-x .q-layout .q-layout-drawer.top-padding,
+body.q-ios-statusbar-x .modal:not(.minimized) .q-layout-header > .q-toolbar:nth-child(1) {
   padding-top: env(safe-area-inset-top);
 }
-body.q-ios-statusbar-x .q-layout-footer > .q-toolbar:last-child,
-body.q-ios-statusbar-x .q-layout-footer > .q-tabs:last-child .q-tabs-head,
-body.q-ios-statusbar-x .q-layout-drawer.top-padding {
+body.q-ios-statusbar-x .q-layout .q-layout-footer > .q-toolbar:last-child,
+body.q-ios-statusbar-x .q-layout .q-layout-footer > .q-tabs:last-child .q-tabs-head,
+body.q-ios-statusbar-x .q-layout .q-layout-drawer.top-padding,
+body.q-ios-statusbar-x .modal:not(.minimized) .q-layout-footer > .q-toolbar:last-child {
   padding-bottom: env(safe-area-inset-bottom);
   min-height: 70px;
 }
@@ -2736,17 +2739,16 @@ body.q-ios-statusbar-x .q-notification-list-bottom {
   position: relative;
   width: 100%;
   overflow: hidden;
+  border-radius: inherit;
 }
-.q-parallax-image > img {
-  visibility: hidden;
+.q-parallax-media > img,
+.q-parallax-media > video {
   position: absolute;
   left: 50%;
   bottom: 0;
   min-width: 100%;
   min-height: 100%;
-}
-.q-parallax-image > img.ready {
-  visibility: visible;
+  will-change: transform;
 }
 .q-parallax-text {
   text-shadow: 0 0 5px #fff;
@@ -3345,9 +3347,6 @@ body.desktop .q-stepper-tab.step-navigation:hover {
   padding: 8px 10px;
   min-height: 35px;
 }
-.q-tab.q-link {
-  outline: 0;
-}
 .q-tab .q-tab-icon,
 .q-tab .q-tab-label {
   -webkit-transition: -webkit-transform 0.2s;
@@ -3428,7 +3427,7 @@ body.desktop .q-stepper-tab.step-navigation:hover {
   .q-tab-label {
     font-size: 0.9rem;
   }
-  .q-tabs-head:not(.scrollable) {
+  .q-layout-marginal .q-tabs-head:not(.scrollable) {
     padding-left: 12px;
     padding-right: 12px;
   }
@@ -3603,6 +3602,9 @@ body.desktop .q-tab:hover:before {
 .q-table-bottom {
   min-height: 48px;
   padding: 4px 14px 4px 24px;
+}
+.q-table-bottom,
+.q-table-bottom .q-if {
   font-size: 12px;
 }
 .q-table-bottom .q-table-control {
@@ -3900,17 +3902,19 @@ body.desktop .q-tab:hover:before {
   top: 41px;
   left: 14px;
 }
-.q-timeline-entry-with-icon .q-timeline-dot .q-icon {
+.q-timeline-entry-with-icon .q-timeline-subtitle {
+  padding-top: 8px;
+}
+.q-timeline-dot .q-icon {
   position: absolute;
-  top: 8px;
-  left: 4px;
-  font-size: 23px;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 16px;
+  height: 38px;
   color: #fff;
   -webkit-transition: color 0.3s ease-in-out;
   transition: color 0.3s ease-in-out;
-}
-.q-timeline-entry-with-icon .q-timeline-subtitle {
-  padding-top: 8px;
 }
 .q-timeline-dark {
   color: #fff;
@@ -3929,11 +3933,11 @@ body.desktop .q-tab:hover:before {
 .q-timeline-entry:last-child .q-timeline-dot:after {
   content: none;
 }
-.q-timeline-entry:hover .q-timeline-dot:before {
+.q-timeline-hover .q-timeline-entry:hover .q-timeline-dot:before {
   background: transparent;
   border: 3px solid currentColor;
 }
-.q-timeline-entry.q-timeline-entry-with-icon:hover .q-timeline-dot .q-icon {
+.q-timeline-hover .q-timeline-entry.q-timeline-entry-with-icon:hover .q-timeline-dot .q-icon {
   color: currentColor;
 }
 .q-timeline-content {
@@ -3953,88 +3957,88 @@ body.desktop .q-tab:hover:before {
   margin: 0;
 }
 @media (min-width: 768px) and (max-width: 991px) {
-  .q-timeline-heading {
+  .q-timeline-responsive .q-timeline-heading {
     display: table-row;
     font-size: 200%;
   }
-  .q-timeline-heading > div {
+  .q-timeline-responsive .q-timeline-heading > div {
     display: table-cell;
   }
-  .q-timeline-heading-title {
+  .q-timeline-responsive .q-timeline-heading-title {
     margin-left: -50px;
   }
-  .q-timeline {
+  .q-timeline-responsive .q-timeline {
     display: table;
   }
-  .q-timeline-entry {
+  .q-timeline-responsive .q-timeline-entry {
     display: table-row;
     padding: 0;
   }
-  .q-timeline-subtitle,
-  .q-timeline-dot,
-  .q-timeline-content {
+  .q-timeline-responsive .q-timeline-subtitle,
+  .q-timeline-responsive .q-timeline-dot,
+  .q-timeline-responsive .q-timeline-content {
     display: table-cell;
     vertical-align: top;
   }
-  .q-timeline-subtitle {
+  .q-timeline-responsive .q-timeline-subtitle {
     text-align: right;
     width: 35%;
   }
-  .q-timeline-dot {
+  .q-timeline-responsive .q-timeline-dot {
     position: relative;
   }
-  .q-timeline-content {
+  .q-timeline-responsive .q-timeline-content {
     padding-left: 30px;
   }
-  .q-timeline-entry-with-icon .q-timeline-content {
+  .q-timeline-responsive .q-timeline-entry-with-icon .q-timeline-content {
     padding-top: 8px;
   }
-  .q-timeline-subtitle {
+  .q-timeline-responsive .q-timeline-subtitle {
     padding-right: 30px;
   }
 }
 @media (min-width: 992px) {
-  .q-timeline-heading-title {
+  .q-timeline-responsive .q-timeline-heading-title {
     text-align: center;
     margin-left: 0;
   }
-  .q-timeline-entry,
-  .q-timeline-subtitle,
-  .q-timeline-dot,
-  .q-timeline-content {
+  .q-timeline-responsive .q-timeline-entry,
+  .q-timeline-responsive .q-timeline-subtitle,
+  .q-timeline-responsive .q-timeline-dot,
+  .q-timeline-responsive .q-timeline-content {
     display: block;
     margin: 0;
     padding: 0;
   }
-  .q-timeline-dot {
+  .q-timeline-responsive .q-timeline-dot {
     position: absolute;
     left: 50%;
     margin-left: -7.15px;
   }
-  .q-timeline-entry-with-icon .q-timeline-dot {
+  .q-timeline-responsive .q-timeline-entry-with-icon .q-timeline-dot {
     left: 50%;
     margin-left: -15px;
   }
-  .q-timeline-subtitle,
-  .q-timeline-content {
+  .q-timeline-responsive .q-timeline-subtitle,
+  .q-timeline-responsive .q-timeline-content {
     width: 50%;
   }
-  .q-timeline-entry-left .q-timeline-content,
-  .q-timeline-entry-right .q-timeline-subtitle {
+  .q-timeline-responsive .q-timeline-entry-left .q-timeline-content,
+  .q-timeline-responsive .q-timeline-entry-right .q-timeline-subtitle {
     float: left;
     padding-right: 30px;
     text-align: right;
   }
-  .q-timeline-entry-left .q-timeline-subtitle,
-  .q-timeline-entry-right .q-timeline-content {
+  .q-timeline-responsive .q-timeline-entry-left .q-timeline-subtitle,
+  .q-timeline-responsive .q-timeline-entry-right .q-timeline-content {
     float: right;
     text-align: left;
     padding-left: 30px;
   }
-  .q-timeline-entry-with-icon .q-timeline-content {
+  .q-timeline-responsive .q-timeline-entry-with-icon .q-timeline-content {
     padding-top: 8px;
   }
-  .q-timeline-entry {
+  .q-timeline-responsive .q-timeline-entry {
     padding-bottom: 24px;
     overflow: hidden;
   }
@@ -8030,7 +8034,8 @@ img.avatar {
   margin: 0;
 }
 a.q-link {
-  color: inherit !important;
+  outline: 0;
+  color: inherit;
   text-decoration: none;
 }
 .highlight-and-fade {
@@ -8068,6 +8073,12 @@ a.q-link {
 .animate-bounce {
   -webkit-animation: q-bounce 2s infinite /* rtl:ignore */;
           animation: q-bounce 2s infinite /* rtl:ignore */;
+}
+.animate-shake {
+  -webkit-animation: q-shake 0.15s;
+          animation: q-shake 0.15s;
+  -webkit-animation-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+          animation-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .animate-popup-up,
 .animate-popup-down {
@@ -9705,6 +9716,34 @@ body.ios .q-hoverable:active .q-focus-helper {
   60% {
     -webkit-transform: translateY(-15px);
             transform: translateY(-15px);
+  }
+}
+@-webkit-keyframes q-shake {
+  0% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  50% {
+    -webkit-transform: scale(1.02);
+            transform: scale(1.02);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}
+@keyframes q-shake {
+  0% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  50% {
+    -webkit-transform: scale(1.02);
+            transform: scale(1.02);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
   }
 }
 @-webkit-keyframes q-popup-down {

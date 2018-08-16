@@ -22,7 +22,6 @@ export default {
       type: String,
       validator: v => ['left', 'center', 'right'].includes(v)
     },
-    ellipsis: Boolean,
     noPassToggle: Boolean,
     numericKeyboardToggle: Boolean,
     readonly: Boolean,
@@ -110,7 +109,6 @@ export default {
       const classes = []
       this.align && classes.push(`text-${this.align}`)
       this.autofilled && classes.push('q-input-autofill')
-      this.ellipsis && classes.push('ellipsis')
       return classes
     },
     length () {
@@ -311,7 +309,7 @@ export default {
     __getInput (h) {
       return h('input', {
         ref: 'input',
-        staticClass: 'col q-input-target q-no-input-spinner',
+        staticClass: 'col q-input-target q-no-input-spinner ellipsis',
         'class': this.inputClasses,
         attrs: Object.assign({}, this.$attrs, {
           type: this.inputType,
