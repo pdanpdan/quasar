@@ -36,6 +36,7 @@ const map = {
   "QField": "src/components/field/QField.js",
   "QIcon": "src/components/icon/QIcon.js",
   "QInfiniteScroll": "src/components/infinite-scroll/QInfiniteScroll.js",
+  "QInlineEdit": "src/components/inline-edit/QInlineEdit.js",
   "QInnerLoading": "src/components/inner-loading/QInnerLoading.js",
   "QInputFrame": "src/components/input-frame/QInputFrame.js",
   "QInput": "src/components/input/QInput.js",
@@ -155,6 +156,7 @@ const map = {
   "format": "src/utils/format.js",
   "frameDebounce": "src/utils/frame-debounce.js",
   "openURL": "src/utils/open-url.js",
+  "preventScroll": "src/utils/prevent-scroll.js",
   "scroll": "src/utils/scroll.js",
   "throttle": "src/utils/throttle.js",
   "uid": "src/utils/uid.js"

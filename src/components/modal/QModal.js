@@ -1,6 +1,6 @@
 import EscapeKey from '../../utils/escape-key.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
-import PreventScroll from '../../mixins/prevent-scroll.js'
+import preventScroll from '../../utils/prevent-scroll.js'
 
 const positions = {
   top: 'items-start justify-center with-backdrop',
@@ -25,19 +25,18 @@ function additionalCSS (position) {
   if (['left', 'right'].includes(position)) {
     css.maxWidth = '90vw'
   }
-  if (process.env.THEME === 'ios') {
-    if (['left', 'top'].includes(position)) {
-      css.borderTopLeftRadius = 0
-    }
-    if (['right', 'top'].includes(position)) {
-      css.borderTopRightRadius = 0
-    }
-    if (['left', 'bottom'].includes(position)) {
-      css.borderBottomLeftRadius = 0
-    }
-    if (['right', 'bottom'].includes(position)) {
-      css.borderBottomRightRadius = 0
-    }
+
+  if (['left', 'top'].includes(position)) {
+    css.borderTopLeftRadius = 0
+  }
+  if (['right', 'top'].includes(position)) {
+    css.borderTopRightRadius = 0
+  }
+  if (['left', 'bottom'].includes(position)) {
+    css.borderBottomLeftRadius = 0
+  }
+  if (['right', 'bottom'].includes(position)) {
+    css.borderBottomRightRadius = 0
   }
 
   return css
@@ -50,7 +49,7 @@ let modals = {
 
 export default {
   name: 'QModal',
-  mixins: [ModelToggleMixin, PreventScroll],
+  mixins: [ModelToggleMixin],
   provide () {
     return {
       __qmodal: {
@@ -183,7 +182,7 @@ export default {
 
       document.body.appendChild(this.$el)
       this.__register(true)
-      this.__preventScroll(true)
+      preventScroll(true)
 
       EscapeKey.register(() => {
         if (this.noEscDismiss) {
@@ -212,7 +211,7 @@ export default {
     },
     __hide () {
       EscapeKey.pop()
-      this.__preventScroll(false)
+      preventScroll(false)
       this.__register(false)
       !this.noRefocus && this.__refocusTarget && this.__refocusTarget.focus()
     },

@@ -1583,6 +1583,34 @@
     "type": "number",
     "description": "Number value."
   },
+  "q-inline-edit/persistent": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-inline-edit/title": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-inline-edit/buttons": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-inline-edit/label-set": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-inline-edit/label-cancel": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-inline-edit/color": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-inline-edit/validate": {
+    "type": "function",
+    "description": "Function value."
+  },
   "q-inner-loading/dark": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1784,6 +1812,10 @@
     "description": "Boolean value."
   },
   "q-knob/readonly": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-layout/container": {
     "type": "boolean",
     "description": "Boolean value."
   },
@@ -2300,6 +2332,14 @@
     "description": "String value."
   },
   "q-popover/fit": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-popover/cover": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-popover/persistent": {
     "type": "boolean",
     "description": "Boolean value."
   },
@@ -3279,11 +3319,15 @@
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-tabs/no-pane-border": {
+  "q-tabs/glossy": {
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-tabs/glossy": {
+  "q-tabs/animated": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-tabs/swipable": {
     "type": "boolean",
     "description": "Boolean value."
   },

@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.8
+ * Quasar Framework v0.17.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1467,7 +1467,7 @@ $checkbox-size = 21px
   max-width 100vw
   border 1px solid $grey-4
   display inline-block
-  width 240px
+  width 100%
   background white
 .q-color-saturation
   width 100%
@@ -1553,9 +1553,9 @@ $checkbox-size = 21px
 .q-datetime
   border 1px solid $grey-4
   &.type-date, &.type-datetime
-    width 320px
+    min-width 320px
   &.type-time
-    width 250px
+    min-width 250px
 .q-datetime-content
   height 200px
   position relative
@@ -2228,6 +2228,15 @@ $layout-transition = all .12s ease-in
 .q-layout
   width 100%
   min-height 100vh
+.q-layout-container
+  > div
+    transform translate3d(0, 0, 0)
+    pointer-events none
+  .q-layout
+    pointer-events all
+    width auto
+    min-height 0
+    max-height 100%
 .q-layout-header
   border-bottom $layout-border
   &-hidden
@@ -2244,6 +2253,9 @@ $layout-transition = all .12s ease-in
   z-index $z-side
   &.on-top
     z-index $z-fixed-drawer
+.q-layout-drawer-invisible:not(.no-transition)
+  pointer-events none
+  visibility hidden
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
@@ -2277,7 +2289,7 @@ $layout-transition = all .12s ease-in
     display none
 .q-layout-drawer-opener
   z-index ($z-marginals + 1)
-  height 100vh
+  height 100%
   width 15px
 .q-page-sticky-shrink
   pointer-events none
@@ -2303,9 +2315,9 @@ body.q-ios-statusbar-x
     padding-bottom env(safe-area-inset-bottom)
     min-height ($toolbar-min-height + $ios-statusbar-height)
 .q-layout-animate .q-layout-transition
-  transition $layout-transition
+  transition $layout-transition !important
 .q-body-drawer-toggle
-  overflow-x hidden
+  overflow-x hidden !important
 .layout-padding
   @media (max-width $breakpoint-sm-max)
     padding 1.5rem .5rem
@@ -2487,6 +2499,8 @@ maximized-modal()
   max-width 100%
   max-height 100%
   border-radius 0
+  .q-layout-container
+    min-height 100vh !important
 .modal-content
   position relative
   background $modal-background
@@ -2705,6 +2719,7 @@ body.q-ios-statusbar-x
 .q-popover
   position fixed
   box-shadow $popover-box-shadow
+  border-radius $generic-border-radius
   background $popover-background
   z-index $z-popover
   overflow-y auto
@@ -3128,13 +3143,13 @@ body.desktop .q-stepper-tab.step-navigation:hover
       display none
 .q-tabs
   flex-direction column
+  border-radius $generic-border-radius
+.q-layout-marginal .q-tabs
+  border-radius 0
 .q-tabs-scroller
   overflow hidden
 .q-tab-pane
   padding $tabs-pane-padding
-  border $tabs-pane-border
-.q-tabs-no-pane-border .q-tab-pane
-  border 0
 .q-tabs-panes:empty
   display none
 .q-tab-icon, .q-tab-label
@@ -5089,6 +5104,8 @@ for $z in 1..24
   z-index $z-notify
 .z-fullscreen
   z-index $z-fullscreen
+.z-inherit
+  z-index inherit !important
 fr(selector, name, i = '')
   unquote(replace(unquote('<i>'), unquote(i), replace(unquote('<name>'), unquote(name), unquote(selector))))
 fe(selector, name, noProc, i = '')
@@ -5346,26 +5363,38 @@ a.q-link
     transform scale(1)
 .animate-popup-up, .animate-popup-down
   animation-timing-function cubic-bezier(0.23, 1, 0.32, 1)
+  > *
+    animation q-fade .82s cubic-bezier(.785, .135, .15, .86)
 .animate-popup-down
-  animation q-popup-down .42s /* rtl:ignore */
+  animation q-popup-down .36s /* rtl:ignore */
   transform-origin left top 0px /* rtl:ignore */
 .animate-popup-up
-  animation q-popup-up .42s /* rtl:ignore */
+  animation q-popup-up .36s /* rtl:ignore */
   transform-origin left bottom 0px /* rtl:ignore */
 @keyframes q-popup-down
   0%
     opacity 0
-    transform translateY(-20px) scaleY(.3)
+    transform translateY(-10px) scaleY(.3)
     pointer-events none
-  100%
+  30%
     opacity 1
 @keyframes q-popup-up
   0%
     opacity 0
-    transform translateY(20px) scaleY(.3)
+    transform translateY(10px) scaleY(.3)
     pointer-events none
-  100%
+  30%
     opacity 1
+.animate-fade-left
+  animation q-fade .36s cubic-bezier(.785, .135, .15, .86), q-slide-left .36s ease
+.animate-fade-right
+  animation q-fade .36s cubic-bezier(.785, .135, .15, .86), q-slide-right .36s ease
+@keyframes q-slide-left
+  0%
+    transform translateX(-70%)
+@keyframes q-slide-right
+  0%
+    transform translateX(70%)
 .animated
   animation-duration 1s
   animation-fill-mode both

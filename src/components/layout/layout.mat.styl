@@ -4,6 +4,16 @@ $layout-transition = all .12s ease-in
   width 100%
   min-height 100vh
 
+.q-layout-container
+  > div
+    transform translate3d(0, 0, 0)
+    pointer-events none
+  .q-layout
+    pointer-events all
+    width auto
+    min-height 0
+    max-height 100%
+
 .q-layout-header
   box-shadow $layout-header-shadow
   &-hidden
@@ -24,6 +34,9 @@ $layout-transition = all .12s ease-in
     z-index $z-fixed-drawer
 .q-layout-drawer-delimiter
   box-shadow $layout-aside-shadow
+.q-layout-drawer-invisible:not(.no-transition)
+  pointer-events none
+  visibility hidden
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
@@ -62,7 +75,7 @@ $layout-transition = all .12s ease-in
 
 .q-layout-drawer-opener
   z-index ($z-marginals + 1)
-  height 100vh
+  height 100%
   width 15px
 
 .q-page-sticky-shrink
@@ -93,9 +106,9 @@ body.q-ios-statusbar-x
 
 /* body */
 .q-layout-animate .q-layout-transition
-  transition $layout-transition
+  transition $layout-transition !important
 .q-body-drawer-toggle
-  overflow-x hidden
+  overflow-x hidden !important
 /* body - end */
 
 .layout-padding

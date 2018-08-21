@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.8
+ * Quasar Framework v0.17.9
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -561,7 +561,7 @@ $shadow-up-21 = 0 -10px 13px -6px $elevation-umbra, 0 -21px 33px 3px $elevation-
 $shadow-up-22 = 0 -10px 14px -6px $elevation-umbra, 0 -22px 35px 3px $elevation-penumbra, 0 -8px 42px 7px $elevation-ambient
 $shadow-up-23 = 0 -11px 14px -7px $elevation-umbra, 0 -23px 36px 3px $elevation-penumbra, 0 -9px 44px 8px $elevation-ambient
 $shadow-up-24 = 0 -11px 15px -7px $elevation-umbra, 0 -24px 38px 3px $elevation-penumbra, 0 -9px 46px 8px $elevation-ambient
-$generic-border-radius      ?= 2px
+$generic-border-radius      ?= 3px
 $generic-hover-transition   ?= .3s cubic-bezier(.25, .8, .5, 1)
 $typography-font-family     ?= 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif
 $min-line-height            ?= 1.12
@@ -725,9 +725,9 @@ $toolbar-subtitle-font-size  ?= 12px
 $toolbar-title-font-weight   ?= 500
 $toolbar-title-padding       ?= 0 12px
 $layout-aside-background   ?= white
-$layout-header-shadow      ?= $shadow-4
-$layout-footer-shadow      ?= $shadow-up-4
-$layout-aside-shadow       ?= $shadow-8
+$layout-header-shadow      ?= $shadow-3
+$layout-footer-shadow      ?= $shadow-up-3
+$layout-aside-shadow       ?= $shadow-5
 $loading-background ?= $dimmed-background
 $modal-background        ?= white
 $modal-width             ?= 80vw
@@ -744,7 +744,7 @@ $modal-buttons-padding   ?= 22px 8px 8px
 $label-offset ?= 8px
 $paralax-text-shadow ?= 0 0 5px white
 $popover-background   ?= white
-$popover-box-shadow   ?= $shadow-4
+$popover-box-shadow   ?= $shadow-2
 $popover-max-width    ?= 100vw
 $progress-track-height         ?= 5px
 $progress-track-color          ?= currentColor
@@ -1472,7 +1472,7 @@ $checkbox-size = 21px
   max-width 100vw
   border 1px solid $grey-4
   display inline-block
-  width 240px
+  width 100%
   background white
 .q-color-saturation
   width 100%
@@ -1628,11 +1628,10 @@ div + .q-datetime-time
     background currentColor
     > span
       color white
-      font-weight bold
   &.q-datetime-day-today
     color currentColor
-    font-weight bold
     font-size 14px
+    border 1px solid currentColor
   &:not(.q-datetime-fillerday):not(.disabled):not(.q-datetime-day-active):hover
     background $grey-4
 .q-datetime-btn
@@ -1754,7 +1753,7 @@ for $pos in 0..23
     &.small
       margin-top 1.3rem
   .q-datetime
-    width 290px
+    min-width 290px
     &:not(.no-border)
       &:not(.q-datetime-dark) .q-datetime-content
         border-width 0 1px 1px 1px
@@ -1763,6 +1762,8 @@ for $pos in 0..23
       &.q-datetime-dark
         border 1px solid $dark
         border 1px solid var(--q-color-dark)
+  .q-datetime-modal .q-datetime
+    width 290px
 @media (min-width $breakpoint-md-min)
   .q-datetime-datestring
     padding 10px 0
@@ -1781,7 +1782,7 @@ for $pos in 0..23
   .q-datetime-content
     width 290px
   .q-datetime
-    width 480px
+    min-width 480px
     &:not(.no-border)
       &:not(.q-datetime-dark) .q-datetime-content
         border-width 1px 1px 1px 0
@@ -1790,6 +1791,8 @@ for $pos in 0..23
       &.q-datetime-dark
         border 1px solid $dark
         border 1px solid var(--q-color-dark)
+  .q-datetime-modal .q-datetime
+    width 480px
   .q-datetime-minimal
     width 320px
 .q-dot
@@ -2363,6 +2366,15 @@ $layout-transition = all .12s ease-in
 .q-layout
   width 100%
   min-height 100vh
+.q-layout-container
+  > div
+    transform translate3d(0, 0, 0)
+    pointer-events none
+  .q-layout
+    pointer-events all
+    width auto
+    min-height 0
+    max-height 100%
 .q-layout-header
   box-shadow $layout-header-shadow
   &-hidden
@@ -2381,6 +2393,9 @@ $layout-transition = all .12s ease-in
     z-index $z-fixed-drawer
 .q-layout-drawer-delimiter
   box-shadow $layout-aside-shadow
+.q-layout-drawer-invisible:not(.no-transition)
+  pointer-events none
+  visibility hidden
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
@@ -2410,7 +2425,7 @@ $layout-transition = all .12s ease-in
     display none
 .q-layout-drawer-opener
   z-index ($z-marginals + 1)
-  height 100vh
+  height 100%
   width 15px
 .q-page-sticky-shrink
   pointer-events none
@@ -2436,9 +2451,9 @@ body.q-ios-statusbar-x
     padding-bottom env(safe-area-inset-bottom)
     min-height ($toolbar-min-height + $ios-statusbar-height)
 .q-layout-animate .q-layout-transition
-  transition $layout-transition
+  transition $layout-transition !important
 .q-body-drawer-toggle
-  overflow-x hidden
+  overflow-x hidden !important
 .layout-padding
   @media (max-width $breakpoint-sm-max)
     padding 1.5rem .5rem
@@ -2617,10 +2632,14 @@ maximized-modal()
   height 100%
   max-width 100%
   max-height 100%
+  border-radius 0
+  .q-layout-container
+    min-height 100vh !important
 .modal-content
   position relative
   background $modal-background
   box-shadow $popover-box-shadow
+  border-radius $generic-border-radius
   overflow-y auto
   will-change scroll-position
   min-width 280px
@@ -2819,6 +2838,7 @@ body.q-ios-statusbar-x
 .q-popover
   position fixed
   box-shadow $popover-box-shadow
+  border-radius $generic-border-radius
   background $popover-background
   z-index $z-popover
   overflow-y auto
@@ -3252,13 +3272,13 @@ body.desktop .q-stepper-tab.step-navigation:hover
       display none
 .q-tabs
   flex-direction column
+  border-radius $generic-border-radius
+.q-layout-marginal .q-tabs
+  border-radius 0
 .q-tabs-scroller
   overflow hidden
 .q-tab-pane
   padding $tabs-pane-padding
-  border $tabs-pane-border
-.q-tabs-no-pane-border .q-tab-pane
-  border 0
 .q-tabs-panes:empty
   display none
 .q-tabs-normal
@@ -5219,6 +5239,8 @@ for $z in 1..24
   z-index $z-notify
 .z-fullscreen
   z-index $z-fullscreen
+.z-inherit
+  z-index inherit !important
 fr(selector, name, i = '')
   unquote(replace(unquote('<i>'), unquote(i), replace(unquote('<name>'), unquote(name), unquote(selector))))
 fe(selector, name, noProc, i = '')
@@ -5476,26 +5498,38 @@ a.q-link
     transform scale(1)
 .animate-popup-up, .animate-popup-down
   animation-timing-function cubic-bezier(0.23, 1, 0.32, 1)
+  > *
+    animation q-fade .82s cubic-bezier(.785, .135, .15, .86)
 .animate-popup-down
-  animation q-popup-down .42s /* rtl:ignore */
+  animation q-popup-down .36s /* rtl:ignore */
   transform-origin left top 0px /* rtl:ignore */
 .animate-popup-up
-  animation q-popup-up .42s /* rtl:ignore */
+  animation q-popup-up .36s /* rtl:ignore */
   transform-origin left bottom 0px /* rtl:ignore */
 @keyframes q-popup-down
   0%
     opacity 0
-    transform translateY(-20px) scaleY(.3)
+    transform translateY(-10px) scaleY(.3)
     pointer-events none
-  100%
+  30%
     opacity 1
 @keyframes q-popup-up
   0%
     opacity 0
-    transform translateY(20px) scaleY(.3)
+    transform translateY(10px) scaleY(.3)
     pointer-events none
-  100%
+  30%
     opacity 1
+.animate-fade-left
+  animation q-fade .36s cubic-bezier(.785, .135, .15, .86), q-slide-left .36s ease
+.animate-fade-right
+  animation q-fade .36s cubic-bezier(.785, .135, .15, .86), q-slide-right .36s ease
+@keyframes q-slide-left
+  0%
+    transform translateX(-70%)
+@keyframes q-slide-right
+  0%
+    transform translateX(70%)
 .animated
   animation-duration 1s
   animation-fill-mode both

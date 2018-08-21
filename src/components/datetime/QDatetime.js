@@ -314,6 +314,7 @@ export default {
         ? h(QPopover, {
           ref: 'popup',
           props: {
+            cover: true,
             disable: this.disable,
             anchorClick: false,
             maxHeight: '100vh'
@@ -326,7 +327,7 @@ export default {
         }, this.__getPicker(h))
         : h(QModal, {
           ref: 'popup',
-          staticClass: 'with-backdrop',
+          staticClass: 'with-backdrop q-datetime-modal',
           props: {
             contentCss,
             minimized: process.env.THEME === 'mat',

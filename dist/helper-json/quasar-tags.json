@@ -587,6 +587,18 @@
     ],
     "description": ""
   },
+  "q-inline-edit": {
+    "attributes": [
+      "persistent",
+      "title",
+      "buttons",
+      "label-set",
+      "label-cancel",
+      "color",
+      "validate"
+    ],
+    "description": ""
+  },
   "q-inner-loading": {
     "attributes": [
       "dark",
@@ -661,6 +673,7 @@
   },
   "q-layout": {
     "attributes": [
+      "container",
       "view"
     ],
     "description": ""
@@ -905,6 +918,8 @@
       "anchor",
       "self",
       "fit",
+      "cover",
+      "persistent",
       "max-height",
       "touch-position",
       "anchor-click",
@@ -1348,8 +1363,9 @@
       "text-color",
       "inverted",
       "two-lines",
-      "no-pane-border",
       "glossy",
+      "animated",
+      "swipable",
       "panes-container-class"
     ],
     "description": ""
