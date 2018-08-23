@@ -28,17 +28,10 @@ export default {
         parent = this.$el.parentNode,
         size = {
           width: parent.offsetWidth,
-          height: parent.offsetHeight,
-          scrollWidth: parent.scrollWidth,
-          scrollHeight: parent.scrollHeight
+          height: parent.offsetHeight
         }
 
-      if (
-        size.width === this.size.width &&
-        size.height === this.size.height &&
-        size.scrollWidth === this.size.scrollWidth &&
-        size.scrollHeight === this.size.scrollHeight
-      ) {
+      if (size.width === this.size.width && size.height === this.size.height) {
         return
       }
 

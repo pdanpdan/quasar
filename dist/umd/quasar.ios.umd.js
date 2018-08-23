@@ -5,10 +5,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
-  typeof define === 'function' && define.amd ? define(['vue'], factory) :
-  (global.Quasar = factory(global.Vue));
-}(this, (function (Vue) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('utils/scroll.js'), require('vue')) :
+  typeof define === 'function' && define.amd ? define(['utils/scroll.js', 'vue'], factory) :
+  (global.Quasar = factory(global.scroll_js,global.Vue));
+}(this, (function (scroll_js,Vue) { 'use strict';
 
   Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
@@ -6943,6 +6943,9 @@
       __onClick: function __onClick (e) {
         this.focus();
         this.$emit('click', e);
+      },
+      __onPaste: function __onPaste (e) {
+        this.$emit('paste', e);
       }
     },
     mounted: function mounted () {
@@ -9155,6 +9158,7 @@
       validator: modelValidator,
       default: null
     },
+    headerLabel: String,
     firstDayOfWeek: Number,
     formatModel: {
       type: String,
@@ -10444,6 +10448,7 @@
               type: this.type,
               min: this.min,
               max: this.max,
+              headerLabel: this.headerLabel,
               minimal: this.minimal,
               formatModel: this.formatModel,
               format24h: this.format24h,
@@ -10634,17 +10639,10 @@
           parent = this.$el.parentNode,
           size = {
             width: parent.offsetWidth,
-            height: parent.offsetHeight,
-            scrollWidth: parent.scrollWidth,
-            scrollHeight: parent.scrollHeight
+            height: parent.offsetHeight
           };
 
-        if (
-          size.width === this.size.width &&
-          size.height === this.size.height &&
-          size.scrollWidth === this.size.scrollWidth &&
-          size.scrollHeight === this.size.scrollHeight
-        ) {
+        if (size.width === this.size.width && size.height === this.size.height) {
           return
         }
 
@@ -11017,7 +11015,8 @@
               focus: this.__onFocus,
               blur: this.__onInputBlur,
               keydown: this.__onKeydown,
-              keyup: this.__onKeyup
+              keyup: this.__onKeyup,
+              paste: this.__onPaste
             }
           })
         ])
@@ -11042,6 +11041,7 @@
             blur: this.__onInputBlur,
             keydown: this.__onKeydown,
             keyup: this.__onKeyup,
+            paste: this.__onPaste,
             animationstart: this.__onAnimationStart
           }
         })
@@ -11064,7 +11064,8 @@
         props: this.frameProps,
         on: {
           click: this.__onClick,
-          focus: this.__onFocus
+          focus: this.__onFocus,
+          paste: this.__onPaste
         }
       },
       [].concat(this.$slots.before).concat([
@@ -13057,7 +13058,7 @@
             : null,
 
           h('div', {
-            staticClass: 'q-field-content ellipsis',
+            staticClass: 'q-field-content',
             'class': this.inputClasses
           }, [
             this.$slots.default,
@@ -13773,8 +13774,13 @@
     },
     data: function data () {
       return {
+        // page related
         height: onSSR ? 0 : window.innerHeight,
-        width: onSSR ? 0 : window.innerWidth,
+        width: onSSR || this.container ? 0 : window.innerWidth,
+
+        // container only prop
+        containerHeight: 0,
+        scrollbarWidth: onSSR ? 0 : scroll_js.getScrollbarWidth(),
 
         header: {
           size: 0,
@@ -13797,8 +13803,6 @@
           space: false
         },
 
-        scrollHeight: 0,
-        scrollbarWidth: 0,
         scroll: {
           position: 0,
           direction: 'down'
@@ -13814,9 +13818,20 @@
           bottom: rows[2].split('')
         }
       },
-      classes: function classes () {
-        if (this.container) {
-          return "fullscreen overflow-auto z-inherit"
+
+      // used by container only
+      targetStyle: function targetStyle () {
+        var obj;
+
+        if (this.scrollbarWidth !== 0) {
+          return ( obj = {}, obj[this.$q.i18n.rtl ? 'left' : 'right'] = ((this.scrollbarWidth) + "px"), obj )
+        }
+      },
+      targetChildStyle: function targetChildStyle () {
+        var obj;
+
+        if (this.scrollbarWidth !== 0) {
+          return ( obj = {}, obj[this.$q.i18n.rtl ? 'right' : 'left'] = 0, obj[this.$q.i18n.rtl ? 'left' : 'right'] = ("-" + (this.scrollbarWidth) + "px"), obj.width = ("calc(100% + " + (this.scrollbarWidth) + "px)"), obj )
         }
       }
     },
@@ -13829,26 +13844,33 @@
       };
     },
     render: function render (h) {
-      var layout = h('div', {
-        staticClass: 'q-layout',
-        style: this.container ? { right: ("-" + (this.scrollbarWidth) + "px") } : void 0,
-        'class': this.classes
-      }, [
+      var layout = h('div', { staticClass: 'q-layout' }, [
         h(QScrollObservable, {
           on: { scroll: this.__onPageScroll }
         }),
         h(QResizeObservable, {
-          on: { resize: this.__onLayoutResize }
+          on: { resize: this.__onPageResize }
         }),
         this.$slots.default
       ]);
 
       return this.container
-        ? h('div', { staticClass: 'relative-position overflow-hidden q-layout-container' }, [ h('div', {
-          ref: 'container',
-          staticClass: 'absolute-full z-inherit',
-          style: { right: ((this.scrollbarWidth) + "px") }
-        }, [ layout ]) ])
+        ? h('div', {
+          staticClass: 'q-layout-container relative-position overflow-hidden'
+        }, [
+          h(QResizeObservable, {
+            on: { resize: this.__onContainerResize }
+          }),
+          h('div', {
+            staticClass: 'absolute-full',
+            style: this.targetStyle
+          }, [
+            h('div', {
+              staticClass: 'overflow-auto',
+              style: this.targetChildStyle
+            }, [ layout ])
+          ])
+        ])
         : layout
     },
     methods: {
@@ -13870,35 +13892,43 @@
         this.scroll = data;
         this.$emit('scroll', data);
       },
-      __onLayoutResize: function __onLayoutResize (ref) {
-        var scrollHeight = ref.scrollHeight;
-
-        var
-          width = this.$refs.container ? this.$refs.container.offsetWidth : window.innerWidth,
-          height = this.$refs.container ? this.$refs.container.offsetHeight : window.innerHeight,
-          scrollbarWidth = scrollHeight > height ? getScrollbarWidth() : 0;
-
-        if (this.scrollbarWidth !== scrollbarWidth) {
-          this.scrollbarWidth = scrollbarWidth;
-        }
-
-        if (this.scrollHeight !== scrollHeight) {
-          this.scrollHeight = scrollHeight;
-          this.$emit('scrollHeight', scrollHeight);
-        }
+      __onPageResize: function __onPageResize (ref) {
+        var height = ref.height;
+        var width = ref.width;
 
         var resized = false;
 
         if (this.height !== height) {
-          this.height = height;
           resized = true;
+          this.height = height;
+          this.$emit('scrollHeight', height);
+          this.__updateScrollbarWidth();
         }
         if (this.width !== width) {
-          this.width = width;
           resized = true;
+          this.width = width;
         }
 
         resized && this.$emit('resize', { height: height, width: width });
+      },
+      __onContainerResize: function __onContainerResize (ref) {
+        var height = ref.height;
+
+        if (this.containerHeight !== height) {
+          this.containerHeight = height;
+          this.__updateScrollbarWidth();
+        }
+      },
+      __updateScrollbarWidth: function __updateScrollbarWidth () {
+        if (this.container) {
+          var width = this.height > this.containerHeight
+            ? scroll_js.getScrollbarWidth()
+            : 0;
+
+          if (this.scrollbarWidth !== width) {
+            this.scrollbarWidth = width;
+          }
+        }
       }
     }
   };
@@ -13971,7 +14001,7 @@
       }
     },
     watch: {
-      belowBreakpoint: function belowBreakpoint (val, old) {
+      belowBreakpoint: function belowBreakpoint (val) {
         if (this.mobileOpened) {
           return
         }
@@ -13986,6 +14016,10 @@
         else if (!this.overlay) { // from xs to lg
           this[this.largeScreenState ? 'show' : 'hide'](false);
         }
+      },
+      side: function side (_, oldSide) {
+        this.layout[oldSide].space = false;
+        this.layout[oldSide].offset = 0;
       },
       behavior: function behavior (val) {
         this.__updateLocal('belowBreakpoint', (
@@ -14004,6 +14038,9 @@
           this.behavior === 'mobile' ||
           (this.behavior !== 'desktop' && this.breakpoint >= val)
         ));
+      },
+      'layout.scrollbarWidth': function layout_scrollbarWidth () {
+        this.applyPosition(this.showing ? 0 : void 0);
       },
       offset: function offset$$1 (val) {
         this.__update('offset', val);
@@ -14135,8 +14172,7 @@
           ("q-layout-drawer-" + (this.side)),
           this.layout.container ? 'overflow-auto' : 'scroll',
           this.contentClass,
-          this.mobileView ? this.belowClass : this.aboveClass,
-          this.showing ? void 0 : 'q-layout-drawer-invisible'
+          this.mobileView ? this.belowClass : this.aboveClass
         ]
       },
       stateDirection: function stateDirection () {
@@ -14163,15 +14199,17 @@
 
         if (position === void 0) {
           this.$nextTick(function () {
-            position = this$1.showing
-              ? 0
-              : (this$1.$q.i18n.rtl ? -1 : 1) * (this$1.rightSide ? 1 : -1) * this$1.size;
+            position = this$1.showing ? 0 : this$1.size;
 
-            this$1.applyPosition(position);
+            this$1.applyPosition(this$1.stateDirection * position);
           });
-          return
         }
-        this.$refs.content && css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
+        else if (this.$refs.content) {
+          if (this.layout.container && this.rightSide && (this.mobileView || Math.abs(position) === this.size)) {
+            position += this.stateDirection * this.layout.scrollbarWidth;
+          }
+          css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
+        }
       },
       applyBackdrop: function applyBackdrop (x) {
         this.$refs.backdrop && css(this.$refs.backdrop, { backgroundColor: ("rgba(0,0,0," + (x * 0.4) + ")") });
@@ -14302,7 +14340,7 @@
           this.mobileOpened = false;
         }
 
-        this.applyPosition((this.$q.i18n.rtl ? -1 : 1) * (this.rightSide ? 1 : -1) * this.size);
+        this.applyPosition(this.stateDirection * this.size);
         this.applyBackdrop(0);
 
         this.__setScrollable(false);
@@ -14331,9 +14369,7 @@
       this.__update('offset', this.offset);
     },
     mounted: function mounted () {
-      if (this.showing) {
-        this.applyPosition(0);
-      }
+      this.applyPosition(this.showing ? 0 : void 0);
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
@@ -14393,6 +14429,45 @@
     }
   };
 
+  var QWindowResizeObservable = {
+    name: 'QWindowResizeObservable',
+    props: {
+      debounce: {
+        type: Number,
+        default: 80
+      }
+    },
+    render: function render () {},
+    methods: {
+      trigger: function trigger () {
+        if (this.debounce === 0) {
+          this.emit();
+        }
+        else if (!this.timer) {
+          this.timer = setTimeout(this.emit, this.debounce);
+        }
+      },
+      emit: function emit (ssr) {
+        this.timer = null;
+        this.$emit('resize', {
+          height: ssr ? 0 : window.innerHeight,
+          width: ssr ? 0 : window.innerWidth
+        });
+      }
+    },
+    created: function created () {
+      this.emit(onSSR);
+    },
+    mounted: function mounted () {
+      fromSSR && this.emit();
+      window.addEventListener('resize', this.trigger, listenOpts.passive);
+    },
+    beforeDestroy: function beforeDestroy () {
+      clearTimeout(this.timer);
+      window.removeEventListener('resize', this.trigger, listenOpts.passive);
+    }
+  };
+
   var QLayoutFooter = {
     name: 'QLayoutFooter',
     mixins: [ CanRenderMixin ],
@@ -14413,7 +14488,8 @@
     data: function data () {
       return {
         size: 0,
-        revealed: true
+        revealed: true,
+        windowHeight: onSSR || this.layout.container ? 0 : window.innerHeight
       }
     },
     watch: {
@@ -14437,7 +14513,7 @@
       'layout.scroll': function layout_scroll () {
         this.__updateRevealed();
       },
-      'layout.scrollHeight': function layout_scrollHeight () {
+      'layout.height': function layout_height () {
         this.__updateRevealed();
       },
       size: function size () {
@@ -14448,6 +14524,11 @@
       fixed: function fixed () {
         return this.reveal || this.layout.view.indexOf('F') > -1 || this.layout.container
       },
+      containerHeight: function containerHeight () {
+        return this.layout.container
+          ? this.layout.containerHeight
+          : this.windowHeight
+      },
       offset: function offset () {
         if (!this.canRender || !this.value) {
           return 0
@@ -14455,7 +14536,7 @@
         if (this.fixed) {
           return this.revealed ? this.size : 0
         }
-        var offset = this.layout.height + this.layout.scroll.position + this.size - this.layout.scrollHeight;
+        var offset = this.layout.scroll.position + this.containerHeight + this.size - this.layout.height;
         return offset > 0 ? offset : 0
       },
       computedClass: function computedClass () {
@@ -14491,6 +14572,10 @@
           props: { debounce: 0 },
           on: { resize: this.__onResize }
         }),
+        (!this.layout.container && h(QWindowResizeObservable, {
+          props: { debounce: 0 },
+          on: { resize: this.__onWindowResize }
+        })) || void 0,
         this.$slots.default
       ])
     },
@@ -14514,6 +14599,11 @@
         this.__updateLocal('size', height);
         this.__update('size', height);
       },
+      __onWindowResize: function __onWindowResize (ref) {
+        var height = ref.height;
+
+        this.__updateLocal('windowHeight', height);
+      },
       __update: function __update (prop, val) {
         if (this.layout.footer[prop] !== val) {
           this.layout.footer[prop] = val;
@@ -14525,19 +14615,18 @@
         }
       },
       __updateRevealed: function __updateRevealed () {
-        if (!this.reveal) {
-          return
-        }
-        var
-          scroll = this.layout.scroll,
-          scrollHeight = this.layout.scrollHeight,
-          height = this.layout.height;
+        if (!this.reveal) { return }
 
-        this.__updateLocal('revealed',
-          scroll.direction === 'up' ||
-          scroll.position - scroll.inflexionPosition < 100 ||
-          scrollHeight - height - scroll.position < this.size + 300
-        );
+        var ref = this.layout.scroll;
+        var direction = ref.direction;
+        var position = ref.position;
+        var inflexionPosition = ref.inflexionPosition;
+
+        this.__updateLocal('revealed', (
+          direction === 'up' ||
+          position - inflexionPosition < 100 ||
+          this.layout.height - this.containerHeight - position - this.size < 300
+        ));
       }
     }
   };
@@ -14700,9 +14789,15 @@
           (this.layout.header.space ? this.layout.header.size : 0) +
           (this.layout.footer.space ? this.layout.footer.size : 0);
 
-        return typeof this.styleFn === 'function'
-          ? this.styleFn(offset)
-          : { height: offset ? ("calc(100% - " + offset + "px)") : '100%' }
+        if (typeof this.styleFn === 'function') {
+          return this.styleFn(offset)
+        }
+
+        var minHeight = this.layout.container
+          ? (this.layout.containerHeight - offset) + 'px'
+          : (offset ? ("calc(100vh - " + offset + "px)") : "100vh");
+
+        return { minHeight: minHeight }
       },
       classes: function classes () {
         if (this.padding) {
@@ -14986,45 +15081,6 @@
           this.placeholder
         ])
       }
-    }
-  };
-
-  var QWindowResizeObservable = {
-    name: 'QWindowResizeObservable',
-    props: {
-      debounce: {
-        type: Number,
-        default: 80
-      }
-    },
-    render: function render () {},
-    methods: {
-      trigger: function trigger () {
-        if (this.debounce === 0) {
-          this.emit();
-        }
-        else if (!this.timer) {
-          this.timer = setTimeout(this.emit, this.debounce);
-        }
-      },
-      emit: function emit (ssr) {
-        this.timer = null;
-        this.$emit('resize', {
-          height: ssr ? 0 : window.innerHeight,
-          width: ssr ? 0 : window.innerWidth
-        });
-      }
-    },
-    created: function created () {
-      this.emit(onSSR);
-    },
-    mounted: function mounted () {
-      fromSSR && this.emit();
-      window.addEventListener('resize', this.trigger, listenOpts.passive);
-    },
-    beforeDestroy: function beforeDestroy () {
-      clearTimeout(this.timer);
-      window.removeEventListener('resize', this.trigger, listenOpts.passive);
     }
   };
 
@@ -16196,7 +16252,7 @@
       for (var i = 1; i <= this.max; i++) loop( i );
 
       return h('div', {
-        staticClass: 'q-rating row inline items-center no-wrap',
+        staticClass: 'q-rating row inline items-center',
         'class': this.classes,
         style: this.size ? ("font-size: " + (this.size)) : ''
       }, child)
@@ -16573,6 +16629,7 @@
           keyup: this.__onKeyup,
           keydown: this.__onKeydown,
           click: this.__onClick,
+          paste: this.__onPaste,
           clear: function (val) {
             this$1.$emit('clear', val);
             this$1.__emit();

@@ -300,7 +300,8 @@ export default {
             focus: this.__onFocus,
             blur: this.__onInputBlur,
             keydown: this.__onKeydown,
-            keyup: this.__onKeyup
+            keyup: this.__onKeyup,
+            paste: this.__onPaste
           }
         })
       ])
@@ -325,6 +326,7 @@ export default {
           blur: this.__onInputBlur,
           keydown: this.__onKeydown,
           keyup: this.__onKeyup,
+          paste: this.__onPaste,
           animationstart: this.__onAnimationStart
         }
       })
@@ -347,7 +349,8 @@ export default {
       props: this.frameProps,
       on: {
         click: this.__onClick,
-        focus: this.__onFocus
+        focus: this.__onFocus,
+        paste: this.__onPaste
       }
     },
     [].concat(this.$slots.before).concat([

@@ -2229,14 +2229,13 @@ $layout-transition = all .12s ease-in
   width 100%
   min-height 100vh
 .q-layout-container
+  .q-layout
+    min-height 100%
   > div
     transform translate3d(0, 0, 0)
-    pointer-events none
-  .q-layout
-    pointer-events all
-    width auto
-    min-height 0
-    max-height 100%
+    > div
+      min-height 0
+      max-height 100%
 .q-layout-header
   border-bottom $layout-border
   &-hidden
@@ -2253,9 +2252,6 @@ $layout-transition = all .12s ease-in
   z-index $z-side
   &.on-top
     z-index $z-fixed-drawer
-.q-layout-drawer-invisible:not(.no-transition)
-  pointer-events none
-  visibility hidden
 .q-layout-drawer-left
   left 0
   transform translateX(-100%)
@@ -2291,6 +2287,7 @@ $layout-transition = all .12s ease-in
   z-index ($z-marginals + 1)
   height 100%
   width 15px
+  user-select none
 .q-page-sticky-shrink
   pointer-events none
   > span
@@ -5928,7 +5925,6 @@ ie_style = @block
   
   .q-toolbar
   .q-actionsheet-title
-  .q-layout-page
   .q-field-label-inner
   .q-if-full-width .q-if-label
     height 0px
