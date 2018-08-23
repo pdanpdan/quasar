@@ -5,10 +5,10 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('utils/scroll.js'), require('vue')) :
-  typeof define === 'function' && define.amd ? define(['utils/scroll.js', 'vue'], factory) :
-  (global.Quasar = factory(global.scroll_js,global.Vue));
-}(this, (function (scroll_js,Vue) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
+  typeof define === 'function' && define.amd ? define(['vue'], factory) :
+  (global.Quasar = factory(global.Vue));
+}(this, (function (Vue) { 'use strict';
 
   Vue = Vue && Vue.hasOwnProperty('default') ? Vue['default'] : Vue;
 
@@ -2428,8 +2428,11 @@
     n = parseInt(n, 10);
     return h('div', {
       staticClass: ("q-item-" + name + (n === 1 ? ' ellipsis' : '')),
-      style: textStyle(n)
-    }, [ val ])
+      style: textStyle(n),
+      domProps: {
+        innerHTML: val
+      }
+    })
   }
 
   var QItemMain = {
@@ -13972,7 +13975,7 @@
 
         // container only prop
         containerHeight: 0,
-        scrollbarWidth: onSSR ? 0 : scroll_js.getScrollbarWidth(),
+        scrollbarWidth: onSSR ? 0 : getScrollbarWidth(),
 
         header: {
           size: 0,
@@ -14114,7 +14117,7 @@
       __updateScrollbarWidth: function __updateScrollbarWidth () {
         if (this.container) {
           var width = this.height > this.containerHeight
-            ? scroll_js.getScrollbarWidth()
+            ? getScrollbarWidth()
             : 0;
 
           if (this.scrollbarWidth !== width) {
@@ -17162,16 +17165,18 @@
             },
             nativeOn: {
               click: function (e) { e.stopPropagation(); }
-            }
-          }, [ opt.label ])
+            },
+            domProps: { innerHTML: opt.label }
+          })
         }));
         child.push(el);
       }
       else {
         var el$1 = h('div', {
           staticClass: 'col q-input-target ellipsis',
-          'class': this.fakeInputClasses
-        }, [ this.fakeInputValue ]);
+          'class': this.fakeInputClasses,
+          domProps: { innerHTML: this.fakeInputValue }
+        });
         child.push(el$1);
       }
 
