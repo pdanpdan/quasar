@@ -589,18 +589,6 @@
     ],
     "description": ""
   },
-  "q-inline-edit": {
-    "attributes": [
-      "persistent",
-      "title",
-      "buttons",
-      "label-set",
-      "label-cancel",
-      "color",
-      "validate"
-    ],
-    "description": ""
-  },
   "q-inner-loading": {
     "attributes": [
       "dark",
@@ -929,6 +917,18 @@
       "no-focus",
       "no-refocus",
       "disable"
+    ],
+    "description": ""
+  },
+  "q-popup-edit": {
+    "attributes": [
+      "persistent",
+      "title",
+      "buttons",
+      "label-set",
+      "label-cancel",
+      "color",
+      "validate"
     ],
     "description": ""
   },
@@ -1367,7 +1367,7 @@
       "two-lines",
       "glossy",
       "animated",
-      "swipable",
+      "swipeable",
       "panes-container-class"
     ],
     "description": ""

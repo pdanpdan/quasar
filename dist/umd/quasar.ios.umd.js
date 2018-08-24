@@ -6935,8 +6935,13 @@
         });
       },
       __onKeydown: function __onKeydown (e) {
-        if (this.type !== 'textarea' && e.keyCode === 13) {
-          this.__emit();
+        if (e.keyCode === 13) {
+          if (this.type === 'textarea') {
+            e.stopPropagation();
+          }
+          else {
+            this.__emit();
+          }
         }
         this.$emit('keydown', e);
       },
@@ -13183,136 +13188,6 @@
     }
   };
 
-  var QInlineEdit = {
-    name: 'QInlineEdit',
-    props: {
-      value: {},
-      persistent: Boolean,
-      title: String,
-      buttons: Boolean,
-      labelSet: String,
-      labelCancel: String,
-      color: {
-        type: String,
-        default: 'primary'
-      },
-      validate: {
-        type: Function,
-        default: function () { return true; }
-      }
-    },
-    data: function data () {
-      return {
-        initialValue: ''
-      }
-    },
-    watch: {
-      value: function value () {
-        var this$1 = this;
-
-        this.$nextTick(function () {
-          this$1.$refs.popover.reposition();
-        });
-      }
-    },
-    methods: {
-      cancel: function cancel () {
-        if (this.__hasChanged()) {
-          this.$emit('cancel', this.value, this.initialValue);
-          this.$emit('input', this.initialValue);
-        }
-        this.$nextTick(this.__close);
-      },
-      set: function set () {
-        if (this.__hasChanged() && this.validate(this.value)) {
-          this.$emit('save', this.value);
-        }
-        this.__close();
-      },
-
-      __hasChanged: function __hasChanged () {
-        return JSON.stringify(this.value) !== JSON.stringify(this.initialValue)
-      },
-      __close: function __close () {
-        this.validated = true;
-        this.$refs.popover.hide();
-      },
-      __getContent: function __getContent (h) {
-        var title = this.$slots.title || this.title;
-        return [
-          (title && h('div', { staticClass: 'q-title q-mt-sm q-mb-sm' }, [ title ])) || void 0
-        ].concat(this.$slots.default).concat([
-          (this.buttons && h('div', { staticClass: 'row justify-center no-wrap q-mt-sm' }, [
-            h(QBtn, {
-              props: {
-                flat: true,
-                color: this.color,
-                label: this.labelCancel || this.$q.i18n.label.cancel
-              },
-              on: {
-                click: this.cancel
-              }
-            }),
-            h(QBtn, {
-              staticClass: 'q-ml-sm',
-              props: {
-                flat: true,
-                color: this.color,
-                label: this.labelSet || this.$q.i18n.label.set
-              },
-              on: {
-                click: this.set
-              }
-            })
-          ])) || void 0
-        ])
-      }
-    },
-    render: function render (h) {
-      var this$1 = this;
-
-      return h(QPopover, {
-        staticClass: 'q-table-edit q-px-md q-py-sm',
-        ref: 'popover',
-        props: {
-          cover: true,
-          persistent: this.persistent
-        },
-        on: {
-          show: function () {
-            var input = this$1.$el.querySelector('input');
-            input && input.focus();
-            this$1.$emit('show');
-            this$1.initialValue = clone(this$1.value);
-            this$1.validated = false;
-          },
-          hide: function () {
-            if (this$1.validated) { return }
-
-            if (this$1.__hasChanged()) {
-              if (this$1.validate(this$1.value)) {
-                this$1.$emit('save', this$1.value);
-              }
-              else {
-                this$1.$emit('cancel', this$1.value, this$1.initialValue);
-                this$1.$emit('input', this$1.initialValue);
-              }
-            }
-
-            this$1.$emit('hide');
-          }
-        },
-        nativeOn: {
-          keydown: function (e) {
-            if (getEventKey(e) === 13) {
-              this$1.$refs.popover.hide();
-            }
-          }
-        }
-      }, this.__getContent(h))
-    }
-  };
-
   var QInnerLoading = {
     name: 'QInnerLoading',
     props: {
@@ -15531,6 +15406,136 @@
       window.removeEventListener('resize', this.resizeHandler, listenOpts.passive);
       this.scrollTarget.removeEventListener('scroll', this.__updatePos, listenOpts.passive);
       this.media.onload = this.media.onloadstart = null;
+    }
+  };
+
+  var QPopupEdit = {
+    name: 'QPopupEdit',
+    props: {
+      value: {},
+      persistent: Boolean,
+      title: String,
+      buttons: Boolean,
+      labelSet: String,
+      labelCancel: String,
+      color: {
+        type: String,
+        default: 'primary'
+      },
+      validate: {
+        type: Function,
+        default: function () { return true; }
+      }
+    },
+    data: function data () {
+      return {
+        initialValue: ''
+      }
+    },
+    watch: {
+      value: function value () {
+        var this$1 = this;
+
+        this.$nextTick(function () {
+          this$1.$refs.popover.reposition();
+        });
+      }
+    },
+    methods: {
+      cancel: function cancel () {
+        if (this.__hasChanged()) {
+          this.$emit('cancel', this.value, this.initialValue);
+          this.$emit('input', this.initialValue);
+        }
+        this.$nextTick(this.__close);
+      },
+      set: function set () {
+        if (this.__hasChanged() && this.validate(this.value)) {
+          this.$emit('save', this.value);
+        }
+        this.__close();
+      },
+
+      __hasChanged: function __hasChanged () {
+        return JSON.stringify(this.value) !== JSON.stringify(this.initialValue)
+      },
+      __close: function __close () {
+        this.validated = true;
+        this.$refs.popover.hide();
+      },
+      __getContent: function __getContent (h) {
+        var title = this.$slots.title || this.title;
+        return [
+          (title && h('div', { staticClass: 'q-title q-mt-sm q-mb-sm' }, [ title ])) || void 0
+        ].concat(this.$slots.default).concat([
+          (this.buttons && h('div', { staticClass: 'row justify-center no-wrap q-mt-sm' }, [
+            h(QBtn, {
+              props: {
+                flat: true,
+                color: this.color,
+                label: this.labelCancel || this.$q.i18n.label.cancel
+              },
+              on: {
+                click: this.cancel
+              }
+            }),
+            h(QBtn, {
+              staticClass: 'q-ml-sm',
+              props: {
+                flat: true,
+                color: this.color,
+                label: this.labelSet || this.$q.i18n.label.set
+              },
+              on: {
+                click: this.set
+              }
+            })
+          ])) || void 0
+        ])
+      }
+    },
+    render: function render (h) {
+      var this$1 = this;
+
+      return h(QPopover, {
+        staticClass: 'q-table-edit q-px-md q-py-sm',
+        ref: 'popover',
+        props: {
+          cover: true,
+          persistent: this.persistent
+        },
+        on: {
+          show: function () {
+            var input = this$1.$el.querySelector('.q-input-target, input');
+            input && input.focus();
+            this$1.$emit('show');
+            this$1.initialValue = clone(this$1.value);
+            this$1.validated = false;
+          },
+          hide: function () {
+            if (this$1.validated) { return }
+
+            if (this$1.__hasChanged()) {
+              if (this$1.validate(this$1.value)) {
+                this$1.$emit('save', this$1.value);
+              }
+              else {
+                this$1.$emit('cancel', this$1.value, this$1.initialValue);
+                this$1.$emit('input', this$1.initialValue);
+              }
+            }
+
+            this$1.$emit('hide');
+          }
+        },
+        nativeOn: {
+          keydown: function (e) {
+            if (getEventKey(e) === 13) {
+              this$1.$refs.popover.hide();
+            }
+          }
+        }
+      }, this.__getContent(h))
     }
   };
 
@@ -19783,7 +19788,7 @@
       twoLines: Boolean,
       glossy: Boolean,
       animated: Boolean,
-      swipable: Boolean,
+      swipeable: Boolean,
       panesContainerClass: String
     },
     data: function data () {
@@ -20185,7 +20190,7 @@
         h('div', {
           staticClass: 'q-tabs-panes',
           'class': this.panesContainerClass,
-          directives: this.swipable
+          directives: this.swipeable
             ? [{
               name: 'touch-swipe',
               value: this.__swipe
@@ -22783,7 +22788,6 @@
     QField: QField,
     QIcon: QIcon,
     QInfiniteScroll: QInfiniteScroll,
-    QInlineEdit: QInlineEdit,
     QInnerLoading: QInnerLoading,
     QInput: QInput,
     QInputFrame: QInputFrame,
@@ -22814,6 +22818,7 @@
     QPagination: QPagination,
     QParallax: QParallax,
     QPopover: QPopover,
+    QPopupEdit: QPopupEdit,
     QProgress: QProgress,
     QPullToRefresh: QPullToRefresh,
     QRadio: QRadio,

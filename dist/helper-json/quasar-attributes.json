@@ -1591,34 +1591,6 @@
     "type": "number",
     "description": "Number value."
   },
-  "q-inline-edit/persistent": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-inline-edit/title": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-inline-edit/buttons": {
-    "type": "boolean",
-    "description": "Boolean value."
-  },
-  "q-inline-edit/label-set": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-inline-edit/label-cancel": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-inline-edit/color": {
-    "type": "string",
-    "description": "String value."
-  },
-  "q-inline-edit/validate": {
-    "type": "function",
-    "description": "Function value."
-  },
   "q-inner-loading/dark": {
     "type": "boolean",
     "description": "Boolean value."
@@ -2378,6 +2350,34 @@
   "q-popover/disable": {
     "type": "boolean",
     "description": "Boolean value."
+  },
+  "q-popup-edit/persistent": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-popup-edit/title": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-popup-edit/buttons": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-popup-edit/label-set": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-popup-edit/label-cancel": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-popup-edit/color": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-popup-edit/validate": {
+    "type": "function",
+    "description": "Function value."
   },
   "q-progress/percentage": {
     "type": "number",
@@ -3335,7 +3335,7 @@
     "type": "boolean",
     "description": "Boolean value."
   },
-  "q-tabs/swipable": {
+  "q-tabs/swipeable": {
     "type": "boolean",
     "description": "Boolean value."
   },
