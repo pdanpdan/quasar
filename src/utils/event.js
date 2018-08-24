@@ -131,7 +131,7 @@ export function getMouseWheelDistance (e) {
   if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120 }
 
   // side scrolling on FF with DOMMouseScroll
-  if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
+  if (('axis' in e && e.axis === e.HORIZONTAL_AXIS) || e.shiftKey) {
     sX = sY
     sY = 0
   }

@@ -17,7 +17,7 @@ function shouldPreventScroll (e) {
 
   const
     path = getEventPath(e),
-    delta = e.deltaY || -e.wheelDelta
+    delta = (e.shiftKey || ('axis' in e && e.axis === e.HORIZONTAL_AXIS)) ? 0 : e.deltaY || -e.wheelDelta
 
   for (let index = 0; index < path.length; index++) {
     const el = path[index]

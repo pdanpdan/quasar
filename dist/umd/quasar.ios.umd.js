@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.9
+ * Quasar Framework v0.17.10
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.9";
+  var version = "0.17.10";
 
   var History = {
     __history: [],
@@ -1503,7 +1503,7 @@
     if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
 
     // side scrolling on FF with DOMMouseScroll
-    if ('axis' in e && e.axis === e.HORIZONTAL_AXIS) {
+    if (('axis' in e && e.axis === e.HORIZONTAL_AXIS) || e.shiftKey) {
       sX = sY;
       sY = 0;
     }
@@ -1762,7 +1762,7 @@
 
     var
       path = getEventPath(e),
-      delta = e.deltaY || -e.wheelDelta;
+      delta = (e.shiftKey || ('axis' in e && e.axis === e.HORIZONTAL_AXIS)) ? 0 : e.deltaY || -e.wheelDelta;
 
     for (var index = 0; index < path.length; index++) {
       var el = path[index];
@@ -2003,7 +2003,10 @@
         EscapeKey.pop();
         preventScroll(false);
         this.__register(false);
-        !this.noRefocus && this.__refocusTarget && this.__refocusTarget.focus();
+        if (!this.noRefocus && this.__refocusTarget) {
+          this.__refocusTarget.focus();
+          !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
+        }
       },
       __stopPropagation: function __stopPropagation (e) {
         e.stopPropagation();
@@ -4144,6 +4147,7 @@
         this.hidePromise && this.hidePromiseResolve();
         if (!this.noRefocus && this.__refocusTarget) {
           this.__refocusTarget.focus();
+          !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
         }
         this.$emit('hide');
       },
