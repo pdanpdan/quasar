@@ -10968,9 +10968,11 @@
           shadow = this.$refs.shadow,
           input = this.$refs.input;
         if (shadow && input) {
-          var h = shadow.scrollHeight;
-          input.style.height = (between(h, shadow.offsetHeight, this.maxHeight || h)) + "px";
-          input.style.overflowY = this.maxHeight && this.maxHeight < h ? 'scroll' : 'hidden';
+          var
+            sH = shadow.scrollHeight,
+            h = between(sH, shadow.offsetHeight, this.maxHeight || sH);
+          input.style.height = h + "px";
+          input.style.overflowY = this.maxHeight && h < sH ? 'scroll' : 'hidden';
         }
       },
       __watcher: function __watcher (value) {
