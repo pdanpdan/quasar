@@ -2247,26 +2247,21 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
           align-items: center;
   color: #000;
 }
-.q-input-target:-webkit-autofill,
-.q-input-shadow:-webkit-autofill {
+.q-input-target:-webkit-autofill {
   -webkit-animation-name: webkit-autofill-on;
   -webkit-animation-fill-mode: both;
 }
-.q-input-target.q-input-autofill:not(:-webkit-autofill),
-.q-input-shadow.q-input-autofill:not(:-webkit-autofill) {
+.q-input-target.q-input-autofill:not(:-webkit-autofill) {
   -webkit-animation-name: webkit-autofill-off;
   -webkit-animation-fill-mode: both;
 }
 .q-input-target::-ms-clear,
-.q-input-shadow::-ms-clear,
-.q-input-target::-ms-reveal,
-.q-input-shadow::-ms-reveal {
+.q-input-target::-ms-reveal {
   display: none;
   width: 0;
   height: 0;
 }
-.q-input-target:invalid,
-.q-input-shadow:invalid {
+.q-input-target:invalid {
   -webkit-box-shadow: inherit;
           box-shadow: inherit;
 }

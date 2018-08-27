@@ -72,6 +72,9 @@ export default {
     },
     isTextarea (v) {
       this[v ? '__watcherRegister' : '__watcherUnregister']()
+    },
+    '$attrs.rows' () {
+      this.isTextarea && this.__updateArea()
     }
   },
   provide () {

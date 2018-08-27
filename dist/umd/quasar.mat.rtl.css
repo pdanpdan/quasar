@@ -2848,35 +2848,32 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   padding: 0;
   background: transparent;
 }
-[dir=ltr] .q-input-target:-webkit-autofill, [dir=ltr] .q-input-shadow:-webkit-autofill {
+[dir=ltr] .q-input-target:-webkit-autofill {
   -webkit-animation-name: webkit-autofill-on;
   -webkit-animation-fill-mode: both;
 }
-[dir=rtl] .q-input-target:-webkit-autofill, [dir=rtl] .q-input-shadow:-webkit-autofill {
+[dir=rtl] .q-input-target:-webkit-autofill {
   -webkit-animation-name: webkit-autofill-on;
   -webkit-animation-fill-mode: both;
 }
-[dir=ltr] .q-input-target.q-input-autofill:not(:-webkit-autofill), [dir=ltr] .q-input-shadow.q-input-autofill:not(:-webkit-autofill) {
+[dir=ltr] .q-input-target.q-input-autofill:not(:-webkit-autofill) {
   -webkit-animation-name: webkit-autofill-off;
   -webkit-animation-fill-mode: both;
 }
-[dir=rtl] .q-input-target.q-input-autofill:not(:-webkit-autofill), [dir=rtl] .q-input-shadow.q-input-autofill:not(:-webkit-autofill) {
+[dir=rtl] .q-input-target.q-input-autofill:not(:-webkit-autofill) {
   -webkit-animation-name: webkit-autofill-off;
   -webkit-animation-fill-mode: both;
 }
 .q-input-target::-ms-clear,
-.q-input-shadow::-ms-clear,
-.q-input-target::-ms-reveal,
-.q-input-shadow::-ms-reveal {
+.q-input-target::-ms-reveal {
   display: none;
   width: 0;
   height: 0;
 }
-.q-input-target:invalid,
-.q-input-shadow:invalid {
+.q-input-target:invalid {
   -webkit-box-shadow: inherit;
 }
-[dir] .q-input-target:invalid, [dir] .q-input-shadow:invalid {
+[dir] .q-input-target:invalid {
           box-shadow: inherit;
 }
 .q-input-target:before {

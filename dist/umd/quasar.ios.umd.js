@@ -10795,6 +10795,9 @@
       },
       isTextarea: function isTextarea (v) {
         this[v ? '__watcherRegister' : '__watcherUnregister']();
+      },
+      '$attrs.rows': function $attrs_rows () {
+        this.isTextarea && this.__updateArea();
       }
     },
     provide: function provide () {
@@ -24284,6 +24287,8 @@
     }
   };
 
+  var SIZE_LIST = ['sm', 'md', 'lg', 'xl'];
+
   var screen = {
     width: 0,
 
@@ -24346,8 +24351,10 @@
       var updateEvt, updateSizes = {}, updateDebounce;
 
       this.setSizes = function (sizes) {
-        sizes.forEach(function (name) {
-          updateSizes[name] = sizes[name];
+        SIZE_LIST.forEach(function (name) {
+          if (sizes[name]) {
+            updateSizes[name] = sizes[name];
+          }
         });
       };
       this.setDebounce = function (deb) {
@@ -24359,13 +24366,13 @@
 
         // if css props available
         if (style.getPropertyValue('--q-size-sm')) {
-          ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+          SIZE_LIST.forEach(function (name) {
             this$1.sizes[name] = parseInt(style.getPropertyValue(("--q-size-" + name)), 10);
           });
         }
 
         this$1.setSizes = function (sizes) {
-          ['sm', 'md', 'lg', 'xl'].forEach(function (name) {
+          SIZE_LIST.forEach(function (name) {
             if (sizes[name]) {
               this$1.sizes[name] = sizes[name];
             }
