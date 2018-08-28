@@ -1503,6 +1503,7 @@
     "attributes": [
       "nodes",
       "node-key",
+      "label-key",
       "color",
       "control-color",
       "text-color",

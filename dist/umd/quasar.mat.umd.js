@@ -1487,60 +1487,25 @@
 
   // Reasonable defaults
   var
-    PIXEL_STEP = 10,
     LINE_HEIGHT = 40,
     PAGE_HEIGHT = 800;
 
   function getMouseWheelDistance (e) {
-    var
-      sX = 0, sY = 0, // spinX, spinY
-      pX = 0, pY = 0; // pixelX, pixelY
+    var assign;
 
-    // Legacy
-    if ('detail' in e) { sY = e.detail; }
-    if ('wheelDelta' in e) { sY = -e.wheelDelta / 120; }
-    if ('wheelDeltaY' in e) { sY = -e.wheelDeltaY / 120; }
-    if ('wheelDeltaX' in e) { sX = -e.wheelDeltaX / 120; }
+    var x = e.deltaX, y = e.deltaY;
 
-    // side scrolling on FF with DOMMouseScroll
-    if (('axis' in e && e.axis === e.HORIZONTAL_AXIS) || e.shiftKey) {
-      sX = sY;
-      sY = 0;
+    if ((x || y) && e.deltaMode) {
+      var multiplier = e.deltaMode === 1 ? LINE_HEIGHT : PAGE_HEIGHT;
+      x *= multiplier;
+      y *= multiplier;
     }
 
-    pX = sX * PIXEL_STEP;
-    pY = sY * PIXEL_STEP;
-
-    if ('deltaY' in e) { pY = e.deltaY; }
-    if ('deltaX' in e) { pX = e.deltaX; }
-
-    if ((pX || pY) && e.deltaMode) {
-      if (e.deltaMode === 1) { // delta in LINE units
-        pX *= LINE_HEIGHT;
-        pY *= LINE_HEIGHT;
-      }
-      else { // delta in PAGE units
-        pX *= PAGE_HEIGHT;
-        pY *= PAGE_HEIGHT;
-      }
+    if (e.shiftKey && !x) {
+      (assign = [x, y], y = assign[0], x = assign[1]);
     }
 
-    // Fall-back if spin cannot be determined
-    if (pX && !sX) { sX = (pX < 1) ? -1 : 1; }
-    if (pY && !sY) { sY = (pY < 1) ? -1 : 1; }
-
-    /*
-     * spinX  -- normalized spin speed (use for zoom) - x plane
-     * spinY  -- " - y plane
-     * pixelX -- normalized distance (to pixels) - x plane
-     * pixelY -- " - y plane
-     */
-    return {
-      spinX: sX,
-      spinY: sY,
-      pixelX: pX,
-      pixelY: pY
-    }
+    return { x: x, y: y }
   }
 
   function stopAndPrevent (e) {
@@ -1725,16 +1690,28 @@
     return size
   }
 
-  function hasScrollbar (el) {
+  function hasScrollbar (el, onY) {
+    if ( onY === void 0 ) onY = true;
+
     if (!el || el.nodeType !== Node.ELEMENT_NODE) {
       return false
     }
 
-    return el.scrollHeight > el.clientHeight && (
-      el.classList.contains('scroll') ||
-      el.classList.contains('overflow-auto') ||
-      ['auto', 'scroll'].includes(window.getComputedStyle(el)['overflow-y'])
-    )
+    return onY
+      ? (
+        el.scrollHeight > el.clientHeight && (
+          el.classList.contains('scroll') ||
+          el.classList.contains('overflow-auto') ||
+          ['auto', 'scroll'].includes(window.getComputedStyle(el)['overflow-y'])
+        )
+      )
+      : (
+        el.scrollWidth > el.clientWidth && (
+          el.classList.contains('scroll') ||
+          el.classList.contains('overflow-auto') ||
+          ['auto', 'scroll'].includes(window.getComputedStyle(el)['overflow-x'])
+        )
+      )
   }
 
   var scroll = {
@@ -1762,15 +1739,25 @@
 
     var
       path = getEventPath(e),
-      delta = (e.shiftKey || ('axis' in e && e.axis === e.HORIZONTAL_AXIS)) ? 0 : e.deltaY || -e.wheelDelta;
+      shift = e.shiftKey && !e.deltaX,
+      scrollY = !shift && Math.abs(e.deltaX) <= Math.abs(e.deltaY),
+      delta = shift || scrollY ? e.deltaY : e.deltaX;
 
     for (var index = 0; index < path.length; index++) {
       var el = path[index];
 
-      if (hasScrollbar(el)) {
-        return delta < 0 && el.scrollTop === 0
-          ? true
-          : delta > 0 && el.scrollTop + el.clientHeight === el.scrollHeight
+      if (hasScrollbar(el, scrollY)) {
+        return scrollY
+          ? (
+            delta < 0 && el.scrollTop === 0
+              ? true
+              : delta > 0 && el.scrollTop + el.clientHeight === el.scrollHeight
+          )
+          : (
+            delta < 0 && el.scrollLeft === 0
+              ? true
+              : delta > 0 && el.scrollLeft + el.clientWidth === el.scrollWidth
+          )
       }
     }
 
@@ -3895,7 +3882,6 @@
         this.timer = setTimeout(function () {
           document.body.addEventListener('click', this$1.__bodyHide, true);
           document.body.addEventListener('touchstart', this$1.__bodyHide, true);
-          this$1.$emit('show', evt);
           this$1.showPromise && this$1.showPromiseResolve();
         }, 0);
       },
@@ -3934,7 +3920,6 @@
           this.__refocusTarget.focus();
           !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
         }
-        this.$emit('hide');
       },
       reposition: function reposition (event$$1, animate) {
         var ref = this.anchorEl.getBoundingClientRect();
@@ -10400,6 +10385,7 @@
 
         return h('div', {
           ref: 'clock',
+          key: 'clock' + this.view,
           staticClass: 'column items-center content-center justify-center'
         }, [
           h('div', {
@@ -16589,7 +16575,7 @@
       },
       __mouseWheel: function __mouseWheel (e) {
         var el = this.$refs.target;
-        el.scrollTop += getMouseWheelDistance(e).pixelY;
+        el.scrollTop += getMouseWheelDistance(e).y;
         if (el.scrollTop > 0 && el.scrollTop + this.containerHeight < this.scrollHeight) {
           e.preventDefault();
         }
@@ -21937,6 +21923,10 @@
         type: String,
         required: true
       },
+      labelKey: {
+        type: String,
+        default: 'label'
+      },
 
       color: {
         type: String,
@@ -21965,7 +21955,8 @@
         type: Function,
         default: function default$1 (node, filter) {
           var filt = filter.toLowerCase();
-          return node.label && node.label.toLowerCase().indexOf(filt) > -1
+          return node[this.labelKey] &&
+            node[this.labelKey].toLowerCase().indexOf(filt) > -1
         }
       },
 
@@ -22425,7 +22416,7 @@
                 ? header(slotScope)
                 : [
                   this.__getNodeMedia(h, node),
-                  h('span', node.label)
+                  h('span', node[this.labelKey])
                 ]
             ])
           ]),
