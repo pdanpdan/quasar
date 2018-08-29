@@ -3423,6 +3423,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-table/binary-state-sort": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-table/no-data-label": {
     "type": "string",
     "description": "String value."

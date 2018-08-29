@@ -1394,6 +1394,7 @@
       "hide-bottom",
       "dark",
       "separator",
+      "binary-state-sort",
       "no-data-label",
       "no-results-label",
       "loading-label",

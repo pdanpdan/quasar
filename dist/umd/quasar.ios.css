@@ -903,16 +903,14 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 16px;
 }
 .q-input-chips {
-  margin-top: -6px;
-  margin-bottom: -6px;
+  margin: -6px -5px;
 }
 .q-input-chips input.q-input-target {
   min-width: 70px !important;
   height: 26px;
 }
 .q-if-dense .q-input-chips {
-  margin-top: -2px;
-  margin-bottom: -2px;
+  margin: -2px -5px;
 }
 .q-if-dense .q-input-chips input.q-input-target {
   height: 18px;
@@ -1833,7 +1831,6 @@ body.desktop .q-carousel-thumbnails img:hover {
   width: 24px;
   height: 24px;
   cursor: pointer;
-  z-index: 2;
 }
 .q-if-control + .q-if-control,
 .q-if-control + .q-if-inner,
@@ -3702,9 +3699,6 @@ body.desktop .q-tab:hover:before {
   height: 48px;
   font-weight: 400;
   font-size: 13px;
-}
-.q-table .q-radial-ripple {
-  margin-bottom: -100%;
 }
 .q-table-col-auto-width {
   width: 1px;
@@ -8377,26 +8371,22 @@ a.q-link {
 }
 .q-radial-ripple {
   overflow: hidden;
-  -webkit-transform: translate3d(-25%, -25%, 0);
-          transform: translate3d(-25%, -25%, 0);
-  width: 200%;
-  height: 200%;
   border-radius: 50%;
   pointer-events: none;
-}
-.q-radial-ripple,
-.q-radial-ripple:after {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
 }
 .q-radial-ripple:after {
   content: '';
   display: block;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: radial-gradient(circle, currentColor 10%, transparent 10.01%);
   background-repeat: no-repeat;
   background-position: 50%;

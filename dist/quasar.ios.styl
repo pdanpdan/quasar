@@ -1421,14 +1421,12 @@ $checkbox-size = 21px
   .q-icon
     font-size 16px
 .q-input-chips
-  margin-top -6px
-  margin-bottom -6px
+  margin -6px -5px
   input.q-input-target
     min-width 70px !important
     height 26px
 .q-if-dense .q-input-chips
-  margin-top -2px
-  margin-bottom -2px
+  margin -2px -5px
   input.q-input-target
     height 18px
 .q-collapsible-sub-item
@@ -2076,7 +2074,6 @@ $margin-top-box-dense
   width $input-control-size
   height $input-control-size
   cursor pointer
-  z-index 2
   + .q-if-control, + .q-if-inner, .q-if-inner + &
     margin-left $input-control-margin
   &:hover
@@ -3391,8 +3388,6 @@ body.desktop .q-tab
     height 48px
     font-weight 400
     font-size 13px
-  .q-radial-ripple
-    margin-bottom -100%
 .q-table-col-auto-width
   width 1px
 .q-table-bottom-item
@@ -5559,22 +5554,21 @@ a.q-link
       opacity .15
 .q-radial-ripple
   overflow hidden
-  transform translate3d(-25%, -25%, 0)
-  width 200%
-  height 200%
   border-radius 50%
   pointer-events none
-  &, &:after
-    position absolute
-    top 0
-    right 0
-    bottom 0
-    left 0
+  position absolute
+  top -50%
+  left -50%
+  width 200%
+  height 200%
   &:after
     content ''
     display block
-    width 100%
-    height 100%
+    position absolute
+    top 0
+    left 0
+    right 0
+    bottom 0
     background-image radial-gradient(circle, currentColor 10%, transparent 10.01%)
     background-repeat no-repeat
     background-position 50%

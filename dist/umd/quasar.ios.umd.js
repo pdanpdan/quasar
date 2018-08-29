@@ -1363,9 +1363,7 @@
       if (this.showing) {
         this.showPromise && this.showPromiseReject();
         this.hidePromise && this.hidePromiseReject();
-        this.$emit('input', false);
         this.__removeHistory();
-        this.__hide && this.__hide();
       }
     }
   };
@@ -1987,13 +1985,16 @@
         this.$nextTick(function () { return content && content.focus(); });
       },
       __hide: function __hide () {
-        EscapeKey.pop();
-        preventScroll(false);
-        this.__register(false);
+        this.__cleanup();
         if (!this.noRefocus && this.__refocusTarget) {
           this.__refocusTarget.focus();
           !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
         }
+      },
+      __cleanup: function __cleanup () {
+        EscapeKey.pop();
+        preventScroll(false);
+        this.__register(false);
       },
       __stopPropagation: function __stopPropagation (e) {
         e.stopPropagation();
@@ -2040,6 +2041,7 @@
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.shakeTimeout);
       this.$el.remove();
+      this.showing && this.__cleanup();
     },
     render: function render (h) {
       var this$1 = this;
@@ -4068,6 +4070,7 @@
       }
     },
     beforeDestroy: function beforeDestroy () {
+      this.showing && this.__cleanup();
       if (this.anchorClick && this.anchorEl) {
         this.anchorEl.removeEventListener('click', this.toggle);
         this.anchorEl.removeEventListener('keyup', this.__toggleKey);
@@ -4118,6 +4121,14 @@
         this.hide(evt);
       },
       __hide: function __hide () {
+        this.__cleanup();
+        this.hidePromise && this.hidePromiseResolve();
+        if (!this.noRefocus && this.__refocusTarget) {
+          this.__refocusTarget.focus();
+          !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
+        }
+      },
+      __cleanup: function __cleanup () {
         clearTimeout(this.timer);
 
         document.body.removeEventListener('click', this.__bodyHide, true);
@@ -4130,11 +4141,6 @@
         EscapeKey.pop();
 
         this.$el.remove();
-        this.hidePromise && this.hidePromiseResolve();
-        if (!this.noRefocus && this.__refocusTarget) {
-          this.__refocusTarget.focus();
-          !this.__refocusTarget.classList.contains('q-if') && this.__refocusTarget.blur();
-        }
       },
       reposition: function reposition (event$$1, animate) {
         var ref = this.anchorEl.getBoundingClientRect();
@@ -6898,14 +6904,14 @@
           this$1.__onBlur(e);
         }, 200);
       },
-      __onBlur: function __onBlur (e) {
+      __onBlur: function __onBlur (e, destroy) {
         if (this.focused) {
           this.focused = false;
           this.$emit('blur', e);
         }
-        this.__emit();
+        this.__emit(destroy);
       },
-      __emit: function __emit () {
+      __emit: function __emit (destroy) {
         var this$1 = this;
 
         var isNumberError = this.isNumber && this.isNumberError;
@@ -6916,7 +6922,7 @@
         if (isNumberError) {
           this.$emit('input', value);
         }
-        this.$nextTick(function () {
+        var emit = function () {
           if (this$1.isNumber) {
             if (String(1 / value) !== String(1 / this$1.value)) {
               this$1.$emit('change', value);
@@ -6925,7 +6931,8 @@
           else if (JSON.stringify(value) !== JSON.stringify(this$1.value)) {
             this$1.$emit('change', value);
           }
-        });
+        };
+        destroy ? emit() : this.$nextTick(emit);
       },
       __onKeydown: function __onKeydown (e) {
         if (e.keyCode === 13) {
@@ -6964,6 +6971,7 @@
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
+      this.focused && this.__onBlur(void 0, true);
     }
   };
 
@@ -11690,6 +11698,10 @@
         this.showPromise && this.showPromiseResolve();
       },
       __hide: function __hide () {
+        this.__cleanup();
+        this.hidePromise && this.hidePromiseResolve();
+      },
+      __cleanup: function __cleanup () {
         clearTimeout(this.timer);
 
         this.scrollTarget.removeEventListener('scroll', this.hide, listenOpts.passive);
@@ -11699,8 +11711,6 @@
         if (this.$q.platform.is.mobile) {
           document.body.removeEventListener('click', this.hide, true);
         }
-
-        this.hidePromise && this.hidePromiseResolve();
       },
       __updatePosition: function __updatePosition () {
         setPosition({
@@ -11769,6 +11779,7 @@
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
+      this.showing && this.__cleanup();
       if (!this.anchorEl) {
         return
       }
@@ -14212,19 +14223,24 @@
         animate && this.layout.__animate();
 
         if (this.mobileOpened) {
-          !this.layout.container && preventScroll(false);
           this.mobileOpened = false;
         }
 
         this.applyPosition(this.stateDirection * this.size);
         this.applyBackdrop(0);
 
-        this.__setScrollable(false);
+        this.__cleanup();
 
         clearTimeout(this.timer);
         this.timer = setTimeout(function () {
           this$1.hidePromise && this$1.hidePromiseResolve();
         }, duration);
+      },
+      __cleanup: function __cleanup () {
+        if (this.mobileOpened && !this.layout.container) {
+          preventScroll(false);
+        }
+        this.__setScrollable(false);
       },
 
       __update: function __update (prop, val) {
@@ -14249,6 +14265,7 @@
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.timer);
+      this.showing && this.__cleanup();
       if (this.layout.instances[this.side] === this) {
         this.layout.instances[this.side] = null;
         this.__update('size', 0);
@@ -20776,11 +20793,18 @@
           sortBy = col;
           descending = false;
         }
-        else if (descending) {
-          sortBy = null;
-        }
         else {
-          descending = true;
+          if (this.binaryStateSort) {
+            descending = !descending;
+          }
+          else {
+            if (descending) {
+              sortBy = null;
+            }
+            else {
+              descending = true;
+            }
+          }
         }
 
         this.setPagination({ sortBy: sortBy, descending: descending, page: 1 });
@@ -21112,6 +21136,7 @@
         default: 'horizontal',
         validator: function (v) { return ['horizontal', 'vertical', 'cell', 'none'].includes(v); }
       },
+      binaryStateSort: Boolean,
       noDataLabel: String,
       noResultsLabel: String,
       loadingLabel: String,

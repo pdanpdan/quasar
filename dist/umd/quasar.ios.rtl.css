@@ -1209,16 +1209,14 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 16px;
 }
 [dir] .q-input-chips {
-  margin-top: -6px;
-  margin-bottom: -6px;
+  margin: -6px -5px;
 }
 .q-input-chips input.q-input-target {
   min-width: 70px !important;
   height: 26px;
 }
 [dir] .q-if-dense .q-input-chips {
-  margin-top: -2px;
-  margin-bottom: -2px;
+  margin: -2px -5px;
 }
 .q-if-dense .q-input-chips input.q-input-target {
   height: 18px;
@@ -2399,7 +2397,6 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 24px;
   width: 24px;
   height: 24px;
-  z-index: 2;
 }
 [dir] .q-if-control {
   cursor: pointer;
@@ -4719,9 +4716,6 @@ body.desktop .q-tab:hover:before {
   height: 48px;
   font-weight: 400;
   font-size: 13px;
-}
-[dir] .q-table .q-radial-ripple {
-  margin-bottom: -100%;
 }
 .q-table-col-auto-width {
   width: 1px;
@@ -10043,40 +10037,27 @@ a.q-link {
 }
 .q-radial-ripple {
   overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: -50%;
   width: 200%;
   height: 200%;
-  pointer-events: none;
 }
 [dir] .q-radial-ripple {
   border-radius: 50%;
 }
 [dir=ltr] .q-radial-ripple {
-  -webkit-transform: translate3d(-25%, -25%, 0);
-  transform: translate3d(-25%, -25%, 0);
+  left: -50%;
 }
 [dir=rtl] .q-radial-ripple {
-  -webkit-transform: translate3d(25%, -25%, 0);
-          transform: translate3d(25%, -25%, 0);
-}
-.q-radial-ripple,
-.q-radial-ripple:after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-}
-[dir=ltr] .q-radial-ripple, [dir=ltr] .q-radial-ripple:after {
-  right: 0;
-  left: 0;
-}
-[dir=rtl] .q-radial-ripple, [dir=rtl] .q-radial-ripple:after {
-  left: 0;
-  right: 0;
+  right: -50%;
 }
 .q-radial-ripple:after {
   content: '';
   display: block;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
   -webkit-transform: scale(10, 10);
   opacity: 0;
   transition: opacity 1s, -webkit-transform 0.5s;
@@ -10089,6 +10070,14 @@ a.q-link {
   background-position: 50%;
           transform: scale(10, 10);
   -webkit-transition: opacity 1s, -webkit-transform 0.5s;
+}
+[dir=ltr] .q-radial-ripple:after {
+  left: 0;
+  right: 0;
+}
+[dir=rtl] .q-radial-ripple:after {
+  right: 0;
+  left: 0;
 }
 .q-radial-ripple.active:after {
   -webkit-transform: scale(0, 0);
