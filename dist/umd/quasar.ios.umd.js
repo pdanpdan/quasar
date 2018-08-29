@@ -6825,7 +6825,11 @@
       fakeInputValue: function fakeInputValue () {
         return this.actualValue || this.actualValue === 0
           ? this.actualValue
-          : this.placeholder
+          : (
+            this.placeholder || this.placeholder === 0
+              ? this.placeholder
+              : ''
+          )
       },
       fakeInputClasses: function fakeInputClasses () {
         var hasValue = this.actualValue || this.actualValue === 0;
@@ -7111,9 +7115,9 @@
         })) || void 0,
 
         h('div', {
-          staticClass: 'q-if-inner col row'
+          staticClass: 'q-if-inner col column'
         }, [
-          h('div', { staticClass: 'col-12 row no-wrap relative-position' }, [
+          h('div', { staticClass: 'row no-wrap relative-position' }, [
             (this.prefix && h('span', {
               staticClass: 'q-if-addon q-if-addon-left',
               'class': this.addonClass,
@@ -7142,7 +7146,7 @@
             })) || void 0
           ])),
           (this.hasLabel && h('div', {
-            staticClass: 'q-if-label-spacer col-12',
+            staticClass: 'q-if-label-spacer',
             domProps: {
               innerHTML: this.label
             }
@@ -20632,7 +20636,7 @@
             ])
           ]),
           h('div', { staticClass: 'q-table-separator col' }),
-          h('div', { staticClass: 'q-table-control' }, [
+          (this.rowsPerPageOptions.length > 1 && h('div', { staticClass: 'q-table-control' }, [
             h('span', { staticClass: 'q-table-bottom-item' }, [
               this.rowsPerPageLabel || this.$q.i18n.table.recordsPerPage
             ]),
@@ -20654,7 +20658,7 @@
                 }
               }
             })
-          ]),
+          ])) || void 0,
           h('div', { staticClass: 'q-table-control' }, [
             paginationSlot
               ? paginationSlot(this.marginalsProps)
