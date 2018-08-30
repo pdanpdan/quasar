@@ -7038,7 +7038,7 @@
         this.hasWarning && cls.push('q-if-warning');
         this.disable && cls.push('q-if-disabled');
         this.readonly && cls.push('q-if-readonly');
-        this.focusable && !this.disable && cls.push('q-if-focusable');
+        !this.disable && cls.push('q-if-focusable');
         this.isInverted && cls.push('q-if-inverted');
         this.isInvertedLight && cls.push('q-if-inverted-light');
         this.lightColor && cls.push('q-if-light-color');
@@ -8920,7 +8920,6 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
-
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -10550,7 +10549,6 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
-
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -13860,6 +13858,7 @@
         validator: function (v) { return ['default', 'desktop', 'mobile'].includes(v); },
         default: 'default'
       },
+      showIfAbove: Boolean,
       contentStyle: Object,
       contentClass: [String, Object, Array],
       noHideOnRouteChange: Boolean,
@@ -13868,7 +13867,9 @@
     },
     data: function data () {
       var
-        largeScreenState = this.value !== void 0 ? this.value : true,
+        largeScreenState = this.showIfAbove !== void 0 ? this.showIfAbove : (
+          this.value !== void 0 ? this.value : true
+        ),
         showing = this.behavior !== 'mobile' && this.breakpoint < this.layout.width && !this.overlay
           ? largeScreenState
           : false;
@@ -19258,6 +19259,14 @@
           '-ms-flex-order': ord,
           order: ord
         }
+      },
+      classes: function classes () {
+        if (!this.__stepper.vertical) {
+          var cls = [];
+          !this.active && cls.push('hidden');
+          this.__stepper.animation !== null && cls.push(this.__stepper.animation);
+          return cls
+        }
       }
     },
     methods: {
@@ -19265,6 +19274,23 @@
         if (this.done) {
           this.__stepper.goToStep(this.name);
         }
+      },
+
+      __getContainer: function __getContainer (h) {
+        var content = this.active
+          ? h('div', {
+            staticClass: 'q-stepper-step-content',
+            'class': this.classes
+          }, [
+            h('div', {
+              staticClass: 'q-stepper-step-inner'
+            }, this.$slots.default)
+          ])
+          : null;
+
+        return this.__stepper.vertical
+          ? h(QSlideTransition, [ content ])
+          : content
       }
     },
     mounted: function mounted () {
@@ -19284,17 +19310,7 @@
         this.__stepper.vertical
           ? h(StepTab, { props: { vm: this } })
           : null,
-        h(QSlideTransition, [
-          this.active
-            ? h('div', {
-              staticClass: 'q-stepper-step-content'
-            }, [
-              h('div', {
-                staticClass: 'q-stepper-step-inner'
-              }, this.$slots.default)
-            ])
-            : null
-        ])
+        this.__getContainer(h)
       ])
     }
   };
@@ -19317,6 +19333,7 @@
     },
     data: function data () {
       return {
+        animation: null,
         step: this.value || null,
         steps: []
       }
@@ -19329,6 +19346,17 @@
     watch: {
       value: function value (v) {
         this.goToStep(v);
+      },
+      step: function step (cur, old) {
+        if (!this.vertical) {
+          var
+            curIndex = this.steps.findIndex(function (step) { return step.name === cur; }),
+            oldIndex = this.steps.findIndex(function (step) { return step.name === old; });
+
+          this.animation = curIndex < oldIndex
+            ? 'animate-fade-left'
+            : (curIndex > oldIndex ? 'animate-fade-right' : null);
+        }
       }
     },
     computed: {
@@ -19770,6 +19798,12 @@
     scrollNavigationSpeed = 5, // in pixels
     debounceDelay = 50; // in ms
 
+  function getUnderlineClass (v) {
+    if (v) {
+      return ("text-" + v)
+    }
+  }
+
   var QTabs = {
     name: 'QTabs',
     provide: function provide () {
@@ -19804,7 +19838,8 @@
       glossy: Boolean,
       animated: Boolean,
       swipeable: Boolean,
-      panesContainerClass: String
+      panesContainerClass: String,
+      underlineColor: String
     },
     data: function data () {
       return {
@@ -19819,6 +19854,7 @@
           color: this.color,
           textColor: this.textColor,
           inverted: this.inverted,
+          underlineClass: getUnderlineClass(this.underlineColor),
           direction: null
         }
       }
@@ -19835,6 +19871,9 @@
       },
       inverted: function inverted (v) {
         this.data.inverted = v;
+      },
+      underlineColor: function underlineColor (v) {
+        this.data.underlineClass = getUnderlineClass(v);
       }
     },
     computed: {

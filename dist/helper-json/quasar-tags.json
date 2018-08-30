@@ -677,6 +677,7 @@
       "mini-width",
       "breakpoint",
       "behavior",
+      "show-if-above",
       "content-style",
       "content-class",
       "no-hide-on-route-change",
@@ -1368,7 +1369,8 @@
       "glossy",
       "animated",
       "swipeable",
-      "panes-container-class"
+      "panes-container-class",
+      "underline-color"
     ],
     "description": ""
   },

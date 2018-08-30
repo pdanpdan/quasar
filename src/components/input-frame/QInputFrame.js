@@ -35,7 +35,7 @@ export default {
       this.hasWarning && cls.push('q-if-warning')
       this.disable && cls.push('q-if-disabled')
       this.readonly && cls.push('q-if-readonly')
-      this.focusable && !this.disable && cls.push('q-if-focusable')
+      !this.disable && cls.push('q-if-focusable')
       this.isInverted && cls.push('q-if-inverted')
       this.isInvertedLight && cls.push('q-if-inverted-light')
       this.lightColor && cls.push('q-if-light-color')

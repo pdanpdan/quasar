@@ -1831,6 +1831,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-layout-drawer/show-if-above": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-layout-drawer/content-style": {
     "type": "object",
     "description": "Object value."
@@ -3340,6 +3344,10 @@
     "description": "Boolean value."
   },
   "q-tabs/panes-container-class": {
+    "type": "string",
+    "description": "String value."
+  },
+  "q-tabs/underline-color": {
     "type": "string",
     "description": "String value."
   },

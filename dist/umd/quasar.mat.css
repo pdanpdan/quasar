@@ -1958,6 +1958,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
           align-items: center;
   font-size: 1rem;
 }
+.q-if input,
+.q-if textarea {
+  pointer-events: none;
+}
 .q-if .q-if-inner {
   min-height: 24px;
 }
@@ -2107,6 +2111,10 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-full-width.q-if-has-content .q-if-label-above .q-if-label-inner {
   visibility: hidden;
+}
+.q-if-focused:not(.q-if-readonly) input,
+.q-if-focused:not(.q-if-readonly) textarea {
+  pointer-events: all;
 }
 .q-if-focused:not(.q-if-readonly) .q-if-label,
 .q-if-focused:not(.q-if-readonly) .q-if-addon,
