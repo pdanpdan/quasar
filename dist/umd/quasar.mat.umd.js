@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.10
+ * Quasar Framework v0.17.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.10";
+  var version = "0.17.11";
 
   var History = {
     __history: [],
@@ -6823,7 +6823,7 @@
         this.hasWarning && cls.push('q-if-warning');
         this.disable && cls.push('q-if-disabled');
         this.readonly && cls.push('q-if-readonly');
-        !this.disable && cls.push('q-if-focusable');
+        this.focusable && !this.disable && cls.push('q-if-focusable');
         this.isInverted && cls.push('q-if-inverted');
         this.isInvertedLight && cls.push('q-if-inverted-light');
         this.lightColor && cls.push('q-if-light-color');
@@ -8703,6 +8703,7 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
+
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -9678,19 +9679,19 @@
 
       __parseTypeValue: function __parseTypeValue (type, value) {
         if (type === 'month') {
-          return between(value, 1, 12)
+          return normalizeToInterval(value, 1, 12)
         }
         if (type === 'date') {
-          return between(value, 1, this.daysInMonth)
+          return normalizeToInterval(value, 1, this.daysInMonth)
         }
         if (type === 'year') {
-          return between(value, this.yearInterval.min, this.yearInterval.max)
+          return normalizeToInterval(value, this.yearInterval.min, this.yearInterval.max)
         }
         if (type === 'hour') {
-          return between(value, 0, 23)
+          return normalizeToInterval(value, 0, 23)
         }
         if (type === 'minute') {
-          return between(value, 0, 59)
+          return normalizeToInterval(value, 0, 59)
         }
       }
     }
@@ -9712,22 +9713,10 @@
       Ripple: Ripple
     },
     data: function data () {
-      var this$1 = this;
-
       return {
         view: this.__calcView(this.defaultView),
         dragging: false,
-        centerClockPos: 0,
-
-        __amPmEvents: {
-          keyup: function (e) {
-            var key = getEventKey(e);
-            if (key === 13 || key === 32) { // enter, space
-              stopAndPrevent(e);
-              this$1.toggleAmPm();
-            }
-          }
-        }
+        centerClockPos: 0
       }
     },
     watch: {
@@ -9834,10 +9823,15 @@
       },
       clockPointerStyle: function clockPointerStyle () {
         var
-          divider = this.view === 'minute' ? 60 : (this.computedFormat24h ? 24 : 12),
-          degrees = Math.round((this.view === 'minute' ? this.minute : this.hour) * (360 / divider)) - 180;
+          forMinute = this.view === 'minute',
+          divider = forMinute ? 60 : 12,
+          degrees = Math.round((forMinute ? this.minute : this.hour) * (360 / divider)) - 180,
+          transforms = [("rotate(" + degrees + "deg)")];
 
-        return cssTransform(("rotate(" + degrees + "deg)"))
+        if (!forMinute && this.computedFormat24h && !(this.hour > 0 && this.hour < 13)) {
+          transforms.push('scale(.7, .7)');
+        }
+        return cssTransform(transforms.join(' '))
       },
       isValid: function isValid$1 () {
         return isValid(this.value)
@@ -9942,7 +9936,7 @@
           }
         });
       },
-      __dragStart: function __dragStart (ev) {
+      __dragStart: function __dragStart (ev, value) {
         stopAndPrevent(ev);
 
         var
@@ -9955,7 +9949,7 @@
         };
 
         this.dragging = true;
-        this.__updateClock(ev);
+        this.__updateClock(ev, value);
       },
       __dragMove: function __dragMove (ev) {
         if (!this.dragging) {
@@ -9964,9 +9958,12 @@
         stopAndPrevent(ev);
         this.__updateClock(ev);
       },
-      __dragStop: function __dragStop (ev) {
+      __dragStop: function __dragStop (ev, value) {
         stopAndPrevent(ev);
         this.dragging = false;
+        if (ev !== void 0) {
+          this.__updateClock(ev, value);
+        }
         if (this.view === 'minute') {
           this.$emit('canClose');
         }
@@ -9974,7 +9971,10 @@
           this.view = 'minute';
         }
       },
-      __updateClock: function __updateClock (ev) {
+      __updateClock: function __updateClock (ev, value) {
+        if (value !== void 0) {
+          return this[this.view === 'hour' ? 'setHour' : 'setMinute'](value)
+        }
         var
           pos = position(ev),
           height$$1 = Math.abs(pos.top - this.centerClockPos.top),
@@ -9992,7 +9992,16 @@
         }
 
         if (this.view === 'hour') {
-          this.setHour(Math.round(angle / (this.computedFormat24h ? 15 : 30)));
+          var hour = Math.round(angle / 30);
+          if (this.computedFormat24h) {
+            if (!hour) {
+              hour = distance < 85 ? 0 : 12;
+            }
+            else if (distance < 85) {
+              hour += 12;
+            }
+          }
+          this.setHour(hour);
         }
         else {
           this.setMinute(Math.round(angle / 6));
@@ -10100,7 +10109,8 @@
         if (this.typeHasTime) {
           var content$1 = [
             h('span', {
-              staticClass: 'q-datetime-link col-md text-right q-pr-sm',
+              staticClass: 'q-datetime-link col-md q-pr-sm',
+              style: { textAlign: 'right' },
               'class': {active: this.view === 'hour'},
               attrs: { tabindex: 0 },
               on: {
@@ -10122,13 +10132,14 @@
                 on: this.disable ? {} : {
                   click: function () { this$1.view = 'hour'; }
                 }
-              }, [ this.hour ])
+              }, [ this.computedFormat24h ? this.__pad(this.hour) : this.hour ])
             ]),
 
             h('span', { style: 'opacity:0.6;' }, [ ':' ]),
 
             h('span', {
-              staticClass: 'q-datetime-link col-md text-left q-pl-sm',
+              staticClass: 'q-datetime-link col-md q-pl-sm',
+              style: { textAlign: 'left' },
               'class': {active: this.view === 'minute'},
               attrs: { tabindex: 0 },
               on: {
@@ -10140,7 +10151,7 @@
                   }
                   else if (key === 38 || key === 39) { // up, right
                     stopAndPrevent(e);
-                    this$1.setHour(this$1.minute + 1, true);
+                    this$1.setMinute(this$1.minute + 1, true);
                   }
                 }
               }
@@ -10162,13 +10173,13 @@
             }, content$1),
 
             (!this.computedFormat24h && h('div', {
-              staticClass: 'q-datetime-ampm column col-auto col-md-12 justify-around'
+              staticClass: 'q-datetime-ampm column col-auto col-md-12 justify-around',
+              attrs: { tabindex: 0 },
+              on: this.__amPmEvents
             }, [
               h('div', {
                 staticClass: 'q-datetime-link',
-                'class': { active: this.am },
-                attrs: { tabindex: 0 },
-                on: this.__amPmEvents
+                'class': { active: this.am }
               }, [
                 h('span', {
                   attrs: { tabindex: -1 },
@@ -10178,9 +10189,7 @@
 
               h('div', {
                 staticClass: 'q-datetime-link',
-                'class': { active: !this.am },
-                attrs: { tabindex: 0 },
-                on: this.__amPmEvents
+                'class': { active: !this.am }
               }, [
                 h('span', {
                   attrs: { tabindex: -1 },
@@ -10373,13 +10382,19 @@
             init = 1;
             max = 13;
           }
-          for (var i = init; i < max; i++) {
+          var loop = function ( i ) {
             content.push(h('div', {
               key: ("hi" + i),
               staticClass: ("q-datetime-clock-position" + cls),
-              'class': [("q-datetime-clock-pos-" + i), i === this$1.hour ? 'active' : '']
-            }, [ h('span', [ i ]) ]));
-          }
+              'class': [("q-datetime-clock-pos-" + i), i === this$1.hour ? 'active' : ''],
+              on: {
+                '!mousedown': function (ev) { return this$1.__dragStart(ev, i); },
+                '!mouseup': function (ev) { return this$1.__dragStop(ev, i); }
+              }
+            }, [ h('span', [ i || '00' ]) ]));
+          };
+
+          for (var i = init; i < max; i++) loop( i );
         }
         else {
           for (var i$1 = 0; i$1 < 12; i$1++) {
@@ -10387,7 +10402,7 @@
             content.push(h('div', {
               key: ("mi" + i$1),
               staticClass: 'q-datetime-clock-position',
-              'class': ['q-datetime-clock-pos-' + i$1, five === this$1.minute ? 'active' : '']
+              'class': [("q-datetime-clock-pos-" + i$1), five === this$1.minute ? 'active' : '']
             }, [
               h('span', [ five ])
             ]));
@@ -10435,6 +10450,19 @@
             return this.__getClockView(h)
         }
       }
+    },
+    created: function created () {
+      var this$1 = this;
+
+      this.__amPmEvents = {
+        keydown: function (e) {
+          var key = getEventKey(e);
+          if ([13, 32, 37, 38, 39, 40].includes(key)) { // enter, space, arrows
+            stopAndPrevent(e);
+            this$1.toggleAmPm();
+          }
+        }
+      };
     },
     mounted: function mounted () {
       var this$1 = this;
@@ -10745,6 +10773,7 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
+
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -14060,7 +14089,7 @@
     },
     data: function data () {
       var
-        largeScreenState = this.showIfAbove !== void 0 ? this.showIfAbove : (
+        largeScreenState = this.showIfAbove || (
           this.value !== void 0 ? this.value : true
         ),
         showing = this.behavior !== 'mobile' && this.breakpoint < this.layout.width && !this.overlay
@@ -14394,9 +14423,13 @@
         if (this.belowBreakpoint) {
           this.mobileOpened = true;
           this.applyBackdrop(1);
-          !this.layout.container && preventScroll(true);
+          if (!this.layout.container) {
+            this.preventedScroll = true;
+            preventScroll(true);
+          }
         }
         else {
+          console.log('set scrollable');
           this.__setScrollable(true);
         }
 
@@ -14431,7 +14464,8 @@
         }, duration);
       },
       __cleanup: function __cleanup () {
-        if (this.mobileOpened && !this.layout.container) {
+        if (this.preventedScroll) {
+          this.preventedScroll = false;
           preventScroll(false);
         }
         this.__setScrollable(false);

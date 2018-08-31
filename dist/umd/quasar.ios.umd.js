@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.10
+ * Quasar Framework v0.17.11
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.10";
+  var version = "0.17.11";
 
   var History = {
     __history: [],
@@ -7038,7 +7038,7 @@
         this.hasWarning && cls.push('q-if-warning');
         this.disable && cls.push('q-if-disabled');
         this.readonly && cls.push('q-if-readonly');
-        !this.disable && cls.push('q-if-focusable');
+        this.focusable && !this.disable && cls.push('q-if-focusable');
         this.isInverted && cls.push('q-if-inverted');
         this.isInvertedLight && cls.push('q-if-inverted-light');
         this.lightColor && cls.push('q-if-light-color');
@@ -8920,6 +8920,7 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
+
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -9895,19 +9896,19 @@
 
       __parseTypeValue: function __parseTypeValue (type, value) {
         if (type === 'month') {
-          return between(value, 1, 12)
+          return normalizeToInterval(value, 1, 12)
         }
         if (type === 'date') {
-          return between(value, 1, this.daysInMonth)
+          return normalizeToInterval(value, 1, this.daysInMonth)
         }
         if (type === 'year') {
-          return between(value, this.yearInterval.min, this.yearInterval.max)
+          return normalizeToInterval(value, this.yearInterval.min, this.yearInterval.max)
         }
         if (type === 'hour') {
-          return between(value, 0, 23)
+          return normalizeToInterval(value, 0, 23)
         }
         if (type === 'minute') {
-          return between(value, 0, 59)
+          return normalizeToInterval(value, 0, 59)
         }
       }
     }
@@ -10549,6 +10550,7 @@
           after: this.after,
           color: this.color,
           noParentField: this.noParentField,
+
           focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
           focusable: true,
           length: this.actualValue.length
@@ -13867,7 +13869,7 @@
     },
     data: function data () {
       var
-        largeScreenState = this.showIfAbove !== void 0 ? this.showIfAbove : (
+        largeScreenState = this.showIfAbove || (
           this.value !== void 0 ? this.value : true
         ),
         showing = this.behavior !== 'mobile' && this.breakpoint < this.layout.width && !this.overlay
@@ -14201,9 +14203,13 @@
         if (this.belowBreakpoint) {
           this.mobileOpened = true;
           this.applyBackdrop(1);
-          !this.layout.container && preventScroll(true);
+          if (!this.layout.container) {
+            this.preventedScroll = true;
+            preventScroll(true);
+          }
         }
         else {
+          console.log('set scrollable');
           this.__setScrollable(true);
         }
 
@@ -14238,7 +14244,8 @@
         }, duration);
       },
       __cleanup: function __cleanup () {
-        if (this.mobileOpened && !this.layout.container) {
+        if (this.preventedScroll) {
+          this.preventedScroll = false;
           preventScroll(false);
         }
         this.__setScrollable(false);

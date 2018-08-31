@@ -292,6 +292,7 @@ export default {
         after: this.after,
         color: this.color,
         noParentField: this.noParentField,
+
         focused: this.focused || (this.$refs.popup && this.$refs.popup.showing),
         focusable: true,
         length: this.actualValue.length
