@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.11
+ * Quasar Framework v0.17.12
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.11";
+  var version = "0.17.12";
 
   var History = {
     __history: [],
@@ -16758,7 +16758,7 @@
         return opt.length ? opt.join(', ') : ''
       },
       computedClearValue: function computedClearValue () {
-        return this.clearValue || (this.multiple ? [] : null)
+        return this.clearValue === void 0 ? (this.multiple ? [] : null) : this.clearValue
       },
       isClearable: function isClearable () {
         return this.editable && this.clearable && JSON.stringify(this.computedClearValue) !== JSON.stringify(this.model)
