@@ -365,6 +365,7 @@
       "icon-toggle",
       "collapse-icon",
       "opened",
+      "duration",
       "header-style",
       "header-class"
     ],
@@ -929,7 +930,8 @@
       "label-set",
       "label-cancel",
       "color",
-      "validate"
+      "validate",
+      "disable"
     ],
     "description": ""
   },
@@ -1095,13 +1097,15 @@
       "options",
       "chips-color",
       "chips-bg-color",
-      "display-value"
+      "display-value",
+      "popup-max-height"
     ],
     "description": ""
   },
   "q-slide-transition": {
     "attributes": [
-      "appear"
+      "appear",
+      "duration"
     ],
     "description": ""
   },
@@ -1520,6 +1524,7 @@
       "accordion",
       "filter",
       "filter-method",
+      "duration",
       "no-nodes-label",
       "no-results-label"
     ],

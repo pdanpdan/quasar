@@ -979,6 +979,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-collapsible/duration": {
+    "type": "number",
+    "description": "Number value."
+  },
   "q-collapsible/header-style": {
     "type": "array|string|object",
     "description": "One of array, string, or object."
@@ -2383,6 +2387,10 @@
     "type": "function",
     "description": "Function value."
   },
+  "q-popup-edit/disable": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-progress/percentage": {
     "type": "number",
     "description": "Number value."
@@ -2867,9 +2875,17 @@
     "type": "string",
     "description": "String value."
   },
+  "q-select/popup-max-height": {
+    "type": "string",
+    "description": "String value."
+  },
   "q-slide-transition/appear": {
     "type": "boolean",
     "description": "Boolean value."
+  },
+  "q-slide-transition/duration": {
+    "type": "number",
+    "description": "Number value."
   },
   "q-slider/min": {
     "type": "number",
@@ -3690,6 +3706,10 @@
   "q-tree/filter-method": {
     "type": "function",
     "description": "Function value."
+  },
+  "q-tree/duration": {
+    "type": "number",
+    "description": "Number value."
   },
   "q-tree/no-nodes-label": {
     "type": "string",

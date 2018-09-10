@@ -920,14 +920,18 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 16px;
 }
 .q-input-chips {
-  margin: -6px -5px;
+  position: relative;
+  left: -5px;
+  margin-top: -6px;
+  margin-bottom: -6px;
 }
 .q-input-chips input.q-input-target {
   min-width: 70px !important;
   height: 26px;
 }
 .q-if-dense .q-input-chips {
-  margin: -2px -5px;
+  margin-top: -2px;
+  margin-bottom: -2px;
 }
 .q-if-dense .q-input-chips input.q-input-target {
   height: 18px;
@@ -1109,6 +1113,7 @@ body.desktop .q-carousel-thumbnails img:hover {
       -ms-user-select: none;
           user-select: none;
   line-height: initial;
+  min-width: 290px;
 }
 .q-datetime .modal-buttons {
   padding-top: 8px;
@@ -1484,32 +1489,41 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
   margin-top: 10px;
 }
 @media (max-width: 767px) {
+  .q-datetime {
+    -webkit-box-orient: vertical !important;
+    -webkit-box-direction: normal !important;
+        -ms-flex-direction: column !important;
+            flex-direction: column !important;
+  }
   .q-datetime-ampm {
     margin-left: 1.5rem;
   }
-  .q-datetime-datestring span {
+  .q-datetime-datestring .q-datetime-link {
     margin: 10px 5px;
   }
-  .q-datetime-datestring span.small {
-    margin-top: 1.3rem;
+  .q-datetime-datestring .q-datetime-link span {
+    padding: 10px 5px;
   }
-  .q-datetime {
-    min-width: 290px;
+  .q-datetime-datestring .q-datetime-link span.small {
+    margin-top: 1.3rem;
   }
   .q-datetime:not(.no-border):not(.q-datetime-dark) .q-datetime-content {
     border-width: 0 1px 1px 1px;
     border-style: solid;
     border-color: #e0e0e0;
   }
+  .q-datetime:not(.no-border).q-datetime-minimal .q-datetime-content {
+    border-top-width: 1px;
+  }
   .q-datetime:not(.no-border).q-datetime-dark {
     border: 1px solid #424242;
     border: 1px solid var(--q-color-dark);
   }
-  .q-datetime-modal .q-datetime {
-    width: 290px;
-  }
 }
 @media (min-width: 768px) {
+  .q-datetime:not(.q-datetime-minimal) {
+    min-width: 510px;
+  }
   .q-datetime-datestring {
     padding: 10px 0;
   }
@@ -1520,7 +1534,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
     margin: 2px 0;
   }
   .q-datetime-header {
-    width: 170px;
     position: relative;
   }
   .q-datetime-weekdaystring {
@@ -1529,26 +1542,17 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
     left: 0;
     right: 0;
   }
-  .q-datetime-content {
-    width: 290px;
-  }
-  .q-datetime {
-    min-width: 480px;
-  }
   .q-datetime:not(.no-border):not(.q-datetime-dark) .q-datetime-content {
     border-width: 1px 1px 1px 0;
     border-style: solid;
     border-color: #e0e0e0;
   }
+  .q-datetime:not(.no-border).q-datetime-minimal .q-datetime-content {
+    border-left-width: 1px;
+  }
   .q-datetime:not(.no-border).q-datetime-dark {
     border: 1px solid #424242;
     border: 1px solid var(--q-color-dark);
-  }
-  .q-datetime-modal .q-datetime {
-    width: 480px;
-  }
-  .q-datetime-minimal {
-    width: 320px;
   }
 }
 .q-dot {
@@ -2168,9 +2172,6 @@ body.desktop .q-datetime-dark .q-datetime-clock-position:not(.active):hover {
 }
 .q-if-control:hover {
   opacity: 0.7;
-}
-.q-if-control.q-icon {
-  cursor: pointer;
 }
 .q-if-baseline {
   line-height: 24px;
@@ -3268,10 +3269,6 @@ body div .q-popover {
 }
 body.desktop .q-select-highlight {
   background: rgba(189,189,189,0.5) !important;
-}
-.q-slide-transition {
-  -webkit-transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
-  transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
 }
 .q-slider-track,
 .q-slider-mark {

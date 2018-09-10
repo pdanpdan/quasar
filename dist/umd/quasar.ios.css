@@ -903,14 +903,18 @@ body.desktop .q-carousel-thumbnails img:hover {
   font-size: 16px;
 }
 .q-input-chips {
-  margin: -6px -5px;
+  position: relative;
+  left: -5px;
+  margin-top: -6px;
+  margin-bottom: -6px;
 }
 .q-input-chips input.q-input-target {
   min-width: 70px !important;
   height: 26px;
 }
 .q-if-dense .q-input-chips {
-  margin: -2px -5px;
+  margin-top: -2px;
+  margin-bottom: -2px;
 }
 .q-if-dense .q-input-chips input.q-input-target {
   height: 18px;
@@ -1839,9 +1843,6 @@ body.desktop .q-carousel-thumbnails img:hover {
 }
 .q-if-control:hover {
   opacity: 0.7;
-}
-.q-if-control.q-icon {
-  cursor: pointer;
 }
 .q-if-baseline {
   line-height: 24px;
@@ -2957,10 +2958,6 @@ body div .q-popover {
 }
 body.desktop .q-select-highlight {
   background: rgba(189,189,189,0.5) !important;
-}
-.q-slide-transition {
-  -webkit-transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
-  transition: height 0.3s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
 }
 .q-slider-track,
 .q-slider-mark {

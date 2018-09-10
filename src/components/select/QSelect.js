@@ -35,7 +35,8 @@ export default {
     },
     chipsColor: String,
     chipsBgColor: String,
-    displayValue: String
+    displayValue: String,
+    popupMaxHeight: String
   },
   data () {
     return {
@@ -324,9 +325,10 @@ export default {
           },
           nativeOn: {
             click: e => { e.stopPropagation() }
-          },
-          domProps: { innerHTML: opt.label }
-        })
+          }
+        }, [
+          h('div', { domProps: { innerHTML: opt.label } })
+        ])
       }))
       child.push(el)
     }
@@ -346,7 +348,8 @@ export default {
       props: {
         cover: true,
         disable: !this.editable,
-        anchorClick: false
+        anchorClick: false,
+        maxHeight: this.popupMaxHeight
       },
       slot: 'after',
       on: {

@@ -2683,12 +2683,12 @@
     if (horiz) {
       if (reverse) { x = -1; }
       if (pos === 'bottom') { y = -1; }
-      return cssTransform(("translate3d(" + (x * (p - 100)) + "%," + (active ? 0 : y * -200) + "%,0)"))
+      return { transform: ("translate3d(" + (x * (p - 100)) + "%," + (active ? 0 : y * -200) + "%,0)") }
     }
 
     if (reverse) { y = -1; }
     if (pos === 'right') { x = -1; }
-    return cssTransform(("translate3d(" + (active ? 0 : dir * x * -200) + "%," + (y * (p - 100)) + "%,0)"))
+    return { transform: ("translate3d(" + (active ? 0 : dir * x * -200) + "%," + (y * (p - 100)) + "%,0)") }
   }
 
   function inc (p, amount) {
@@ -2787,7 +2787,7 @@
           this.animate ? '' : 'no-transition'
         ]
       },
-      style: function style$$1 () {
+      style: function style () {
         var active = this.onScreen;
 
         var o = translate({
@@ -2905,7 +2905,7 @@
       animNode = document.createElement('span'),
       size = el.clientWidth > el.clientHeight ? el.clientWidth : el.clientHeight,
       unit = (center ? size : size * 2) + "px",
-      offset$$1 = el.getBoundingClientRect();
+      offset = el.getBoundingClientRect();
 
     container.appendChild(animNode);
     container.className = 'q-ripple-container';
@@ -2922,17 +2922,17 @@
     }
     else {
       var pos = position(evt);
-      x = pos.left - offset$$1.left - size;
-      y = pos.top - offset$$1.top - size;
+      x = pos.left - offset.left - size;
+      y = pos.top - offset.top - size;
     }
 
     animNode.classList.add('q-ripple-animation-enter');
     animNode.classList.add('q-ripple-animation-visible');
-    css(animNode, cssTransform(("translate(" + x + "px, " + y + "px) scale3d(0, 0, 0)")));
+    animNode.style.transform = "translate(" + x + "px, " + y + "px) scale3d(0, 0, 0)";
 
     setTimeout(function () {
       animNode.classList.remove('q-ripple-animation-enter');
-      css(animNode, cssTransform(("translate(" + x + "px, " + y + "px) scale3d(1, 1, 1)")));
+      animNode.style.transform = "translate(" + x + "px, " + y + "px) scale3d(1, 1, 1)";
       setTimeout(function () {
         animNode.classList.remove('q-ripple-animation-visible');
         setTimeout(function () { container.remove(); }, 300);
@@ -5384,7 +5384,7 @@
           : ico
       },
       trackPosition: function trackPosition () {
-        return cssTransform(("translateX(" + (this.rtlDir * this.position) + "%)"))
+        return { transform: ("translateX(" + (this.rtlDir * this.position) + "%)") }
       },
       infiniteLeft: function infiniteLeft () {
         return this.infinite && this.slidesNumber > 1 && this.positionSlide < 0
@@ -6856,7 +6856,7 @@
       __onMouseDown: function __onMouseDown (e) {
         var this$1 = this;
 
-        this.$nextTick(function () { return this$1.$emit('focus', e); });
+        !this.disable && this.$nextTick(function () { return this$1.$emit('focus', e); });
       },
       __additionalHidden: function __additionalHidden (item, hasError, hasWarning, length) {
         if (item.condition !== void 0) {
@@ -7374,7 +7374,11 @@
   var QSlideTransition = {
     name: 'QSlideTransition',
     props: {
-      appear: Boolean
+      appear: Boolean,
+      duration: {
+        type: Number,
+        default: 300
+      }
     },
     methods: {
       __begin: function __begin (el, height) {
@@ -7382,13 +7386,13 @@
         if (height !== void 0) {
           el.style.height = height + "px";
         }
-        el.classList.add('q-slide-transition');
+        el.style.transition = "height " + (this.duration) + "ms cubic-bezier(.25, .8, .50, 1)";
         this.animating = true;
       },
       __end: function __end (el, event) {
         el.style.overflowY = null;
         el.style.height = null;
-        el.classList.remove('q-slide-transition');
+        el.style.transition = null;
         this.__cleanup();
         event !== this.lastEvent && this.$emit(event);
         this.animating = false;
@@ -7481,6 +7485,7 @@
       iconToggle: Boolean,
       collapseIcon: String,
       opened: Boolean,
+      duration: Number,
 
       headerStyle: [Array, String, Object],
       headerClass: [Array, String, Object]
@@ -7578,7 +7583,9 @@
             ])
             : h(QItemWrapper, this.__getItemProps(true), this.__getToggleSide(h, true)),
 
-          h(QSlideTransition, [
+          h(QSlideTransition, {
+            props: { duration: this.duration }
+          }, [
             h('div', {
               directives: [{ name: 'show', value: this.showing }]
             }, [
@@ -9582,15 +9589,9 @@
       },
       model: {
         get: function get () {
-          var date$$1 = isValid(this.computedValue)
+          return isValid(this.computedValue)
             ? new Date(this.computedValue)
-            : (this.computedDefaultValue ? new Date(this.computedDefaultValue) : startOfDate(new Date(), 'day'));
-
-          return getDateBetween(
-            date$$1,
-            this.pmin,
-            this.pmax
-          )
+            : (this.computedDefaultValue ? new Date(this.computedDefaultValue) : startOfDate(new Date(), 'day'))
         },
         set: function set (val) {
           var this$1 = this;
@@ -9674,7 +9675,7 @@
           hour = this.model.getHours(),
           offset = this.am ? 12 : -12;
 
-        this.model = new Date(this.model.setHours(hour + offset));
+        this.model = new Date(new Date(this.model).setHours(hour + offset));
       },
 
       __parseTypeValue: function __parseTypeValue (type, value) {
@@ -9716,7 +9717,11 @@
       return {
         view: this.__calcView(this.defaultView),
         dragging: false,
-        centerClockPos: 0
+        centerClockPos: 0,
+        fakeValue: {
+          year: null,
+          month: null
+        }
       }
     },
     watch: {
@@ -9726,7 +9731,16 @@
         }
       },
       view: function view () {
-        this.__scrollView();
+        this.__scrollView(true);
+      },
+      model: function model () {
+        if (this.fakeValue.month !== this.month) {
+          this.fakeValue.month = this.month;
+          this.__scrollView();
+        }
+        if (this.fakeValue.year !== this.year) {
+          this.fakeValue.year = this.year;
+        }
       }
     },
     computed: {
@@ -9740,9 +9754,7 @@
         return cls
       },
       contentClasses: function contentClasses () {
-        if (!this.minimal) {
-          return 'col-md-8'
-        }
+        return this.minimal ? 'col-md-12' : 'col-md-8'
       },
       dateArrow: function dateArrow () {
         var val = [ this.$q.icon.datetime.arrowLeft, this.$q.icon.datetime.arrowRight ];
@@ -9768,34 +9780,67 @@
           : days
       },
 
+      fakeModel: function fakeModel () {
+        return new Date(this.fakeYear, this.fakeMonth - 1, 1)
+      },
+      fakeYear: function fakeYear () {
+        return this.fakeValue.year || this.year
+      },
+      fakeMonth: function fakeMonth () {
+        return this.fakeValue.month || this.month
+      },
+      daysInMonth: function daysInMonth$$1 () {
+        return (new Date(this.fakeYear, this.fakeMonth, 0)).getDate()
+      },
+
       monthString: function monthString () {
         return ("" + (this.$q.i18n.date.monthsShort[this.month - 1]))
       },
       monthStamp: function monthStamp () {
-        return ((this.$q.i18n.date.months[this.month - 1]) + " " + (this.year))
+        return ((this.$q.i18n.date.months[this.fakeMonth - 1]) + " " + (this.fakeYear))
       },
       weekDayString: function weekDayString () {
         return this.headerLabel || this.$q.i18n.date.days[this.model.getDay()]
       },
 
       fillerDays: function fillerDays () {
-        var days = (new Date(this.model.getFullYear(), this.model.getMonth(), 1).getDay() - this.computedFirstDayOfWeek);
+        var days = (this.fakeModel.getDay() - this.computedFirstDayOfWeek);
         if (days < 0) {
           days += 7;
         }
         return days
       },
       beforeMinDays: function beforeMinDays () {
-        if (this.pmin === null || !isSameDate(this.pmin, this.model, 'month')) {
+        if (this.pmin === null) {
           return false
         }
-        return this.pmin.getDate() - 1
+        var
+          pminYear = this.pmin.getFullYear(),
+          pminMonth = this.pmin.getMonth() + 1;
+
+        if (pminYear === this.fakeYear && pminMonth === this.fakeMonth) {
+          return this.pmin.getDate() - 1
+        }
+        if (pminYear > this.fakeYear || (pminYear === this.fakeYear && pminMonth > this.fakeMonth)) {
+          return this.daysInMonth
+        }
+        return false
       },
       afterMaxDays: function afterMaxDays () {
-        if (this.pmax === null || !isSameDate(this.pmax, this.model, 'month')) {
+        if (this.pmax === null) {
           return false
         }
-        return this.daysInMonth - this.maxDay
+        var
+          pmaxYear = this.pmax.getFullYear(),
+          pmaxMonth = this.pmax.getMonth() + 1;
+
+        if (pmaxYear === this.fakeYear && pmaxMonth === this.fakeMonth) {
+          return this.daysInMonth - this.maxDay
+        }
+        if (pmaxYear < this.fakeYear || (pmaxYear === this.fakeYear && pmaxMonth < this.fakeMonth)) {
+          return this.daysInMonth
+        }
+        return false
       },
       maxDay: function maxDay () {
         return this.pmax !== null ? this.pmax.getDate() : this.daysInMonth
@@ -9831,14 +9876,14 @@
         if (!forMinute && this.computedFormat24h && !(this.hour > 0 && this.hour < 13)) {
           transforms.push('scale(.7, .7)');
         }
-        return cssTransform(transforms.join(' '))
+        return { transform: transforms.join(' ') }
       },
       isValid: function isValid$1 () {
         return isValid(this.value)
       },
       today: function today () {
         var today = new Date();
-        return isSameDate(today, this.model, 'month')
+        return isSameDate(today, this.fakeModel, 'month')
           ? today.getDate()
           : -1
       }
@@ -9848,9 +9893,9 @@
       setYear: function setYear (value, skipView) {
         if (this.editable) {
           if (!skipView) {
-            this.view = 'day';
+            this.view = 'month';
           }
-          this.model = new Date(this.model.setFullYear(this.__parseTypeValue('year', value)));
+          this.model = new Date(new Date(this.model).setFullYear(this.__parseTypeValue('year', value)));
         }
       },
       setMonth: function setMonth (value, skipView) {
@@ -9858,14 +9903,64 @@
           if (!skipView) {
             this.view = 'day';
           }
-          this.model = adjustDate(this.model, {month: value});
+          this.model = adjustDate(this.model, { month: value });
         }
       },
-      setDay: function setDay (value, skipView) {
+      moveFakeMonth: function moveFakeMonth (direction) {
+        var
+          month = this.fakeMonth + (direction > 0 ? 1 : -1),
+          year = this.fakeYear;
+        if (month < 1) {
+          month = 12;
+          year -= 1;
+        }
+        else if (month > 12) {
+          month = 1;
+          year += 1;
+        }
+        if (this.pmin !== null && direction > 0) {
+          var
+            pminYear = this.pmin.getFullYear(),
+            pminMonth = this.pmin.getMonth() + 1;
+          if (year < pminYear) {
+            year = pminYear;
+            month = pminMonth;
+          }
+          else if (year === pminYear && month < pminMonth) {
+            month = pminMonth;
+          }
+        }
+        if (this.pmax !== null && direction < 0) {
+          var
+            pmaxYear = this.pmax.getFullYear(),
+            pmaxMonth = this.pmax.getMonth() + 1;
+          if (year > pmaxYear) {
+            year = pmaxYear;
+            month = pmaxMonth;
+          }
+          else if (year === pmaxYear && month > pmaxMonth) {
+            month = pmaxMonth;
+          }
+        }
+        this.fakeValue.year = year;
+        this.fakeValue.month = month;
+      },
+      setDay: function setDay (value, skipView, year, month) {
         if (this.editable) {
-          this.model = new Date(this.model.setDate(this.__parseTypeValue('date', value)));
+          if (year && month) {
+            var fake = adjustDate(this.model, { month: month });
+            fake.setFullYear(this.__parseTypeValue('year', year));
+            fake.setDate(this.__parseTypeValue('date', value));
+            this.model = fake;
+          }
+          else {
+            this.model = new Date(new Date(this.model).setDate(this.__parseTypeValue('date', value)));
+          }
           if (!skipView && this.type === 'date') {
             this.$emit('canClose');
+            if (this.minimal) {
+              this.view = this.__calcView();
+            }
           }
           else if (!skipView) {
             this.view = 'hour';
@@ -9884,14 +9979,14 @@
           value += 12;
         }
 
-        this.model = new Date(this.model.setHours(value));
+        this.model = new Date(new Date(this.model).setHours(value));
       },
       setMinute: function setMinute (value) {
         if (!this.editable) {
           return
         }
 
-        this.model = new Date(this.model.setMinutes(this.__parseTypeValue('minute', value)));
+        this.model = new Date(new Date(this.model).setMinutes(this.__parseTypeValue('minute', value)));
       },
 
       setView: function setView (view) {
@@ -9921,18 +10016,28 @@
       __pad: function __pad (unit, filler) {
         return (unit < 10 ? filler || '0' : '') + unit
       },
-      __scrollView: function __scrollView () {
+      __scrollView: function __scrollView (delayed) {
+        var this$1 = this;
+
         if (this.view !== 'year' && this.view !== 'month') {
           return
         }
 
+        if (delayed) {
+          setTimeout(function () { this$1.__scrollView(); }, 200); // wait to settle and recenter
+        }
+
         var
           el = this.$refs.selector,
-          rows = this.view === 'year' ? this.year - this.yearInterval.min + 1 : this.month - this.monthMin;
+          itemInactive = el.querySelector('.q-btn:not(.active)'),
+          itemActive = el.querySelector('.q-btn.active'),
+          viewHeight = el ? el.offsetHeight : 0;
 
         this.$nextTick(function () {
-          if (el) {
-            el.scrollTop = rows * height(el.children[0].children[0]) - height(el) / 2.5;
+          var rowsAbove = this$1.view === 'year' ? this$1.year - this$1.yearInterval.min : this$1.month - this$1.monthMin - 1;
+
+          if (viewHeight && itemActive) {
+            el.scrollTop = rowsAbove * (itemInactive ? itemInactive.offsetHeight : 0) + (itemActive.offsetHeight - viewHeight) / 2;
           }
         });
       },
@@ -9966,6 +10071,9 @@
         }
         if (this.view === 'minute') {
           this.$emit('canClose');
+          if (this.minimal) {
+            this.view = this.__calcView();
+          }
         }
         else {
           this.view = 'minute';
@@ -10030,13 +10138,16 @@
                 on: {
                   keydown: function (e) {
                     var key = getEventKey(e);
-                    if (key === 40 || key === 37) { // down, left
+                    if (key === 38 || key === 39) { // up, right
                       stopAndPrevent(e);
                       this$1.setMonth(this$1.month - 1, true);
                     }
-                    else if (key === 38 || key === 39) { // up, right
+                    else if (key === 40 || key === 37) { // down, left
                       stopAndPrevent(e);
                       this$1.setMonth(this$1.month + 1, true);
+                    }
+                    else if (key === 13 || key === 20) { // enter, space
+                      this$1.view = 'month';
                     }
                   }
                 }
@@ -10064,6 +10175,9 @@
                       stopAndPrevent(e);
                       this$1.setDay(this$1.day + (key === 39 ? 1 : 7), true);
                     }
+                    else if (key === 13 || key === 20) { // enter, space
+                      this$1.view = 'day';
+                    }
                   }
                 }
               }, [
@@ -10082,13 +10196,16 @@
                 on: {
                   keydown: function (e) {
                     var key = getEventKey(e);
-                    if (key === 40 || key === 37) { // down, left
+                    if (key === 38 || key === 39) { // up, right
                       stopAndPrevent(e);
                       this$1.setYear(this$1.year - 1, true);
                     }
-                    else if (key === 38 || key === 39) { // up, right
+                    else if (key === 40 || key === 37) { // down, left
                       stopAndPrevent(e);
                       this$1.setYear(this$1.year + 1, true);
+                    }
+                    else if (key === 13 || key === 20) { // enter, space
+                      this$1.view = 'year';
                     }
                   }
                 }
@@ -10124,6 +10241,9 @@
                     stopAndPrevent(e);
                     this$1.setHour(this$1.hour + 1, true);
                   }
+                  else if (key === 13 || key === 20) { // enter, space
+                    this$1.view = 'hour';
+                  }
                 }
               }
             }, [
@@ -10152,6 +10272,9 @@
                   else if (key === 38 || key === 39) { // up, right
                     stopAndPrevent(e);
                     this$1.setMinute(this$1.minute + 1, true);
+                  }
+                  else if (key === 13 || key === 20) { // enter, space
+                    this$1.view = 'minute';
                   }
                 }
               }
@@ -10201,19 +10324,18 @@
         }
 
         return h('div', {
-          staticClass: 'q-datetime-header column col-xs-12 col-md-4 justify-center'
+          staticClass: 'q-datetime-header column col-md-4 justify-center'
         }, child)
       },
 
       __getYearView: function __getYearView (h) {
         var this$1 = this;
 
-        var content = [];
+        var content = [h('div', { staticClass: 'col-grow' })]; // vertical align when there are limits
 
         var loop = function ( i ) {
           content.push(h(QBtn, {
-            key: ("yi" + i),
-            staticClass: 'q-datetime-btn full-width',
+            staticClass: 'q-datetime-btn no-border-radius',
             'class': {active: i === this$1.year},
             attrs: { tabindex: -1 },
             props: {
@@ -10229,21 +10351,21 @@
         };
 
         for (var i = this.yearInterval.min; i <= this.yearInterval.max; i++) loop( i );
+        content.push(h('div', { staticClass: 'col-grow' })); // vertical align when there are limits
 
         return h('div', {
-          staticClass: "q-datetime-view-year full-width full-height"
+          staticClass: "q-datetime-view-year fit column no-wrap"
         }, content)
       },
 
       __getMonthView: function __getMonthView (h) {
         var this$1 = this;
 
-        var content = [];
+        var content = [h('div', { staticClass: 'col-grow' })]; // vertical align when there are limits
 
         var loop = function ( i ) {
           content.push(h(QBtn, {
-            key: ("mi" + i),
-            staticClass: 'q-datetime-btn full-width',
+            staticClass: 'q-datetime-btn no-border-radius',
             'class': {active: i + 1 === this$1.month},
             attrs: { tabindex: -1 },
             props: {
@@ -10252,27 +10374,29 @@
             },
             on: {
               click: function () {
-                this$1.setMonth(i + 1, true);
+                this$1.setMonth(i + 1);
               }
             }
           }, [ this$1.$q.i18n.date.months[i] ]));
         };
 
         for (var i = this.monthInterval.min; i <= this.monthInterval.max; i++) loop( i );
+        content.push(h('div', { staticClass: 'col-grow' })); // vertical align when there are limits
 
         return h('div', {
-          staticClass: "q-datetime-view-month full-width full-height"
+          staticClass: "q-datetime-view-month fit column no-wrap"
         }, content)
       },
 
       __getDayView: function __getDayView (h) {
         var this$1 = this;
 
-        var days = [];
+        var
+          days = [],
+          day = this.fakeMonth === this.month && this.fakeYear === this.year ? this.day : -1;
 
         for (var i = 1; i <= this.fillerDays; i++) {
           days.push(h('div', {
-            key: ("fd" + i),
             staticClass: 'q-datetime-fillerday'
           }));
         }
@@ -10280,9 +10404,13 @@
         if (this.min) {
           for (var i$1 = 1; i$1 <= this.beforeMinDays; i$1++) {
             days.push(h('div', {
-              key: ("fb" + i$1),
-              staticClass: 'row items-center content-center justify-center disabled'
-            }, [ i$1 ]));
+              staticClass: 'row items-center content-center justify-center disabled',
+              'class': {
+                'q-datetime-day-active': this$1.isValid && i$1 === day
+              }
+            }, [
+              h('span', [i$1])
+            ]));
           }
         }
 
@@ -10291,15 +10419,14 @@
         var max = ref.max;
         var loop = function ( i ) {
           days.push(h('div', {
-            key: ("md" + i),
             staticClass: 'row items-center content-center justify-center cursor-pointer',
-            'class': [this$1.color && i === this$1.day ? ("text-" + (this$1.color)) : null, {
-              'q-datetime-day-active': this$1.isValid && i === this$1.day,
+            'class': [this$1.color && i === day ? ("text-" + (this$1.color)) : null, {
+              'q-datetime-day-active': this$1.isValid && i === day,
               'q-datetime-day-today': i === this$1.today,
               'disabled': !this$1.editable
             }],
             on: {
-              click: function () { this$1.setDay(i); }
+              click: function () { this$1.setDay(i, false, this$1.fakeYear, this$1.fakeMonth); }
             }
           }, [
             h('span', [ i ])
@@ -10311,9 +10438,13 @@
         if (this.max) {
           for (var i$3 = 1; i$3 <= this.afterMaxDays; i$3++) {
             days.push(h('div', {
-              key: ("fa" + i$3),
-              staticClass: 'row items-center content-center justify-center disabled'
-            }, [ (i$3 + this$1.maxDay) ]));
+              staticClass: 'row items-center content-center justify-center disabled',
+              'class': {
+                'q-datetime-day-active': this$1.isValid && i$3 + this$1.maxDay === day
+              }
+            }, [
+              h('span', [(i$3 + this$1.maxDay)])
+            ]));
           }
         }
 
@@ -10331,7 +10462,7 @@
                 disable: this.beforeMinDays > 0 || this.disable || this.readonly
               },
               on: {
-                click: function () { this$1.setMonth(this$1.month - 1); }
+                click: function () { this$1.moveFakeMonth(-1); }
               }
             }),
 
@@ -10351,14 +10482,14 @@
                 disable: this.afterMaxDays > 0 || this.disable || this.readonly
               },
               on: {
-                click: function () { this$1.setMonth(this$1.month + 1); }
+                click: function () { this$1.moveFakeMonth(1); }
               }
             })
           ]),
 
           h('div', {
             staticClass: 'q-datetime-weekdays row items-center justify-start'
-          }, this.headerDayNames.map(function (day) { return h('div', { key: ("dh" + day) }, [ day ]); })),
+          }, this.headerDayNames.map(function (day) { return h('div', [ day ]); })),
 
           h('div', {
             staticClass: 'q-datetime-days row wrap items-center justify-start content-center'
@@ -10384,7 +10515,6 @@
           }
           var loop = function ( i ) {
             content.push(h('div', {
-              key: ("hi" + i),
               staticClass: ("q-datetime-clock-position" + cls),
               'class': [("q-datetime-clock-pos-" + i), i === this$1.hour ? 'active' : ''],
               on: {
@@ -10400,7 +10530,6 @@
           for (var i$1 = 0; i$1 < 12; i$1++) {
             var five = i$1 * 5;
             content.push(h('div', {
-              key: ("mi" + i$1),
               staticClass: 'q-datetime-clock-position',
               'class': [("q-datetime-clock-pos-" + i$1), five === this$1.minute ? 'active' : '']
             }, [
@@ -10465,11 +10594,7 @@
       };
     },
     mounted: function mounted () {
-      var this$1 = this;
-
-      this.$nextTick(function () {
-        this$1.__scrollView();
-      });
+      this.__scrollView(true);
     },
 
     render: function render (h) {
@@ -10482,12 +10607,12 @@
         (!this.minimal && this.__getTopSection(h)) || void 0,
 
         h('div', {
-          staticClass: 'q-datetime-content col-xs-12 column',
+          staticClass: 'q-datetime-content',
           'class': this.contentClasses
         }, [
           h('div', {
             ref: 'selector',
-            staticClass: 'q-datetime-selector auto row flex-center'
+            staticClass: 'q-datetime-selector row flex-center'
           }, [
             this.__getViewSection(h)
           ])
@@ -14152,7 +14277,7 @@
       'layout.scrollbarWidth': function layout_scrollbarWidth () {
         this.applyPosition(this.showing ? 0 : void 0);
       },
-      offset: function offset$$1 (val) {
+      offset: function offset (val) {
         this.__update('offset', val);
       },
       onLayout: function onLayout (val) {
@@ -14188,7 +14313,7 @@
       rightSide: function rightSide () {
         return this.side === 'right'
       },
-      offset: function offset$$1 () {
+      offset: function offset () {
         return this.showing && !this.mobileOpened && !this.overlay
           ? this.size
           : 0
@@ -14248,27 +14373,27 @@
         }
       },
       aboveStyle: function aboveStyle () {
-        var css$$1 = {};
+        var css = {};
 
         if (this.layout.header.space && !this.headerSlot) {
           if (this.fixed) {
-            css$$1.top = (this.layout.header.offset) + "px";
+            css.top = (this.layout.header.offset) + "px";
           }
           else if (this.layout.header.space) {
-            css$$1.top = (this.layout.header.size) + "px";
+            css.top = (this.layout.header.size) + "px";
           }
         }
 
         if (this.layout.footer.space && !this.footerSlot) {
           if (this.fixed) {
-            css$$1.bottom = (this.layout.footer.offset) + "px";
+            css.bottom = (this.layout.footer.offset) + "px";
           }
           else if (this.layout.footer.space) {
-            css$$1.bottom = (this.layout.footer.size) + "px";
+            css.bottom = (this.layout.footer.size) + "px";
           }
         }
 
-        return css$$1
+        return css
       },
       computedStyle: function computedStyle () {
         return [
@@ -14318,11 +14443,13 @@
           if (this.layout.container && this.rightSide && (this.mobileView || Math.abs(position) === this.size)) {
             position += this.stateDirection * this.layout.scrollbarWidth;
           }
-          css(this.$refs.content, cssTransform(("translateX(" + position + "px)")));
+          this.$refs.content.style.transform = "translateX(" + position + "px)";
         }
       },
       applyBackdrop: function applyBackdrop (x) {
-        this.$refs.backdrop && css(this.$refs.backdrop, { backgroundColor: ("rgba(0,0,0," + (x * 0.4) + ")") });
+        if (this.$refs.backdrop) {
+          this.$refs.backdrop.style.backgroundColor = "rgba(0,0,0," + (x * 0.4) + ")";
+        }
       },
       __setScrollable: function __setScrollable (v) {
         if (!this.layout.container) {
@@ -14335,13 +14462,13 @@
         }
 
         var
-          width$$1 = this.size,
-          position = between(evt.distance.x, 0, width$$1);
+          width = this.size,
+          position = between(evt.distance.x, 0, width);
 
         if (evt.isFinal) {
           var
             el = this.$refs.content,
-            opened = position >= Math.min(75, width$$1);
+            opened = position >= Math.min(75, width);
 
           el.classList.remove('no-transition');
 
@@ -14351,7 +14478,7 @@
           else {
             this.layout.__animate();
             this.applyBackdrop(0);
-            this.applyPosition(this.stateDirection * width$$1);
+            this.applyPosition(this.stateDirection * width);
             el.classList.remove('q-layout-drawer-delimiter');
           }
 
@@ -14360,11 +14487,11 @@
 
         this.applyPosition(
           (this.$q.i18n.rtl ? !this.rightSide : this.rightSide)
-            ? Math.max(width$$1 - position, 0)
-            : Math.min(0, position - width$$1)
+            ? Math.max(width - position, 0)
+            : Math.min(0, position - width)
         );
         this.applyBackdrop(
-          between(position / width$$1, 0, 1)
+          between(position / width, 0, 1)
         );
 
         if (evt.isFirst) {
@@ -14379,14 +14506,14 @@
         }
 
         var
-          width$$1 = this.size,
+          width = this.size,
           dir = evt.direction === this.side,
           position = (this.$q.i18n.rtl ? !dir : dir)
-            ? between(evt.distance.x, 0, width$$1)
+            ? between(evt.distance.x, 0, width)
             : 0;
 
         if (evt.isFinal) {
-          var opened = Math.abs(position) < Math.min(75, width$$1);
+          var opened = Math.abs(position) < Math.min(75, width);
           this.$refs.content.classList.remove('no-transition');
 
           if (opened) {
@@ -14402,7 +14529,7 @@
         }
 
         this.applyPosition(this.stateDirection * position);
-        this.applyBackdrop(between(1 - position / width$$1, 0, 1));
+        this.applyBackdrop(between(1 - position / width, 0, 1));
 
         if (evt.isFirst) {
           this.$refs.content.classList.add('no-transition');
@@ -14429,7 +14556,6 @@
           }
         }
         else {
-          console.log('set scrollable');
           this.__setScrollable(true);
         }
 
@@ -15045,32 +15171,32 @@
           transforms.push(("translateX(" + (-dir * this.right) + "px)"));
         }
 
-        var css$$1 = transforms.length
-          ? cssTransform(transforms.join(' '))
+        var css = transforms.length
+          ? { transform: transforms.join(' ') }
           : {};
 
         if (this.offset) {
-          css$$1.margin = (this.offset[1]) + "px " + (this.offset[0]) + "px";
+          css.margin = (this.offset[1]) + "px " + (this.offset[0]) + "px";
         }
 
         if (attach.vertical) {
           if (this.left) {
-            css$$1[this.$q.i18n.rtl ? 'right' : 'left'] = (this.left) + "px";
+            css[this.$q.i18n.rtl ? 'right' : 'left'] = (this.left) + "px";
           }
           if (this.right) {
-            css$$1[this.$q.i18n.rtl ? 'left' : 'right'] = (this.right) + "px";
+            css[this.$q.i18n.rtl ? 'left' : 'right'] = (this.right) + "px";
           }
         }
         else if (attach.horizontal) {
           if (this.top) {
-            css$$1.top = (this.top) + "px";
+            css.top = (this.top) + "px";
           }
           if (this.bottom) {
-            css$$1.bottom = (this.bottom) + "px";
+            css.bottom = (this.bottom) + "px";
           }
         }
 
-        return css$$1
+        return css
       },
       classes: function classes () {
         return [ ("fixed-" + (this.position)), ("q-page-sticky-" + (this.expand ? 'expand' : 'shrink')) ]
@@ -15597,7 +15723,7 @@
         }
       },
       __setPos: function __setPos (offset$$1) {
-        css(this.media, cssTransform(("translate3D(-50%," + offset$$1 + "px, 0)")));
+        this.media.style.transform = "translate3D(-50%," + offset$$1 + "px, 0)";
       }
     },
     render: function render (h) {
@@ -15668,7 +15794,8 @@
       validate: {
         type: Function,
         default: function () { return true; }
-      }
+      },
+      disable: Boolean
     },
     data: function data () {
       return {
@@ -15694,7 +15821,7 @@
       },
       set: function set () {
         if (this.__hasChanged() && this.validate(this.value)) {
-          this.$emit('save', this.value);
+          this.$emit('save', this.value, this.initialValue);
         }
         this.__close();
       },
@@ -15745,7 +15872,8 @@
         ref: 'popover',
         props: {
           cover: true,
-          persistent: this.persistent
+          persistent: this.persistent,
+          disable: this.disable
         },
         on: {
           show: function () {
@@ -15760,7 +15888,7 @@
 
             if (this$1.__hasChanged()) {
               if (this$1.validate(this$1.value)) {
-                this$1.$emit('save', this$1.value);
+                this$1.$emit('save', this$1.value, this$1.initialValue);
               }
               else {
                 this$1.$emit('cancel', this$1.value, this$1.initialValue);
@@ -15916,10 +16044,11 @@
             return this.pullMessage || this.$q.i18n.pullToRefresh.pull
         }
       },
-      style: function style$$1 () {
-        var css$$1 = cssTransform(("translateY(" + (this.pullPosition) + "px)"));
-        css$$1.marginBottom = height$1 + "px";
-        return css$$1
+      style: function style () {
+        return {
+          transform: ("translateY(" + (this.pullPosition) + "px)"),
+          marginBottom: (height$1 + "px")
+        }
       },
       messageClass: function messageClass () {
         return ("text-" + (this.color))
@@ -16914,7 +17043,8 @@
       },
       chipsColor: String,
       chipsBgColor: String,
-      displayValue: String
+      displayValue: String,
+      popupMaxHeight: String
     },
     data: function data () {
       return {
@@ -17221,9 +17351,10 @@
             },
             nativeOn: {
               click: function (e) { e.stopPropagation(); }
-            },
-            domProps: { innerHTML: opt.label }
-          })
+            }
+          }, [
+            h('div', { domProps: { innerHTML: opt.label } })
+          ])
         }));
         child.push(el);
       }
@@ -17243,7 +17374,8 @@
         props: {
           cover: true,
           disable: !this.editable,
-          anchorClick: false
+          anchorClick: false,
+          maxHeight: this.popupMaxHeight
         },
         slot: 'after',
         on: {
@@ -20491,7 +20623,8 @@
         var xPos = this.$q.i18n.rtl
           ? left + width$$1
           : left;
-        css(this.$refs.posbar, cssTransform(("translateX(" + xPos + "px) scaleX(" + width$$1 + ")")));
+
+        this.$refs.posbar.style.transform = "translateX(" + xPos + "px) scaleX(" + width$$1 + ")";
       },
       __updatePosbarTransition: function __updatePosbarTransition () {
         if (
@@ -22064,6 +22197,8 @@
         }
       },
 
+      duration: Number,
+
       noNodesLabel: String,
       noResultsLabel: String
     },
@@ -22526,7 +22661,9 @@
           ]),
 
           isParent
-            ? h(QSlideTransition, [
+            ? h(QSlideTransition, {
+              props: { duration: this.duration }
+            }, [
               h('div', {
                 directives: [{ name: 'show', value: meta.expanded }],
                 staticClass: 'q-tree-node-collapsible',
@@ -22692,7 +22829,7 @@
         return this.totalSize ? Math.min(99.99, this.uploadedSize / this.totalSize * 100) : 0
       },
       addDisabled: function addDisabled () {
-        return !this.multiple && this.queueLength >= 1
+        return this.disable || (!this.multiple && this.queueLength >= 1)
       },
       filesStyle: function filesStyle () {
         if (this.maxHeight) {
@@ -22764,12 +22901,6 @@
         }
 
         files = this.multiple ? files : [ files[0] ];
-        if (this.extensions) {
-          files = this.__filter(files);
-          if (files.length === 0) {
-            return
-          }
-        }
 
         this.__add(null, files);
       },
@@ -22791,6 +22922,13 @@
         }
 
         files = Array.prototype.slice.call(files || e.target.files);
+        if (this.extensions) {
+          files = this.__filter(files);
+          if (files.length === 0) {
+            return
+          }
+        }
+
         this.$refs.file.value = '';
 
         var filesReady = []; // List of image load promises
@@ -25039,35 +25177,55 @@
 
   var localStorage = {
     install: function install (ref) {
+      var this$1 = this;
       var $q = ref.$q;
+      var queues = ref.queues;
+
+      var assignStorage = function (storage) {
+        $q.localStorage = storage;
+        Object.assign(this$1, storage);
+      };
+
+      var clientInit = function () {
+        if (hasWebStorage()) {
+          assignStorage(getStorage('local'));
+        }
+      };
 
       if (onSSR) {
-        $q.localStorage = getEmptyStorage();
+        assignStorage(getEmptyStorage());
+        queues.takeover.push(clientInit);
         return
       }
 
-      if (hasWebStorage()) {
-        var storage = getStorage('local');
-        $q.localStorage = storage;
-        Object.assign(this, storage);
-      }
+      clientInit();
     }
   };
 
   var sessionStorage = {
     install: function install (ref) {
+      var this$1 = this;
       var $q = ref.$q;
+      var queues = ref.queues;
+
+      var assignStorage = function (storage) {
+        $q.sessionStorage = storage;
+        Object.assign(this$1, storage);
+      };
+
+      var clientInit = function () {
+        if (hasWebStorage()) {
+          assignStorage(getStorage('session'));
+        }
+      };
 
       if (onSSR) {
-        $q.sessionStorage = getEmptyStorage();
+        assignStorage(getEmptyStorage());
+        queues.takeover.push(clientInit);
         return
       }
 
-      if (hasWebStorage()) {
-        var storage = getStorage('session');
-        $q.sessionStorage = storage;
-        Object.assign(this, storage);
-      }
+      clientInit();
     }
   };
 

@@ -1421,12 +1421,16 @@ $checkbox-size = 21px
   .q-icon
     font-size 16px
 .q-input-chips
-  margin -6px -5px
+  position relative
+  left -5px
+  margin-top -6px
+  margin-bottom -6px
   input.q-input-target
     min-width 70px !important
     height 26px
 .q-if-dense .q-input-chips
-  margin -2px -5px
+  margin-top -2px
+  margin-bottom -2px
   input.q-input-target
     height 18px
 .q-collapsible-sub-item
@@ -2078,8 +2082,6 @@ $margin-top-box-dense
     margin-left $input-control-margin
   &:hover
     opacity .7
-  &.q-icon
-    cursor pointer
 .q-if-baseline
   line-height $input-control-size
   width 0
@@ -2869,8 +2871,6 @@ $radio-size = 21px
   background rgba(255, 255, 255, .25)
 body.desktop .q-select-highlight
   background $item-highlight-color !important
-.q-slide-transition
-  transition height .3s cubic-bezier(.25, .8, .50, 1) !important
 $slider-height              = 32px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px
