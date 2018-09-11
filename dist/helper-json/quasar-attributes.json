@@ -2331,6 +2331,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-popover/keep-on-screen": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-popover/max-height": {
     "type": "string",
     "description": "String value."

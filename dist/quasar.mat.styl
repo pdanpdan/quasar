@@ -929,8 +929,6 @@ input[type='search']::-webkit-search-decoration
   padding 12px 12px 12px 0
 .q-alert-detail
   font-size 12px
-body.desktop .q-select-highlight
-  background $item-highlight-color !important
 .q-breadcrumbs
   .q-icon, .q-breadcrumbs-separator
     font-size 150%
@@ -2996,8 +2994,6 @@ $radio-size = 21px
     opacity .5
 .q-toolbar .q-search
   background rgba(255, 255, 255, .25)
-body.desktop .q-select-highlight
-  background $item-highlight-color !important
 $slider-height              = 28px
 $slider-track-height        = 2px
 $slider-mark-height         = 10px
@@ -5418,6 +5414,8 @@ a.q-link
   outline 0
   color inherit
   text-decoration none
+.q-select-highlight
+  background $item-highlight-color !important
 @keyframes q-highlight
   0%
     background $lime-6

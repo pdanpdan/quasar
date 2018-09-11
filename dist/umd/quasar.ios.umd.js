@@ -3808,65 +3808,40 @@
     }
   }
 
-  function getPositions (anchor, target) {
-    var
-      a = Object.assign({}, anchor),
-      t = Object.assign({}, target);
-
-    var positions = {
-      x: ['left', 'right'].filter(function (p) { return p !== t.horizontal; }),
-      y: ['top', 'bottom'].filter(function (p) { return p !== t.vertical; })
-    };
-
-    var overlapAuto = {
-      x: [a.horizontal, t.horizontal].indexOf('middle') !== -1,
-      y: [a.vertical, t.vertical].indexOf('center') !== -1
-    };
-
-    positions.x.splice(overlapAuto.x ? 0 : 1, 0, 'middle');
-    positions.y.splice(overlapAuto.y ? 0 : 1, 0, 'center');
-
-    if (!overlapAuto.y) {
-      a.vertical = a.vertical === 'top' ? 'bottom' : 'top';
-    }
-
-    if (!overlapAuto.x) {
-      a.horizontal = a.horizontal === 'left' ? 'right' : 'left';
-    }
-
-    return {
-      positions: positions,
-      anchorPos: a
-    }
-  }
-
   function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
-    var ref = getPositions(anchorOrigin, selfOrigin);
-    var positions = ref.positions;
-    var anchorPos = ref.anchorPos;
+    var innerHeight = window.innerHeight;
+    var innerWidth = window.innerWidth;
+    // don't go bellow scrollbars
+    innerHeight -= 20;
+    innerWidth -= 20;
 
-    if (targetPosition.top < 0 || targetPosition.top + target.bottom > window.innerHeight) {
-      var newTop = anchor[anchorPos.vertical] - target[positions.y[0]];
-      if (newTop + target.bottom <= window.innerHeight) {
-        targetPosition.top = newTop;
+    if (targetPosition.top < 0 || targetPosition.top + target.bottom > innerHeight) {
+      if (selfOrigin.vertical === 'center') {
+        targetPosition.top = anchor[selfOrigin.vertical] > innerHeight / 2 ? innerHeight - target.bottom : 0;
+      }
+      else if (anchor[selfOrigin.vertical] > innerHeight / 2) {
+        var anchorY = Math.min(innerHeight, anchorOrigin.vertical === 'center' ? anchor.center : (anchorOrigin.vertical === selfOrigin.vertical ? anchor.bottom : anchor.top));
+        targetPosition.maxHeight = Math.min(target.bottom, anchorY);
+        targetPosition.top = Math.max(0, anchorY - targetPosition.maxHeight);
       }
       else {
-        newTop = anchor[anchorPos.vertical] - target[positions.y[1]];
-        if (newTop + target.bottom <= window.innerHeight) {
-          targetPosition.top = newTop;
-        }
+        targetPosition.top = anchorOrigin.vertical === 'center' ? anchor.center : (anchorOrigin.vertical === selfOrigin.vertical ? anchor.top : anchor.bottom);
+        targetPosition.maxHeight = Math.min(target.bottom, innerHeight - targetPosition.top);
       }
     }
-    if (targetPosition.left < 0 || targetPosition.left + target.right > window.innerWidth) {
-      var newLeft = anchor[anchorPos.horizontal] - target[positions.x[0]];
-      if (newLeft + target.right <= window.innerWidth) {
-        targetPosition.left = newLeft;
+
+    if (targetPosition.left < 0 || targetPosition.left + target.right > innerWidth) {
+      if (selfOrigin.horizontal === 'middle') {
+        targetPosition.left = anchor[selfOrigin.horizontal] > innerWidth / 2 ? innerWidth - target.right : 0;
+      }
+      else if (anchor[selfOrigin.horizontal] > innerWidth / 2) {
+        var anchorY$1 = Math.min(innerWidth, anchorOrigin.horizontal === 'middle' ? anchor.center : (anchorOrigin.horizontal === selfOrigin.horizontal ? anchor.right : anchor.left));
+        targetPosition.maxWidth = Math.min(target.right, anchorY$1);
+        targetPosition.left = Math.max(0, anchorY$1 - targetPosition.maxWidth);
       }
       else {
-        newLeft = anchor[anchorPos.horizontal] - target[positions.x[1]];
-        if (newLeft + target.right <= window.innerWidth) {
-          targetPosition.left = newLeft;
-        }
+        targetPosition.left = anchorOrigin.horizontal === 'middle' ? anchor.center : (anchorOrigin.horizontal === selfOrigin.horizontal ? anchor.left : anchor.right);
+        targetPosition.maxWidth = Math.min(target.right, innerWidth - targetPosition.left);
       }
     }
 
@@ -3884,6 +3859,7 @@
     var anchorClick = ref.anchorClick;
     var touchPosition = ref.touchPosition;
     var offset = ref.offset;
+    var touchOffset = ref.touchOffset;
 
     var anchor;
     el.style.maxHeight = maxHeight || '65vh';
@@ -3895,7 +3871,17 @@
       anchor = {top: top, left: left, width: 1, height: 1, right: left + 1, center: top, middle: left, bottom: top + 1};
     }
     else {
-      anchor = getAnchorPosition(anchorEl, offset);
+      if (touchOffset) {
+        var ref$2 = anchorEl.getBoundingClientRect();
+        var anchorTop = ref$2.top;
+        var anchorLeft = ref$2.left;
+        var top$1 = anchorTop + touchOffset.top,
+          left$1 = anchorLeft + touchOffset.left;
+        anchor = {top: top$1, left: left$1, width: 1, height: 1, right: left$1 + 1, center: top$1, middle: left$1, bottom: top$1 + 1};
+      }
+      else {
+        anchor = getAnchorPosition(anchorEl, offset);
+      }
     }
 
     var target = getTargetPosition(el);
@@ -3908,6 +3894,12 @@
 
     el.style.top = Math.max(0, targetPosition.top) + 'px';
     el.style.left = Math.max(0, targetPosition.left) + 'px';
+    if (targetPosition.maxHeight) {
+      el.style.maxHeight = (targetPosition.maxHeight) + "px";
+    }
+    if (targetPosition.maxWidth) {
+      el.style.maxWidth = (targetPosition.maxWidth) + "px";
+    }
 
     if (animate) {
       var directions = targetPosition.top < anchor.top ? ['up', 'down'] : ['down', 'up'];
@@ -3999,6 +3991,7 @@
       fit: Boolean,
       cover: Boolean,
       persistent: Boolean,
+      keepOnScreen: Boolean,
       maxHeight: String,
       touchPosition: Boolean,
       anchorClick: {
@@ -4056,7 +4049,7 @@
       this.$nextTick(function () {
         this$1.anchorEl = this$1.$el.parentNode;
         this$1.anchorEl.removeChild(this$1.$el);
-        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner')) {
+        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner') || this$1.anchorEl.classList.contains('no-pointer-events')) {
           this$1.anchorEl = this$1.anchorEl.parentNode;
         }
         if (this$1.anchorClick) {
@@ -4146,8 +4139,10 @@
         var ref = this.anchorEl.getBoundingClientRect();
         var top = ref.top;
         var bottom = ref.bottom;
+        var left = ref.left;
+        var right = ref.right;
 
-        if (bottom < 0 || top > window.innerHeight) {
+        if (!this.keepOnScreen && (bottom < 0 || top > window.innerHeight || right < 0 || left > window.innerWidth)) {
           return this.hide()
         }
 
@@ -4156,6 +4151,18 @@
           this.$el.style.minWidth = style.getPropertyValue('width');
           if (this.cover) {
             this.$el.style.minHeight = style.getPropertyValue('height');
+          }
+        }
+
+        if (animate) {
+          if (this.touchPosition) {
+            var ref$1 = position(event$$1);
+            var eventTop = ref$1.top;
+            var eventLeft = ref$1.left;
+            this.touchOffset = { left: eventLeft - left, top: eventTop - top };
+          }
+          else {
+            delete this.touchOffset;
           }
         }
 
@@ -4169,7 +4176,8 @@
           selfOrigin: this.selfOrigin,
           maxHeight: this.maxHeight,
           anchorClick: this.anchorClick,
-          touchPosition: this.touchPosition
+          touchPosition: this.touchPosition,
+          touchOffset: this.touchOffset
         });
       }
     }
@@ -8951,6 +8959,7 @@
             ref: 'popup',
             props: {
               cover: true,
+              keepOnScreen: true,
               disable: this.disable,
               anchorClick: false,
               maxHeight: '100vh'
@@ -9098,7 +9107,8 @@
       return h(QPopover, {
         ref: 'popup',
         props: {
-          anchorClick: false
+          anchorClick: false,
+          touchPosition: true
         },
         on: {
           show: this.__desktopOnShow,
@@ -10575,6 +10585,7 @@
             ref: 'popup',
             props: {
               cover: true,
+              keepOnScreen: true,
               disable: this.disable,
               anchorClick: false,
               maxHeight: '100vh'
@@ -11760,7 +11771,7 @@
 
         this$1.anchorEl = this$1.$el.parentNode;
         this$1.anchorEl.removeChild(this$1.$el);
-        if (this$1.anchorEl.classList.contains('q-btn-inner')) {
+        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner') || this$1.anchorEl.classList.contains('no-pointer-events')) {
           this$1.anchorEl = this$1.anchorEl.parentNode;
         }
         if (this$1.$q.platform.is.mobile) {
@@ -16826,6 +16837,11 @@
       },
       __keyboardCustomKeyHandle: function __keyboardCustomKeyHandle (key, e) {
         switch (key) {
+          case 27: // ESCAPE
+            if (this.$refs.popover.showing) {
+              this.hide();
+            }
+            break
           case 13: // ENTER key
           case 32: // SPACE key
             if (!this.$refs.popover.showing) {
@@ -16869,6 +16885,7 @@
         this.__onFocus();
         if (this.filter && this.$refs.filter) {
           this.$refs.filter.focus();
+          this.reposition();
         }
       },
       __onBlur: function __onBlur (e) {
@@ -17029,6 +17046,7 @@
         'class': this.dark ? 'bg-dark' : null,
         props: {
           cover: true,
+          keepOnScreen: true,
           disable: !this.editable,
           anchorClick: false,
           maxHeight: this.popupMaxHeight
@@ -24614,55 +24632,27 @@
 
   var localStorage = {
     install: function install (ref) {
-      var this$1 = this;
       var $q = ref.$q;
-      var queues = ref.queues;
 
-      var assignStorage = function (storage) {
-        $q.localStorage = storage;
-        Object.assign(this$1, storage);
-      };
+      var storage = isSSR || !hasWebStorage
+        ? getEmptyStorage()
+        : getStorage('local');
 
-      var clientInit = function () {
-        if (hasWebStorage()) {
-          assignStorage(getStorage('local'));
-        }
-      };
-
-      if (onSSR) {
-        assignStorage(getEmptyStorage());
-        queues.takeover.push(clientInit);
-        return
-      }
-
-      clientInit();
+      $q.localStorage = storage;
+      Object.assign(this, storage);
     }
   };
 
   var sessionStorage = {
     install: function install (ref) {
-      var this$1 = this;
       var $q = ref.$q;
-      var queues = ref.queues;
 
-      var assignStorage = function (storage) {
-        $q.sessionStorage = storage;
-        Object.assign(this$1, storage);
-      };
+      var storage = isSSR || !hasWebStorage
+        ? getEmptyStorage()
+        : getStorage('session');
 
-      var clientInit = function () {
-        if (hasWebStorage()) {
-          assignStorage(getStorage('session'));
-        }
-      };
-
-      if (onSSR) {
-        assignStorage(getEmptyStorage());
-        queues.takeover.push(clientInit);
-        return
-      }
-
-      clientInit();
+      $q.localStorage = storage;
+      Object.assign(this, storage);
     }
   };
 

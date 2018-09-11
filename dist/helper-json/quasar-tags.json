@@ -912,6 +912,7 @@
       "fit",
       "cover",
       "persistent",
+      "keep-on-screen",
       "max-height",
       "touch-position",
       "anchor-click",

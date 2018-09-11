@@ -293,9 +293,6 @@ input[type='search']::-webkit-search-decoration {
 .q-alert-detail {
   font-size: 12px;
 }
-[dir] body.desktop .q-select-highlight {
-  background: rgba(189,189,189,0.5) !important;
-}
 .q-breadcrumbs .q-icon,
 .q-breadcrumbs .q-breadcrumbs-separator {
   font-size: 150%;
@@ -3777,9 +3774,6 @@ body div .q-popover {
 }
 [dir] .q-toolbar .q-search {
   background: rgba(255,255,255,0.25);
-}
-[dir] body.desktop .q-select-highlight {
-  background: rgba(189,189,189,0.5) !important;
 }
 .q-slider-track,
 .q-slider-mark {
@@ -9600,6 +9594,9 @@ a.q-link {
   outline: 0;
   color: inherit;
   text-decoration: none;
+}
+[dir] .q-select-highlight {
+  background: rgba(189,189,189,0.5) !important;
 }
 .highlight-and-fade {
   -webkit-animation: q-highlight 2s /* rtl:ignore */;
