@@ -15815,6 +15815,10 @@
     props: {
       value: {},
       persistent: Boolean,
+      keepOnScreen: {
+        type: Boolean,
+        default: true
+      },
       title: String,
       buttons: Boolean,
       labelSet: String,
@@ -15905,6 +15909,7 @@
         props: {
           cover: true,
           persistent: this.persistent,
+          keepOnScreen: this.keepOnScreen,
           disable: this.disable
         },
         on: {

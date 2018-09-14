@@ -927,6 +927,7 @@
   "q-popup-edit": {
     "attributes": [
       "persistent",
+      "keep-on-screen",
       "title",
       "buttons",
       "label-set",

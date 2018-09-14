@@ -2371,6 +2371,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-popup-edit/keep-on-screen": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-popup-edit/title": {
     "type": "string",
     "description": "String value."
