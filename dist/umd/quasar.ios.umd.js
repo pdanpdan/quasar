@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.12
+ * Quasar Framework v0.17.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.12";
+  var version = "0.17.14";
 
   var History = {
     __history: [],
@@ -2034,9 +2034,7 @@
       }
     },
     mounted: function mounted () {
-      if (this.value) {
-        this.show();
-      }
+      this.value && this.show();
     },
     beforeDestroy: function beforeDestroy () {
       clearTimeout(this.shakeTimeout);
@@ -2068,14 +2066,15 @@
         h('div', {
           staticClass: 'modal fullscreen row',
           'class': this.modalClasses,
-          on: {
-            click: this.__dismiss
-          },
           directives: [{
             name: 'show',
             value: this.showing
           }]
         }, [
+          h('div', {
+            staticClass: 'modal-backdrop absolute-full',
+            on: { click: this.__dismiss }
+          }),
           h('div', {
             ref: 'content',
             staticClass: 'modal-content',
@@ -3808,16 +3807,18 @@
     }
   }
 
-  function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition) {
+  function repositionIfNeeded (anchor, target, selfOrigin, anchorOrigin, targetPosition, cover) {
+    var margin = getScrollbarWidth();
     var innerHeight = window.innerHeight;
     var innerWidth = window.innerWidth;
     // don't go bellow scrollbars
-    innerHeight -= 20;
-    innerWidth -= 20;
+    innerHeight -= margin;
+    innerWidth -= margin;
 
     if (targetPosition.top < 0 || targetPosition.top + target.bottom > innerHeight) {
       if (selfOrigin.vertical === 'center') {
         targetPosition.top = anchor[selfOrigin.vertical] > innerHeight / 2 ? innerHeight - target.bottom : 0;
+        targetPosition.maxHeight = Math.min(target.bottom, innerHeight);
       }
       else if (anchor[selfOrigin.vertical] > innerHeight / 2) {
         var anchorY = Math.min(innerHeight, anchorOrigin.vertical === 'center' ? anchor.center : (anchorOrigin.vertical === selfOrigin.vertical ? anchor.bottom : anchor.top));
@@ -3831,8 +3832,12 @@
     }
 
     if (targetPosition.left < 0 || targetPosition.left + target.right > innerWidth) {
+      targetPosition.maxWidth = Math.min(target.right, innerWidth);
       if (selfOrigin.horizontal === 'middle') {
         targetPosition.left = anchor[selfOrigin.horizontal] > innerWidth / 2 ? innerWidth - target.right : 0;
+      }
+      else if (cover) {
+        targetPosition.left = targetPosition.left < 0 ? 0 : innerWidth - target.right;
       }
       else if (anchor[selfOrigin.horizontal] > innerWidth / 2) {
         var anchorY$1 = Math.min(innerWidth, anchorOrigin.horizontal === 'middle' ? anchor.center : (anchorOrigin.horizontal === selfOrigin.horizontal ? anchor.right : anchor.left));
@@ -3860,9 +3865,11 @@
     var touchPosition = ref.touchPosition;
     var offset = ref.offset;
     var touchOffset = ref.touchOffset;
+    var cover = ref.cover;
 
     var anchor;
     el.style.maxHeight = maxHeight || '65vh';
+    el.style.maxWidth = '100vw';
 
     if (event$$1 && (!anchorClick || touchPosition)) {
       var ref$1 = position(event$$1);
@@ -3890,7 +3897,7 @@
       left: anchor[anchorOrigin.horizontal] - target[selfOrigin.horizontal]
     };
 
-    targetPosition = repositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition);
+    targetPosition = repositionIfNeeded(anchor, target, selfOrigin, anchorOrigin, targetPosition, cover);
 
     el.style.top = Math.max(0, targetPosition.top) + 'px';
     el.style.left = Math.max(0, targetPosition.left) + 'px';
@@ -4049,18 +4056,23 @@
       this.$nextTick(function () {
         this$1.anchorEl = this$1.$el.parentNode;
         this$1.anchorEl.removeChild(this$1.$el);
-        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner') || this$1.anchorEl.classList.contains('no-pointer-events')) {
+
+        if (
+          this$1.anchorEl.classList.contains('q-btn-inner') ||
+          this$1.anchorEl.classList.contains('q-if-inner') ||
+          this$1.anchorEl.classList.contains('no-pointer-events')
+        ) {
           this$1.anchorEl = this$1.anchorEl.parentNode;
         }
+
         if (this$1.anchorClick) {
           this$1.anchorEl.classList.add('cursor-pointer');
           this$1.anchorEl.addEventListener('click', this$1.toggle);
           this$1.anchorEl.addEventListener('keyup', this$1.__toggleKey);
         }
       });
-      if (this.value) {
-        this.show();
-      }
+
+      this.value && this.show();
     },
     beforeDestroy: function beforeDestroy () {
       this.showing && this.__cleanup();
@@ -4091,7 +4103,7 @@
           this.$refs.content.focus();
         }
         this.timer = setTimeout(function () {
-          document.body.addEventListener('click', this$1.__bodyHide, true);
+          document.body.addEventListener('mousedown', this$1.__bodyHide, true);
           document.body.addEventListener('touchstart', this$1.__bodyHide, true);
           this$1.showPromise && this$1.showPromiseResolve();
         }, 0);
@@ -4124,7 +4136,7 @@
       __cleanup: function __cleanup () {
         clearTimeout(this.timer);
 
-        document.body.removeEventListener('click', this.__bodyHide, true);
+        document.body.removeEventListener('mousedown', this.__bodyHide, true);
         document.body.removeEventListener('touchstart', this.__bodyHide, true);
         this.scrollTarget.removeEventListener('scroll', this.__updatePosition, listenOpts.passive);
         if (this.scrollTarget !== window) {
@@ -4142,7 +4154,10 @@
         var left = ref.left;
         var right = ref.right;
 
-        if (!this.keepOnScreen && (bottom < 0 || top > window.innerHeight || right < 0 || left > window.innerWidth)) {
+        if (
+          !this.keepOnScreen &&
+          (bottom < 0 || top > window.innerHeight || right < 0 || left > window.innerWidth)
+        ) {
           return this.hide()
         }
 
@@ -4177,7 +4192,8 @@
           maxHeight: this.maxHeight,
           anchorClick: this.anchorClick,
           touchPosition: this.touchPosition,
-          touchOffset: this.touchOffset
+          touchOffset: this.touchOffset,
+          cover: this.cover
         });
       }
     }
@@ -5002,6 +5018,7 @@
   var QCard = {
     name: 'QCard',
     props: {
+      dark: Boolean,
       square: Boolean,
       flat: Boolean,
       inline: Boolean,
@@ -5013,12 +5030,12 @@
         var cls = [{
           'no-border-radius': this.square,
           'no-shadow': this.flat,
-          'inline-block': this.inline
+          'inline-block': this.inline,
+          'q-card-dark': this.dark
         }];
 
         if (this.color) {
           cls.push(("bg-" + (this.color)));
-          cls.push("q-card-dark");
           cls.push(("text-" + (this.textColor || 'white')));
         }
         else if (this.textColor) {
@@ -8170,7 +8187,7 @@
               dragging: this.dragging,
               'handle-at-minimum': !this.fillHandleAlways && this.model === this.min
             },
-            attrs: { tabindex: this.editable ? 0 : -1 },
+            attrs: { tabindex: this.$q.platform.is.desktop ? (this.editable ? 0 : -1) : void 0 },
             on: {
               keydown: this.__onKeyDown,
               keyup: this.__onKeyUp
@@ -10446,12 +10463,7 @@
           }
         });
       },
-      __resetView: function __resetView () {
-        // go back to initial entry point for that type of control
-        // if it has defaultView it's going to be reapplied anyway on focus
-        if (!this.defaultView && this.$refs.target) {
-          this.$refs.target.setView();
-        }
+      __scrollView: function __scrollView () {
       },
 
       __getPicker: function __getPicker (h, modal) {
@@ -10486,7 +10498,6 @@
               canClose: function () {
                 if (this$1.isPopover) {
                   this$1.hide();
-                  this$1.__resetView();
                 }
               }
             }
@@ -10507,7 +10518,6 @@
                     click: function () {
                       this$1.__onHide(false, true);
                       this$1.hide();
-                      this$1.__resetView();
                     }
                   }
                 }),
@@ -10524,7 +10534,6 @@
                       click: function () {
                         this$1.__onHide(true, true);
                         this$1.hide();
-                        this$1.__resetView();
                       }
                     }
                   })
@@ -10592,7 +10601,10 @@
             },
             slot: 'after',
             on: {
-              show: this.__onFocus,
+              show: function (ev) {
+                this$1.__onFocus(ev);
+                this$1.__scrollView();
+              },
               hide: function () { return this$1.__onHide(true, true); }
             }
           }, this.__getPicker(h))
@@ -10606,6 +10618,7 @@
               transition: this.transition
             },
             on: {
+              show: this.__scrollView,
               dismiss: function () { return this$1.__onHide(false, true); }
             }
           }, this.__getPicker(h, true)),
@@ -10689,6 +10702,7 @@
       return h('object', {
         style: this.style,
         attrs: {
+          tabindex: -1, // fix for Firefox
           type: 'text/html',
           data: this.url,
           'aria-hidden': true
@@ -11771,9 +11785,14 @@
 
         this$1.anchorEl = this$1.$el.parentNode;
         this$1.anchorEl.removeChild(this$1.$el);
-        if (this$1.anchorEl.classList.contains('q-btn-inner') || this$1.anchorEl.classList.contains('q-if-inner') || this$1.anchorEl.classList.contains('no-pointer-events')) {
+        if (
+          this$1.anchorEl.classList.contains('q-btn-inner') ||
+          this$1.anchorEl.classList.contains('q-if-inner') ||
+          this$1.anchorEl.classList.contains('no-pointer-events')
+        ) {
           this$1.anchorEl = this$1.anchorEl.parentNode;
         }
+
         if (this$1.$q.platform.is.mobile) {
           this$1.anchorEl.addEventListener('click', this$1.show);
         }
@@ -11784,9 +11803,7 @@
           this$1.anchorEl.addEventListener('blur', this$1.__delayHide);
         }
 
-        if (this$1.value) {
-          this$1.show();
-        }
+        this$1.value && this$1.show();
       });
     },
     beforeDestroy: function beforeDestroy () {
@@ -11795,6 +11812,7 @@
       if (!this.anchorEl) {
         return
       }
+
       if (this.$q.platform.is.mobile) {
         this.anchorEl.removeEventListener('click', this.show);
       }
@@ -13051,12 +13069,12 @@
         if ((label = this.$slots.helper || this.helper)) {
           return h('div', { staticClass: 'q-field-helper col' }, label)
         }
-        return h('div', { staticClass: 'col' })
+        return h('div', { staticClass: 'col text-transparent' }, ['|'])
       },
       __hasBottom: function __hasBottom () {
-        return (this.hasError && (this.$slots['error-label'] || this.errorLabel)) ||
-          (this.hasWarning && (this.$slots['warning-label'] || this.warningLabel)) ||
-          (this.$slots.helper || this.helper) ||
+        return this.$slots['error-label'] || this.errorLabel ||
+          this.$slots['warning-label'] || this.warningLabel ||
+          this.$slots.helper || this.helper ||
           this.count
       }
     },
@@ -16133,7 +16151,7 @@
             edge ? 'handle-at-minimum' : null,
             { dragging: this.dragging }
           ],
-          attrs: { tabindex: this.editable ? 0 : -1 },
+          attrs: { tabindex: this.$q.platform.is.desktop ? (this.editable ? 0 : -1) : void 0 },
           on: {
             keydown: function (ev) { return this$1.__onKeyDown(ev, lower); },
             keyup: function (ev) { return this$1.__onKeyUp(ev, lower); }
@@ -23650,7 +23668,14 @@
     ].join('');
 
     if (ssr) {
-      ssr.res.setHeader('Set-Cookie', cookie);
+      if (ssr.req.qCookies) {
+        ssr.req.qCookies.push(cookie);
+      }
+      else {
+        ssr.req.qCookies = [ cookie ];
+      }
+
+      ssr.res.setHeader('Set-Cookie', ssr.req.qCookies);
 
       // make temporary update so future get()
       // within same SSR timeframe would return the set value

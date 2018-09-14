@@ -82,18 +82,23 @@ export default {
     this.$nextTick(() => {
       this.anchorEl = this.$el.parentNode
       this.anchorEl.removeChild(this.$el)
-      if (this.anchorEl.classList.contains('q-btn-inner') || this.anchorEl.classList.contains('q-if-inner') || this.anchorEl.classList.contains('no-pointer-events')) {
+
+      if (
+        this.anchorEl.classList.contains('q-btn-inner') ||
+        this.anchorEl.classList.contains('q-if-inner') ||
+        this.anchorEl.classList.contains('no-pointer-events')
+      ) {
         this.anchorEl = this.anchorEl.parentNode
       }
+
       if (this.anchorClick) {
         this.anchorEl.classList.add('cursor-pointer')
         this.anchorEl.addEventListener('click', this.toggle)
         this.anchorEl.addEventListener('keyup', this.__toggleKey)
       }
     })
-    if (this.value) {
-      this.show()
-    }
+
+    this.value && this.show()
   },
   beforeDestroy () {
     this.showing && this.__cleanup()
@@ -122,7 +127,7 @@ export default {
         this.$refs.content.focus()
       }
       this.timer = setTimeout(() => {
-        document.body.addEventListener('click', this.__bodyHide, true)
+        document.body.addEventListener('mousedown', this.__bodyHide, true)
         document.body.addEventListener('touchstart', this.__bodyHide, true)
         this.showPromise && this.showPromiseResolve()
       }, 0)
@@ -155,7 +160,7 @@ export default {
     __cleanup () {
       clearTimeout(this.timer)
 
-      document.body.removeEventListener('click', this.__bodyHide, true)
+      document.body.removeEventListener('mousedown', this.__bodyHide, true)
       document.body.removeEventListener('touchstart', this.__bodyHide, true)
       this.scrollTarget.removeEventListener('scroll', this.__updatePosition, listenOpts.passive)
       if (this.scrollTarget !== window) {
@@ -169,7 +174,10 @@ export default {
     reposition (event, animate) {
       const { top, bottom, left, right } = this.anchorEl.getBoundingClientRect()
 
-      if (!this.keepOnScreen && (bottom < 0 || top > window.innerHeight || right < 0 || left > window.innerWidth)) {
+      if (
+        !this.keepOnScreen &&
+        (bottom < 0 || top > window.innerHeight || right < 0 || left > window.innerWidth)
+      ) {
         return this.hide()
       }
 
@@ -202,7 +210,8 @@ export default {
         maxHeight: this.maxHeight,
         anchorClick: this.anchorClick,
         touchPosition: this.touchPosition,
-        touchOffset: this.touchOffset
+        touchOffset: this.touchOffset,
+        cover: this.cover
       })
     }
   }

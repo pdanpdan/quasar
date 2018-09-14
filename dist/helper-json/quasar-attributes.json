@@ -479,6 +479,10 @@
     "type": "boolean",
     "description": "Boolean value."
   },
+  "q-card/dark": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-card/square": {
     "type": "boolean",
     "description": "Boolean value."

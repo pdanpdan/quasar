@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.12
+ * Quasar Framework v0.17.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2433,6 +2433,12 @@ body.with-loading {
   text-align: center;
   text-shadow: 0 0 7px #000;
 }
+.modal-backdrop {
+  background: rgba(0,0,0,0.4);
+}
+.modal.maximized .modal-backdrop {
+  display: none;
+}
 .modal-content {
   position: relative;
   background: #fff;
@@ -2448,10 +2454,6 @@ body.with-loading {
 }
 .modal {
   z-index: 5000;
-}
-.modal.minimized,
-.modal.with-backdrop {
-  background: rgba(0,0,0,0.4);
 }
 .modal.minimized .modal-content {
   max-width: 80vw;
@@ -2472,9 +2474,6 @@ body.with-loading {
   opacity: 0;
 }
 @media (min-width: 768px) {
-  .modal:not(.maximized) {
-    background: rgba(0,0,0,0.4);
-  }
   .modal:not(.maximized).q-modal-enter .modal-content {
     -webkit-transform: scale(1.2);
             transform: scale(1.2);
@@ -3057,9 +3056,9 @@ body div .q-popover {
   transition: all 0.2s ease-in;
   background: currentColor;
 }
-.q-slider:not(.disabled) .q-slider-handle:focus .q-slider-ring,
-.q-slider:not(.disabled):focus .q-slider-ring,
-.q-slider:not(.disabled):hover .q-slider-ring {
+.q-slider:not(.disabled):not(.readonly) .q-slider-handle.dragging .q-slider-ring,
+.q-slider:not(.disabled):not(.readonly) .q-slider-handle:focus .q-slider-ring,
+body.desktop .q-slider:not(.disabled):not(.readonly):hover .q-slider-ring {
   opacity: 0.4;
   -webkit-transform: scale(1);
           transform: scale(1);
@@ -8032,7 +8031,7 @@ img.avatar {
   overflow: hidden !important;
 }
 .q-no-input-spinner {
-  -moz-appearance: textfield;
+  -moz-appearance: textfield !important;
 }
 .q-no-input-spinner::-webkit-outer-spin-button,
 .q-no-input-spinner::-webkit-inner-spin-button {

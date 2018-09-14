@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.12
+ * Quasar Framework v0.17.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2497,6 +2497,10 @@ maximized-modal()
   border-radius 0
   .q-layout-container
     min-height 100vh !important
+.modal-backdrop
+  background $dimmed-background
+  .modal.maximized &
+    display none
 .modal-content
   position relative
   background $modal-background
@@ -2510,8 +2514,6 @@ maximized-modal()
   outline 0
 .modal
   z-index $z-modal
-  &.minimized, &.with-backdrop
-    background $dimmed-background
   &.minimized .modal-content
     minimized-modal()
   &.maximized .modal-content
@@ -2520,7 +2522,6 @@ maximized-modal()
   opacity 0
 @media (min-width $breakpoint-md-min)
   .modal:not(.maximized)
-    background $dimmed-background
     &.q-modal-enter .modal-content
       transform scale(1.2)
     &.q-modal-leave-active .modal-content
@@ -2942,8 +2943,8 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   transform scale(0)
   transition all .2s ease-in
   background currentColor
-.q-slider:not(.disabled)
-  .q-slider-handle:focus, &:focus, &:hover
+.q-slider:not(.disabled):not(.readonly)
+  .q-slider-handle.dragging, .q-slider-handle:focus, body.desktop &:hover
     .q-slider-ring
       opacity .4
       transform scale(1)
@@ -5262,7 +5263,7 @@ for $name, $size in $sizes
 .q-body-fullscreen-mixin, .q-body-prevent-scroll
   overflow hidden !important
 .q-no-input-spinner
-  -moz-appearance textfield
+  -moz-appearance textfield !important
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button
     -webkit-appearance none

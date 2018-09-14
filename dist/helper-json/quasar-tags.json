@@ -171,6 +171,7 @@
   },
   "q-card": {
     "attributes": [
+      "dark",
       "square",
       "flat",
       "inline",

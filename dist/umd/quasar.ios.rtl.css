@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.12
+ * Quasar Framework v0.17.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3104,6 +3104,12 @@ body.with-loading {
   text-align: center;
   text-shadow: 0 0 7px #000;
 }
+[dir] .modal-backdrop {
+  background: rgba(0,0,0,0.4);
+}
+.modal.maximized .modal-backdrop {
+  display: none;
+}
 .modal-content {
   position: relative;
   -webkit-box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12);
@@ -3121,9 +3127,6 @@ body.with-loading {
 }
 .modal {
   z-index: 5000;
-}
-[dir] .modal.minimized, [dir] .modal.with-backdrop {
-  background: rgba(0,0,0,0.4);
 }
 .modal.minimized .modal-content {
   max-width: 80vw;
@@ -3146,9 +3149,6 @@ body.with-loading {
   opacity: 0;
 }
 @media (min-width: 768px) {
-  [dir] .modal:not(.maximized) {
-    background: rgba(0,0,0,0.4);
-  }
   .modal:not(.maximized).q-modal-enter .modal-content {
     -webkit-transform: scale(1.2);
   }
@@ -3948,13 +3948,13 @@ body div .q-popover {
 [dir=rtl] .q-slider-ring {
   right: -50%;
 }
-.q-slider:not(.disabled) .q-slider-handle:focus .q-slider-ring,
-.q-slider:not(.disabled):focus .q-slider-ring,
-.q-slider:not(.disabled):hover .q-slider-ring {
+.q-slider:not(.disabled):not(.readonly) .q-slider-handle.dragging .q-slider-ring,
+.q-slider:not(.disabled):not(.readonly) .q-slider-handle:focus .q-slider-ring,
+body.desktop .q-slider:not(.disabled):not(.readonly):hover .q-slider-ring {
   opacity: 0.4;
   -webkit-transform: scale(1);
 }
-[dir] .q-slider:not(.disabled) .q-slider-handle:focus .q-slider-ring, [dir] .q-slider:not(.disabled):focus .q-slider-ring, [dir] .q-slider:not(.disabled):hover .q-slider-ring {
+[dir] .q-slider:not(.disabled):not(.readonly) .q-slider-handle.dragging .q-slider-ring, [dir] .q-slider:not(.disabled):not(.readonly) .q-slider-handle:focus .q-slider-ring, [dir] body.desktop .q-slider:not(.disabled):not(.readonly):hover .q-slider-ring {
           transform: scale(1);
 }
 [dir] .q-slider.disabled .q-slider-handle {
@@ -9581,7 +9581,7 @@ img.avatar {
   overflow: hidden !important;
 }
 .q-no-input-spinner {
-  -moz-appearance: textfield;
+  -moz-appearance: textfield !important;
 }
 .q-no-input-spinner::-webkit-outer-spin-button,
 .q-no-input-spinner::-webkit-inner-spin-button {

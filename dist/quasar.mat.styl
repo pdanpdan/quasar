@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.12
+ * Quasar Framework v0.17.14
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -1560,42 +1560,56 @@ $checkbox-size = 21px
   text-align center
   user-select none
   line-height initial
-  min-width 290px
   .modal-buttons
     padding-top 8px
+  &:not(.no-border)
+    &:not(.q-datetime-dark) .q-datetime-content
+      border 1px solid $grey-4
+    &.q-datetime-dark
+      border 1px solid $dark
+      border 1px solid var(--q-color-dark)
 .q-datetime-header
-  pointer-events none
   background currentColor
   > div
     color white
+    width 100%
 .q-datetime-weekdaystring
   font-size .8rem
   background rgba(0, 0, 0, .1)
   padding 5px 0
 .q-datetime-time
   padding 10px 0
-div + .q-datetime-time
-  padding-top 0
+  will-change scroll-position
+  overflow auto
 .q-datetime-ampm
   font-size .9rem
+  padding 5px
 .q-datetime-datestring
-  font-size 2.7rem
-  span.small
-    font-size 1.2rem
+  padding 10px 0
+  .q-datetime-link
+    font-size 2.7rem
+    span
+      padding 0 5px
+      width 100%
+    &.small
+      margin 0 5px
+      font-size 1.2rem
+      span
+        padding 5px
 .q-datetime-link
   opacity .6
   > span
     cursor pointer
-    pointer-events all
     display inline-block
-    width 100%
     outline 0
   &.active
     opacity 1
 .q-datetime-clockstring
+  min-width 210px
   font-size 2.7rem
   direction: ltr /* rtl:ignore */
 .q-datetime-selector
+  min-width 290px
   height 310px
   overflow auto
 .q-datetime-view-day
@@ -1757,52 +1771,11 @@ for $pos in 13..23
 @media (max-width $breakpoint-sm-max)
   .q-datetime
     flex-direction column !important
-  .q-datetime-ampm
-    margin-left 1.5rem
-  .q-datetime-datestring .q-datetime-link
-    margin 10px 5px
-    span
-      padding 10px 5px
-      &.small
-        margin-top 1.3rem
-  .q-datetime
-    &:not(.no-border)
-      &:not(.q-datetime-dark) .q-datetime-content
-        border-width 0 1px 1px 1px
-        border-style solid
-        border-color $grey-4
-      &.q-datetime-minimal .q-datetime-content
-        border-top-width 1px
-      &.q-datetime-dark
-        border 1px solid $dark
-        border 1px solid var(--q-color-dark)
 @media (min-width $breakpoint-md-min)
-  .q-datetime:not(.q-datetime-minimal)
-    min-width 170px * 3
-  .q-datetime-datestring
-    padding 10px 0
-  .q-datetime-ampm
-    margin-top 5px
-    div
-      margin 2px 0
   .q-datetime-header
-    position relative
-  .q-datetime-weekdaystring
-    position absolute
-    top 0
-    left 0
-    right 0
-  .q-datetime
-    &:not(.no-border)
-      &:not(.q-datetime-dark) .q-datetime-content
-        border-width 1px 1px 1px 0
-        border-style solid
-        border-color $grey-4
-      &.q-datetime-minimal .q-datetime-content
-        border-left-width 1px
-      &.q-datetime-dark
-        border 1px solid $dark
-        border 1px solid var(--q-color-dark)
+    flex 1 1 auto
+  .q-datetime-content
+    flex 2 2 auto
 .q-dot
   position absolute
   top $dot-position-top
@@ -2639,6 +2612,10 @@ maximized-modal()
   border-radius 0
   .q-layout-container
     min-height 100vh !important
+.modal-backdrop
+  background $dimmed-background
+  .modal.maximized &
+    display none
 .modal-content
   position relative
   background $modal-background
@@ -2652,8 +2629,6 @@ maximized-modal()
   outline 0
 .modal
   z-index $z-modal
-  &.minimized, &.with-backdrop
-    background $dimmed-background
   &.minimized .modal-content
     minimized-modal()
   &.maximized .modal-content
@@ -2662,7 +2637,6 @@ maximized-modal()
   opacity 0
 @media (min-width $breakpoint-md-min)
   .modal:not(.maximized)
-    background $dimmed-background
     &.q-modal-enter .modal-content
       transform scale(1.2)
     &.q-modal-leave-active .modal-content
@@ -3082,7 +3056,7 @@ $slider-label-transform     = translateX(-50%) translateY(-139%) scale(1)
   transition all .2s ease-in
   background currentColor
 .q-slider:not(.disabled):not(.readonly)
-  .q-slider-handle:focus, &:focus, &:hover
+  .q-slider-handle.dragging, .q-slider-handle:focus, body.desktop &:hover
     .q-slider-ring
       opacity .4
       transform scale(1)
@@ -5405,7 +5379,7 @@ for $name, $size in $sizes
 .q-body-fullscreen-mixin, .q-body-prevent-scroll
   overflow hidden !important
 .q-no-input-spinner
-  -moz-appearance textfield
+  -moz-appearance textfield !important
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button
     -webkit-appearance none
