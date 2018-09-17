@@ -47,7 +47,10 @@ export default {
       this.$nextTick(this.__close)
     },
     set () {
-      if (this.__hasChanged() && this.validate(this.value)) {
+      if (this.__hasChanged()) {
+        if (!this.validate(this.value)) {
+          return
+        }
         this.$emit('save', this.value, this.initialValue)
       }
       this.__close()
@@ -128,7 +131,7 @@ export default {
       nativeOn: {
         keydown: e => {
           if (getEventKey(e) === 13) {
-            this.$refs.popover.hide()
+            this.buttons ? this.set() : this.$refs.popover.hide()
           }
         }
       }

@@ -15856,7 +15856,10 @@
         this.$nextTick(this.__close);
       },
       set: function set () {
-        if (this.__hasChanged() && this.validate(this.value)) {
+        if (this.__hasChanged()) {
+          if (!this.validate(this.value)) {
+            return
+          }
           this.$emit('save', this.value, this.initialValue);
         }
         this.__close();
@@ -15939,7 +15942,7 @@
         nativeOn: {
           keydown: function (e) {
             if (getEventKey(e) === 13) {
-              this$1.$refs.popover.hide();
+              this$1.buttons ? this$1.set() : this$1.$refs.popover.hide();
             }
           }
         }
