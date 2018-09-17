@@ -4090,10 +4090,8 @@
         }
         document.body.appendChild(this.$el);
         EscapeKey.register(function () {
-          if (!this$1.persistent) {
-            this$1.$emit('escape-key');
-            this$1.hide();
-          }
+          this$1.$emit('escape-key');
+          this$1.hide();
         });
         this.scrollTarget = getScrollTarget(this.anchorEl);
         this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
