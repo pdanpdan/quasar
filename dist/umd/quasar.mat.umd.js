@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.14
+ * Quasar Framework v0.17.15
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.14";
+  var version = "0.17.15";
 
   var History = {
     __history: [],
@@ -1963,8 +1963,8 @@
             this$1.__shake();
           }
           else {
+            this$1.$emit('escape-key');
             this$1.hide().then(function () {
-              this$1.$emit('escape-key');
               this$1.$emit('dismiss');
             });
           }
@@ -3874,7 +3874,12 @@
           this.__refocusTarget = (this.anchorClick && this.anchorEl) || document.activeElement;
         }
         document.body.appendChild(this.$el);
-        EscapeKey.register(function () { !this$1.persistent && this$1.hide(); });
+        EscapeKey.register(function () {
+          if (!this$1.persistent) {
+            this$1.$emit('escape-key');
+            this$1.hide();
+          }
+        });
         this.scrollTarget = getScrollTarget(this.anchorEl);
         this.scrollTarget.addEventListener('scroll', this.__updatePosition, listenOpts.passive);
         if (this.scrollTarget !== window) {
@@ -7277,11 +7282,18 @@
         ])),
 
         this.isLoading
-          ? h(QSpinner, {
-            slot: 'after',
-            staticClass: 'q-if-control',
-            props: { size: '24px' }
-          })
+          ? (
+            this.$slots.loading
+              ? h('div', {
+                staticClass: 'q-if-control',
+                slot: 'after'
+              }, this.$slots.loading)
+              : h(QSpinner, {
+                slot: 'after',
+                staticClass: 'q-if-control',
+                props: { size: '24px' }
+              })
+          )
           : ((this.editable && h(QIcon, {
             slot: 'after',
             staticClass: 'q-if-control',
@@ -11500,11 +11512,16 @@
           }
         })) || void 0,
 
-        (this.isLoading && h(QSpinner, {
-          slot: 'after',
-          staticClass: 'q-if-control',
-          props: { size: '24px' }
-        })) || void 0
+        (this.isLoading && (this.$slots.loading
+          ? h('div', {
+            staticClass: 'q-if-control',
+            slot: 'after'
+          }, this.$slots.loading)
+          : h(QSpinner, {
+            slot: 'after',
+            staticClass: 'q-if-control',
+            props: { size: '24px' }
+          }))) || void 0
       ]).concat(this.$slots.after).concat(this.$slots.default
         ? h('div', { staticClass: 'absolute-full no-pointer-events', slot: 'after' }, this.$slots.default)
         : void 0
@@ -15917,11 +15934,16 @@
         },
         on: {
           show: function () {
-            var input = this$1.$el.querySelector('.q-input-target, input');
+            var input = this$1.$el.querySelector('.q-input-target:not(.q-input-shadow)') || this$1.$el.querySelector('input') || this$1.$el.querySelector('textarea');
             input && input.focus();
             this$1.$emit('show');
             this$1.initialValue = clone(this$1.value);
             this$1.validated = false;
+          },
+          'escape-key': function () {
+            this$1.validated = true;
+            this$1.$emit('cancel', this$1.value, this$1.initialValue);
+            this$1.$emit('input', this$1.initialValue);
           },
           hide: function () {
             if (this$1.validated) { return }
@@ -23230,11 +23252,16 @@
 
       if (this.uploading) {
         child.push(
-          h(QSpinner, {
-            slot: 'after',
-            staticClass: 'q-if-end self-center',
-            props: { size: '24px' }
-          }),
+          this.$slots.loading
+            ? h('div', {
+              slot: 'after',
+              staticClass: 'q-if-end self-center q-if-control'
+            }, this.$slots.loading)
+            : h(QSpinner, {
+              slot: 'after',
+              staticClass: 'q-if-end self-center',
+              props: { size: '24px' }
+            }),
           h(QIcon, {
             slot: 'after',
             staticClass: 'q-if-end self-center q-if-control',
