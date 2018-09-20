@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.15
+ * Quasar Framework v0.17.16
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.15";
+  var version = "0.17.16";
 
   var History = {
     __history: [],
@@ -11483,9 +11483,8 @@
             this$1.$emit('input', val);
           },
           show: function () {
-            this$1.$emit('show');
-
             if (!this$1.$q.platform.is.desktop) {
+              this$1.$emit('show');
               return
             }
 
@@ -11498,6 +11497,7 @@
 
               if (node.length) {
                 node[0].focus();
+                this$1.$emit('show');
                 return
               }
             }
@@ -11506,6 +11506,7 @@
             if (node.length) {
               node[node.length - 1].focus();
             }
+            this$1.$emit('show');
           },
           hide: function () {
             this$1.$emit('hide');
@@ -24709,7 +24710,7 @@
         ? getEmptyStorage()
         : getStorage('session');
 
-      $q.localStorage = storage;
+      $q.sessionStorage = storage;
       Object.assign(this, storage);
     }
   };
