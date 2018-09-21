@@ -1495,6 +1495,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-fab/persistent": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-fab-action/outline": {
     "type": "boolean",
     "description": "Boolean value."
@@ -1744,6 +1748,10 @@
     "description": "Boolean value."
   },
   "q-input/lower-case": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
+  "q-input/initial-show-password": {
     "type": "boolean",
     "description": "Boolean value."
   },

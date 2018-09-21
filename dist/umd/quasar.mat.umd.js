@@ -8662,14 +8662,14 @@
         var child = [
           h(QColorPicker, {
             staticClass: ("no-border" + (modal ? ' full-width' : '')),
-            props: Object.assign({
+            props: Object.assign({}, this.$attrs, {
               value: this.model,
               disable: this.disable,
               readonly: this.readonly,
               formatModel: this.formatModel,
               dark: this.dark,
               noParentField: true
-            }, this.$attrs),
+            }),
             on: {
               input: function (v) { return this$1.$nextTick(function () { return this$1.__setModel(v); }); }
             }
@@ -11133,13 +11133,14 @@
       decimals: Number,
       step: Number,
       upperCase: Boolean,
-      lowerCase: Boolean
+      lowerCase: Boolean,
+      initialShowPassword: Boolean
     },
     data: function data () {
       var this$1 = this;
 
       return {
-        showPass: false,
+        showPass: this.initialShowPassword,
         showNumber: true,
         model: this.value,
         watcher: null,
@@ -11471,7 +11472,7 @@
       [].concat(this.$slots.before).concat([
         this.isTextarea ? this.__getTextarea(h) : this.__getInput(h),
 
-        (!this.disable && this.isPassword && !this.noPassToggle && this.length && h(QIcon, {
+        (!this.disable && this.isPassword && !this.noPassToggle && (this.initialShowPassword || this.length) && h(QIcon, {
           slot: 'after',
           staticClass: 'q-if-control',
           props: {
@@ -12223,13 +12224,13 @@
     }
 
     return h(QBtn, {
-      props: Object.assign({
+      props: Object.assign({}, vm.buttonProps, {
         icon: btn.icon,
         color: toggled ? btn.toggleColor || vm.toolbarToggleColor : btn.color || vm.toolbarColor,
         textColor: toggled && (vm.toolbarFlat || vm.toolbarOutline) ? null : btn.textColor || vm.toolbarTextColor,
         label: btn.label,
         disable: btn.disable ? (typeof btn.disable === 'function' ? btn.disable(vm) : true) : false
-      }, vm.buttonProps),
+      }),
       on: events
     }, child)
   }
@@ -12326,7 +12327,7 @@
     var Dropdown = h(
       QBtnDropdown,
       {
-        props: Object.assign({
+        props: Object.assign({}, vm.buttonProps, {
           noCaps: true,
           noWrap: true,
           color: highlight ? vm.toolbarToggleColor : vm.toolbarColor,
@@ -12334,7 +12335,7 @@
           label: btn.fixedLabel ? btn.label : label,
           icon: btn.fixedIcon ? btn.icon : icon,
           contentClass: contentClass
-        }, vm.buttonProps)
+        })
       },
       Items
     );
@@ -12438,10 +12439,10 @@
             attrs: {
               tabindex: -1
             },
-            props: Object.assign({
+            props: Object.assign({}, vm.buttonProps, {
               label: vm.$q.i18n.label.remove,
               noCaps: true
-            }, vm.buttonProps),
+            }),
             on: {
               click: function () {
                 vm.caret.restore();
@@ -12452,10 +12453,10 @@
           }),
           h(QBtn, {
             key: 'qedt_btm_upd',
-            props: Object.assign({
+            props: Object.assign({}, vm.buttonProps, {
               label: vm.$q.i18n.label.update,
               noCaps: true
-            }, vm.buttonProps),
+            }),
             on: {
               click: updateLink
             }
@@ -13200,11 +13201,12 @@
       direction: {
         type: String,
         default: 'right'
-      }
+      },
+      persistent: Boolean
     },
     watch: {
       $route: function $route () {
-        this.hide();
+        !this.persistent && this.hide();
       }
     },
     created: function created () {

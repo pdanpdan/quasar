@@ -541,7 +541,8 @@
       "glossy",
       "icon",
       "active-icon",
-      "direction"
+      "direction",
+      "persistent"
     ],
     "description": ""
   },
@@ -635,7 +636,8 @@
       "decimals",
       "step",
       "upper-case",
-      "lower-case"
+      "lower-case",
+      "initial-show-password"
     ],
     "description": ""
   },
