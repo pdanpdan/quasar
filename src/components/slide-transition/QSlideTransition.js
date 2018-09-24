@@ -14,7 +14,6 @@ export default {
         el.style.height = `${height}px`
       }
       el.style.transition = `height ${this.duration}ms cubic-bezier(.25, .8, .50, 1)`
-      this.animating = true
     },
     __end (el, event) {
       el.style.overflowY = null
@@ -22,15 +21,15 @@ export default {
       el.style.transition = null
       this.__cleanup()
       event !== this.lastEvent && this.$emit(event)
-      this.animating = false
     },
     __cleanup () {
       clearTimeout(this.timer)
       this.el.removeEventListener('transitionend', this.animListener)
+      delete this.animListener
     }
   },
   beforeDestroy () {
-    this.animating && this.__cleanup()
+    this.animListener && this.animListener()
   },
   render (h) {
     return h('transition', {
@@ -43,9 +42,9 @@ export default {
           let pos = 0
           this.el = el
 
-          if (this.animating === true) {
-            this.__cleanup()
-            pos = el.offsetHeight === el.scrollHeight ? 0 : void 0
+          if (this.animListener) {
+            pos = el.offsetHeight
+            this.animListener()
           }
           else {
             this.lastEvent = 'hide'
@@ -53,12 +52,12 @@ export default {
 
           this.__begin(el, pos)
 
+          this.animListener = () => {
+            this.__end(el, 'show')
+            done()
+          }
           this.timer = setTimeout(() => {
             el.style.height = `${el.scrollHeight}px`
-            this.animListener = () => {
-              this.__end(el, 'show')
-              done()
-            }
             el.addEventListener('transitionend', this.animListener)
           }, 100)
         },
@@ -66,8 +65,9 @@ export default {
           let pos
           this.el = el
 
-          if (this.animating === true) {
-            this.__cleanup()
+          if (this.animListener) {
+            pos = el.offsetHeight
+            this.animListener()
           }
           else {
             this.lastEvent = 'show'
@@ -76,12 +76,12 @@ export default {
 
           this.__begin(el, pos)
 
+          this.animListener = () => {
+            this.__end(el, 'hide')
+            done()
+          }
           this.timer = setTimeout(() => {
             el.style.height = 0
-            this.animListener = () => {
-              this.__end(el, 'hide')
-              done()
-            }
             el.addEventListener('transitionend', this.animListener)
           }, 100)
         }
