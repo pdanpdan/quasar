@@ -59,7 +59,7 @@ export default {
     },
     __emit (destroy) {
       const isNumberError = this.isNumber && this.isNumberError
-      const value = isNumberError ? (this.isNegZero ? -0 : null) : this.model
+      let value = isNumberError ? (this.isNegZero ? -0 : null) : this.model
       if (this.isNumber) {
         this.model = this.value
       }
@@ -68,6 +68,10 @@ export default {
       }
       const emit = () => {
         if (this.isNumber) {
+          value = parseFloat(value)
+          if (Number.isInteger(this.decimals)) {
+            value = parseFloat(value.toFixed(this.decimals))
+          }
           if (String(1 / value) !== String(1 / this.value)) {
             this.$emit('change', value)
           }

@@ -6965,6 +6965,10 @@
         }
         var emit = function () {
           if (this$1.isNumber) {
+            value = parseFloat(value);
+            if (Number.isInteger(this$1.decimals)) {
+              value = parseFloat(value.toFixed(this$1.decimals));
+            }
             if (String(1 / value) !== String(1 / this$1.value)) {
               this$1.$emit('change', value);
             }
