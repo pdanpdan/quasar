@@ -12448,9 +12448,11 @@
             keydown: function (event$$1) {
               switch (getEventKey(event$$1)) {
                 case 13: // ENTER key
+                  event$$1.preventDefault();
                   return updateLink()
                 case 27: // ESCAPE key
                   vm.caret.restore();
+                  !vm.editLinkUrl && document.execCommand('unlink');
                   vm.editLinkUrl = null;
                   break
               }
@@ -12698,8 +12700,8 @@
         if (!url.length) {
           return
         }
-        this.vm.editLinkUrl = urlRegex.test(url) ? url : ("https://" + url);
-        document.execCommand('createLink', false, this.vm.editLinkUrl);
+        this.vm.editLinkUrl = urlRegex.test(url) ? url : '';
+        document.execCommand('createLink', false, this.vm.editLinkUrl === '' ? ' ' : this.vm.editLinkUrl);
       }
       else {
         this.vm.editLinkUrl = link;
