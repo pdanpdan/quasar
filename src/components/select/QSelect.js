@@ -191,9 +191,6 @@ export default {
         return
       }
       this.focused = true
-      this.$nextTick(() => {
-        this.$el.scrollIntoViewIfNeeded && this.$el.scrollIntoViewIfNeeded(false)
-      })
       this.$emit('focus')
     },
     __onShow () {

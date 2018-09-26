@@ -6702,24 +6702,12 @@
       },
 
       __onFocus: function __onFocus (e) {
-        var this$1 = this;
-
         clearTimeout(this.timer);
         if (this.focused) {
           return
         }
         this.focused = true;
-        if (this.$refs.input) {
-          this.$refs.input.focus();
-          this.$nextTick(function () {
-            this$1.$refs.input.scrollIntoViewIfNeeded && this$1.$refs.input.scrollIntoViewIfNeeded(false);
-          });
-        }
-        else if (this.$el.scrollIntoViewIfNeeded) {
-          this.$nextTick(function () {
-            this$1.$el.scrollIntoViewIfNeeded && this$1.$el.scrollIntoViewIfNeeded(false);
-          });
-        }
+        this.$refs.input && this.$refs.input.focus();
         this.$emit('focus', e);
       },
       __onInputBlur: function __onInputBlur (e) {
@@ -7425,6 +7413,7 @@
 
   var QSlideTransition = {
     name: 'QSlideTransition',
+
     props: {
       appear: Boolean,
       duration: {
@@ -7432,14 +7421,19 @@
         default: 300
       }
     },
+
     methods: {
-      __begin: function __begin (el, height) {
+      __begin: function __begin (el, height, done) {
         el.style.overflowY = 'hidden';
         if (height !== void 0) {
           el.style.height = height + "px";
         }
         el.style.transition = "height " + (this.duration) + "ms cubic-bezier(.25, .8, .50, 1)";
+
+        this.animating = true;
+        this.done = done;
       },
+
       __end: function __end (el, event) {
         el.style.overflowY = null;
         el.style.height = null;
@@ -7447,15 +7441,22 @@
         this.__cleanup();
         event !== this.lastEvent && this.$emit(event);
       },
+
       __cleanup: function __cleanup () {
+        this.done && this.done();
+        this.done = null;
+        this.animating = false;
+
         clearTimeout(this.timer);
         this.el.removeEventListener('transitionend', this.animListener);
-        delete this.animListener;
+        this.animListener = null;
       }
     },
+
     beforeDestroy: function beforeDestroy () {
-      this.animListener && this.animListener();
+      this.animating && this.__cleanup();
     },
+
     render: function render (h) {
       var this$1 = this;
 
@@ -7469,22 +7470,21 @@
             var pos = 0;
             this$1.el = el;
 
-            if (this$1.animListener) {
-              pos = el.offsetHeight;
-              this$1.animListener();
+            if (this$1.animating === true) {
+              this$1.__cleanup();
+              pos = el.offsetHeight === el.scrollHeight ? 0 : void 0;
             }
             else {
               this$1.lastEvent = 'hide';
             }
 
-            this$1.__begin(el, pos);
+            this$1.__begin(el, pos, done);
 
-            this$1.animListener = function () {
-              this$1.__end(el, 'show');
-              done();
-            };
             this$1.timer = setTimeout(function () {
               el.style.height = (el.scrollHeight) + "px";
+              this$1.animListener = function () {
+                this$1.__end(el, 'show');
+              };
               el.addEventListener('transitionend', this$1.animListener);
             }, 100);
           },
@@ -7492,23 +7492,21 @@
             var pos;
             this$1.el = el;
 
-            if (this$1.animListener) {
-              pos = el.offsetHeight;
-              this$1.animListener();
+            if (this$1.animating === true) {
+              this$1.__cleanup();
             }
             else {
               this$1.lastEvent = 'show';
               pos = el.scrollHeight;
             }
 
-            this$1.__begin(el, pos);
+            this$1.__begin(el, pos, done);
 
-            this$1.animListener = function () {
-              this$1.__end(el, 'hide');
-              done();
-            };
             this$1.timer = setTimeout(function () {
               el.style.height = 0;
+              this$1.animListener = function () {
+                this$1.__end(el, 'hide');
+              };
               el.addEventListener('transitionend', this$1.animListener);
             }, 100);
           }
@@ -8611,16 +8609,11 @@
         }
       },
       __onFocus: function __onFocus () {
-        var this$1 = this;
-
         if (this.disable || this.focused) {
           return
         }
         this.model = clone(this.value || this.defaultValue);
         this.focused = true;
-        this.$nextTick(function () {
-          this$1.$el.scrollIntoViewIfNeeded && this$1.$el.scrollIntoViewIfNeeded(false);
-        });
         this.$emit('focus');
       },
       __onBlur: function __onBlur (e) {
@@ -10779,8 +10772,6 @@
         }
       },
       __onFocus: function __onFocus () {
-        var this$1 = this;
-
         if (this.disable || this.focused) {
           return
         }
@@ -10790,9 +10781,6 @@
         }
         this.model = clone$1(this.computedValue);
         this.focused = true;
-        this.$nextTick(function () {
-          this$1.$el.scrollIntoViewIfNeeded && this$1.$el.scrollIntoViewIfNeeded(false);
-        });
         this.$emit('focus');
       },
       __onBlur: function __onBlur (e) {
@@ -17297,15 +17285,10 @@
         }
       },
       __onFocus: function __onFocus () {
-        var this$1 = this;
-
         if (this.disable || this.focused) {
           return
         }
         this.focused = true;
-        this.$nextTick(function () {
-          this$1.$el.scrollIntoViewIfNeeded && this$1.$el.scrollIntoViewIfNeeded(false);
-        });
         this.$emit('focus');
       },
       __onShow: function __onShow () {

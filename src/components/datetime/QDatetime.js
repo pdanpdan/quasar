@@ -125,9 +125,6 @@ export default {
       }
       this.model = clone(this.computedValue)
       this.focused = true
-      this.$nextTick(() => {
-        this.$el.scrollIntoViewIfNeeded && this.$el.scrollIntoViewIfNeeded(false)
-      })
       this.$emit('focus')
     },
     __onBlur (e) {
