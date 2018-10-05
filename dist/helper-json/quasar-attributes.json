@@ -3535,6 +3535,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-table-columns/dark": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-timeline/color": {
     "type": "string",
     "description": "String value."

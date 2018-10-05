@@ -1441,7 +1441,8 @@
     "attributes": [
       "label",
       "columns",
-      "color"
+      "color",
+      "dark"
     ],
     "description": ""
   },

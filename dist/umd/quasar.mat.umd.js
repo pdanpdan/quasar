@@ -11084,7 +11084,9 @@
         },
         on: {
           load: function () {
-            this$1.$el.contentDocument.defaultView.addEventListener('resize', this$1.trigger, listenOpts.passive);
+            if (this$1.$el.contentDocument) {
+              this$1.$el.contentDocument.defaultView.addEventListener('resize', this$1.trigger, listenOpts.passive);
+            }
             this$1.trigger(true);
           }
         }
@@ -22043,7 +22045,8 @@
         type: Array,
         required: true
       },
-      color: String
+      color: String,
+      dark: Boolean
     },
     computed: {
       computedOptions: function computedOptions () {
@@ -22064,6 +22067,7 @@
           options: this.computedOptions,
           displayValue: this.label || this.$q.i18n.table.columns,
           color: this.color,
+          dark: this.dark,
           hideUnderline: true
         },
         on: {
