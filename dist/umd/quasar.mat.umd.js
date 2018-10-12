@@ -25337,7 +25337,7 @@
       return win
     }
     else {
-      reject();
+      reject && reject();
     }
   }
 
