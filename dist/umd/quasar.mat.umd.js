@@ -10296,7 +10296,7 @@
           ]));
           var content$1 = [
             h('span', {
-              staticClass: 'col',
+              staticClass: 'col-auto',
               style: { textAlign: 'right' }
             }, [
               h('span', {
@@ -10333,7 +10333,7 @@
             h('span', { style: 'opacity:0.6;' }, [ ':' ]),
 
             h('span', {
-              staticClass: 'col row no-wrap items-center',
+              staticClass: 'col-auto row no-wrap items-center',
               style: { textAlign: 'left' }
             }, [
               h('span', {
@@ -11244,9 +11244,7 @@
           : 0
       },
       computedClearValue: function computedClearValue () {
-        return this.isNumber && this.clearValue === 0
-          ? this.clearValue
-          : this.clearValue || (this.isNumber ? null : '')
+        return this.clearValue === void 0 ? (this.isNumber ? null : '') : this.clearValue
       },
       computedStep: function computedStep () {
         return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')

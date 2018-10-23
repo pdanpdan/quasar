@@ -1493,6 +1493,10 @@ body.desktop .q-carousel-thumbnails img:hover {
   color: #fff;
   width: 100%;
 }
+.modal-content > .q-datetime > .q-datetime-header,
+.q-popover > .q-datetime > .q-datetime-header {
+  min-width: 175px;
+}
 .q-datetime-weekdaystring {
   font-size: 0.8rem;
 }

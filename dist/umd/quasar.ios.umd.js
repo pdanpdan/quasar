@@ -10894,9 +10894,7 @@
           : 0
       },
       computedClearValue: function computedClearValue () {
-        return this.isNumber && this.clearValue === 0
-          ? this.clearValue
-          : this.clearValue || (this.isNumber ? null : '')
+        return this.clearValue === void 0 ? (this.isNumber ? null : '') : this.clearValue
       },
       computedStep: function computedStep () {
         return this.step || (this.decimals ? Math.pow( 10, -this.decimals ) : 'any')
