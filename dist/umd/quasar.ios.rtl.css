@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.17
+ * Quasar Framework v0.17.18
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3373,14 +3373,18 @@ body.q-ios-statusbar-x .q-notification-list-bottom {
 .q-notification {
   pointer-events: all;
   display: inline-block;
-  transition: all 1s;
+  -webkit-transition-property: opacity, -webkit-transform;
+  -webkit-transition-duration: 1s;
   z-index: 9500;
   max-width: 100%;
 }
 [dir] .q-notification {
   border-radius: 5px;
   margin: 10px 10px 0;
-  -webkit-transition: all 1s;
+  transition-property: opacity, -webkit-transform;
+  transition-property: transform, opacity;
+  transition-property: transform, opacity, -webkit-transform;
+          transition-duration: 1s;
 }
 .q-notification-top-left-enter,
 .q-notification-top-left-leave-to,
@@ -4994,6 +4998,9 @@ body.desktop .q-tab:hover:before {
 }
 .q-timeline-dot .q-icon {
   position: absolute;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   top: 0;
   font-size: 16px;
   height: 38px;

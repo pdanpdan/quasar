@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.17
+ * Quasar Framework v0.17.18
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -2632,7 +2632,8 @@ body.q-ios-statusbar-x
   pointer-events all
   display inline-block
   margin 10px 10px 0
-  transition all 1s
+  transition-property transform,opacity
+  transition-duration 1s
   z-index $z-notify
   max-width 100%
 .q-notification-
@@ -3529,6 +3530,7 @@ table-dense()
     padding-top 8px
 .q-timeline-dot .q-icon
   position absolute
+  display inline-flex
   top 0
   left 0
   right 0

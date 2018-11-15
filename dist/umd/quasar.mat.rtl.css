@@ -1,5 +1,5 @@
 /*
- * Quasar Framework v0.17.17
+ * Quasar Framework v0.17.18
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -3678,14 +3678,18 @@ body.q-ios-statusbar-x .q-notification-list-bottom {
 .q-notification {
   pointer-events: all;
   display: inline-block;
-  transition: all 1s;
+  -webkit-transition-property: opacity, -webkit-transform;
+  -webkit-transition-duration: 1s;
   z-index: 9500;
   max-width: 100%;
 }
 [dir] .q-notification {
   border-radius: 5px;
   margin: 10px 10px 0;
-  -webkit-transition: all 1s;
+  transition-property: opacity, -webkit-transform;
+  transition-property: transform, opacity;
+  transition-property: transform, opacity, -webkit-transform;
+          transition-duration: 1s;
 }
 .q-notification-top-left-enter,
 .q-notification-top-left-leave-to,
@@ -4828,19 +4832,19 @@ body.desktop .q-slider:not(.disabled):not(.readonly):hover .q-slider-ring {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-.q-tabs-position-top .q-tabs-bar {
+.q-tabs-position-top > .q-tabs-head .q-tabs-bar {
   bottom: 0;
 }
-[dir] .q-tabs-position-top .q-tabs-bar {
+[dir] .q-tabs-position-top > .q-tabs-head .q-tabs-bar {
   border-bottom-width: 2px;
 }
-.q-tabs-position-bottom .q-tabs-bar {
+.q-tabs-position-bottom > .q-tabs-head .q-tabs-bar {
   top: 0;
 }
-[dir] .q-tabs-position-bottom .q-tabs-bar {
+[dir] .q-tabs-position-bottom > .q-tabs-head .q-tabs-bar {
   border-top-width: 2px;
 }
-.q-tabs-position-bottom .q-tabs-panes {
+.q-tabs-position-bottom > .q-tabs-panes {
   -webkit-box-ordinal-group: 0;
       -ms-flex-order: -1;
           order: -1;
@@ -4848,16 +4852,16 @@ body.desktop .q-slider:not(.disabled):not(.readonly):hover .q-slider-ring {
 [dir] .q-tabs-inverted .q-tabs-head {
   background: #fff;
 }
-[dir] .q-tabs-inverted.q-tabs-position-top .q-tabs-panes {
+[dir] .q-tabs-inverted.q-tabs-position-top > .q-tabs-panes {
   border-top: 1px solid rgba(0,0,0,0.1);
 }
-[dir] .q-tabs-inverted.q-tabs-position-top .q-tab-pane {
+[dir] .q-tabs-inverted.q-tabs-position-top > .q-tab-pane {
   border-top: 0;
 }
-[dir] .q-tabs-inverted.q-tabs-position-bottom .q-tabs-panes {
+[dir] .q-tabs-inverted.q-tabs-position-bottom > .q-tabs-panes {
   border-bottom: 1px solid rgba(0,0,0,0.1);
 }
-[dir] .q-tabs-inverted.q-tabs-position-bottom .q-tab-pane {
+[dir] .q-tabs-inverted.q-tabs-position-bottom > .q-tab-pane {
   border-bottom: 0;
 }
 body.mobile .q-tabs-scroller {
@@ -5345,6 +5349,9 @@ body.desktop .q-tab:hover:before {
 }
 .q-timeline-dot .q-icon {
   position: absolute;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   top: 0;
   font-size: 16px;
   height: 38px;

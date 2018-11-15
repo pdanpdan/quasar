@@ -1,5 +1,5 @@
 /*!
- * Quasar Framework v0.17.17
+ * Quasar Framework v0.17.18
  * (c) 2016-present Razvan Stoenescu
  * Released under the MIT License.
  */
@@ -427,7 +427,7 @@
     });
   }
 
-  var version = "0.17.17";
+  var version = "0.17.18";
 
   var History = {
     __history: [],
@@ -4395,10 +4395,7 @@
         default: filter
       },
       staticData: Object,
-      valueField: {
-        type: [String, Function],
-        default: 'value'
-      },
+      valueField: [String, Function],
       separator: Boolean
     },
     inject: {
@@ -17216,11 +17213,13 @@
         }));
       }
 
-      child.push(h(QIcon, {
-        slot: 'after',
-        staticClass: 'q-if-control',
-        props: { name: this.$q.icon.input.dropdown }
-      }));
+      child.push(
+        h(QIcon, this.readonly ? { slot: 'after' } : {
+          slot: 'after',
+          staticClass: 'q-if-control',
+          props: { name: this.$q.icon.input.dropdown }
+        })
+      );
 
       return h(QInputFrame, {
         ref: 'input',
@@ -21593,17 +21592,15 @@
         staticClass: "q-timeline-entry",
         'class': this.classes
       }, [
-        h('div', { staticClass: 'q-timeline-subtitle' }, [
+        this.$slots.subtitle || h('div', { staticClass: 'q-timeline-subtitle' }, [
           h('span', this.subtitle)
         ]),
-
         h('div', {
           staticClass: 'q-timeline-dot',
           'class': this.colorClass
         }, [
           this.icon
             ? h(QIcon, {
-              staticClass: 'row items-center justify-center',
               props: { name: this.icon }
             })
             : null
@@ -21612,9 +21609,9 @@
         h(
           'div',
           { staticClass: 'q-timeline-content' },
-          [
+          (this.$slots.title || [
             h('h6', { staticClass: 'q-timeline-title' }, [ this.title ])
-          ].concat(this.$slots.default)
+          ]).concat(this.$slots.default)
         )
       ])
     }
