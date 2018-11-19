@@ -632,11 +632,11 @@ a.q-btn {
 [dir] .q-card-actions .q-btn {
   padding: 0 8px;
 }
-[dir=ltr] .q-card-actions-horiz .q-btn + .q-btn {
-  margin-left: 8px;
-}
-[dir=rtl] .q-card-actions-horiz .q-btn + .q-btn {
+[dir=ltr] .q-card-actions-horiz .q-btn:not(:last-child) {
   margin-right: 8px;
+}
+[dir=rtl] .q-card-actions-horiz .q-btn:not(:last-child) {
+  margin-left: 8px;
 }
 [dir] .q-card-actions-vert .q-btn + .q-btn {
   margin-top: 4px;
