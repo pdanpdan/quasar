@@ -1860,6 +1860,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   visibility: hidden;
   height: 0 !important;
   white-space: nowrap;
+  max-width: 100%;
 }
 .q-if-label {
   cursor: text;
@@ -1940,6 +1941,7 @@ body.desktop .q-carousel-thumbnails img:hover {
   color: transparent;
 }
 input.q-input-target {
+  width: 100% !important;
   height: 24px;
   outline: 0;
   display: inline-block;
@@ -9264,12 +9266,15 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if > .q-if-inner > div > input.q-input-target {
-    min-width: 6rem;
+    min-width: 3rem;
     -ms-flex-preferred-size: 0% !important;
         flex-basis: 0% !important;
   }
   .q-input-target:before {
     display: block;
+  }
+  .q-if-label-spacer {
+    width: 0;
   }
   .q-editor-toolbar .q-btn-group.row.inline {
     display: block;
@@ -9353,12 +9358,15 @@ body.ios .q-hoverable:active .q-focus-helper {
         flex-basis: auto;
   }
   .q-if > .q-if-inner > div > input.q-input-target {
-    min-width: 6rem;
+    min-width: 3rem;
     -ms-flex-preferred-size: 0% !important;
         flex-basis: 0% !important;
   }
   .q-input-target:before {
     display: block;
+  }
+  .q-if-label-spacer {
+    width: 0;
   }
   .q-editor-toolbar .q-btn-group.row.inline {
     display: block;

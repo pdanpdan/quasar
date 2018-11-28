@@ -2899,6 +2899,10 @@
     "type": "string",
     "description": "String value."
   },
+  "q-select/popup-cover": {
+    "type": "boolean",
+    "description": "Boolean value."
+  },
   "q-slide-transition/appear": {
     "type": "boolean",
     "description": "Boolean value."

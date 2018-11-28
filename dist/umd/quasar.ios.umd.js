@@ -13216,8 +13216,10 @@
         this.index = 0;
       },
       resume: function resume () {
-        this.working = true;
-        this.scrollContainer.addEventListener('scroll', this.poll, listenOpts.passive);
+        if (this.working !== true) {
+          this.working = true;
+          this.scrollContainer.addEventListener('scroll', this.poll, listenOpts.passive);
+        }
         this.immediatePoll();
       },
       stop: function stop () {
@@ -13233,13 +13235,14 @@
         this$1.element = this$1.$refs.content;
 
         this$1.scrollContainer = this$1.inline ? this$1.$el : getScrollTarget(this$1.$el);
-        if (this$1.working) {
-          this$1.scrollContainer.addEventListener('scroll', this$1.poll, listenOpts.passive);
-        }
 
         this$1.poll();
         this$1.immediatePoll = this$1.poll;
         this$1.poll = debounce(this$1.poll, 50);
+
+        if (this$1.working === true) {
+          this$1.scrollContainer.addEventListener('scroll', this$1.poll, listenOpts.passive);
+        }
       });
     },
     beforeDestroy: function beforeDestroy () {
@@ -16774,7 +16777,11 @@
       chipsColor: String,
       chipsBgColor: String,
       displayValue: String,
-      popupMaxHeight: String
+      popupMaxHeight: String,
+      popupCover: {
+        type: Boolean,
+        default: true
+      }
     },
     data: function data () {
       return {
@@ -17108,7 +17115,7 @@
         staticClass: 'column no-wrap',
         'class': this.dark ? 'bg-dark' : null,
         props: {
-          cover: true,
+          cover: this.popupCover,
           keepOnScreen: true,
           disable: !this.editable,
           anchorClick: false,
