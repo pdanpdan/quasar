@@ -1,0 +1,65 @@
+{
+  "type": "component",
+  "props": {
+    "value": {
+      "type": "Number",
+      "desc": "Progress value (0.0 < x < 1.0)",
+      "default": 0,
+      "examples": [
+        ":value=\"0.28\""
+      ]
+    },
+    "buffer": {
+      "type": "Number",
+      "desc": "Optional buffer value (0.0 < x < 1.0)",
+      "examples": [
+        ":buffer=\"0.78\""
+      ]
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "track-color": {
+      "type": "String",
+      "desc": "Color name for component's track from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "dark": {
+      "type": "Boolean",
+      "desc": "Notify the component that the background is a dark color"
+    },
+    "reverse": {
+      "type": "Boolean",
+      "desc": "Reverse direction of progress"
+    },
+    "stripe": {
+      "type": "Boolean",
+      "desc": "Draw stripes"
+    },
+    "indeterminate": {
+      "type": "Boolean",
+      "desc": "Put component into indeterminate mode"
+    },
+    "query": {
+      "type": "Boolean",
+      "desc": "Put component into query mode"
+    },
+    "rounded": {
+      "type": "Boolean",
+      "desc": "Applies a small standard border-radius for a squared shape of the component"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Suggestion: QTooltip"
+    }
+  }
+}

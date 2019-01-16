@@ -1,0 +1,72 @@
+{
+  "type": "component",
+  "props": {
+    "value": {
+      "desc": "Model of the component; Either use this property (along with a listener for 'input' event) OR use v-model directive",
+      "type": "String",
+      "examples": [
+        "v-model=\"myColor\""
+      ]
+    },
+    "default-value": {
+      "type": "String",
+      "desc": "The default value to show when the model doesn't has one",
+      "examples": [
+        "default-value=\"#c0c0c0\""
+      ]
+    },
+    "format-model": {
+      "type": "String",
+      "default": "auto",
+      "desc": "Forces a certain model format upon the model",
+      "values": [
+        "auto",
+        "hex",
+        "rgb",
+        "hexa",
+        "rgba"
+      ],
+      "examples": [
+        "hex"
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    },
+    "readonly": {
+      "type": "Boolean",
+      "desc": "Put component in readonly mode"
+    },
+    "inline": {
+      "type": "Boolean",
+      "desc": "Show component as inline-block"
+    },
+    "dark": {
+      "type": "Boolean",
+      "desc": "Notify the component that the background is a dark color"
+    }
+  },
+  "events": {
+    "input": {
+      "desc": "Emitted when component's model changes; Is also used by v-model",
+      "params": {
+        "value": {
+          "type": "Any",
+          "desc": "New model value",
+          "required": true
+        }
+      }
+    },
+    "change": {
+      "desc": "Emitted on lazy model value change (after user finishes selecting a color)",
+      "params": {
+        "value": {
+          "type": "Any",
+          "desc": "New model value",
+          "required": true
+        }
+      }
+    }
+  }
+}

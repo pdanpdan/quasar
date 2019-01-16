@@ -1,0 +1,39 @@
+{
+  "type": "component",
+  "props": {
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "text-color": {
+      "type": "String",
+      "desc": "Overrides text color (if needed); color name from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "floating": {
+      "type": "Boolean",
+      "desc": "Tell QBadge if it should float to the top right side of the relative positioned parent element or not"
+    },
+    "align": {
+      "type": "String",
+      "desc": "Sets vertical-align CSS prop",
+      "values": [
+        "top",
+        "middle",
+        "bottom"
+      ]
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Default slot in the devland unslotted content of the component"
+    }
+  }
+}

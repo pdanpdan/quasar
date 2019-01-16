@@ -1,0 +1,124 @@
+{
+  "type": "component",
+  "props": {
+    "value": {
+      "type": "Number",
+      "desc": "Current page (must be between min/max)",
+      "required": true,
+      "examples": [
+        3
+      ]
+    },
+    "min": {
+      "type": "Number",
+      "desc": "Minimum page (must be lower than 'max')",
+      "default": 1,
+      "examples": [
+        3
+      ]
+    },
+    "max": {
+      "type": "Number",
+      "desc": "Number of last page (must be higher than 'min')",
+      "default": 100,
+      "required": true,
+      "examples": [
+        10
+      ]
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ],
+      "default": "primary"
+    },
+    "text-color": {
+      "type": "String",
+      "desc": "Overrides text color (if needed); color name from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "size": {
+      "type": "String",
+      "desc": "Button size in CSS units, including unit name",
+      "examples": [
+        "20px"
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    },
+    "input": {
+      "type": "Boolean",
+      "desc": "Use an input instead of buttons"
+    },
+    "boundary-links": {
+      "type": "Boolean",
+      "desc": "Show boundary button links"
+    },
+    "boundary-numbers": {
+      "type": "Boolean",
+      "desc": "Always show first and last page buttons (if not using 'input')"
+    },
+    "direction-links": {
+      "type": "Boolean",
+      "desc": "Show direction buttons"
+    },
+    "ellipses": {
+      "type": "Boolean",
+      "desc": "Show ellipses (...) when pages are available"
+    },
+    "max-pages": {
+      "type": "Number",
+      "default": 0,
+      "desc": "Maximum number of page links to display at a time; 0 means Infinite",
+      "examples": [
+        5
+      ]
+    }
+  },
+  "events": {
+    "input": {
+      "desc": "Emitted when component's model changes; Is also used by v-model",
+      "params": {
+        "value": {
+          "type": "String",
+          "desc": "New model value",
+          "required": true
+        }
+      }
+    }
+  },
+  "methods": {
+    "set": {
+      "desc": "Go directly to the specified page",
+      "params": {
+        "pageNumber": {
+          "type": "Number",
+          "desc": "Page number to go to",
+          "examples": [
+            3
+          ]
+        }
+      }
+    },
+    "setOffset": {
+      "desc": "Increment/Decrement current page by offset",
+      "params": {
+        "offset": {
+          "type": "Number",
+          "desc": "Offset page, can be negative or positive",
+          "examples": [
+            3
+          ]
+        }
+      }
+    }
+  }
+}
