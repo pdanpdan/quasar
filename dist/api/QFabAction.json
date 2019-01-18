@@ -1,0 +1,63 @@
+{
+  "type": "component",
+  "props": {
+    "icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed",
+      "examples": [
+        "map",
+        "ion-add"
+      ],
+      "required": true
+    },
+    "outline": {
+      "type": "Boolean",
+      "desc": "Use 'outline' design for Fab button"
+    },
+    "push": {
+      "type": "Boolean",
+      "desc": "Use 'push' design for Fab button"
+    },
+    "flat": {
+      "type": "Boolean",
+      "desc": "Use 'flat' design for Fab button"
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "text-color": {
+      "type": "String",
+      "desc": "Overrides text color (if needed); color name from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "glossy": {
+      "type": "Boolean",
+      "desc": "Apply the glossy effect over the button"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Suggestion for this slot: QTooltip"
+    }
+  },
+  "events": {
+    "click": {
+      "desc": "Emitted when user clicks/taps on the component",
+      "params": {
+        "evt": {
+          "type": "Object",
+          "desc": "JS event object",
+          "required": true
+        }
+      }
+    }
+  }
+}
