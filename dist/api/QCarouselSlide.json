@@ -1,0 +1,38 @@
+{
+  "type": "component",
+  "props": {
+    "name": {
+      "type": [
+        "Number",
+        "String"
+      ],
+      "desc": "Slide name",
+      "required": true,
+      "examples": [
+        "accounts",
+        "firstPanel",
+        ":name=\"1\"",
+        "accounts",
+        "firstSlide",
+        ":name=\"1\""
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    },
+    "img-src": {
+      "type": "String",
+      "desc": "URL pointing to a slide background image (use statics folder)",
+      "examples": [
+        "statics/my-background.png",
+        "https://placeimg.com/500/300/nature"
+      ]
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Default slot in the devland unslotted content of the component"
+    }
+  }
+}
