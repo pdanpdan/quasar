@@ -1,0 +1,132 @@
+{
+  "type": "component",
+  "props": {
+    "to": {
+      "type": [
+        "String",
+        "Object"
+      ],
+      "desc": "Equivalent to Vue Router <router-link> 'to' property",
+      "examples": [
+        "/home/dashboard",
+        ":to=\"{ name: 'my-route-name' }\""
+      ],
+      "required": true
+    },
+    "exact": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'exact' property"
+    },
+    "append": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'append' property"
+    },
+    "replace": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'replace' property"
+    },
+    "active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-active-class"
+      ]
+    },
+    "exact-active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-exact-active-class"
+      ]
+    },
+    "ripple": {
+      "type": [
+        "Boolean",
+        "Object"
+      ],
+      "desc": "Configure material ripple (disable it by setting it to 'false' or supply a config object)",
+      "default": true,
+      "examples": [
+        false,
+        "{ center: true, color: 'teal' }"
+      ]
+    },
+    "icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed",
+      "examples": [
+        "map",
+        "ion-add"
+      ]
+    },
+    "label": {
+      "type": [
+        "Number",
+        "String"
+      ],
+      "desc": "A number or string to label the tab",
+      "examples": [
+        "Home"
+      ]
+    },
+    "alert": {
+      "type": [
+        "Boolean",
+        "String"
+      ],
+      "desc": "Adds an alert symbol to the tab, notifying the user there are some updates; If its value is not a Boolean, then you can specify a color",
+      "examples": [
+        "alert",
+        "alert=\"purple\""
+      ]
+    },
+    "name": {
+      "type": [
+        "Number",
+        "String"
+      ],
+      "desc": "Panel name",
+      "default": "A random UID",
+      "examples": [
+        "home",
+        ":name=\"1\""
+      ]
+    },
+    "no-caps": {
+      "type": "Boolean",
+      "desc": "Turns off capitalizing all letters within the tab (which is the default)"
+    },
+    "tabindex": {
+      "type": [
+        "Number",
+        "String"
+      ],
+      "desc": "Tabindex HTML attribute value",
+      "examples": [
+        "0",
+        "100"
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    }
+  },
+  "events": {
+    "click": {
+      "desc": "Emitted when user clicks/taps on the component",
+      "params": {
+        "evt": {
+          "type": "Object",
+          "desc": "JS event object",
+          "required": true
+        }
+      }
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Suggestion: QMenu, QTooltip"
+    }
+  }
+}
