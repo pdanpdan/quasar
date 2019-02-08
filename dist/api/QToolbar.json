@@ -1,0 +1,14 @@
+{
+  "type": "component",
+  "props": {
+    "inset": {
+      "type": "Boolean",
+      "desc": "Apply an inset to content (useful for subsequent toolbars)"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Default slot in the devland unslotted content of the component"
+    }
+  }
+}
