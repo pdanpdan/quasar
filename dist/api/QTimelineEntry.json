@@ -1,0 +1,61 @@
+{
+  "type": "component",
+  "props": {
+    "heading": {
+      "type": "Boolean",
+      "desc": "Defines a heading timeline item"
+    },
+    "tag": {
+      "type": "String",
+      "desc": "Tag to use, if of type 'heading' only",
+      "default": "h3",
+      "examples": [
+        "h1"
+      ]
+    },
+    "side": {
+      "type": "String",
+      "desc": "Side to place the timeline entry; Works only if QTimeline layout is loose.",
+      "default": "right",
+      "values": [
+        "left",
+        "right"
+      ]
+    },
+    "icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed",
+      "examples": [
+        "map",
+        "ion-add"
+      ]
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "title": {
+      "type": "String",
+      "desc": "Title of timeline entry",
+      "examples": [
+        "December party"
+      ]
+    },
+    "subtitle": {
+      "type": "String",
+      "desc": "Subtitle of timeline entry",
+      "examples": [
+        "All invited"
+      ]
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Timeline entry content"
+    }
+  }
+}

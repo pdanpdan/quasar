@@ -1,0 +1,63 @@
+{
+  "type": "component",
+  "props": {
+    "to": {
+      "type": [
+        "String",
+        "Object"
+      ],
+      "desc": "Equivalent to Vue Router <router-link> 'to' property",
+      "examples": [
+        "/home/dashboard",
+        ":to=\"{ name: 'my-route-name' }\""
+      ]
+    },
+    "exact": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'exact' property"
+    },
+    "append": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'append' property"
+    },
+    "replace": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'replace' property"
+    },
+    "active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-active-class"
+      ]
+    },
+    "exact-active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-exact-active-class"
+      ]
+    },
+    "label": {
+      "type": "String",
+      "desc": "The label text for the breadcrumb",
+      "examples": [
+        "Home",
+        "Index"
+      ]
+    },
+    "icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed",
+      "examples": [
+        "map",
+        "ion-add"
+      ]
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "This is where custom content goes, unless 'icon' and 'label' props are not enough"
+    }
+  }
+}
