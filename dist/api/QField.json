@@ -1,0 +1,168 @@
+{
+  "type": "component",
+  "props": {
+    "error": {
+      "type": "Boolean",
+      "desc": "Does field has validation errors?"
+    },
+    "error-message": {
+      "type": "String",
+      "desc": "Validation error message (gets displayed only if 'error' is set to 'true')",
+      "examples": [
+        "Username must have at least 5 characters"
+      ]
+    },
+    "rules": {
+      "type": "Array",
+      "desc": "Array of Functions/Strings; If String, then it must be a name of one of the embedded validation rules",
+      "examples": [
+        ":rules=\"[ val => val.length <= 3 || 'Please use maximum 3 characters' ]\"",
+        ":rules=\"[ 'fulltime' ]\""
+      ]
+    },
+    "lazy-rules": {
+      "type": "Boolean",
+      "desc": "Check validation status against the 'rules' only after field loses focus for first time"
+    },
+    "label": {
+      "type": "String",
+      "desc": "A text label that will “float” up above the input field, once the field gets focus",
+      "examples": [
+        "Username"
+      ]
+    },
+    "stack-label": {
+      "type": "Boolean",
+      "desc": "Label will be always shown above the field regardless of field content (if any)"
+    },
+    "hint": {
+      "type": "String",
+      "desc": "Helper (hint) text which gets placed below your wrapped form component",
+      "examples": [
+        "Fill in between 3 and 12 characters"
+      ]
+    },
+    "hide-hint": {
+      "type": "Boolean",
+      "desc": "Hide the helper (hint) text when field doesn't has focus"
+    },
+    "prefix": {
+      "type": "String",
+      "desc": "Prefix",
+      "examples": [
+        "$"
+      ]
+    },
+    "suffix": {
+      "type": "String",
+      "desc": "Suffix",
+      "examples": [
+        "@gmail.com"
+      ]
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "bg-color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "dark": {
+      "type": "Boolean",
+      "desc": "Notify the component that the background is a dark color"
+    },
+    "filled": {
+      "type": "Boolean",
+      "desc": "Use 'filled' design for the field"
+    },
+    "outlined": {
+      "type": "Boolean",
+      "desc": "Use 'outlined' design for the field"
+    },
+    "borderless": {
+      "type": "Boolean",
+      "desc": "Use 'borderless' design for the field"
+    },
+    "standout": {
+      "type": "Boolean",
+      "desc": "Use 'standout' design for the field"
+    },
+    "bottom-slots": {
+      "type": "Boolean",
+      "desc": "Enables bottom slots ('error', 'hint', 'counter')"
+    },
+    "rounded": {
+      "type": "Boolean",
+      "desc": "Applies a small standard border-radius for a squared shape of the component"
+    },
+    "square": {
+      "type": "Boolean",
+      "desc": "Remove border-radius so borders are squared; Overrides 'rounded' prop"
+    },
+    "dense": {
+      "type": "Boolean",
+      "desc": "Dense mode; occupies less space"
+    },
+    "items-aligned": {
+      "type": "Boolean",
+      "desc": "Align content to match QItem"
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    },
+    "readonly": {
+      "type": "Boolean",
+      "desc": "Put component in readonly mode"
+    }
+  },
+  "methods": {
+    "resetValidation": {
+      "desc": "Reset validation status"
+    },
+    "validate": {
+      "desc": "Trigger a validation",
+      "params": {
+        "value": {
+          "type": "Any",
+          "desc": "Optional value to validate against"
+        }
+      }
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Field main content"
+    },
+    "prepend": {
+      "desc": "Prepend inner field; Suggestions: QIcon, QBtn"
+    },
+    "append": {
+      "desc": "Append to inner field; Suggestions: QIcon, QBtn"
+    },
+    "before": {
+      "desc": "Prepend outer field; Suggestions: QIcon, QBtn"
+    },
+    "after": {
+      "desc": "Append outer field; Suggestions: QIcon, QBtn"
+    },
+    "error": {
+      "desc": "Slot for errors; Enabled only if 'bottom-slots' prop is used; Suggestion: <div>"
+    },
+    "hint": {
+      "desc": "Slot for hint text; Enabled only if 'bottom-slots' prop is used; Suggestion: <div>"
+    },
+    "counter": {
+      "desc": "Slot for counter text; Enabled only if 'bottom-slots' prop is used; Suggestion: <div>"
+    }
+  }
+}
