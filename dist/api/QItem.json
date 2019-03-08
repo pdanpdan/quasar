@@ -1,0 +1,107 @@
+{
+  "type": "component",
+  "behavior": {
+    "$listeners": {
+      "desc": "All native events are being propagated (you don't need the '.native' modifier)"
+    }
+  },
+  "props": {
+    "to": {
+      "type": [
+        "String",
+        "Object"
+      ],
+      "desc": "Equivalent to Vue Router <router-link> 'to' property",
+      "examples": [
+        "/home/dashboard",
+        ":to=\"{ name: 'my-route-name' }\""
+      ]
+    },
+    "exact": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'exact' property"
+    },
+    "append": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'append' property"
+    },
+    "replace": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'replace' property"
+    },
+    "active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-active-class"
+      ]
+    },
+    "exact-active-class": {
+      "type": "String",
+      "desc": "Equivalent to Vue Router <router-link> 'active-class' property",
+      "examples": [
+        "my-exact-active-class"
+      ]
+    },
+    "active": {
+      "type": "Boolean",
+      "desc": "Put item into 'active' state"
+    },
+    "dark": {
+      "type": "Boolean",
+      "desc": "Notify the component that the background is a dark color"
+    },
+    "clickable": {
+      "type": "Boolean",
+      "desc": "Is QItem clickable? If it's the case, then it will add hover effects and emit 'click' events"
+    },
+    "dense": {
+      "type": "Boolean",
+      "desc": "Dense mode; occupies less space"
+    },
+    "inset-level": {
+      "type": "Number",
+      "desc": "Apply an inset; Useful when avatar/left side is missing but you want to align content with other items that do have a left side, or when you're building a menu",
+      "examples": [
+        ":inset-level=\"1\""
+      ]
+    },
+    "tabindex": {
+      "type": [
+        "Number",
+        "String"
+      ],
+      "desc": "Tabindex HTML attribute value",
+      "examples": [
+        "0",
+        "100"
+      ]
+    },
+    "tag": {
+      "type": "String",
+      "desc": "HTML tag to render; Suggestion: use 'label' when encapsulating a QCheckbox/QRadio/QToggle so that when user clicks/taps on the whole item it will trigger a model change for the mentioned components",
+      "default": "div",
+      "examples": [
+        "a",
+        "label"
+      ]
+    },
+    "manual-focus": {
+      "type": "Boolean",
+      "desc": "Put item into a manual focus state; Enables 'focused' prop which will determine if item is focused or not, rather than relying on native hover/focus states"
+    },
+    "focused": {
+      "type": "Boolean",
+      "desc": "Determines focus state, ONLY if 'manual-focus' is enabled / set to true"
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "This is where QItem's content goes"
+    }
+  }
+}
