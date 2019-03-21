@@ -1,0 +1,29 @@
+{
+  "type": "component",
+  "behavior": {
+    "$listeners": {
+      "desc": "All native events are being propagated (you don't need the '.native' modifier)"
+    }
+  },
+  "props": {
+    "name": {
+      "type": "Any",
+      "desc": "Panel name",
+      "required": true,
+      "examples": [
+        "accounts",
+        "firstPanel",
+        ":name=\"1\""
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Default slot in the devland unslotted content of the component"
+    }
+  }
+}
