@@ -1,0 +1,131 @@
+{
+  "type": "component",
+  "behavior": {
+    "$listeners": {
+      "desc": "All native events are being propagated (you don't need the '.native' modifier)"
+    }
+  },
+  "props": {
+    "name": {
+      "type": "Any",
+      "desc": "Panel name",
+      "required": true,
+      "examples": [
+        "accounts",
+        "firstPanel",
+        ":name=\"1\""
+      ]
+    },
+    "disable": {
+      "type": "Boolean",
+      "desc": "Put component in disabled mode"
+    },
+    "icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed unless you are using 'img:' prefix",
+      "examples": [
+        "map",
+        "ion-add",
+        "img:https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg",
+        "img:statics/path/to/some_image.png"
+      ]
+    },
+    "color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "title": {
+      "type": "String",
+      "desc": "Step title",
+      "required": true,
+      "examples": [
+        "Ad Groups",
+        "Payment"
+      ]
+    },
+    "caption": {
+      "type": "String",
+      "desc": "Step’s additional information that appears beneath the title",
+      "examples": [
+        "Create an account",
+        "Payment details"
+      ]
+    },
+    "done-icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed unless you are using 'img:' prefix",
+      "examples": [
+        "map",
+        "ion-add",
+        "img:https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg",
+        "img:statics/path/to/some_image.png"
+      ]
+    },
+    "done-color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "active-icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed unless you are using 'img:' prefix",
+      "examples": [
+        "map",
+        "ion-add",
+        "img:https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg",
+        "img:statics/path/to/some_image.png"
+      ]
+    },
+    "active-color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "error-icon": {
+      "type": "String",
+      "desc": "Icon name following Quasar convention; make sure you have the icon library installed unless you are using 'img:' prefix",
+      "examples": [
+        "map",
+        "ion-add",
+        "img:https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg",
+        "img:statics/path/to/some_image.png"
+      ]
+    },
+    "error-color": {
+      "type": "String",
+      "desc": "Color name for component from the Quasar Color Palette",
+      "examples": [
+        "primary",
+        "teal-10"
+      ]
+    },
+    "header-nav": {
+      "type": "Boolean",
+      "default": true,
+      "desc": "Allow navigation through the header"
+    },
+    "done": {
+      "type": "Boolean",
+      "desc": "Mark the step as 'done'"
+    },
+    "error": {
+      "type": "Boolean",
+      "desc": "Mark the step as having an error"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "The content of the step; Can also contain a QStepperNavigation if you want to handle step navigation and don't have a global navigation in place"
+    }
+  }
+}
