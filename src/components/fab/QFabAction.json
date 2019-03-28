@@ -1,0 +1,66 @@
+{
+  "behavior": {
+    "$listeners": true
+  },
+
+  "props": {
+    "icon": {
+      "extends": "icon",
+      "required": true
+    },
+
+    "outline": {
+      "type": "Boolean",
+      "desc": "Use 'outline' design for Fab button"
+    },
+
+    "push": {
+      "type": "Boolean",
+      "desc": "Use 'push' design for Fab button"
+    },
+
+    "flat": {
+      "type": "Boolean",
+      "desc": "Use 'flat' design for Fab button"
+    },
+
+    "color": {
+      "extends": "color"
+    },
+
+    "text-color": {
+      "extends": "text-color"
+    },
+
+    "glossy": {
+      "type": "Boolean",
+      "desc": "Apply the glossy effect over the button"
+    },
+
+    "to": {
+      "type": [ "String", "Object" ],
+      "desc": "Equivalent to Vue Router <router-link> 'to' property",
+      "examples": [
+        "/home/dashboard",
+        ":to=\"{ name: 'my-route-name' }\""
+      ]
+    },
+
+    "replace": {
+      "type": "Boolean",
+      "desc": "Equivalent to Vue Router <router-link> 'replace' property"
+    }
+  },
+
+  "slots": {
+    "default": {
+      "desc": "Suggestion for this slot: QTooltip"
+    }
+  },
+
+  "events": {
+    "click": {
+      "extends": "click"
+    }
+  }
+}

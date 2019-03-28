@@ -1,0 +1,83 @@
+{
+  "mixins": [ "mixins/model-toggle", "mixins/portal" ],
+
+  "props": {
+    "persistent": {
+      "type": "Boolean",
+      "desc": "User cannot dismiss Dialog if clicking outside of it or hitting ESC key; Also, an app route change won't dismiss it"
+    },
+
+    "no-esc-dismiss": {
+      "type": "Boolean",
+      "desc": "User cannot dismiss Dialog by hitting ESC key; No need to set it if 'persistent' prop is also set"
+    },
+
+    "no-backdrop-dismiss": {
+      "type": "Boolean",
+      "desc": "User cannot dismiss Dialog by clicking outside of it; No need to set it if 'persistent' prop is also set"
+    },
+
+    "no-route-dismiss": {
+      "type": "Boolean",
+      "desc": "Changing route app won't dismiss Dialog; No need to set it if 'persistent' prop is also set"
+    },
+
+    "auto-close": {
+      "type": "Boolean",
+      "desc": "Allows any click/tap in the dialog to close it; Useful instead of attaching events to each item that should close the dialog on click/tap"
+    },
+
+    "seamless": {
+      "type": "Boolean",
+      "desc": "Put Dialog into seamless mode; Does not use a backdrop so user is able to interact with the rest of the page too"
+    },
+
+    "maximized": {
+      "type": "Boolean",
+      "desc": "Put Dialog into maximized mode"
+    },
+
+    "full-width": {
+      "type": "Boolean",
+      "desc": "Dialog will try to render with same width as the window"
+    },
+
+    "full-height": {
+      "type": "Boolean",
+      "desc": "Dialog will try to render with same height as the window"
+    },
+
+    "position": {
+      "type": "String",
+      "desc": "",
+      "default": "standard",
+      "values": [ "standard", "top", "right", "bottom", "left" ],
+      "examples": [ "top", "right" ]
+    },
+
+    "transition-show": {
+      "extends": "transition",
+      "default": "scale"
+    },
+
+    "transition-hide": {
+      "extends": "transition",
+      "default": "scale"
+    },
+
+    "no-refocus": {
+      "type": "Boolean",
+      "desc": "(Accessibility) When Dialog gets hidden, do not refocus on the DOM element that previously had focus"
+    }
+  },
+
+  "events": {
+    "shake": {
+      "desc": "Shakes up the Dialog in order to catch user's attention"
+    },
+
+    "escape-key": {
+      "desc": "Emitted when ESC key is pressed; Does not gets emitted if Dialog is 'persistent' or it has 'no-esc-key' set"
+    }
+  }
+}
