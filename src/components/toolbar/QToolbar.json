@@ -1,0 +1,18 @@
+{
+  "behavior": {
+    "$listeners": true
+  },
+
+  "props": {
+    "inset": {
+      "type": "Boolean",
+      "desc": "Apply an inset to content (useful for subsequent toolbars)"
+    }
+  },
+
+  "slots": {
+    "default": {
+      "extends": "default"
+    }
+  }
+}

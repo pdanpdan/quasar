@@ -1,0 +1,34 @@
+{
+  "type": "component",
+  "behavior": {
+    "$listeners": {
+      "desc": "All native events are being propagated (you don't need the '.native' modifier)"
+    }
+  },
+  "props": {
+    "align": {
+      "type": "String",
+      "desc": "Specify how to align the actions",
+      "default": "left",
+      "values": [
+        "left",
+        "center",
+        "right",
+        "between",
+        "around"
+      ],
+      "examples": [
+        "between"
+      ]
+    },
+    "vertical": {
+      "type": "Boolean",
+      "desc": "Display actions one below the other"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Suggestions: QBtn"
+    }
+  }
+}

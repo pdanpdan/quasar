@@ -1,0 +1,37 @@
+{
+  "behavior": {
+    "$listeners": true
+  },
+
+  "props": {
+    "name": {
+      "type": "String",
+      "desc": "Name of the icon, following Quasar convention",
+      "examples": [ "map", "ion-add" ]
+    },
+
+    "color": {
+      "extends": "color"
+    },
+
+    "size": {
+      "extends": "size"
+    },
+
+    "left": {
+      "type": "Boolean",
+      "desc": "Useful if icon is on the left side of something: applies a standard margin on the right side of Icon"
+    },
+
+    "right": {
+      "type": "Boolean",
+      "desc": "Useful if icon is on the right side of something: applies a standard margin on the left side of Icon"
+    }
+  },
+
+  "slots": {
+    "default": {
+      "desc": "Suggestions: QTooltip or QMenu"
+    }
+  }
+}
