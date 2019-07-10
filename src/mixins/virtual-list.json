@@ -1,0 +1,44 @@
+{
+  "props": {
+    "options": {
+      "type": "Array",
+      "desc": "Available options that the user can select from",
+      "default": "[]",
+      "examples": [
+        ":options=\"[ 'BMW', 'Samsung Phone' ]\"",
+        ":options=\"[ { label: 'BMW', value: 'car' }, { label: 'Samsung Phone', value: 'phone' } ]\""
+      ],
+      "category": "options"
+    },
+
+    "virtualListSliceSize": {
+      "type": "Number",
+      "desc": "Number of options to render in the virtual list",
+      "default": "31",
+      "examples": [
+        ":virtual-list-slice-size=\"60\""
+      ],
+      "category": "virtual-list"
+    },
+
+    "virtualListItemDefaultHeight": {
+      "type": "Number",
+      "desc": "Default height of an option, in px - will be used for rendering the initial list height",
+      "default": "24",
+      "examples": [
+        ":virtual-list-item-default-height=\"48\""
+      ],
+      "category": "virtual-list"
+    },
+
+    "virtualListMaxPadding": {
+      "type": "Number",
+      "desc": "Maximum accepted height for one padding element",
+      "default": "100000",
+      "examples": [
+        ":virtual-list-max-padding=\"10000\""
+      ],
+      "category": "virtual-list"
+    }
+  }
+}
