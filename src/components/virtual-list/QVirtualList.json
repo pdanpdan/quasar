@@ -1,0 +1,95 @@
+{
+  "mixins": [ "mixins/virtual-list" ],
+
+  "props": {
+    "tag": {
+      "type": "String",
+      "desc": "HTML tag to render as container",
+      "default": "div",
+      "examples": [ "a", "label" ],
+      "category": "content"
+    },
+
+    "label": {
+      "type": [ "Function", "String" ],
+      "desc": "Property of option which holds the 'label'",
+      "default": "label",
+      "examples": [
+        "label=\"itemName\"",
+        ":label=\"(item) => item === null ? 'Null value' : item.itemName\""
+      ],
+      "category": "content"
+    },
+
+    "sanitize": {
+      "extends": "sanitize",
+      "desc": "Force use of textContent instead of innerHTML to render list items; Use it when the list items might be unsafe (from user input); Does NOT apply when using 'default' slot!",
+      "category": "content"
+    },
+
+    "dense": {
+      "extends": "dense",
+      "desc": "Dense mode for list items; occupies less space",
+      "category": "style"
+    },
+
+    "dark": {
+      "type": "Boolean",
+      "desc": "List items will be colored with a dark color",
+      "category": "style"
+    },
+
+    "bg-placeholder": {
+      "type": "Boolean",
+      "desc": "The list will show a background simulating scroll while rendering new list items. Requires a background color to be set on the virtual list or on its parent",
+      "category": "style"
+    },
+
+    "scrollTarget": {
+      "type": [ "Element", "String" ],
+      "desc": "CSS selector or DOM element to be used as scroll container instead of the root element of virtual list",
+      "examples": [
+        ":scroll-target=\"$refs.scrollTarget\"",
+        "scroll-target=\"body\""
+      ],
+      "category": "behavior"
+    }
+  },
+
+  "scopedSlots": {
+    "default": {
+      "desc": "Customize how options are rendered; Suggestion: QItem",
+      "scope": {
+        "index": {
+          "type": "Number",
+          "desc": "Option index",
+          "examples": [ 0 ]
+        },
+        "opt": {
+          "type": "Any",
+          "desc": "Option -- its value is taken from 'options' prop",
+          "__exemption": [ "examples" ]
+        },
+        "itemProps": {
+          "type": "Object",
+          "desc": "Computed properties passed down to QItem",
+          "__exemption": [ "examples" ]
+        }
+      }
+    }
+  },
+
+  "methods": {
+    "scrollTo": {
+      "desc": "Scroll the list to the item with the specified index (0 based)",
+      "params": {
+        "key": {
+          "type": [ "String", "Number" ],
+          "desc": "The index of the list item (0 based)",
+          "required": true,
+          "examples": [ "1", 23 ]
+        }
+      }
+    }
+  }
+}
