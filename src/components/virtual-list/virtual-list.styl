@@ -1,0 +1,53 @@
+.q-virtual-list
+  background inherit
+
+  &:focus
+    outline none
+
+  &__content
+    position relative
+    background-color inherit
+
+  &__padding--bg
+    background linear-gradient(
+      transparent,
+      transparent 20%,
+      rgba(128, 128, 128, .03) 20%,
+      rgba(128, 128, 128, .08) 50%,
+      rgba(128, 128, 128, .03) 80%,
+      transparent 80%,
+      transparent
+    )
+    background-size 100% 50px
+
+.q-virtual-list--horizontal
+  display flex
+  flex-direction row
+  flex-wrap nowrap
+
+  .q-virtual-list__content
+    display flex
+    flex-direction row
+    flex-wrap nowrap
+
+  .q-virtual-list__padding,
+  .q-virtual-list__content
+    flex 0 0 auto
+    align-items stretch
+
+  .q-virtual-list__padding--bg
+    background linear-gradient(
+      to left,
+      transparent,
+      transparent 20%,
+      rgba(128, 128, 128, .03) 20%,
+      rgba(128, 128, 128, .08) 50%,
+      rgba(128, 128, 128, .03) 80%,
+      transparent 80%,
+      transparent
+    )
+    background-size 50px 100%
+
+body.desktop
+  .q-virtual-list:focus
+    box-shadow $shadow-1
