@@ -1,0 +1,61 @@
+{
+  "mixins": [ "mixins/virtual-list" ],
+
+  "props": {
+    "tag": {
+      "type": "String",
+      "desc": "HTML tag to render as container",
+      "default": "div",
+      "examples": [ "div", "q-list" ],
+      "category": "content"
+    },
+
+    "bg-placeholder": {
+      "type": "Boolean",
+      "desc": "The list will show a background simulating scroll while rendering new list items. Requires a background color to be set on the virtual list or on its parent",
+      "category": "style"
+    },
+
+    "scrollTarget": {
+      "type": [ "Element", "String" ],
+      "desc": "CSS selector or DOM element to be used as scroll container instead of the root element of virtual list",
+      "examples": [
+        ":scroll-target=\"$refs.scrollTarget\"",
+        "scroll-target=\"body\""
+      ],
+      "category": "behavior"
+    }
+  },
+
+  "scopedSlots": {
+    "default": {
+      "desc": "Template slot for defining the list item; Suggestion: QItem",
+      "scope": {
+        "index": {
+          "type": "Number",
+          "desc": "Item index in the options list",
+          "examples": [ 0 ]
+        },
+        "item": {
+          "type": "Any",
+          "desc": "Item data -- its value is taken from 'options' prop",
+          "__exemption": [ "examples" ]
+        }
+      }
+    }
+  },
+
+  "methods": {
+    "scrollTo": {
+      "desc": "Scroll the list to the item with the specified index (0 based)",
+      "params": {
+        "key": {
+          "type": [ "String", "Number" ],
+          "desc": "The index of the list item (0 based)",
+          "required": true,
+          "examples": [ "1", 23 ]
+        }
+      }
+    }
+  }
+}
