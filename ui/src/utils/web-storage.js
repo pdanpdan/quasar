@@ -28,7 +28,7 @@ function encode (value) {
   return value
 }
 
-function decode (value) {
+function decode (value, reviverFn) {
   let type, length, source
 
   length = value.length
@@ -57,7 +57,7 @@ function decode (value) {
       return '' + source
 
     case '__q_objt':
-      return JSON.parse(source)
+      return JSON.parse(source, reviverFn)
 
     default:
       // hmm, we reached here, we don't know the type,
@@ -84,20 +84,20 @@ export function getEmptyStorage () {
 export function getStorage (type) {
   const
     webStorage = window[type + 'Storage'],
-    get = key => {
+    get = (key, reviverFn) => {
       const item = webStorage.getItem(key)
       return item
-        ? decode(item)
+        ? decode(item, reviverFn)
         : null
     }
 
   return {
-    has: key => webStorage.getItem(key) !== null,
+    has: (key, reviverFn) => webStorage.getItem(key, reviverFn) !== null,
     getLength: () => webStorage.length,
     getItem: get,
-    getIndex: index => {
+    getIndex: (index, reviverFn) => {
       return index < webStorage.length
-        ? get(webStorage.key(index))
+        ? get(webStorage.key(index), reviverFn)
         : null
     },
     getKey: index => {
@@ -105,13 +105,13 @@ export function getStorage (type) {
         ? webStorage.key(index)
         : null
     },
-    getAll: () => {
+    getAll: reviverFn => {
       let key
       const result = {}, len = webStorage.length
 
       for (let i = 0; i < len; i++) {
         key = webStorage.key(i)
-        result[key] = get(key)
+        result[key] = get(key, reviverFn)
       }
 
       return result
