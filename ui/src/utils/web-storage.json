@@ -12,6 +12,27 @@
           "desc": "Entry key",
           "required": true,
           "examples": [ "userId" ]
+        },
+        "reviverFn": {
+          "type": "Function",
+          "desc": "Transformation function to be used for objects - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter",
+          "params": {
+            "key": {
+              "type": "Any",
+              "desc": "Key in object",
+              "__exemption": [ "examples" ]
+            },
+            "value": {
+              "type": "Any",
+              "desc": "Value in that key",
+              "__exemption": [ "examples" ]
+            }
+          },
+          "returns": {
+            "type": "Any",
+            "desc": "Transformed value",
+            "__exemption": [ "examples" ]
+          }
         }
       },
       "returns": {
@@ -38,6 +59,27 @@
           "desc": "Entry key",
           "required": true,
           "examples": [ "userId" ]
+        },
+        "reviverFn": {
+          "type": "Function",
+          "desc": "Transformation function to be used for objects - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter",
+          "params": {
+            "key": {
+              "type": "Any",
+              "desc": "Key in object",
+              "__exemption": [ "examples" ]
+            },
+            "value": {
+              "type": "Any",
+              "desc": "Value in that key",
+              "__exemption": [ "examples" ]
+            }
+          },
+          "returns": {
+            "type": "Any",
+            "desc": "Transformed value",
+            "__exemption": [ "examples" ]
+          }
         }
       },
       "returns": {
@@ -56,6 +98,27 @@
           "desc": "Entry index",
           "required": true,
           "examples": [ 5 ]
+        },
+        "reviverFn": {
+          "type": "Function",
+          "desc": "Transformation function to be used for objects - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter",
+          "params": {
+            "key": {
+              "type": "Any",
+              "desc": "Key in object",
+              "__exemption": [ "examples" ]
+            },
+            "value": {
+              "type": "Any",
+              "desc": "Value in that key",
+              "__exemption": [ "examples" ]
+            }
+          },
+          "returns": {
+            "type": "Any",
+            "desc": "Transformed value",
+            "__exemption": [ "examples" ]
+          }
         }
       },
       "returns": {
@@ -86,6 +149,29 @@
 
     "getAll": {
       "desc": "Retrieve all items in storage",
+      "params": {
+        "reviverFn": {
+          "type": "Function",
+          "desc": "Transformation function to be used for objects - see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Using_the_reviver_parameter",
+          "params": {
+            "key": {
+              "type": "Any",
+              "desc": "Key in object",
+              "__exemption": [ "examples" ]
+            },
+            "value": {
+              "type": "Any",
+              "desc": "Value in that key",
+              "__exemption": [ "examples" ]
+            }
+          },
+          "returns": {
+            "type": "Any",
+            "desc": "Transformed value",
+            "__exemption": [ "examples" ]
+          }
+        }
+      },
       "returns": {
         "type": "Object",
         "desc": "Object syntax: item name as Object key and its value",
