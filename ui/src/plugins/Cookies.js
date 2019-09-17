@@ -12,7 +12,7 @@ function stringifyCookieValue (value) {
   return encode(value === Object(value) ? JSON.stringify(value) : '' + value)
 }
 
-function read (string) {
+function read (string, reviverFn) {
   if (string === '') {
     return string
   }
@@ -28,7 +28,7 @@ function read (string) {
   string = decode(string.replace(/\+/g, ' '))
 
   try {
-    string = JSON.parse(string)
+    string = JSON.parse(string, reviverFn)
   }
   catch (e) {}
 
@@ -110,12 +110,13 @@ function set (key, val, opts = {}, ssr) {
     let all = ssr.req.headers.cookie || ''
 
     if (expire !== void 0 && expireValue < 0) {
-      const val = get(key, ssr)
-      if (val !== undefined) {
+      const oldVal = get(key, ssr, void 0, true)
+      if (oldVal !== undefined) {
+        const replaceKeyValue = `${encode(key)}=${stringifyCookieValue(oldVal)}`
         all = all
-          .replace(`${key}=${val}; `, '')
-          .replace(`; ${key}=${val}`, '')
-          .replace(`${key}=${val}`, '')
+          .replace(`${replaceKeyValue}; `, '')
+          .replace(`; ${replaceKeyValue}`, '')
+          .replace(`${replaceKeyValue}`, '')
       }
     }
     else {
@@ -131,7 +132,7 @@ function set (key, val, opts = {}, ssr) {
   }
 }
 
-function get (key, ssr) {
+function get (key, ssr, reviverFn, raw) {
   const
     cookieSource = ssr ? ssr.req.headers : document,
     cookies = cookieSource.cookie ? cookieSource.cookie.split('; ') : [],
@@ -149,10 +150,10 @@ function get (key, ssr) {
     cookie = parts.join('=')
 
     if (!key) {
-      result[name] = cookie
+      result[name] = read(cookie, reviverFn)
     }
     else if (key === name) {
-      result = read(cookie)
+      result = raw === true ? cookie : read(cookie, reviverFn)
       break
     }
   }
@@ -169,17 +170,17 @@ function remove (key, options, ssr) {
   )
 }
 
-function has (key, ssr) {
-  return get(key, ssr) !== null
+function has (key, ssr, reviverFn) {
+  return get(key, ssr, reviverFn) !== null
 }
 
 export function getObject (ssr) {
   return {
-    get: key => get(key, ssr),
+    get: (key, reviverFn) => get(key, ssr, reviverFn),
     set: (key, val, opts) => set(key, val, opts, ssr),
-    has: key => has(key, ssr),
+    has: (key, reviverFn) => has(key, ssr, reviverFn),
     remove: (key, options) => remove(key, options, ssr),
-    getAll: () => get(null, ssr)
+    getAll: reviverFn => get(null, ssr, reviverFn)
   }
 }
 
