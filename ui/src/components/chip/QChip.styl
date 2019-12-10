@@ -30,8 +30,13 @@ $chip-height = 2em
     margin-right: .2em
     border-radius: 16px
 
+    ~ .q-avatar,
+    &--right
+      margin-left: 0.2em
+      margin-right: -0.45em
+
   &--selected
-    .q-avatar
+    .q-avatar:first-child:not(.q-avatar--right)
       display: none
 
   &__icon
@@ -67,6 +72,11 @@ $chip-height = 2em
       margin-right: .1em
       border-radius: 12px
 
+      ~ .q-avatar,
+      &--right
+        margin-left: 0.1em
+        margin-right: -0.27em
+
     .q-chip__icon
       font-size: 1.25em
       &--left
@@ -76,8 +86,13 @@ $chip-height = 2em
 
   &--square
     border-radius: $generic-border-radius
+
     .q-avatar
       border-radius: ($generic-border-radius - 1px) 0 0 ($generic-border-radius - 1px)
+
+      ~ .q-avatar,
+      &--right
+        border-radius: 0 ($generic-border-radius - 1px) ($generic-border-radius - 1px) 0
 
 body.desktop .q-chip--clickable:focus
   box-shadow: $shadow-1
