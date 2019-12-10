@@ -118,6 +118,19 @@
           </q-avatar>
           Emails
         </q-chip>
+        <q-chip v-bind="chipProps">
+          <q-avatar icon="bookmark" color="red" text-color="white" />
+          Bookmark
+          <q-avatar color="red" text-color="white">
+            50
+          </q-avatar>
+        </q-chip>
+        <q-chip v-bind="chipProps">
+          Bookmark
+          <q-avatar color="red" text-color="white" class="q-avatar--right">
+            50
+          </q-avatar>
+        </q-chip>
       </div>
 
       <p>Tooltip test</p>
@@ -159,6 +172,19 @@
           </q-avatar>
           Emails
         </q-chip>
+        <q-chip v-bind="chipProps" square>
+          <q-avatar icon="bookmark" color="red" text-color="white" />
+          Bookmark
+          <q-avatar color="red" text-color="white">
+            50
+          </q-avatar>
+        </q-chip>
+        <q-chip v-bind="chipProps" square>
+          Bookmark
+          <q-avatar color="red" text-color="white" class="q-avatar--right">
+            50
+          </q-avatar>
+        </q-chip>
       </div>
 
       <p>Dense</p>
@@ -192,6 +218,19 @@
           </q-avatar>
           Emails
         </q-chip>
+        <q-chip v-bind="chipProps" dense>
+          <q-avatar icon="bookmark" color="red" text-color="white" />
+          Bookmark
+          <q-avatar color="red" text-color="white">
+            50
+          </q-avatar>
+        </q-chip>
+        <q-chip v-bind="chipProps" dense>
+          Bookmark
+          <q-avatar color="red" text-color="white" class="q-avatar--right">
+            50
+          </q-avatar>
+        </q-chip>
       </div>
 
       <p>Dense Square</p>
@@ -224,6 +263,19 @@
             <img src="https://cdn.quasar.dev/img/boy-avatar.png">
           </q-avatar>
           Emails
+        </q-chip>
+        <q-chip v-bind="chipProps" square dense>
+          <q-avatar icon="bookmark" color="red" text-color="white" />
+          Bookmark
+          <q-avatar color="red" text-color="white">
+            50
+          </q-avatar>
+        </q-chip>
+        <q-chip v-bind="chipProps" square dense>
+          Bookmark
+          <q-avatar color="red" text-color="white" class="q-avatar--right">
+            50
+          </q-avatar>
         </q-chip>
       </div>
 
@@ -281,6 +333,28 @@
 
         <q-chip v-bind="chipProps" dense :selected.sync="selected5" removable>
           <q-avatar color="red" text-color="white" icon="directions" />
+          Bookmark
+        </q-chip>
+
+        <q-chip v-bind="chipProps" :selected.sync="selected6" clickable>
+          <q-avatar icon="bookmark" color="red" text-color="white" />
+          Bookmarks
+          <q-avatar color="red" text-color="white">
+            50
+          </q-avatar>
+        </q-chip>
+
+        <q-chip v-bind="chipProps" :selected.sync="selected6" clickable>
+          Bookmarks
+          <q-avatar color="red" text-color="white" class="q-avatar--right">
+            50
+          </q-avatar>
+        </q-chip>
+
+        <q-chip v-bind="chipProps" :selected.sync="selected7" clickable dense>
+          <q-avatar color="primary" text-color="white">
+            J
+          </q-avatar>
           Bookmark
         </q-chip>
       </div>
@@ -392,6 +466,8 @@ export default {
       selected3: false,
       selected4: false,
       selected5: false,
+      selected6: false,
+      selected7: false,
 
       close1: true,
       close2: true,
