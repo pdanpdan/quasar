@@ -1,0 +1,126 @@
+.q-carousel
+  background-color: #fff // needed for fullscreen
+  height: 400px
+
+  &__slide
+    min-height: 100%
+    padding: 16px
+    background-size: cover
+    background-position: 50%
+
+  &__slides-container
+    height: 100%
+    position: relative
+
+    > .q-panel > .q-carousel__slide
+      height: auto
+
+  &__control
+    color: #fff
+
+  &__prev-arrow,
+  &__next-arrow
+    top: 50%
+    transform: translateY(-50%)
+    .q-icon
+      font-size: 46px
+
+  &__prev-arrow
+    left: 4px
+  &__next-arrow
+    right: 4px
+
+  &__prev-arrow--vertical,
+  &__next-arrow--vertical
+    left: 50%
+    transform: translateX(-50%)
+
+    .q-icon
+      font-size: 46px
+
+  &__prev-arrow--vertical
+    top: 4px
+  &__next-arrow--vertical
+    bottom: 4px
+
+  &__navigation
+    &--top,
+    &--bottom
+      left: 0
+      right: 0
+
+    &--top
+      padding: 8px 8px 0
+      top: 0
+
+    &--bottom
+      padding: 0 8px 8px
+      bottom: 0
+
+    &--left,
+    &--right
+      top: 0
+      bottom: 0
+
+      > .q-carousel__navigation-inner
+        flex-direction: column
+
+    &--left
+      padding: 8px 0 8px 8px
+      left: 0
+    &--right
+      padding: 8px 8px 8px 0
+      right: 0
+
+    &-inner
+      flex: 1 1 auto
+
+    .q-btn
+      margin: 6px 4px
+
+      .q-btn__wrapper
+        padding: 5px
+      &:not(.q-carousel__navigation-icon--active)
+        opacity: .5
+
+    img
+      margin: 2px
+      height: 50px
+      width: auto
+      display: inline-block
+      cursor: pointer
+      border: 1px solid transparent
+      vertical-align: middle
+      opacity: .8
+      transition: opacity .3s
+
+      &:hover,
+      &.q-carousel__thumbnail--active
+        opacity: 1
+      &.q-carousel__thumbnail--active
+        border-color: #fff
+        cursor: default
+
+  &.q-carousel--navigation
+    &--top
+      padding-top: 50px
+
+    &--bottom
+      padding-bottom: 50px
+
+    &--left .q-carousel__slide
+      padding-left: 50px
+
+    &--right .q-carousel__slide
+      padding-right: 50px
+
+  &.q-carousel--arrows .q-carousel__slide
+    padding-left: 56px
+    padding-right: 56px
+
+  &.q-carousel--arrows--vertical
+    padding-top: 56px
+    padding-bottom: 56px
+
+  &.fullscreen
+    height: 100%
