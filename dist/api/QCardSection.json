@@ -1,0 +1,36 @@
+{
+  "type": "component",
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/card"
+  },
+  "behavior": {
+    "$listeners": {
+      "desc": "All native events are being propagated (you don't need the '.native' modifier)"
+    }
+  },
+  "props": {
+    "tag": {
+      "type": "String",
+      "desc": "HTML tag to render; Suggestion: use 'label' when encapsulating a QCheckbox/QRadio/QToggle so that when user clicks/taps on the whole item it will trigger a model change for the mentioned components",
+      "default": "div",
+      "examples": [
+        "span",
+        "label",
+        "form"
+      ],
+      "category": "content",
+      "addedIn": "v1.8.4"
+    },
+    "horizontal": {
+      "type": "Boolean",
+      "desc": "Display a horizontal section (will have no padding and can contain other QCardSection)",
+      "category": "content",
+      "addedIn": "v1.7.0"
+    }
+  },
+  "slots": {
+    "default": {
+      "desc": "Default slot in the devland unslotted content of the component"
+    }
+  }
+}
