@@ -1,0 +1,276 @@
+{
+  "mixins": [ "mixins/datetime" ],
+
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/date"
+  },
+
+  "behavior": {
+    "$listeners": true
+  },
+
+  "props": {
+    "value": {
+      "extends": "value",
+      "required": true,
+      "desc": "Date of the component; Either use this property (along with a listener for 'input' event) OR use v-model directive",
+      "examples": [
+        "v-model=\"myDate\""
+      ],
+      "category": "model"
+    },
+
+    "title": {
+      "type": "String",
+      "desc": "When specified, it overrides the default header title; Makes sense when not in 'minimal' mode",
+      "examples": [ "Birthday" ],
+      "category": "content"
+    },
+
+    "subtitle": {
+      "type": "String",
+      "desc": "When specified, it overrides the default header subtitle; Makes sense when not in 'minimal' mode",
+      "examples": [ "John Doe" ],
+      "category": "content"
+    },
+
+    "emit-immediately": {
+      "type": "Boolean",
+      "desc": "Emit model when user browses month and year too",
+      "category": "model"
+    },
+
+    "default-year-month": {
+      "type": "String",
+      "desc": "The default year and month to display (in YYYY/MM format) when model is unfilled (undefined or null)",
+      "examples": [
+        "1986/02"
+      ],
+      "category": "model"
+    },
+
+    "mask": {
+      "default": "YYYY/MM/DD",
+      "examples": [ "YYYY-MM-DD", "MMMM Do, YYYY", "YYYY-MM-DD HH:mm:ss" ]
+    },
+
+    "default-view": {
+      "type": "String",
+      "desc": "The view which will be displayed by default",
+      "default": "Calendar",
+      "values": [ "Calendar", "Months", "Years" ],
+      "category": "model"
+    },
+
+    "events": {
+      "type": [ "Array", "Function" ],
+      "desc": "A list of events to highlight on the calendar; If using a function, it receives the date as a String and must return a Boolean (matches or not); If using a function then for best performance, reference it from your scope and do not define it inline",
+      "examples": [
+        ":events=\"['2018/11/05', '2018/11/06', '2018/11/09', '2018/11/23']\"",
+        ":events=\"date => date[9] % 3 === 0\""
+      ],
+      "category": "model"
+    },
+
+    "event-color": {
+      "type": [ "String", "Function" ],
+      "desc": "Color name (from the Quasar Color Palette); If using a function, it receives the date as a String and must return a String (color for the received date); If using a function then for best performance, reference it from your scope and do not define it inline",
+      "examples": [
+        "teal-10",
+        ":event-color=\"(date) => date[9] % 2 === 0 ? 'teal' : 'orange'\""
+      ],
+      "category": "style"
+    },
+
+    "options": {
+      "type": [ "Array", "Function" ],
+      "desc": "Optionally configure the days that are selectable; If using a function, it receives the date as a String and must return a Boolean (is date acceptable or not); If using a function then for best performance, reference it from your scope and do not define it inline",
+      "examples": [
+        ":options=\"['2018/11/05', '2018/11/12', '2018/11/19', '2018/11/26' ]\"",
+        ":options=\"date => date[9] % 3 === 0\"",
+        ":options=\"date => date >= '2018/11/03' && date <= '2018/11/15'\""
+      ],
+      "category": "model"
+    },
+
+    "ranges": {
+      "type": [ "Array", "Function" ],
+      "desc": "Multiple selected days or range of days; The Array can have dates as String or Arrays of with start and end date of the range as String ; If using a function, it receives the date as a String and must return a Boolean (the date is selected or not) or an Object if the date is selected (the keys are: start (Boolean) - date is start of range, end (Boolean) - date is end of range, outline (Boolean) - show the range outlined (else it's filled), color (String) - color to be applied on the range); If using a function then for best performance, reference it from your scope and do not define it inline",
+      "examples": [
+        ":ranges=\"['2018/11/05', [ '2018/11/12', '2018/11/19' ], '2018/11/26' ]\"",
+        ":ranges=\"date => date >= '2018/11/03' && date <= '2018/11/15' ? { range: true, start: date === '2018/11/03', end: date === '2018/11/15', color: 'red' } : false\"",
+        ":ranges=\"date => date >= '2018/11/03' && date <= '2018/11/15' ? { range: true, start: date === '2018/11/03', end: date === '2018/11/15', outline: true } : false\""
+      ],
+      "category": "model",
+      "addedIn": "v1.9.4"
+    },
+
+    "selection-start": {
+      "type": "String",
+      "desc": "Date as String from where the selection starts; If the value is set then selection mode is activated and the next day selection marks the end of the selection range",
+      "examples": [ "selection-start=\"2018/11/05\"" ],
+      "category": "model|behavior",
+      "addedIn": "v1.9.4"
+    },
+
+    "selection-end": {
+      "type": "String",
+      "desc": "Date as String where the selection ends; If both this value and selection-start are present the selection range is marked as outlined",
+      "examples": [ "selection-end=\"2018/11/13\"" ],
+      "category": "model|behavior",
+      "addedIn": "v1.9.4"
+    },
+
+    "first-day-of-week": {
+      "type": [ "String", "Number" ],
+      "desc": "Sets the day of the week that is considered the first day (0 - Sunday, 1 - Monday, ...); This day will show in the left-most column of the calendar",
+      "default": "(based on configured Quasar lang language)",
+      "examples": [
+        "first-day-of-week=\"1\"",
+        ":first-day-of-week=\"selectedFirstDayOfTheWeek\""
+      ],
+      "category": "model"
+    },
+
+    "today-btn": {
+      "type": "Boolean",
+      "desc": "Display a button that selects the current day",
+      "category": "content"
+    },
+
+    "minimal": {
+      "type": "Boolean",
+      "desc": "Don’t display the header",
+      "category": "content"
+    }
+  },
+
+  "slots": {
+    "default": {
+      "desc": "This is where additional buttons can go",
+      "addedIn": "v1.2.8"
+    }
+  },
+
+  "events": {
+    "input": {
+      "extends": "input",
+      "params": {
+        "value": {
+          "type": "String"
+        },
+        "reason": {
+          "type": "String",
+          "desc": "Reason of the user interaction (what was picked)",
+          "values": [ "year", "month", "day", "today", "locale", "mask" ]
+        },
+        "details": {
+          "type": "Object",
+          "desc": "Object of properties on the new model",
+          "definition": {
+            "year": {
+              "type": "Number",
+              "desc": "The year",
+              "__exemption": [ "examples" ]
+            },
+            "month": {
+              "type": "Number",
+              "desc": "The month",
+              "__exemption": [ "examples" ]
+            },
+            "day": {
+              "type": "Number",
+              "desc": "The day of month",
+              "__exemption": [ "examples" ]
+            },
+            "changed": {
+              "type": "Boolean",
+              "desc": "Did the model change?",
+              "addedIn": "v1.1.1"
+            }
+          }
+        }
+      }
+    },
+
+    "start:selection": {
+      "desc": "Emitted when selection mode is active (ranges prop is an Array or a Function), selection-start prop is not set, and a day is selected; When receiving this event set the selection-start prop to the emitted value to switch to range end selection mode",
+      "params": {
+        "day": {
+          "type": "String",
+          "desc": "The day selected",
+          "examples": [ "2020/02/15" ]
+        }
+      },
+      "addedIn": "v1.9.4"
+    },
+
+    "extend:selection": {
+      "desc": "Emitted when selection mode is active (ranges prop is an Array or a Function), selection-start prop is set, and a day is hovered; When receiving this event set the selection-end prop to display the selection as outlined",
+      "params": {
+        "selection": {
+          "type": "Array",
+          "desc": "An array with the selection-start and hovered day as String, not sorted; If only one day is selected both days are the same",
+          "examples": [
+            "[ '2020/02/12', '2020/03/02' ]",
+            "[ '2020/02/12', '2020/02/12' ]",
+            "[ '2020/02/18', '2020/02/12' ]"
+          ]
+        }
+      },
+      "addedIn": "v1.9.4"
+    },
+
+    "update:selection": {
+      "desc": "Emitted when selection mode is active (ranges prop is an Array or a Function), selection-start prop is set, and a day is selected; When receiving this event change the ranges prop to add the new range",
+      "params": {
+        "selection": {
+          "type": "Array",
+          "desc": "An array with the start and end day of the selection as String, sorted; If only one day is selected both days are the same",
+          "examples": [
+            "[ '2020/02/12', '2020/03/02' ]",
+            "[ '2020/02/12', '2020/02/12' ]"
+          ]
+        }
+      },
+      "addedIn": "v1.9.4"
+    }
+  },
+
+  "methods": {
+    "setToday": {
+      "desc": "Change model to today",
+      "addedIn": "v1.1.7"
+    },
+
+    "setView": {
+      "desc": "Change current view",
+      "addedIn": "v1.1.7",
+      "params": {
+        "view": {
+          "type": "String",
+          "desc": "QDate view name",
+          "required": true,
+          "values": [ "Calendar", "Months", "Years" ]
+        }
+      }
+    },
+
+    "offsetCalendar": {
+      "desc": "Increment or decrement calendar view's month or year",
+      "addedIn": "v1.1.7",
+      "params": {
+        "type": {
+          "type": "String",
+          "required": true,
+          "desc": "What to increment/decrement",
+          "values": [ "month", "year" ]
+        },
+        "descending": {
+          "type": "Boolean",
+          "desc": "Decrement?"
+        }
+      }
+    }
+  }
+}
