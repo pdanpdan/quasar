@@ -1,27 +1,29 @@
 import { css } from '../utils/dom.js'
-import { position, stop, addEvt, cleanEvt } from '../utils/event.js'
+import { position, stop, addEvt, cleanEvt, listenOpts } from '../utils/event.js'
+import { getTouchTarget } from '../utils/touch.js'
 import { isKeyCode } from '../utils/key-composition.js'
 import { client } from '../plugins/Platform.js'
-import throttle from '../utils/throttle.js'
 import { $q } from '../install.js'
 
-function showRipple (evt, el, ctx, forceCenter) {
-  ctx.modifiers.stop === true && stop(evt)
+const { passiveCapture } = listenOpts
 
-  let { center, color } = ctx.modifiers
-  center = center === true || forceCenter === true
+function startPhase1 (evtStart, el, ctx, forceCenter) {
+  ctx.modifiers.stop === true && stop(evtStart)
 
   const
+    { color, early } = ctx.modifiers,
+    center = ctx.modifiers.center === true || forceCenter === true,
     node = document.createElement('span'),
     innerNode = document.createElement('span'),
-    pos = position(evt),
+    pos = position(evtStart),
     { left, top, width, height } = el.getBoundingClientRect(),
     diameter = Math.sqrt(width * width + height * height),
     radius = diameter / 2,
     centerX = `${(width - diameter) / 2}px`,
     x = center ? centerX : `${pos.left - left - radius}px`,
     centerY = `${(height - diameter) / 2}px`,
-    y = center ? centerY : `${pos.top - top - radius}px`
+    y = center ? centerY : `${pos.top - top - radius}px`,
+    delay = Date.now() + 300
 
   innerNode.className = 'q-ripple__inner'
   css(innerNode, {
@@ -36,35 +38,109 @@ function showRipple (evt, el, ctx, forceCenter) {
   node.appendChild(innerNode)
   el.appendChild(node)
 
+  let timer, startPhase2, eventSource, target
+
   const abort = () => {
-    node.remove()
     clearTimeout(timer)
+
+    const index = ctx.abort.indexOf(abort)
+    if (index > -1) {
+      ctx.abort.splice(index, 1)
+      node.remove()
+
+      switch (eventSource) {
+        case 'mouse':
+          document.removeEventListener('mouseup', startPhase2, passiveCapture)
+          el.removeEventListener('mouseout', startPhase2, passiveCapture)
+          break
+        case 'keyboard':
+          document.removeEventListener('keyup', startPhase2, passiveCapture)
+          break
+        case 'touch':
+          target.removeEventListener('touchmove', startPhase2, passiveCapture)
+          target.removeEventListener('touchend', startPhase2, passiveCapture)
+          target.removeEventListener('touchcancel', startPhase2, passiveCapture)
+          ctx.preventMouse--
+          break
+      }
+    }
   }
   ctx.abort.push(abort)
 
-  let timer = setTimeout(() => {
+  const phase2 = () => {
+    innerNode.classList.remove('q-ripple__inner--enter')
+    innerNode.classList.add('q-ripple__inner--leave')
+    innerNode.style.opacity = 0
+
+    timer = setTimeout(abort, 275)
+  }
+
+  if (early === true) {
+    if (evtStart.type.indexOf('mouse') === 0) {
+      eventSource = 'mouse'
+
+      startPhase2 = evtEnd => {
+        if (
+          evtEnd.type !== 'mouseout' ||
+          el.contains(evtEnd.toElement) !== true
+        ) {
+          timer = setTimeout(phase2, delay - Date.now())
+        }
+      }
+
+      document.addEventListener('mouseup', startPhase2, passiveCapture)
+      el.addEventListener('mouseout', startPhase2, passiveCapture)
+    }
+    else if (evtStart.type.indexOf('key') === 0) {
+      eventSource = 'keyboard'
+      ctx.preventKeyboard = true
+
+      startPhase2 = () => {
+        ctx.preventKeyboard = false
+        timer = setTimeout(phase2, delay - Date.now())
+      }
+
+      document.addEventListener('keyup', startPhase2, passiveCapture)
+    }
+    else {
+      eventSource = 'touch'
+      target = getTouchTarget(evtStart.target)
+      ctx.preventMouse++
+
+      startPhase2 = evtEnd => {
+        if (
+          evtEnd.type !== 'touchmove' ||
+          evtEnd.changedTouches.length === 0 ||
+          el.contains(document.elementFromPoint(evtEnd.changedTouches[0].clientX, evtEnd.changedTouches[0].clientY)) !== true
+        ) {
+          timer = setTimeout(phase2, delay - Date.now())
+        }
+      }
+
+      target.addEventListener('touchmove', startPhase2, passiveCapture)
+      target.addEventListener('touchend', startPhase2, passiveCapture)
+      target.addEventListener('touchcancel', startPhase2, passiveCapture)
+    }
+  }
+
+  timer = setTimeout(() => {
     innerNode.classList.add('q-ripple__inner--enter')
     innerNode.style.transform = `translate3d(${centerX},${centerY},0) scale3d(1,1,1)`
     innerNode.style.opacity = 0.2
 
-    timer = setTimeout(() => {
-      innerNode.classList.remove('q-ripple__inner--enter')
-      innerNode.classList.add('q-ripple__inner--leave')
-      innerNode.style.opacity = 0
-
-      timer = setTimeout(() => {
-        node.remove()
-        ctx.abort.splice(ctx.abort.indexOf(abort), 1)
-      }, 275)
-    }, 250)
+    if (early !== true) {
+      timer = setTimeout(phase2, delay - Date.now())
+    }
   }, 50)
 }
 
-function updateCtx (ctx, { value, modifiers, arg }) {
+function updateCtx (ctx, el, { value, modifiers, arg }) {
   ctx.enabled = value !== false
 
   if (ctx.enabled === true) {
     const cfg = Object.assign({}, $q.config.ripple, modifiers, value)
+    const earlyChanged = ctx.modifiers.early === void 0 || ctx.modifiers.early !== cfg.early
+
     ctx.modifiers = {
       early: cfg.early === true,
       stop: cfg.stop === true,
@@ -72,6 +148,30 @@ function updateCtx (ctx, { value, modifiers, arg }) {
       color: cfg.color || arg,
       keyCodes: [].concat(cfg.keyCodes || 13)
     }
+
+    if (earlyChanged === true) {
+      cleanEvt(ctx, 'main')
+
+      if (cfg.early === true) {
+        addEvt(ctx, 'main', [
+          [ el, 'mousedown', 'start', 'passive' ],
+          [ el, 'touchstart', 'start', 'passive' ],
+          [ el, 'keydown', 'keystart', 'passive' ]
+        ])
+      }
+      else {
+        addEvt(ctx, 'main', [
+          [ el, 'click', 'start', 'passive' ],
+          [ el, 'keyup', 'keystart', 'passive' ]
+        ])
+      }
+    }
+  }
+  else {
+    ctx.abort.slice().forEach(fn => { fn() })
+    cleanEvt(ctx, 'main')
+    ctx.preventMouse = 0
+    ctx.preventKeyboard = false
   }
 }
 
@@ -82,60 +182,50 @@ export default {
     const ctx = {
       modifiers: {},
       abort: [],
+      preventMouse: 0,
+      preventKeyboard: false,
 
       start (evt) {
         if (
           ctx.enabled === true &&
           evt.qSkipRipple !== true &&
+          (evt.type !== 'mousedown' || ctx.preventMouse === 0) &&
           // on ENTER in form IE emits a PointerEvent with negative client cordinates
-          (client.is.ie !== true || evt.clientX >= 0) &&
-          (
-            ctx.modifiers.early === true
-              ? ['mousedown', 'touchstart'].includes(evt.type) === true
-              : evt.type === 'click'
-          )
+          (client.is.ie !== true || evt.clientX >= 0)
         ) {
-          showRipple(evt, el, ctx, evt.qKeyEvent === true)
+          startPhase1(evt, el, ctx, evt.qKeyEvent === true)
         }
       },
 
-      keystart: throttle(evt => {
+      keystart (evt) {
         if (
+          ctx.preventKeyboard !== true &&
           ctx.enabled === true &&
           evt.qSkipRipple !== true &&
-          isKeyCode(evt, ctx.modifiers.keyCodes) === true &&
-          evt.type === `key${ctx.modifiers.early === true ? 'down' : 'up'}`
+          isKeyCode(evt, ctx.modifiers.keyCodes) === true
         ) {
-          showRipple(evt, el, ctx, true)
+          startPhase1(evt, el, ctx, true)
         }
-      }, 300)
+      }
     }
 
-    updateCtx(ctx, binding)
+    updateCtx(ctx, el, binding)
 
     if (el.__qripple) {
       el.__qripple_old = el.__qripple
     }
 
     el.__qripple = ctx
-
-    addEvt(ctx, 'main', [
-      [ el, 'mousedown', 'start', 'passive' ],
-      [ el, 'touchstart', 'start', 'passive' ],
-      [ el, 'click', 'start', 'passive' ],
-      [ el, 'keydown', 'keystart', 'passive' ],
-      [ el, 'keyup', 'keystart', 'passive' ]
-    ])
   },
 
   update (el, binding) {
-    el.__qripple !== void 0 && updateCtx(el.__qripple, binding)
+    el.__qripple !== void 0 && updateCtx(el.__qripple, el, binding)
   },
 
   unbind (el) {
     const ctx = el.__qripple_old || el.__qripple
     if (ctx !== void 0) {
-      ctx.abort.forEach(fn => { fn() })
+      ctx.abort.slice().forEach(fn => { fn() })
       cleanEvt(ctx, 'main')
       delete el[el.__qripple_old ? '__qripple_old' : '__qripple']
     }
