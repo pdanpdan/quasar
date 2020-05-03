@@ -51,9 +51,13 @@ export default Vue.extend({
   provide () {
     return {
       tabs: this.tabs,
-      __recalculateScroll: this.__recalculateScroll,
+      __registerTab: this.__registerTab,
+      __unregisterTab: this.__unregisterTab,
       __activateTab: this.__activateTab,
-      __activateRoute: this.__activateRoute
+      __activateRoute: this.__activateRoute,
+      __onFocusin: this.__onFocusin,
+      __onFocusout: this.__onFocusout,
+      __onKbdNavigate: this.__onKbdNavigate
     }
   },
 
@@ -95,6 +99,8 @@ export default Vue.extend({
     return {
       tabs: {
         current: this.value,
+        focused: false,
+        hasCurrent: false,
         activeColor: this.activeColor,
         activeBgColor: this.activeBgColor,
         indicatorClass: getIndicatorClass(
@@ -193,6 +199,7 @@ export default Vue.extend({
         if (setCurrent === true || this.qListeners.input === void 0) {
           this.__animate(this.tabs.current, name)
           this.tabs.current = name
+          this.tabs.hasCurrent = this.tabNames.indexOf(name) > -1
         }
       }
     },
@@ -348,7 +355,7 @@ export default Vue.extend({
     },
 
     __scrollToEnd () {
-      this.__animScrollTo(9999)
+      this.__animScrollTo(Number.MAX_SAFE_INTEGER)
     },
 
     __stopAnimScroll () {
@@ -378,11 +385,81 @@ export default Vue.extend({
       content[this.vertical === true ? 'scrollTop' : 'scrollLeft'] = pos
       this.__updateArrows()
       return done
+    },
+
+    __onFocusin () {
+      if (this.tabs.focused !== true) {
+        this.tabs.focused = true
+      }
+    },
+
+    __onFocusout () {
+      if (this.tabs.focused !== false) {
+        this.tabs.focused = false
+      }
+    },
+
+    __onKbdNavigate (keyCode, fromEl) {
+      const matchTab = el => el === fromEl || (el.classList.contains('q-tab') === true && el.classList.contains('disabled') !== true)
+      const tabs = Array.prototype.filter.call(this.$refs.content.children, matchTab)
+      const tabsLength = tabs.length
+
+      if (tabsLength === 0) {
+        return
+      }
+
+      if (keyCode === 36) { // Home
+        tabs[0].focus()
+        this.__recalculateScroll()
+
+        return true
+      }
+      if (keyCode === 35) { // End
+        tabs[tabsLength - 1].focus()
+        this.__recalculateScroll()
+
+        return true
+      }
+
+      const dirPrev = (this.vertical === true && keyCode === 38 /* ArrowUp */) ||
+      (this.vertical !== true && keyCode === 37 /* ArrowLeft */)
+      const dirNext = (this.vertical === true && keyCode === 40 /* ArrowDown */) ||
+      (this.vertical !== true && keyCode === 39 /* ArrowRight */)
+      const dir = dirPrev === true ? -1 : (dirNext === true ? 1 : void 0)
+      const rtlDir = this.vertical !== true && this.$q.lang.rtl === true ? -1 : 1
+
+      if (dir !== void 0) {
+        const index = tabs.indexOf(fromEl) + dir * rtlDir
+        if (index >= 0 && index < tabsLength) {
+          tabs[index].focus()
+        }
+        this.__recalculateScroll()
+
+        return true
+      }
+    },
+
+    __registerTab (name) {
+      if (this.tabNames.indexOf(name) === -1) {
+        this.tabNames.push(name)
+        this.tabs.hasCurrent = this.tabNames.indexOf(this.tabs.current) > -1
+      }
+      this.__recalculateScroll()
+    },
+
+    __unregisterTab (name) {
+      const index = this.tabNames.indexOf(name)
+      if (index > -1) {
+        this.tabNames.splice(index, 1)
+        this.tabs.hasCurrent = this.tabNames.indexOf(this.tabs.current) > -1
+      }
+      this.__recalculateScroll()
     }
   },
 
   created () {
     this.buffer = []
+    this.tabNames = []
 
     if (this.$q.platform.is.desktop !== true) {
       this.__updateArrows = noop
