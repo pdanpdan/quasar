@@ -1,0 +1,37 @@
+{
+  "type": "directive",
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-directives/key-group-navigation"
+  },
+  "value": {
+    "type": [
+      "Boolean",
+      "Number",
+      "String"
+    ],
+    "desc": "If value is 0, '0' or 'false' then directive is disabled; else it is enabled)",
+    "examples": [
+      "v-key-group-navigation",
+      "v-key-group-navigation=\"booleanState\"",
+      "v-key-group-navigation=\"0\"",
+      "v-key-group-navigation=\"false\""
+    ]
+  },
+  "modifiers": {
+    "horizontal": {
+      "type": "Boolean",
+      "desc": "Navigate using HOME, ARROW_LEFT, ARROW_RIGHT or END keys",
+      "reactive": true
+    },
+    "vertical": {
+      "type": "Boolean",
+      "desc": "Navigate using PG_UP, ARROW_UP, ARROW_DOWN or PG_DOWN keys",
+      "reactive": true
+    },
+    "all": {
+      "type": "Boolean",
+      "desc": "Default - Navigate using HOME / PG_UP, ARROW_LEFT / ARROW_UP, ARROW_RIGHT / ARROW_DOWN or END / PG_DOWN keys",
+      "reactive": true
+    }
+  }
+}
