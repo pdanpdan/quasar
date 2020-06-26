@@ -1,5 +1,6 @@
 import Vue from 'vue'
 
+import VKeyGroupNavigation from '../../directives/KeyGroupNavigation.js'
 import QBtn from '../btn/QBtn.js'
 import DateTimeMixin from '../../mixins/datetime.js'
 
@@ -16,6 +17,10 @@ export default Vue.extend({
   name: 'QDate',
 
   mixins: [ DateTimeMixin ],
+
+  directives: {
+    VKeyGroupNavigation
+  },
 
   props: {
     title: String,
@@ -348,7 +353,8 @@ export default Vue.extend({
 
       return h('div', {
         staticClass: 'q-date__header',
-        class: this.headerClass
+        class: this.headerClass,
+        directives: [ VKeyGroupNavigation ]
       }, [
         h('div', {
           staticClass: 'relative-position'
@@ -476,7 +482,8 @@ export default Vue.extend({
           staticClass: 'q-date__view q-date__calendar'
         }, [
           h('div', {
-            staticClass: 'q-date__navigation row items-center no-wrap'
+            staticClass: 'q-date__navigation row items-center no-wrap',
+            directives: [ VKeyGroupNavigation ]
           }, this.__getNavigation(h, {
             label: this.computedLocale.months[ this.innerModel.month - 1 ],
             view: 'Months',
@@ -498,7 +505,11 @@ export default Vue.extend({
           }, this.daysOfWeek.map(day => h('div', { staticClass: 'q-date__calendar-item' }, [ h('div', [ day ]) ]))),
 
           h('div', {
-            staticClass: 'q-date__calendar-days-container relative-position overflow-hidden'
+            staticClass: 'q-date__calendar-days-container relative-position overflow-hidden',
+            directives: cache(this, 'kNavC', [{
+              name: 'key-group-navigation',
+              arg: '7'
+            }])
           }, [
             h('transition', {
               props: {
@@ -574,7 +585,11 @@ export default Vue.extend({
 
       return h('div', {
         key: 'months-view',
-        staticClass: 'q-date__view q-date__months flex flex-center'
+        staticClass: 'q-date__view q-date__months flex flex-center',
+        directives: cache(this, 'kNavYM', [{
+          name: 'key-group-navigation',
+          arg: '3'
+        }])
       }, content)
     },
 
@@ -628,7 +643,11 @@ export default Vue.extend({
         ]),
 
         h('div', {
-          staticClass: 'q-date__years-content col self-stretch row items-center'
+          staticClass: 'q-date__years-content col self-stretch row items-center',
+          directives: cache(this, 'kNavYM', [{
+            name: 'key-group-navigation',
+            arg: '3'
+          }])
         }, years),
 
         h('div', {
@@ -777,7 +796,10 @@ export default Vue.extend({
 
     const def = slot(this, 'default')
     def !== void 0 && content.push(
-      h('div', { staticClass: 'q-date__actions' }, def)
+      h('div', {
+        staticClass: 'q-date__actions',
+        directives: [ VKeyGroupNavigation ]
+      }, def)
     )
 
     if (this.name !== void 0 && this.disable !== true) {

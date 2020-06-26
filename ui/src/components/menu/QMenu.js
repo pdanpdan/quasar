@@ -327,7 +327,7 @@ export default Vue.extend({
             value: this.__onClickOutside,
             arg: this.anchorEl
           }]
-        }, this.__getFocusWrappedContent(h, 'default')) : null
+        }, this.__getFocusWrappedContent('default')) : null
       ])
     }
   },

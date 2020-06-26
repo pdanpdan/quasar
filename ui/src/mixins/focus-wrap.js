@@ -1,26 +1,17 @@
 import { mergeSlot } from '../utils/slot.js'
+import { FOCUSABLE_SELECTOR, changeFocusedElement } from '../utils/focus'
 
 export default {
   computed: {
-    focusElementDefs () {
+    focusGuardElements () {
       return {
         firstGuard: this.$createElement('span', {
-          staticClass: 'no-outline absolute no-pointer-events',
+          staticClass: 'no-outline absolute no-pointer-events q-key-group-navigation--ignore-focus',
           attrs: { tabindex: 0 },
           on: { focus: this.__focusLast }
         }),
-        firstTarget: {
-          ref: 'firstFocusTarget',
-          staticClass: 'no-outline absolute no-pointer-events',
-          attrs: { tabindex: -1 }
-        },
-        lastTarget: {
-          ref: 'lastFocusTarget',
-          staticClass: 'no-outline absolute no-pointer-events',
-          attrs: { tabindex: -1 }
-        },
         lastGuard: this.$createElement('span', {
-          staticClass: 'no-outline absolute no-pointer-events',
+          staticClass: 'no-outline absolute no-pointer-events q-key-group-navigation--ignore-focus',
           attrs: { tabindex: 0 },
           on: { focus: this.__focusFirst }
         })
@@ -30,24 +21,26 @@ export default {
 
   methods: {
     __focusFirst () {
-      if (this.__portal !== void 0 && this.__portal.$refs !== void 0 && this.__portal.$refs.firstFocusTarget !== void 0) {
-        this.__portal.$refs.firstFocusTarget.focus()
+      const innerNode = this.__getInnerNode()
+      if (innerNode !== void 0) {
+        const focusableElements = Array.prototype.slice.call(innerNode.querySelectorAll(FOCUSABLE_SELECTOR), 1, -1)
+        changeFocusedElement(focusableElements, 0, 1)
       }
     },
 
     __focusLast () {
-      if (this.__portal !== void 0 && this.__portal.$refs !== void 0 && this.__portal.$refs.lastFocusTarget !== void 0) {
-        this.__portal.$refs.lastFocusTarget.focus()
+      const innerNode = this.__getInnerNode()
+      if (innerNode !== void 0) {
+        const focusableElements = Array.prototype.slice.call(innerNode.querySelectorAll(FOCUSABLE_SELECTOR), 1, -1)
+        changeFocusedElement(focusableElements, focusableElements.length - 1, -1)
       }
     },
 
-    __getFocusWrappedContent (h, slotName) {
+    __getFocusWrappedContent (slotName) {
       return mergeSlot([
-        this.focusElementDefs.firstGuard,
-        h('span', this.focusElementDefs.firstTarget)
+        this.focusGuardElements.firstGuard
       ], this, slotName).concat(
-        h('span', this.focusElementDefs.lastTarget),
-        this.focusElementDefs.lastGuard
+        this.focusGuardElements.lastGuard
       )
     }
   }

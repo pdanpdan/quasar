@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 import { isSSR } from '../plugins/Platform.js'
 import { getBodyFullscreenElement } from '../utils/dom.js'
+import { FOCUSABLE_SELECTOR, changeFocusedElement } from '../utils/focus'
 
 export function closePortalMenus (vm, evt) {
   do {
@@ -73,7 +74,15 @@ const Portal = {
       const node = this.__getInnerNode()
 
       if (node !== void 0 && node.contains(document.activeElement) !== true) {
-        (node.querySelector('[autofocus], [data-autofocus]') || this.__portal.$refs.firstFocusTarget).focus()
+        const autofocusNode = node.querySelector('[autofocus], [data-autofocus]')
+
+        if (autofocusNode !== null && typeof autofocusNode.focus === 'function') {
+          autofocusNode.focus()
+        }
+        else {
+          const focusableElements = Array.prototype.slice.call(node.querySelectorAll(FOCUSABLE_SELECTOR))
+          changeFocusedElement(focusableElements, 0, 1)
+        }
       }
     },
 

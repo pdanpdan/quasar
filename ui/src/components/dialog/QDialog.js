@@ -352,7 +352,7 @@ export default Vue.extend({
             class: this.classes,
             attrs: { tabindex: -1 },
             on: this.onEvents
-          }, this.__getFocusWrappedContent(h, 'default')) : null
+          }, this.__getFocusWrappedContent('default')) : null
         ])
       ])
     }

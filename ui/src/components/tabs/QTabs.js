@@ -513,7 +513,7 @@ export default Vue.extend({
     )
 
     return h('div', {
-      staticClass: 'q-tabs row no-wrap items-center',
+      staticClass: 'q-tabs row no-wrap items-center q-key-group-navigation--ignore-key',
       class: this.classes,
       on: this.onEvents,
       attrs: { role: 'tablist' }

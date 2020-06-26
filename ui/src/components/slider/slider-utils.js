@@ -93,7 +93,7 @@ export let SliderMixin = {
     },
 
     classes () {
-      return `q-slider q-slider${this.axis} q-slider--${this.active === true ? '' : 'in'}active` +
+      return `q-slider q-slider${this.axis} q-slider--${this.active === true ? '' : 'in'}active q-key-group-navigation--ignore-key` +
         (this.isReversed === true ? ' q-slider--reversed' : '') +
         (this.color !== void 0 ? ` text-${this.color}` : '') +
         (this.disable === true ? ' disabled' : '') +
