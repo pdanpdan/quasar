@@ -362,7 +362,7 @@ export default Vue.extend({
         const range = getRangeClass(rangeFlags)
 
         if (this.options !== void 0 && this.isSelectable(day) !== true) {
-          res.push({ i, range })
+          res.push({ i, day, range })
         }
         else {
           const event = this.events !== void 0 && this.evtFn(day) === true
@@ -373,7 +373,7 @@ export default Vue.extend({
             rangeFlags.outline === true ||
             (rangeFlags.start !== true && rangeFlags.end !== true)
 
-          const config = { i, in: true, flat, event, range }
+          const config = { i, day, in: true, flat, event, range }
 
           if (flat === false) {
             config.unelevated = true
@@ -630,6 +630,15 @@ export default Vue.extend({
     },
 
     __getCalendarView (h) {
+      const dayContentFn = this.$scopedSlots.day !== void 0
+        ? this.$scopedSlots.day
+        : day => (day.event !== false ? [
+          h('div', { staticClass: 'q-date__event bg-' + day.event })
+        ] : null)
+      const dayFillContentFn = this.$scopedSlots.day !== void 0
+        ? this.$scopedSlots.day
+        : day => h('div', [ day.i ])
+
       return [
         h('div', {
           key: 'calendar-view',
@@ -692,10 +701,8 @@ export default Vue.extend({
                       click: () => { this.__setDay(day.i) },
                       mouseenter: () => { this.__selectionEndHover(day.i) }
                     })
-                  }, day.event !== false ? [
-                    h('div', { staticClass: 'q-date__event bg-' + day.event })
-                  ] : null)
-                  : h('div', [ day.i ])
+                  }, dayContentFn(day))
+                  : dayFillContentFn(day)
               ])))
             ])
           ])
