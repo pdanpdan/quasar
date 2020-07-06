@@ -35,6 +35,7 @@ export default Vue.extend({
     labelColor: String,
     color: String,
     bgColor: String,
+    outlinedBgColor: String,
 
     filled: Boolean,
     outlined: Boolean,
@@ -142,6 +143,7 @@ export default Vue.extend({
         [this.fieldClass]: this.fieldClass !== void 0,
 
         [`q-field--${this.styleType}`]: true,
+        'q-field--outlined--md': this.outlinedBgColor !== void 0,
         'q-field--rounded': this.rounded,
         'q-field--square': this.square,
 
@@ -192,12 +194,16 @@ export default Vue.extend({
     },
 
     labelClass () {
+      const classes = this.outlined === true && this.outlinedBgColor !== void 0 ? 'bg-' + this.outlinedBgColor : ''
+
       if (
         this.labelColor !== void 0 &&
         this.hasError !== true
       ) {
-        return 'text-' + this.labelColor
+        return (classes === '' ? '' : classes + ' ') + 'text-' + this.labelColor
       }
+
+      return classes
     },
 
     controlSlotScope () {
