@@ -84,6 +84,9 @@ export default Vue.extend({
     leftIcon: String,
     rightIcon: String,
 
+    outsideArrows: Boolean,
+    mobileArrows: Boolean,
+
     switchIndicator: Boolean,
 
     narrowIndicator: Boolean,
@@ -154,10 +157,23 @@ export default Vue.extend({
 
     noCaps (v) {
       this.tabs.noCaps = v
+    },
+
+    outsideArrows () {
+      this.$nextTick(this.__recalculateScroll())
+    },
+
+    arrowsEnabled (v) {
+      this.__updateArrows = v === true ? this.__updateArrowsFn : noop
+      this.$nextTick(this.__recalculateScroll())
     }
   },
 
   computed: {
+    arrowsEnabled () {
+      return this.mobileArrows === true || this.$q.platform.is.desktop === true
+    },
+
     alignClass () {
       const align = this.scrollable === true
         ? 'left'
@@ -169,6 +185,7 @@ export default Vue.extend({
     classes () {
       return `q-tabs--${this.scrollable === true ? '' : 'not-'}scrollable` +
         ` q-tabs--${this.vertical === true ? 'vertical' : 'horizontal'}` +
+        ` q-tabs__arrows--${this.arrowsEnabled === true && this.outsideArrows === true ? 'outside' : 'inside'}` +
         (this.dense === true ? ' q-tabs--dense' : '') +
         (this.shrink === true ? ' col-shrink' : '') +
         (this.stretch === true ? ' self-stretch' : '')
@@ -327,7 +344,7 @@ export default Vue.extend({
       }
     },
 
-    __updateArrows () {
+    __updateArrowsFn () {
       const
         content = this.$refs.content,
         rect = content.getBoundingClientRect(),
@@ -461,9 +478,7 @@ export default Vue.extend({
     this.buffer = []
     this.tabNames = []
 
-    if (this.$q.platform.is.desktop !== true) {
-      this.__updateArrows = noop
-    }
+    this.__updateArrows = this.arrowsEnabled === true ? this.__updateArrowsFn : noop
   },
 
   beforeDestroy () {
@@ -484,7 +499,7 @@ export default Vue.extend({
       }, slot(this, 'default'))
     ]
 
-    this.$q.platform.is.desktop === true && child.push(
+    this.arrowsEnabled === true && child.push(
       h(QIcon, {
         staticClass: 'q-tabs__arrow q-tabs__arrow--left absolute q-tab__icon',
         class: this.leftArrow === true ? '' : 'q-tabs__arrow--faded',
