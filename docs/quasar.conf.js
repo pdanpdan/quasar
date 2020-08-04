@@ -80,7 +80,8 @@ module.exports = function (ctx) {
       config: {
         loadingBar: {
           color: 'amber'
-        }
+        },
+        dark: 'auto'
       }
     },
 

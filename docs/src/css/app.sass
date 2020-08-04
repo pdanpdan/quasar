@@ -3,6 +3,13 @@
 body
   background-color: $grey-1
 
+.body--dark
+  --q-color-primary: #{$primary-dark}
+
+@media (prefers-color-scheme: dark)
+  .body--dark-auto
+    --q-color-primary: #{$primary-dark}
+
 ul
   margin: 0 0 16px
 
@@ -74,6 +81,7 @@ blockquote .doc-token
 
 .doc-heading
   color: $primary
+  color: var(--q-color-primary, $primary)
   cursor: pointer
 
   &:after
@@ -125,6 +133,7 @@ blockquote .doc-token
     font-size: 20px
     margin-right: 8px
     color: $primary
+    color: var(--q-color-primary, $primary)
 
 kbd
   white-space: nowrap

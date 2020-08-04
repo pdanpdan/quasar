@@ -2,9 +2,11 @@
 
   .q-item__section--avatar
     color: $primary
+    color: var(--q-color-primary, $primary)
 
   .q-expansion-item--expanded > div > .q-item > .q-item__section--main
     color: $primary
+    color: var(--q-color-primary, $primary)
     font-weight: 700
 
   .q-expansion-item__content .q-item
@@ -13,3 +15,14 @@
 
   .q-item.q-router-link--active
     background: scale-color($primary, $lightness: 90%)
+
+.body--dark
+  .app-menu
+    .q-item.q-router-link--active
+      background: scale-color($primary-dark, $lightness: -70%)
+
+@media (prefers-color-scheme: dark)
+  .body--dark-auto
+    .app-menu
+      .q-item.q-router-link--active
+        background: scale-color($primary-dark, $lightness: -70%)

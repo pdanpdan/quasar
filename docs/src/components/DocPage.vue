@@ -167,6 +167,7 @@ export default {
 
   &:hover
     color: $primary
+    color: var(--q-color-primary, $primary)
 
 .doc-page-related-bordered
   border: 1px solid $separator-color
@@ -182,6 +183,7 @@ export default {
       text-decoration: none
       outline: 0
       color: $primary
+      color: var(--q-color-primary, $primary)
       transition: color .28s
 
       &:hover

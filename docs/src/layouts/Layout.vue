@@ -82,7 +82,7 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
     side="right"
     v-model="rightDrawerState"
     show-if-above
-    content-class="bg-grey-1"
+    :content-class="this.$q.dark.isActive === true ? 'bg-grey-9' : 'bg-grey-1'"
     :width="180"
     @on-layout="updateRightDrawerOnLayout"
   )
@@ -446,6 +446,15 @@ export default {
 
   &.q-item--active
     background: scale-color($primary, $lightness: 90%)
+
+.body--dark
+  .doc-toc .q-item.q-item--active
+    background: scale-color($primary, $lightness: 10%)
+
+@media (prefers-color-scheme: dark)
+  .body--dark-auto
+    .doc-toc .q-item.q-item--active
+      background: scale-color($primary, $lightness: 10%)
 
 .doc-left-drawer
   overflow: inherit !important

@@ -42,6 +42,7 @@ export default {
 <style lang="sass">
 .doc-link
   color: $primary
+  color: var(--q-color-primary, $primary)
   font-weight: 500
   text-decoration: none
   outline: 0
