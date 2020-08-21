@@ -22,8 +22,6 @@
           :style="style"
           @input="inputLog"
           flat bordered
-          navigation-min-year-month="2018/05"
-          navigation-max-year-month="2019/03"
         >
           <div class="row items-center justify-end q-gutter-sm">
             <q-btn label="Cancel" color="primary" flat />
@@ -35,6 +33,7 @@
           v-model="date"
           v-bind="props"
           :style="style"
+          emit-immediately
           @input="inputLog"
           flat bordered
         />
@@ -68,6 +67,7 @@
           v-model="date"
           v-bind="props"
           :style="style"
+          emit-immediately
           @input="inputLog"
         />
       </div>
@@ -131,6 +131,35 @@
           :event-color="eventColor"
           :style="style"
         />
+      </div>
+
+      <div class="text-h6">
+        Day slot
+      </div>
+      <div class="q-gutter-md">
+        <q-date
+          class="day-slot--test"
+          v-model="date"
+          v-bind="props"
+          :events="eventMultiFn"
+          :event-color="eventMultiDetails"
+          :style="style"
+        >
+          <template v-slot:day="day">
+            <small v-if="day.fill === true" class="text-grey-5">
+              {{ day.i }}
+            </small>
+            <div v-else-if="day.event" class="day-slot__events--test absolute-full">
+              <div
+                v-for="({ color, label, details }, index) in day.event"
+                :key="index"
+                :class="'bg-' + color"
+              >
+                <q-tooltip>{{ label }}</q-tooltip>
+              </div>
+            </div>
+          </template>
+        </q-date>
       </div>
 
       <div class="text-h6">
@@ -213,7 +242,6 @@
           :mask="mask"
           :locale="localeComputed"
           v-bind="props"
-          calendar="gregorian"
           :style="style"
         />
 
@@ -231,11 +259,7 @@
                 v-model="input"
                 v-bind="props"
                 :style="style"
-              >
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
-              </q-date>
+              />
             </q-popup-proxy>
           </q-icon>
         </q-input>
@@ -255,7 +279,7 @@
                   mask="YYYY-MM-DD HH:mm"
                   today-btn
                   :style="style"
-                  @input="() => { $refs.qDateProxy1.hide() }"
+                  @input="() => $refs.qDateProxy1.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
@@ -264,7 +288,7 @@
                 <q-time
                   v-model="inputFull"
                   mask="YYYY-MM-DD HH:mm"
-                  @input="() => { $refs.qDateProxy2.hide() }"
+                  @input="() => $refs.qDateProxy2.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
@@ -274,25 +298,25 @@
         <q-input :dark="dark" filled v-model="inputFull">
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer" @click.prevent>
-              <q-popup-proxy ref="qDateProxy3">
+              <q-popup-proxy ref="qDateProxy1">
                 <q-date
                   v-model="inputFull"
                   v-bind="props"
                   mask="YYYY-MM-DD HH:mm"
                   today-btn
                   :style="style"
-                  @input="() => { $refs.qDateProxy3.hide() }"
+                  @input="() => $refs.qDateProxy1.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
           </template>
           <template v-slot:after>
             <q-icon name="access_time" class="cursor-pointer" @click.prevent>
-              <q-popup-proxy ref="qDateProxy4">
+              <q-popup-proxy ref="qDateProxy2">
                 <q-time
                   v-model="inputFull"
                   mask="YYYY-MM-DD HH:mm"
-                  @input="() => { $refs.qDateProxy4.hide() }"
+                  @input="() => $refs.qDateProxy2.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
@@ -302,7 +326,7 @@
         <q-input :dark="dark" filled v-model="inputFull" label="Default view - Years">
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer" @click.prevent>
-              <q-popup-proxy ref="qDateProxy5">
+              <q-popup-proxy ref="qDateProxy1">
                 <q-date
                   v-model="inputFull"
                   v-bind="props"
@@ -310,18 +334,18 @@
                   today-btn
                   default-view="Years"
                   :style="style"
-                  @input="() => { $refs.qDateProxy5.hide() }"
+                  @input="() => $refs.qDateProxy1.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
           </template>
           <template v-slot:after>
             <q-icon name="access_time" class="cursor-pointer" @click.prevent>
-              <q-popup-proxy ref="qDateProxy6">
+              <q-popup-proxy ref="qDateProxy2">
                 <q-time
                   v-model="inputFull"
                   mask="YYYY-MM-DD HH:mm"
-                  @input="() => { $refs.qDateProxy6.hide() }"
+                  @input="() => $refs.qDateProxy2.hide()"
                 />
               </q-popup-proxy>
             </q-icon>
@@ -331,6 +355,39 @@
     </div>
   </div>
 </template>
+
+<style lang="sass">
+.day-slot__events--test
+  border-radius: 50%
+  mix-blend-mode: overlay
+
+  > div
+    position: absolute
+    left: 0
+    right: 0
+    height: 50%
+
+  > div:first-child
+    top: 0
+    border-top-left-radius: 15px
+    border-top-right-radius: 15px
+
+  > div:last-child
+    bottom: 0
+    border-bottom-left-radius: 15px
+    border-bottom-right-radius: 15px
+
+  > div:first-child:last-child
+    height: 100%
+
+.day-slot--test
+  .q-btn--unelevated
+    .day-slot__events--test
+      border: 2px solid transparent
+
+  .q-date__calendar-item--fill
+    visibility: visible
+</style>
 
 <script>
 import languages from 'quasar/lang/index.json'
@@ -357,8 +414,6 @@ export default {
       date: '2018/11/03',
       dateParse: 'Month: Aug, Day: 28th, Year: 2018',
       dateNeg: '-13/11/03',
-      dateFrom: '2012/06/18',
-      dateTo: '2015/04/10',
       nullDate: null,
       nullDate2: null,
       defaultYearMonth: '1986/02',
@@ -435,6 +490,30 @@ export default {
 
     eventColor (date) {
       return date[9] % 2 === 0 ? 'teal' : 'orange'
+    },
+
+    eventMultiFn (date) {
+      return [ 1, 3 ].indexOf(date[9] % 6) > -1
+    },
+
+    eventMultiDetails (date) {
+      return date[9] % 6 === 1
+        ? [
+          {
+            color: 'red',
+            label: `Event on ${date}`
+          }
+        ]
+        : [
+          {
+            color: 'orange',
+            label: `Task on ${date}`
+          },
+          {
+            color: 'green',
+            label: `Recurring event on ${date}`
+          }
+        ]
     },
 
     optionsFn (date) {

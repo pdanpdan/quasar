@@ -19,7 +19,7 @@ For handling date and/or time, also check out [Quasar Date Utils](/quasar-utils/
 ## Usage
 
 ::: warning
-Notice that the actual date(s) of the model are all in String format.
+Notice that the model is a String only.
 :::
 
 ### Basic
@@ -31,32 +31,6 @@ For landscape mode, you can use it along with `$q.screen` to make QDate responsi
 :::
 
 <doc-example title="Landscape" file="QDate/Landscape" overflow />
-
-### Multiple selection <q-badge align="top" label="v1.13+" />
-
-Notice below that the model is an Array and we specify the "multiple" prop.
-
-Clicking on an already selected day will deselect it.
-
-<doc-example title="Multiple days" file="QDate/SelectionMultiple" overflow />
-
-### Range selection <q-badge align="top" label="v1.13+" />
-
-Notice in the examples below that the model is an Object (single selection) or an Array of Objects (multiple selection).
-
-::: tip TIPS
-* Clicking on an already selected day will deselect it.
-* The user's current editing range can also be set programmatic through the `setEditingRange` method (check the API card).
-* There are two useful events in regards to the current editing range: `range-start` and `range-end` (check the API card).
-:::
-
-::: warning
-The `range` property is only partially compatible with the `options` prop: selected ranges might also include "unselectable" days.
-:::
-
-<doc-example title="Single Range" file="QDate/SelectionRange" overflow />
-
-<doc-example title="Multiple ranges" file="QDate/SelectionRangeMultiple" overflow />
 
 ### Custom title and subtitle
 
@@ -134,25 +108,47 @@ The first example is using an array and the second example is using a function.
 
 <doc-example title="Event color" file="QDate/EventColor" overflow />
 
+### Day scoped slot
+
+You can use the `day` scoped slot to render custom event markers or tooltips specific to each day.
+
+<doc-example title="Day slot" file="QDate/DaySlot" overflow />
+
 ### Limiting options
 
 * You can use the `options` prop to limit user selection to certain times.
 * Alternatively, for a more in-depth way of limiting options, you can also supply a function (second and third example below) to `options-fn` prop.
 
-::: warning
-The `options` property is not compatible with the `range` prop.
-:::
-
 <doc-example title="Options" file="QDate/Options" overflow />
 
-### Applying navigation boundaries <q-badge align="top" label="v1.13+" />
+### Multiple selected days / ranges of days <q-badge align="top" label="v1.9.4+" />
 
-In the example below the navigation is restricted between 2020/07 and 2020/09.
+* You can use the `ranges` prop to show multiple dates as selected.
 
-<doc-example title="Navigation boundaries" file="QDate/NavigationBoundaries" overflow />
+<doc-example title="Multiple selected dates" file="QDate/MultipleSelectedDates" overflow />
+
+* Use the normal `@input` event to select multiple dates.
+
+<doc-example title="Selecting multiple dates" file="QDate/MultipleDateSelection" overflow />
+
+* Combine the `selection-start` and `selection-end` props and the `@start:selection`, `@expand:selection` and `@update:selection` events to select multiple dates or date ranges.
+
+<doc-example title="Selecting multiple dates / ranges" file="QDate/MultipleRangeSelection" overflow />
+
+* Use 2 components to allow easy interval selection
+
+<doc-example title="Interval selection" file="QDate/IntervalSelection" overflow />
+
+* Adjust the selection to match a fixed interval
+
+<doc-example title="Week selection" file="QDate/WeekSelection" overflow />
+
+* Limit the minimum and maximum selection length
+
+<doc-example title="Constrained interval selection" file="QDate/IntervalSelectionConstrained" overflow />
+
 
 ### With QSplitter and QTabPanels
-
 <doc-example title="With QSplitter and QTabPanels" file="QDate/Splitter" />
 
 More info: [QSplitter](/vue-components/splitter), [QTabPanels](/vue-components/tab-panels).
