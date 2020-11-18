@@ -1,0 +1,22 @@
+.q-menu
+  display: inline-block
+  max-width: $menu-max-width
+  max-height: 65vh
+
+  pointer-events: all
+
+  overflow-x: hidden
+  overflow-y: auto
+
+  outline: 0
+  border-radius: $generic-border-radius
+  box-shadow: $menu-box-shadow
+
+  background: $menu-background
+
+  &--square
+    border-radius: 0
+
+  &__container
+    z-index: $z-menu
+    contain: layout
