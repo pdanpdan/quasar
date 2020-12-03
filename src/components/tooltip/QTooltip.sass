@@ -1,0 +1,21 @@
+.q-tooltip
+  visibility: collapse
+  overflow-x: hidden
+  padding: $tooltip-padding
+
+  &__container
+    position: fixed
+    z-index: $z-tooltip
+    contain: layout
+
+  &--style
+    font-size: $tooltip-fontsize
+    color: $tooltip-color
+    background: $tooltip-background
+    border-radius: $tooltip-border-radius
+    text-transform: none
+    font-weight: normal
+
+  @media (max-width: $breakpoint-xs-max)
+    font-size: $tooltip-mobile-fontsize
+    padding: $tooltip-mobile-padding
