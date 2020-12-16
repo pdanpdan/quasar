@@ -142,7 +142,7 @@
   section.landing__footer.flex.flex-center
     div.text-center
       div.landing__footer-icons.row.flex-center.q-gutter-md
-        a(href="https://github.quasar.dev", target="_blank", rel="noopener")
+        a(href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
           q-icon(:name="fabGithub")
 
         a(href="https://blog.quasar.dev", target="_blank", rel="noopener")

@@ -19,12 +19,12 @@ import Quasar from 'quasar'
 
 const cssResources = [
   'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons',
-  `https://cdn.jsdelivr.net/npm/quasar@${Quasar.version}/dist/quasar.min.css`
+  `https://cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${Quasar.version}/dist/quasar.min.css`
 ].join(';')
 
 const jsResources = [
   'https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js',
-  `https://cdn.jsdelivr.net/npm/quasar@${Quasar.version}/dist/quasar.umd.min.js`
+  `https://cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${Quasar.version}/dist/quasar.umd.min.js`
 ].join(';')
 
 export default {

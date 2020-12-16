@@ -99,7 +99,7 @@ Since the default `font-weight` for fontawesome-pro is `light` or `fal`, some ic
 
 For instance, to override the `fal` version of the close icon for chips, do this:
 
-_First_, find the icon used for chip close in Quasar Fontawesome v5 Pro [icon-set source](https://github.com/quasarframework/quasar/blob/dev/ui/icon-set/fontawesome-v5-pro.js).
+_First_, find the icon used for chip close in Quasar Fontawesome v5 Pro [icon-set source](https://github.com/pdanpdan/quasar/blob/dev-pdan/ui/icon-set/fontawesome-v5-pro.js).
 
 (Alternatively, you can check inside the render function of the component you are overriding.)
 

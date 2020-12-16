@@ -297,7 +297,7 @@ Below is an example with the API that you need to supply. **You'll be creating a
 Basically, QUploader is QUploaderBase + the xhr mixin. Your component will be QUploaderBase + your service mixin.
 
 ::: tip
-For the default XHR implementation, check out [source code](https://github.com/quasarframework/quasar/blob/dev/ui/src/components/uploader/uploader-xhr-mixin.js).
+For the default XHR implementation, check out [source code](https://github.com/pdanpdan/quasar/blob/dev-pdan/ui/src/components/uploader/uploader-xhr-mixin.js).
 :::
 
 ::: warning Help appreciated

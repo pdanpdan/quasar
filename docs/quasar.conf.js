@@ -22,6 +22,7 @@ module.exports = function (ctx) {
     // preFetch: true,
 
     build: {
+      publicPath: 'quasar-docs',
       vueRouterMode: 'history',
       showProgress: ctx.dev,
       distDir: 'dist/quasar.dev',
@@ -104,9 +105,9 @@ module.exports = function (ctx) {
         ]
       },
       manifest: {
-        name: 'Quasar Documentation',
-        short_name: 'Quasar Docs',
-        description: 'Quasar Framework Documentation',
+        name: 'Quasar Documentation PDan',
+        short_name: 'PDan Quasar Docs',
+        description: 'Quasar Framework Documentation PDan',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',

@@ -8,12 +8,12 @@ div
           q-icon(:name="mdiClipboardText")
         q-item-section Release notes
 
-      q-item(clickable, tag="a", href="https://github.com/quasarframework/quasar/issues", target="_blank", rel="noopener")
+      q-item(clickable, tag="a", href="https://github.com/pdanpdan/quasar/issues", target="_blank", rel="noopener")
         q-item-section.text-purple(avatar)
           q-icon(:name="mdiBugCheck")
         q-item-section Report a bug
 
-      q-item(clickable, tag="a", href="https://github.com/quasarframework/quasar", target="_blank", rel="noopener")
+      q-item(clickable, tag="a", href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
         q-item-section(avatar)
           q-icon(:name="fabGithub")
         q-item-section Repository

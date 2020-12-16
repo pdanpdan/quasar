@@ -8,7 +8,7 @@ section.fixed-top.landing-top-bar.text-white
 
     q-space
 
-    q-btn.q-mr-xs(type="a", flat, :icon="fabGithub", href="https://github.quasar.dev", target="_blank", rel="noopener")
+    q-btn.q-mr-xs(type="a", flat, :icon="fabGithub", href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
     q-btn.q-mr-xs.gt-xs(type="a", flat, :icon="mdiBlogger", href="https://blog.quasar.dev", target="_blank", rel="noopener")
     q-btn.q-mr-xs(type="a", flat, :icon="mdiChat", href="https://chat.quasar.dev", target="_blank", rel="noopener")
     q-btn.q-mr-xs(type="a", flat, :icon="mdiForum", href="https://forum.quasar.dev/", target="_blank", rel="noopener")
