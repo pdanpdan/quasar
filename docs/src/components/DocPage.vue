@@ -58,7 +58,7 @@ q-page.doc-page
       | Caught a mistake? <doc-link :to="editHref">Suggest an edit on GitHub</doc-link>
 
     .doc-page-footer__icons.row.items-center.q-gutter-sm
-      a(href="https://github.quasar.dev", target="_blank", rel="noopener")
+      a(href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
         q-icon(:name="fabGithub")
 
       a(href="https://blog.quasar.dev", target="_blank", rel="noopener")
@@ -75,6 +75,9 @@ q-page.doc-page
 
       a(href="https://facebook.quasar.dev", target="_blank", rel="noopener")
         q-icon(:name="fabFacebook")
+
+      a(href="https://github.com/sponsors/pdanpdan", rel="sponsored", target="_blank")
+        q-icon(:name="mdiCharity")
 
       a(href="https://donate.quasar.dev", rel="sponsored", target="_blank")
         q-icon(:name="mdiCharity")
@@ -135,7 +138,7 @@ export default {
 
   computed: {
     editHref () {
-      return `https://github.com/quasarframework/quasar/edit/dev/docs/src/pages${this.$route.path}.md`
+      return `https://github.com/pdanpdan/quasar/edit/dev-pdan/docs/src/pages${this.$route.path}.md`
     }
   },
 
