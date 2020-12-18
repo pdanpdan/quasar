@@ -13,6 +13,8 @@
             span Framew
             img.landing__logo(src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg")
             span rk
+          div
+            small.text-weight-bolder PDan's Fork
         .text-subtitle1 Build high-performance <strong>VueJS</strong> user interfaces in record time
         .text-subtitle1.q-pt-sm
           | Looking for
@@ -142,7 +144,7 @@
   section.landing__footer.flex.flex-center
     div.text-center
       div.landing__footer-icons.row.flex-center.q-gutter-md
-        a(href="https://github.quasar.dev", target="_blank", rel="noopener")
+        a(href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
           q-icon(:name="fabGithub")
 
         a(href="https://blog.quasar.dev", target="_blank", rel="noopener")
@@ -159,6 +161,9 @@
 
         a(href="https://facebook.quasar.dev", target="_blank", rel="noopener")
           q-icon(:name="fabFacebook")
+
+        a(href="https://github.com/sponsors/pdanpdan", rel="sponsored", target="_blank")
+          q-icon(:name="fasMedkit")
 
         a(href="https://donate.quasar.dev", rel="sponsored", target="_blank")
           q-icon(:name="fasMedkit")
