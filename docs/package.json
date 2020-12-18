@@ -1,30 +1,31 @@
 {
-  "name": "quasar.dev",
+  "name": "quasar.dev-pdan",
   "version": "1.0.0",
-  "description": "Official Quasar Docs Website",
-  "productName": "quasar-docs",
+  "description": "PDan Quasar Docs Website",
+  "productName": "quasar-docs-pdan",
   "author": "Razvan Stoenescu <razvan.stoenescu@gmail.com>",
   "private": true,
   "scripts": {
     "dev": "quasar dev",
     "dev:ssr": "quasar dev -m ssr",
-    "build": "quasar build -m ssr",
+    "build": "quasar build -m pwa",
     "lint": "eslint --ext .js,.vue src",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "deploy": "rm -rf ~/Work/quasar-docs/css ~/Work/quasar-docs/fonts ~/Work/quasar-docs/js ~/Work/quasar-docs/workbox* && cp -pr dist/quasar.dev/* ~/Work/quasar-docs/ && git checkout . && echo \"cd ~/Work/quasar-docs/ && git add -A . && git commit -m 'docs 1.14.7-beta.3' && git push && cd ~/Work/quasar/ui/\""
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "core-js": "^3.6.5",
     "docsearch.js": "^2.6.2",
     "prismjs": "^1.15.0",
-    "quasar": "^1.0.0"
+    "quasar": "https://github.com/pdanpdan/quasar#quasar-pdan-v1.14.7-beta.10"
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^6.8.0",
+    "eslint": "^7.0.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-loader": "^3.0.3",
+    "eslint-loader": "^4.0.0",
     "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
@@ -32,13 +33,13 @@
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^6.1.1",
     "gray-matter": "^4.0.2",
-    "markdown-it": "^10.0.0",
-    "markdown-it-container": "^2.0.0",
-    "pug": "^2.0.3",
+    "markdown-it": "^12.0.0",
+    "markdown-it-container": "^3.0.0",
+    "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "raw-loader": "^4.0.0",
     "toml": "^3.0.0",
-    "workbox-webpack-plugin": "^5.1.3"
+    "workbox-webpack-plugin": "^6.0.0"
   },
   "browserslist": [
     "last 4 Chrome versions",
@@ -48,7 +49,8 @@
     "last 4 Android versions",
     "last 4 ChromeAndroid versions",
     "last 4 FirefoxAndroid versions",
-    "last 4 iOS versions"
+    "last 4 iOS versions",
+    "ie 11"
   ],
   "engines": {
     "node": ">= 10.0.0",

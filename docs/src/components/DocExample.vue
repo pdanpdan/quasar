@@ -166,7 +166,7 @@ export default {
     },
 
     openGitHub () {
-      openURL(`https://github.com/quasarframework/quasar/tree/dev/docs/src/examples/${this.file}.vue`)
+      openURL(`https://github.com/pdanpdan/quasar/tree/dev-pdan/docs/src/examples/${this.file}.vue`)
     },
 
     openCodepen () {

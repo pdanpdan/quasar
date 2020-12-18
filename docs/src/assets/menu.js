@@ -1215,7 +1215,7 @@ module.exports = [
     path: 'introduction-to-quasar'
   },
   {
-    name: 'Sponsors and Backers',
+    name: 'Quasar Sponsors and Backers',
     icon: 'favorite',
     path: 'sponsors-and-backers'
   },
