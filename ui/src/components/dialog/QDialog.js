@@ -1,5 +1,6 @@
 import Vue from 'vue'
 
+import { onTransitionHideScroll } from '../../mixins/transition'
 import HistoryMixin from '../../mixins/history.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
 import PortalMixin from '../../mixins/portal.js'
@@ -335,7 +336,8 @@ export default Vue.extend({
         ] : null),
 
         h('transition', {
-          props: { name: this.transition }
+          props: { name: this.transition },
+          on: onTransitionHideScroll
         }, [
           this.showing === true ? h('div', {
             ref: 'inner',
