@@ -15,7 +15,7 @@ import { isDeepEqual } from '../../utils/is.js'
 import { stop, prevent, stopAndPrevent } from '../../utils/event.js'
 import { normalizeToInterval } from '../../utils/format.js'
 import { shouldIgnoreKey, isKeyCode } from '../../utils/key-composition.js'
-import { mergeSlot } from '../../utils/slot.js'
+import { slot, mergeSlot } from '../../utils/slot.js'
 import cache from '../../utils/cache.js'
 
 import { FormFieldMixin } from '../../mixins/form.js'
@@ -78,6 +78,11 @@ export default Vue.extend({
 
     popupContentClass: String,
     popupContentStyle: [String, Array, Object],
+
+    dialogContentClass: [String, Array, Object],
+    dialogContentStyle: [String, Array, Object],
+
+    dialogCloseIcon: [Boolean, String],
 
     useInput: Boolean,
     useChips: Boolean,
@@ -328,6 +333,18 @@ export default Vue.extend({
       return this.dropdownIcon !== void 0
         ? this.dropdownIcon
         : this.$q.iconSet.arrow.dropdown
+    },
+
+    computedDialogCloseIcon () {
+      if (this.dialogCloseIcon === true) {
+        return this.$q.lang.rtl === true
+          ? this.$q.iconSet.chevron.right
+          : this.$q.iconSet.chevron.left
+      }
+
+      return typeof this.dialogCloseIcon === 'string' && this.dialogCloseIcon.length > 0
+        ? this.dialogCloseIcon
+        : false
     },
 
     squaredMenu () {
@@ -916,13 +933,14 @@ export default Vue.extend({
       // there can be only one (when dialog is opened the control in dialog should be target)
       else if (this.editable === true && isTarget === true) {
         child.push(
-          h('div', {
+          h('input', {
             ref: 'target',
             key: 'd_t',
-            staticClass: 'no-outline',
+            staticClass: 'q-field__focus-target',
             attrs: {
               id: this.targetUid,
-              tabindex: this.tabindex
+              tabindex: this.tabindex,
+              readonly: true
             },
             on: cache(this, 'f-tget', {
               keydown: this.__onTargetKeydown,
@@ -1008,6 +1026,24 @@ export default Vue.extend({
       }
 
       return mergeSlot(options, this, 'after-options')
+    },
+
+    __prependDialogCloseIcon (h) {
+      if (
+        this.computedDialogCloseIcon === false ||
+        this.hasDialog !== true ||
+        this.dialog !== true
+      ) {
+        return slot(this, 'prepend')
+      }
+
+      return mergeSlot([
+        h(QIcon, {
+          staticClass: 'q-select__close-icon',
+          props: { name: this.computedDialogCloseIcon },
+          on: { click: this.hidePopup }
+        })
+      ], this, 'prepend')
     },
 
     __getInnerAppend (h) {
@@ -1159,6 +1195,7 @@ export default Vue.extend({
                 }
                 else {
                   this.menu = true
+                  this.hasDialog === true && (this.dialog = true)
                 }
               }
 
@@ -1301,6 +1338,7 @@ export default Vue.extend({
           scopedSlots: {
             ...this.$scopedSlots,
             rawControl: () => this.__getControl(h, true),
+            prepend: () => this.__prependDialogCloseIcon(h),
             before: void 0,
             after: void 0
           }
@@ -1333,6 +1371,8 @@ export default Vue.extend({
         props: {
           value: this.dialog,
           position: this.useInput === true ? 'top' : void 0,
+          contentClass: this.dialogContentClass,
+          contentStyle: this.dialogContentStyle,
           transitionShow: this.transitionShowComputed,
           transitionHide: this.transitionHide
         },
