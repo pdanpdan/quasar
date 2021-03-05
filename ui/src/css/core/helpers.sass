@@ -33,6 +33,9 @@
 .q-body--fullscreen-mixin, .q-body--prevent-scroll
   position: fixed !important
 
+.q-body--prevent-scroll
+  -webkit-overflow-scrolling: touch
+
 .q-body--force-scrollbar
   overflow-y: scroll
 
@@ -43,6 +46,12 @@
   flex-shrink: 0 !important
   opacity: 0 !important
   z-index: -1 !important
+
+.q-focus__clone + *
+  position: fixed !important
+  transition: none !important
+  opacity: 0 !important
+  pointer-events: none !important
 
 .q-no-input-spinner
   -moz-appearance: textfield !important

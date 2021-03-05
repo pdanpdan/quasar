@@ -1,4 +1,5 @@
 import { normalizeToInterval } from './format.js'
+import { client } from '../plugins/Platform.js'
 
 export const FOCUSABLE_SELECTOR = [
   'a[href]:not([tabindex="-1"])',
@@ -24,6 +25,33 @@ export const KEY_SKIP_SELECTOR = [
   '.q-key-group-navigation--ignore-key *'
 ].join(',')
 
+export function focusNoScroll (el) {
+  if (el === document.activeElement || el === document.body) {
+    return
+  }
+
+  if (client.is.ios !== true) {
+    el.focus({ preventScroll: true })
+    return
+  }
+
+  const clone = el.cloneNode(true)
+  const parent = el.parentNode
+
+  clone.removeAttribute('id')
+  clone.removeAttribute('autofocus')
+  clone.removeAttribute('data-autofocus')
+  clone.classList.add('q-focus__clone')
+
+  parent.insertBefore(clone, el)
+
+  el.focus()
+
+  setTimeout(() => {
+    clone.remove()
+  }, 150)
+}
+
 export function changeFocusedElement (list, to, direction = 1, noWrap, start) {
   const lastIndex = list.length - 1
 
@@ -43,7 +71,7 @@ export function changeFocusedElement (list, to, direction = 1, noWrap, start) {
     return
   }
 
-  list[index].focus()
+  focusNoScroll(list[index])
 
   if (initialEl !== null) {
     initialEl._qKeyNavIgnore = false
