@@ -145,6 +145,18 @@ export default Vue.extend({
       }
 
       return on
+    },
+
+    onPortalTransition () {
+      return {
+        ...onTransitionHideScroll,
+        'before-enter' (el) {
+          el.setAttribute('data-q-portal-entering', true)
+        },
+        'after-enter' (el) {
+          el.removeAttribute('data-q-portal-entering')
+        }
+      }
     }
   },
 
@@ -348,7 +360,7 @@ export default Vue.extend({
 
         h('transition', {
           props: { name: this.transition },
-          on: onTransitionHideScroll
+          on: this.onPortalTransition
         }, [
           this.showing === true ? h('div', {
             ref: 'inner',
