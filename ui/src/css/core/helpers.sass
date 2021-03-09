@@ -30,11 +30,28 @@
     opacity: .7
 
 /* body */
-.q-body--fullscreen-mixin, .q-body--prevent-scroll
+.q-body--fullscreen-mixin
   position: fixed !important
 
 .q-body--prevent-scroll
-  -webkit-overflow-scrolling: touch
+  overflow: hidden
+  width: var(--scroll-lock-width)
+  height: var(--scroll-lock-height)
+
+  &[dir] body
+    overflow: hidden
+    margin-top: var(--scroll-lock-top)
+    width: calc(var(--scroll-lock-width) - var(--scroll-lock-left) - var(--scroll-lock-scrollbar))
+    height: calc(var(--scroll-lock-height) - var(--scroll-lock-top))
+
+    &.desktop
+      position: fixed !important
+
+  &[dir=ltr] body
+    margin-left: var(--scroll-lock-left)
+
+  &[dir=rtl] body
+    margin-right: var(--scroll-lock-left)
 
 .q-body--force-scrollbar
   overflow-y: scroll

@@ -13,6 +13,7 @@ import EscapeKey from '../../utils/escape-key.js'
 import { create, stop } from '../../utils/event.js'
 import cache from '../../utils/cache.js'
 import { focusNoScroll } from '../../utils/focus.js'
+import { animScrollTo } from '../../utils/scroll.js'
 
 let maximizedModals = 0
 
@@ -223,16 +224,18 @@ export default Vue.extend({
                 ? window.visualViewport.height
                 : innerHeight
 
-            if (top > 0 && bottom > height / 2) {
-              document.scrollingElement.scrollTop = Math.min(
-                document.scrollingElement.scrollHeight - height,
-                bottom >= innerHeight
-                  ? Infinity
-                  : Math.ceil(document.scrollingElement.scrollTop + bottom - height / 2)
+            if (top > 0 && bottom > height / 1.5) {
+              animScrollTo(
+                document.scrollingElement,
+                Math.min(
+                  document.scrollingElement.scrollHeight - height,
+                  bottom >= innerHeight
+                    ? Infinity
+                    : Math.ceil(document.scrollingElement.scrollTop + bottom - height / 1.5)
+                ),
+                150
               )
             }
-
-            document.activeElement.scrollIntoView()
           }
 
           // required in order to avoid the "double-tap needed" issue
@@ -241,8 +244,8 @@ export default Vue.extend({
 
         this.__setTimeout(() => {
           this.$emit('show', evt)
-        }, 180)
-      }, 120)
+        }, 150)
+      }, 150)
     },
 
     __hide (evt) {
@@ -251,7 +254,12 @@ export default Vue.extend({
 
       // check null for IE
       if (this.__refocusTarget !== void 0 && this.__refocusTarget !== null) {
-        focusNoScroll(this.__refocusTarget)
+        if (['input', 'textarea'].indexOf(this.__refocusTarget.nodeName.toLowerCase()) > -1) {
+          focusNoScroll(this.__refocusTarget)
+        }
+        else {
+          this.__refocusTarget.focus()
+        }
       }
 
       this.$el.dispatchEvent(create('popup-hide', { bubbles: true }))

@@ -49,7 +49,7 @@ export function focusNoScroll (el) {
 
   setTimeout(() => {
     clone.remove()
-  }, 150)
+  }, 50)
 }
 
 export function changeFocusedElement (list, to, direction = 1, noWrap, start) {
