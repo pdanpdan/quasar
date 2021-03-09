@@ -252,11 +252,6 @@ export default Vue.extend({
 
   methods: {
     focus () {
-      if (this.showPopup !== void 0) {
-        this.showPopup()
-        return
-      }
-
       this.__focus()
     },
 
