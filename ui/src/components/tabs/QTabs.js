@@ -591,6 +591,10 @@ export default Vue.extend({
     }
   },
 
+  activated () {
+    this.__recalculateScroll()
+  },
+
   created () {
     this.buffer = []
     this.tabNames = []
