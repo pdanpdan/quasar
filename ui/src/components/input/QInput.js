@@ -307,6 +307,16 @@ export default Vue.extend({
     },
 
     __getControl (h) {
+      const { input } = this.$refs
+
+      if (this.type !== 'file' && this.hasMask !== true && input === document.activeElement) {
+        const index = input.selectionEnd
+
+        index !== void 0 && this.$nextTick(() => {
+          input === document.activeElement && input.setSelectionRange(index, index)
+        })
+      }
+
       return h(this.isTextarea === true ? 'textarea' : 'input', {
         ref: 'input',
         staticClass: 'q-field__native q-placeholder',
