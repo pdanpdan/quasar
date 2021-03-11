@@ -109,6 +109,7 @@
         <q-btn color="primary" label="Menu with select">
           <q-menu cover @show="log('@show cover')" @hide="log('@hide cover')" content-class="q-pa-md" v-bind="transition">
             <div class="column q-gutter-md">
+              <q-select v-model="selectModelS" :options="selectOptions" behavior="menu" filled label="Select single - menu use-input" clearable use-input autofocus />
               <q-select v-model="selectModelS" :options="selectOptions" behavior="menu" filled label="Select single - menu" clearable />
               <q-select v-model="selectModelM" :options="selectOptions" behavior="menu" filled multiple label="Select multiple - menu" clearable />
               <q-select v-model="selectModelS" :options="selectOptions" behavior="dialog" filled label="Select single - dialog" clearable />

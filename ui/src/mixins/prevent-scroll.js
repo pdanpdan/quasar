@@ -72,6 +72,10 @@ function apply (action) {
         documentElement.style.marginTop = `-${scrollTop}px`
       }
 
+      Array.prototype.slice.call(document.querySelectorAll('.q-menu__container, .q-tooltip__container')).forEach(el => {
+        el.classList.add('q-body--prevent-scroll-lock')
+      })
+
       document.qScrollPrevented = true
     })
   }
@@ -94,6 +98,16 @@ function apply (action) {
 
       document.qScrollPrevented = false
       maxScrollTop = void 0
+
+      Array.prototype.slice.call(document.querySelectorAll('.q-body--prevent-scroll-lock')).forEach(el => {
+        el.classList.remove('q-body--prevent-scroll-lock')
+      })
+
+      documentElement.style.removeProperty('--scroll-lock-left')
+      documentElement.style.removeProperty('--scroll-lock-top')
+      documentElement.style.removeProperty('--scroll-lock-width')
+      documentElement.style.removeProperty('--scroll-lock-height')
+      documentElement.style.removeProperty('--scroll-lock-scrollbar')
     })
   }
 }

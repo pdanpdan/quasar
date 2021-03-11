@@ -223,6 +223,7 @@ export default Vue.extend({
       if (this.noFocus !== true) {
         // IE can have null document.activeElement
         document.activeElement !== null && document.activeElement.blur()
+
         this.__nextTick(this.focus)
       }
 
@@ -266,12 +267,7 @@ export default Vue.extend({
 
       // check null for IE
       if (this.__refocusTarget !== void 0 && this.__refocusTarget !== null) {
-        if (['input', 'textarea'].indexOf(this.__refocusTarget.nodeName.toLowerCase()) > -1) {
-          focusNoScroll(this.__refocusTarget)
-        }
-        else {
-          this.__refocusTarget.focus()
-        }
+        focusNoScroll(this.__refocusTarget)
       }
 
       this.$el.dispatchEvent(create('popup-hide', { bubbles: true }))

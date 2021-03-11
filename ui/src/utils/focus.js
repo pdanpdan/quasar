@@ -10,7 +10,7 @@ export const FOCUSABLE_SELECTOR = [
   'button:not([disabled]):not([tabindex="-1"])',
   'iframe:not([tabindex="-1"])',
   '[tabindex]:not([tabindex="-1"])',
-  '[contenteditable]:not([tabindex="-1"]):not([contenteditable=false])',
+  '[contenteditable]:not([tabindex="-1"]):not([contenteditable="false"])',
   '.q-tab.q-focusable'
 ].join(',')
 
@@ -19,10 +19,17 @@ export const KEY_SKIP_SELECTOR = [
   'select:not([disabled])',
   'select:not([disabled]) *',
   'textarea:not([disabled])',
-  '[contenteditable]:not([contenteditable=false])',
-  '[contenteditable]:not([contenteditable=false]) *',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[contenteditable]:not([contenteditable="false"]) *',
   '.q-key-group-navigation--ignore-key',
   '.q-key-group-navigation--ignore-key *'
+].join(',')
+
+export const EDITABLE_SELECTOR = [
+  'input:not([disabled]):not([readonly]):not([type="button"]):not([type="checkbox"]):not([type="file"]):not([type="hidden"]):not([type="image"]):not([type="radio"]):not([type="range"]):not([type="reset"]):not([type="submit"])',
+  'textarea:not([disabled]):not([readonly])',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[contenteditable]:not([contenteditable="false"]) *'
 ].join(',')
 
 export function focusNoScroll (el) {
@@ -30,7 +37,7 @@ export function focusNoScroll (el) {
     return
   }
 
-  if (client.is.ios !== true) {
+  if (client.is.ios !== true || typeof el.matches !== 'function' || el.matches(EDITABLE_SELECTOR) !== true) {
     el.focus({ preventScroll: true })
     return
   }
@@ -49,7 +56,7 @@ export function focusNoScroll (el) {
 
   setTimeout(() => {
     clone.remove()
-  }, 50)
+  }, 310)
 }
 
 export function changeFocusedElement (list, to, direction = 1, noWrap, start) {

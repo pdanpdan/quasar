@@ -33,13 +33,19 @@
 .q-body--fullscreen-mixin
   position: fixed !important
 
+body:not(.desktop)
+  .q-body--prevent-scroll-lock
+    transform: translate(var(--scroll-lock-left), var(--scroll-lock-top))
+
 .q-body--prevent-scroll
   overflow: hidden
+  overscroll-behavior: none
   width: var(--scroll-lock-width)
   height: var(--scroll-lock-height)
 
   &[dir] body
     overflow: hidden
+    overscroll-behavior: none
     margin-top: var(--scroll-lock-top)
     width: calc(var(--scroll-lock-width) - var(--scroll-lock-left) - var(--scroll-lock-scrollbar))
     height: calc(var(--scroll-lock-height) - var(--scroll-lock-top))
