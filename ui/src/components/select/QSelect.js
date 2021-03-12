@@ -1049,7 +1049,12 @@ export default Vue.extend({
         h(QIcon, {
           staticClass: 'q-select__close-icon',
           props: { name: this.computedDialogCloseIcon },
-          on: { click: this.hidePopup }
+          on: {
+            click: () => {
+              this.dialogFieldFocused = document.activeElement !== this.$refs.target
+              this.hidePopup()
+            }
+          }
         })
       ], this, 'prepend')
     },
@@ -1317,7 +1322,6 @@ export default Vue.extend({
       stop(e)
       this.$refs.target !== void 0 && this.$refs.target.focus()
       this.dialogFieldFocused = true
-      window.scrollTo(window.pageXOffset || window.scrollX || document.body.scrollLeft || 0, 0)
     },
 
     __onDialogFieldBlur (e) {
@@ -1402,7 +1406,9 @@ export default Vue.extend({
     },
 
     __onDialogBeforeHide () {
-      this.$refs.dialog.__refocusTarget = this.$el.querySelector('.q-field__native > [tabindex]:last-child')
+      if (this.dialogFieldFocused === true) {
+        this.$refs.dialog.__refocusTarget = this.$el.querySelector('.q-field__native > [tabindex]:last-child')
+      }
       this.focused = false
     },
 
