@@ -5,40 +5,44 @@ import { client } from '../plugins/Platform.js'
 let
   restorePos = null,
   registered = 0,
-  maxScrollTop,
-  vpPendingUpdate = false,
-  closeTimer
+  closeTimer,
+  orientationTimer
 
-function onViewportResize (evt) {
-  if (vpPendingUpdate === true) {
-    return
+const { passiveCapture } = listenOpts
+
+function onOrientationChange () {
+  clearTimeout(orientationTimer)
+
+  orientationTimer = setTimeout(() => {
+    requestAnimationFrame(() => {
+      if (restorePos.innerWidth !== window.innerWidth) {
+        restorePos.scrollLeft += Math.round((window.innerWidth - restorePos.innerWidth) / 2)
+        document.documentElement.style.setProperty('--scroll-lock-left', `${-Math.abs(restorePos.scrollLeft) + (restorePos.scrollLeft < 0 ? -1 : 1) * restorePos.offsetLeft}px`)
+        document.documentElement.style.setProperty('--scroll-lock-width', `${window.innerWidth}px`)
+        restorePos.innerWidth = window.innerWidth
+      }
+      if (restorePos.innerHeight !== window.innerHeight) {
+        restorePos.scrollTop += Math.round((window.innerHeight - restorePos.innerHeight) / 2)
+        document.documentElement.style.setProperty('--scroll-lock-top', `${-restorePos.scrollTop + restorePos.offsetTop}px`)
+        document.documentElement.style.setProperty('--scroll-lock-height', `${window.innerHeight}px`)
+        restorePos.innerHeight = window.innerHeight
+      }
+    })
+  }, 50)
+}
+
+function onViewportScroll (evt) {
+  if (document.documentElement.scrollTop + evt.target.height >= document.documentElement.scrollHeight - 1) {
+    document.documentElement.scrollTop -= 1
   }
-
-  vpPendingUpdate = true
-
-  requestAnimationFrame(() => {
-    vpPendingUpdate = false
-
-    const
-      { scrollingElement } = document,
-      { height } = evt.target,
-      { scrollHeight, scrollTop } = scrollingElement
-
-    if (maxScrollTop === void 0 || height !== window.innerHeight) {
-      maxScrollTop = scrollHeight - height
-      scrollingElement.style.setProperty('--scroll-lock-height', `${height}px`)
-    }
-
-    if (scrollTop > maxScrollTop) {
-      scrollingElement.scrollTop -= Math.ceil((scrollTop - maxScrollTop) / 8)
-    }
-  })
 }
 
 function apply (action) {
   const
     { body, documentElement } = document,
-    hasViewport = window.visualViewport !== void 0
+    { visualViewport } = window
+
+  clearTimeout(orientationTimer)
 
   if (action === 'add') {
     const
@@ -47,67 +51,96 @@ function apply (action) {
       { innerWidth, innerHeight } = window,
       forceScrollbar = overflowY !== 'hidden' && (overflowY === 'scroll' || body.scrollHeight > innerHeight)
 
-    restorePos = { scrollLeft, scrollTop }
+    restorePos = {
+      scrollLeft,
+      scrollTop,
+      offsetLeft: 0,
+      offsetTop: 0,
+      innerWidth,
+      innerHeight,
+      scrollbar: forceScrollbar === true ? getScrollbarWidth() : 0,
+      scale: 1
+    }
 
-    if (hasViewport === true) {
-      window.visualViewport.addEventListener('resize', onViewportResize, listenOpts.passiveCapture)
-      window.visualViewport.addEventListener('scroll', onViewportResize, listenOpts.passiveCapture)
+    if (client.is.mobile === true) {
+      if (visualViewport !== void 0 && client.is.ios === true) {
+        const { scale } = visualViewport
+
+        restorePos.scale = scale
+        restorePos.offsetLeft = Math.min(Math.abs(restorePos.scrollLeft), Math.round(innerWidth * (scale - 1) / 2))
+        restorePos.offsetTop = Math.min(restorePos.scrollTop, Math.round(innerHeight * (scale - 1) / 2))
+        restorePos.innerWidth = Math.round(innerWidth * scale)
+        restorePos.innerHeight = Math.round(innerHeight * scale)
+
+        visualViewport.addEventListener('scroll', onViewportScroll, passiveCapture)
+      }
+
+      window.addEventListener('orientationchange', onOrientationChange, passiveCapture)
     }
 
     requestAnimationFrame(() => {
-      documentElement.style.setProperty('--scroll-lock-left', `-${Math.abs(scrollLeft)}px`)
-      documentElement.style.setProperty('--scroll-lock-top', `-${scrollTop}px`)
-      documentElement.style.setProperty('--scroll-lock-width', `${innerWidth}px`)
-      documentElement.style.setProperty('--scroll-lock-height', `${innerHeight}px`)
-      documentElement.style.setProperty('--scroll-lock-scrollbar', `${forceScrollbar === true ? getScrollbarWidth() : 0}px`)
+      if (client.is.ie !== true) {
+        documentElement.style.setProperty('--scroll-lock-width', `${ restorePos.innerWidth }px`)
+        documentElement.style.setProperty('--scroll-lock-height', `${ restorePos.innerHeight }px`)
+        documentElement.style.setProperty('--scroll-lock-left', `${ -Math.abs(restorePos.scrollLeft) + (restorePos.scrollLeft < 0 ? -1 : 1) * restorePos.offsetLeft }px`)
+        documentElement.style.setProperty('--scroll-lock-top', `${ -restorePos.scrollTop + restorePos.offsetTop }px`)
+        documentElement.style.setProperty('--scroll-lock-scrollbar', `${ restorePos.scrollbar }px`)
+      }
 
-      documentElement.scrollLeft = 0
-      documentElement.scrollTop = 0
+      documentElement.scrollLeft = restorePos.offsetLeft
+      documentElement.scrollTop = restorePos.offsetTop
 
       forceScrollbar === true && documentElement.classList.add('q-body--force-scrollbar')
       documentElement.classList.add('q-body--prevent-scroll')
 
       if (client.is.ie === true) {
-        documentElement.style.marginLeft = `-${Math.abs(scrollLeft)}px`
-        documentElement.style.marginTop = `-${scrollTop}px`
+        documentElement.style.marginLeft = `${-Math.abs(restorePos.scrollLeft)}px`
+        documentElement.style.marginTop = `${-restorePos.scrollTop}px`
       }
 
       Array.prototype.slice.call(document.querySelectorAll('.q-menu__container, .q-tooltip__container')).forEach(el => {
-        el.classList.add('q-body--prevent-scroll-lock')
+        el.classList.add('q-body--prevent-scroll-reposition')
       })
 
       document.qScrollPrevented = true
     })
   }
   else {
-    if (hasViewport === true) {
-      window.visualViewport.removeEventListener('resize', onViewportResize, listenOpts.passiveCapture)
-      window.visualViewport.removeEventListener('scroll', onViewportResize, listenOpts.passiveCapture)
+    if (client.is.mobile === true) {
+      if (visualViewport !== void 0 && client.is.ios === true) {
+        visualViewport.removeEventListener('scroll', onViewportScroll, passiveCapture)
+      }
+
+      window.removeEventListener('orientationchange', onOrientationChange, passiveCapture)
     }
 
     requestAnimationFrame(() => {
+      const { scrollLeft, scrollTop } = documentElement
+
       documentElement.classList.remove('q-body--force-scrollbar')
       documentElement.classList.remove('q-body--prevent-scroll')
 
       if (client.is.ie === true) {
-        documentElement.style.marginLeft = void 0
-        documentElement.style.marginTop = void 0
+        documentElement.style.marginLeft = 'auto'
+        documentElement.style.marginTop = 'auto'
       }
 
-      Object.assign(documentElement, restorePos)
+      documentElement.scrollLeft = restorePos.scrollLeft + scrollLeft - restorePos.offsetLeft
+      documentElement.scrollTop = restorePos.scrollTop + scrollTop - restorePos.offsetTop
 
       document.qScrollPrevented = false
-      maxScrollTop = void 0
 
-      Array.prototype.slice.call(document.querySelectorAll('.q-body--prevent-scroll-lock')).forEach(el => {
-        el.classList.remove('q-body--prevent-scroll-lock')
+      Array.prototype.slice.call(document.querySelectorAll('.q-body--prevent-scroll-reposition')).forEach(el => {
+        el.classList.remove('q-body--prevent-scroll-reposition')
       })
 
-      documentElement.style.removeProperty('--scroll-lock-left')
-      documentElement.style.removeProperty('--scroll-lock-top')
-      documentElement.style.removeProperty('--scroll-lock-width')
-      documentElement.style.removeProperty('--scroll-lock-height')
-      documentElement.style.removeProperty('--scroll-lock-scrollbar')
+      if (client.is.ie !== true) {
+        documentElement.style.removeProperty('--scroll-lock-width')
+        documentElement.style.removeProperty('--scroll-lock-height')
+        documentElement.style.removeProperty('--scroll-lock-left')
+        documentElement.style.removeProperty('--scroll-lock-top')
+        documentElement.style.removeProperty('--scroll-lock-scrollbar')
+      }
     })
   }
 }
@@ -141,15 +174,13 @@ export function preventScroll (state) {
 
     action = 'remove'
 
-    if (client.is.ios === true && client.is.nativeMobile === true) {
-      clearTimeout(closeTimer)
+    clearTimeout(closeTimer)
 
-      closeTimer = setTimeout(() => {
-        apply(action)
-        closeTimer = void 0
-      }, 100)
-      return
-    }
+    closeTimer = setTimeout(() => {
+      apply(action)
+      closeTimer = void 0
+    }, 300)
+    return
   }
 
   apply(action)

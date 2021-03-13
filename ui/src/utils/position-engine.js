@@ -160,7 +160,7 @@ export function getTargetProps (el) {
 export function setPosition (cfg) {
   const extEl = cfg.el
 
-  if (extEl.classList.contains('q-body--prevent-scroll-lock') === true) {
+  if (extEl.classList.contains('q-body--prevent-scroll-reposition') === true) {
     return
   }
 
