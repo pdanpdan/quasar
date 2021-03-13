@@ -309,7 +309,12 @@ export default Vue.extend({
     __getControl (h) {
       const { input } = this.$refs
 
-      if (this.type !== 'file' && this.hasMask !== true && input === document.activeElement) {
+      if (
+        this.type !== 'file' &&
+        this.type !== 'number' &&
+        this.hasMask !== true &&
+        input === document.activeElement
+      ) {
         const index = input.selectionEnd
 
         index !== void 0 && this.$nextTick(() => {
