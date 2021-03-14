@@ -402,6 +402,19 @@ export default Vue.extend({
       }
     },
 
+    closeButtonEvents () {
+      return {
+        click: e => {
+          stopAndPrevent(e)
+          if (this.dialogFieldFocused === true && document.activeElement === this.$refs.target) {
+            this.dialogFieldFocused = false
+            document.activeElement.blur()
+          }
+          this.hidePopup()
+        }
+      }
+    },
+
     virtualScrollItemSizeComputed () {
       return this.virtualScrollItemSize === void 0
         ? (this.dense === true ? 24 : 48)
@@ -483,6 +496,9 @@ export default Vue.extend({
             true,
             true
           )
+
+          this.dialogFieldFocused = false
+          document.activeElement.blur()
 
           this.hidePopup()
         }
@@ -588,16 +604,12 @@ export default Vue.extend({
     },
 
     __selectInputText (ev) {
-      if (this.useInput === true && this.$refs.target !== void 0 && (ev === void 0 || this.$refs.target === ev.target)) {
+      if (
+        this.useInput === true &&
+        this.$refs.target !== void 0 &&
+        (ev === void 0 || (this.$refs.target === ev.target && ev.target.value === this.selectedString))
+      ) {
         this.$refs.target.select()
-
-        // move selection to the end of text if coming from the main input
-        // delay is needed for composition
-        setTimeout(() => {
-          if (ev !== void 0 && ev.target === ev.srcElement) {
-            this.$refs.target.selectionStart = this.$refs.target.selectionEnd = this.$refs.target.value.length
-          }
-        })
       }
     },
 
@@ -939,14 +951,14 @@ export default Vue.extend({
         child.push(this.__getInput(h, fromDialog, isTarget))
       }
       // there can be only one (when dialog is opened the control in dialog should be target)
-      else if (this.editable === true && isTarget === true) {
+      else if (this.editable === true) {
         child.push(
           h('input', {
-            ref: 'target',
+            ref: isTarget === true ? 'target' : void 0,
             key: 'd_t',
             staticClass: 'q-field__focus-target',
             attrs: {
-              id: this.targetUid,
+              id: isTarget === true ? this.targetUid : void 0,
               tabindex: this.tabindex,
               readonly: true
             },
@@ -958,7 +970,7 @@ export default Vue.extend({
           })
         )
 
-        if (typeof this.autocomplete === 'string' && this.autocomplete.length > 0) {
+        if (isTarget === true && typeof this.autocomplete === 'string' && this.autocomplete.length > 0) {
           child.push(
             h('input', {
               staticClass: 'q-select__autocomplete-input no-outline',
@@ -1047,14 +1059,10 @@ export default Vue.extend({
 
       return mergeSlot([
         h(QIcon, {
-          staticClass: 'q-select__close-icon',
-          props: { name: this.computedDialogCloseIcon },
-          on: {
-            click: () => {
-              this.dialogFieldFocused = document.activeElement !== this.$refs.target
-              this.hidePopup()
-            }
-          }
+          staticClass: 'q-select__close-icon q-field__focusable-action',
+          props: { tag: 'button', name: this.computedDialogCloseIcon },
+          attrs: { tabindex: 0, type: 'button' },
+          on: this.closeButtonEvents
         })
       ], this, 'prepend')
     },
@@ -1108,16 +1116,21 @@ export default Vue.extend({
     },
 
     __onInput (e) {
-      if (e && e.target && (
-        e.target.composing === true ||
-        (e.type === 'compositionend' && e.target.value === this.inputValue)
-      )) {
+      if (!e || !e.target || e.target.composing === true) {
+        return
+      }
+
+      const val = typeof e.data === 'string' && e.data.length + 1 === e.target.value.length
+        ? e.data
+        : e.target.value
+
+      if (this.inputValue === val) {
         return
       }
 
       clearTimeout(this.inputTimer)
 
-      this.__setInputValue(e.target.value || '')
+      this.__setInputValue(val)
       // mark it here as user input so that if updateInputValue is called
       // before filter is called the indicator is reset
       this.userInputValue = true
@@ -1406,9 +1419,9 @@ export default Vue.extend({
     },
 
     __onDialogBeforeHide () {
-      if (this.dialogFieldFocused === true) {
-        this.$refs.dialog.__refocusTarget = this.$el.querySelector('.q-field__native > [tabindex]:last-child')
-      }
+      this.$refs.dialog.__refocusTarget = this.$q.platform.is.desktop === true || (this.useInput === true && this.dialogFieldFocused === true)
+        ? this.$el.querySelector('.q-field__native > [tabindex]:last-child')
+        : void 0
       this.focused = false
     },
 

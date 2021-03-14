@@ -1,12 +1,13 @@
 <template>
   <div class="q-layout-padding">
-    <div class="row items-center bg-black text-white q-pa-sm q-mb-xl">
+    <div class="row items-center bg-black text-white q-pa-sm">
       <q-checkbox v-model="forceMenu" toggle-indeterminate dark :label="forceMenuLabel" />
       <q-checkbox v-model="dialogCloseIcon" toggle-indeterminate dark :label="dialogCloseIconLabel" />
+    </div>
 
-      <div class="col text-right q-pr-md">
-        ModelS: {{ modelS || 'null' }} / ModelM: {{ modelM || 'null' }}
-      </div>
+    <div class="bg-black text-white q-pa-sm q-mb-xl">
+      <div>ModelS: {{ modelS || 'null' }}</div>
+      <div>ModelM: {{ modelM || 'null' }}</div>
     </div>
 
     <div class="row q-col-gutter-md">
