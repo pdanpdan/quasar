@@ -167,7 +167,7 @@ export default Vue.extend({
         'q-field--error': this.hasError,
 
         'q-field--readonly': this.readonly === true && this.disable !== true,
-        [this.disable === true ? 'q-field--disabled' : 'q-validation-component']: true
+        'q-field--disabled': this.disable === true
       }
     },
 
@@ -522,7 +522,7 @@ export default Vue.extend({
       this.$nextTick(() => {
         this.resetValidation()
 
-        if (this.lazyRules !== 'ondemand' && this.$q.platform.is.mobile !== true) {
+        if (this.$q.platform.is.mobile !== true) {
           this.isDirty = false
         }
       })
@@ -538,7 +538,7 @@ export default Vue.extend({
     this.__onPostRender !== void 0 && this.$nextTick(this.__onPostRender)
 
     return h('label', {
-      staticClass: 'q-field row no-wrap items-start q-key-group-navigation--ignore-key',
+      staticClass: 'q-field q-validation-component row no-wrap items-start q-key-group-navigation--ignore-key',
       class: this.classes,
       attrs: this.attrs
     }, [
