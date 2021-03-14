@@ -690,6 +690,7 @@ export default {
   },
 
   beforeDestroy () {
+    this.__onVirtualScrollEvt.cancel()
     const styleSheet = document.getElementById(this.id + '_ss')
     styleSheet !== null && styleSheet.remove()
   }
