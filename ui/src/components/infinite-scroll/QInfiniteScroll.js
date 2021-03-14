@@ -135,6 +135,7 @@ export default Vue.extend({
         this.working = false
         this.fetching = false
         this.__scrollTarget.removeEventListener('scroll', this.poll, listenOpts.passive)
+        typeof this.poll.cancel === 'function' && this.poll.cancel()
       }
     },
 
@@ -191,9 +192,7 @@ export default Vue.extend({
   },
 
   beforeDestroy () {
-    if (this.working === true) {
-      this.__scrollTarget.removeEventListener('scroll', this.poll, listenOpts.passive)
-    }
+    this.stop()
   },
 
   render (h) {
