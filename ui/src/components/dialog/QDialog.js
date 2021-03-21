@@ -1,6 +1,5 @@
 import Vue from 'vue'
 
-import { onTransitionHideScroll } from '../../mixins/transition'
 import HistoryMixin from '../../mixins/history.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
 import PortalMixin from '../../mixins/portal.js'
@@ -11,9 +10,8 @@ import FocusWrapMixin from '../../mixins/focus-wrap.js'
 import { childHasFocus } from '../../utils/dom.js'
 import EscapeKey from '../../utils/escape-key.js'
 import { create, stop } from '../../utils/event.js'
-import cache from '../../utils/cache.js'
-
-let maximizedModals = 0
+import { focusNoScroll, EDITABLE_SELECTOR } from '../../utils/focus.js'
+import { animScrollTo } from '../../utils/scroll.js'
 
 const positionClass = {
   standard: 'fixed-full flex-center',
@@ -87,12 +85,8 @@ export default Vue.extend({
       }
     },
 
-    maximized (state) {
-      this.showing === true && this.__updateMaximized(state)
-    },
-
-    useBackdrop (v) {
-      this.__preventScroll(v)
+    seamless (v) {
+      this.showing === true && this.__preventScroll(v !== true)
     }
   },
 
@@ -129,7 +123,13 @@ export default Vue.extend({
         this.seamless !== true
     },
 
-    onEvents () {
+    onBackdropEvents () {
+      return {
+        click: this.__onBackdropClick
+      }
+    },
+
+    onInnerEvents () {
       const on = {
         ...this.qListeners,
         // stop propagating these events from children
@@ -145,15 +145,14 @@ export default Vue.extend({
       return on
     },
 
-    onPortalTransition () {
+    onTransitionEvents () {
       return {
-        ...onTransitionHideScroll,
-        'before-enter' (el) {
-          el.setAttribute('data-q-portal-entering', true)
-        },
-        'after-enter' (el) {
-          el.removeAttribute('data-q-portal-entering')
-        }
+        'before-enter': this.__onTransitionBeforeEnter,
+        enter: this.__onTransitionEnter,
+        'after-enter': this.__onTransitionAfterEnter,
+        'enter-cancelled': this.__onTransitionEnterCancelled,
+        'before-leave': this.__onTransitionBeforeLeave,
+        'after-leave': this.__onTransitionAfterLeave
       }
     }
   },
@@ -161,6 +160,7 @@ export default Vue.extend({
   methods: {
     shake () {
       this.__focusFirst()
+
       this.$emit('shake')
 
       const node = this.__getInnerNode()
@@ -171,11 +171,13 @@ export default Vue.extend({
         clearTimeout(this.shakeTimeout)
         this.shakeTimeout = setTimeout(() => {
           node.classList.remove('q-animate--scale')
+
+          this.__iosScroll()
         }, 170)
       }
     },
 
-    __show (evt) {
+    __show () {
       this.__addHistory()
 
       // IE can have null document.activeElement
@@ -184,7 +186,6 @@ export default Vue.extend({
         : void 0
 
       this.$el.dispatchEvent(create('popup-show', { bubbles: true }))
-      this.__updateMaximized(this.maximized)
 
       EscapeKey.register(this, () => {
         if (this.seamless !== true) {
@@ -209,7 +210,7 @@ export default Vue.extend({
           this.__refocusTarget !== void 0 &&
           this.__portal.$el.contains(document.activeElement) === true
         ) {
-          this.__refocusTarget.focus()
+          focusNoScroll(this.__refocusTarget)
         }
         else {
           this.__focusFirst()
@@ -217,90 +218,58 @@ export default Vue.extend({
       })
 
       this.__showPortal()
-
-      if (this.noFocus !== true) {
-        // IE can have null document.activeElement
-        document.activeElement !== null && document.activeElement.blur()
-        this.__nextTick(this.focus)
-      }
-
-      this.__setTimeout(() => {
-        if (this.$q.platform.is.ios === true) {
-          if (this.seamless !== true && document.activeElement) {
-            const
-              { top, bottom } = document.activeElement.getBoundingClientRect(),
-              { innerHeight } = window,
-              height = window.visualViewport !== void 0
-                ? window.visualViewport.height
-                : innerHeight
-
-            if (top > 0 && bottom > height / 2) {
-              document.scrollingElement.scrollTop = Math.min(
-                document.scrollingElement.scrollHeight - height,
-                bottom >= innerHeight
-                  ? Infinity
-                  : Math.ceil(document.scrollingElement.scrollTop + bottom - height / 2)
-              )
-            }
-
-            document.activeElement.scrollIntoView()
-          }
-
-          // required in order to avoid the "double-tap needed" issue
-          this.__portal.$el.click()
-        }
-
-        this.$emit('show', evt)
-      }, 300)
     },
 
-    __hide (evt) {
+    __hide () {
       this.__removeHistory()
       this.__cleanup(true)
 
+      this.$el.dispatchEvent(create('popup-hide', { bubbles: true }))
+    },
+
+    __onTransitionBeforeEnter (target) {
+      // required in order to avoid the "double-tap needed" issue
+      this.$q.platform.is.ios === true && target.click()
+
+      target.setAttribute('data-q-portal-animating', true)
+
+      this.noFocus !== true && this.focus()
+
+      this.seamless !== true && this.__preventScroll(true)
+    },
+
+    __onTransitionEnter () {
+      setTimeout(() => this.__iosScroll(), 50)
+    },
+
+    __onTransitionAfterEnter (target) {
+      target.removeAttribute('data-q-portal-animating')
+
+      this.__iosScroll()
+
+      this.$emit('show', { target })
+    },
+
+    __onTransitionEnterCancelled (target) {
+      target.removeAttribute('data-q-portal-animating')
+
+      this.seamless !== true && this.__preventScroll(false)
+    },
+
+    __onTransitionBeforeLeave () {
       // check null for IE
       if (this.__refocusTarget !== void 0 && this.__refocusTarget !== null) {
-        this.__refocusTarget.focus()
+        focusNoScroll(this.__refocusTarget)
       }
-
-      this.$el.dispatchEvent(create('popup-hide', { bubbles: true }))
-
-      this.__setTimeout(() => {
-        this.__hidePortal()
-        this.$emit('hide', evt)
-      }, 300)
+      document.documentElement.scrollTop = 0
     },
 
-    __cleanup (hiding) {
-      clearTimeout(this.shakeTimeout)
+    __onTransitionAfterLeave (target) {
+      this.__hidePortal()
 
-      if (hiding === true || this.showing === true) {
-        EscapeKey.pop(this)
-        this.__updateMaximized(false)
+      this.seamless !== true && this.__preventScroll(false)
 
-        if (this.seamless !== true) {
-          this.__preventScroll(false)
-        }
-      }
-    },
-
-    __updateMaximized (active) {
-      if (active === true) {
-        if (this.isMaximized !== true) {
-          maximizedModals < 1 && document.body.classList.add('q-body--dialog')
-          maximizedModals++
-
-          this.isMaximized = true
-        }
-      }
-      else if (this.isMaximized === true) {
-        if (maximizedModals < 2) {
-          document.body.classList.remove('q-body--dialog')
-        }
-
-        maximizedModals--
-        this.isMaximized = false
-      }
+      this.$emit('hide', { target })
     },
 
     __onAutoClose (e) {
@@ -328,6 +297,45 @@ export default Vue.extend({
       }
     },
 
+    __cleanup (hiding) {
+      clearTimeout(this.shakeTimeout)
+
+      if (hiding === true || this.showing === true) {
+        EscapeKey.pop(this)
+      }
+    },
+
+    __iosScroll () {
+      if (
+        this.$q.platform.is.ios === true &&
+        document.activeElement &&
+        document.activeElement.matches(EDITABLE_SELECTOR) === true
+      ) {
+        const
+          { top, bottom } = document.activeElement.getBoundingClientRect(),
+          { innerHeight } = window,
+          height = window.visualViewport !== void 0
+            ? window.visualViewport.height
+            : innerHeight
+
+        if (top <= 0) {
+          document.scrollingElement.scrollTop = 0
+        }
+        else if (bottom > height / 1.7) {
+          animScrollTo(
+            document.scrollingElement,
+            Math.min(
+              document.scrollingElement.scrollHeight - height,
+              bottom >= innerHeight
+                ? Infinity
+                : Math.ceil(document.scrollingElement.scrollTop + bottom - height / 1.7)
+            ),
+            270
+          )
+        }
+      }
+    },
+
     __renderPortal (h) {
       return h('div', {
         staticClass: `q-dialog fullscreen no-pointer-events q-dialog--${this.useBackdrop === true ? 'modal' : 'seamless'}`,
@@ -341,22 +349,20 @@ export default Vue.extend({
           h('div', {
             staticClass: 'q-dialog__backdrop fixed-full',
             attrs: ariaHidden,
-            on: cache(this, 'bkdrop', {
-              click: this.__onBackdropClick
-            })
+            on: this.onBackdropEvents
           })
         ] : null),
 
         h('transition', {
           props: { name: this.transition },
-          on: this.onPortalTransition
+          on: this.onTransitionEvents
         }, [
           this.showing === true ? h('div', {
             ref: 'inner',
             staticClass: 'q-dialog__inner flex no-pointer-events',
             class: this.classes,
             attrs: { tabindex: -1 },
-            on: this.onEvents
+            on: this.onInnerEvents
           }, this.__getFocusWrappedContent('default')) : null
         ])
       ])
@@ -369,5 +375,6 @@ export default Vue.extend({
 
   beforeDestroy () {
     this.__cleanup()
+    this.__preventScroll(false)
   }
 })

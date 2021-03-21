@@ -166,13 +166,19 @@ export default Vue.extend({
     },
 
     __onPageScroll (data) {
-      if (this.container === true || document.qScrollPrevented !== true) {
-        this.scroll = data
+      if (this.container !== true && document.qScrollPrevented === true) {
+        return
       }
+
+      this.scroll = data
       this.qListeners.scroll !== void 0 && this.$emit('scroll', data)
     },
 
     __onPageResize ({ height, width }) {
+      if (this.container !== true && document.qScrollPrevented === true) {
+        return
+      }
+
       let resized = false
 
       if (this.height !== height) {

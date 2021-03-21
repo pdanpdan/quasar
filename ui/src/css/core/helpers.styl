@@ -30,11 +30,49 @@
     opacity: .7
 
 /* body */
-.q-body--fullscreen-mixin, .q-body--prevent-scroll
+.q-body--fullscreen-mixin
   position: fixed !important
 
-.q-body--force-scrollbar
-  overflow-y: scroll
+.q-body--prevent-scroll
+  overflow: hidden
+  overscroll-behavior: none
+  height: var(--scroll-lock-height)
+  width: var(--scroll-lock-width)
+
+  &--desktop
+    &[dir]
+      transform: translateX(0)
+
+      .q-dialog
+        transform: translateX(0)
+        width: 100vw
+
+    &[dir=rtl]
+      transform: translateX(var(--scroll-lock-scrollbar))
+
+      .q-body--prevent-scroll-reposition
+        transform: translateX(calc(-1 * var(--scroll-lock-left)))
+
+      .q-dialog
+        transform: translateX(calc(-1 * var(--scroll-lock-scrollbar)))
+
+  &[dir] body
+    position: relative
+    overflow: hidden
+    top: var(--scroll-lock-top)
+    width: calc(var(--scroll-lock-width) - var(--scroll-lock-left))
+    height: calc(var(--scroll-lock-height) - var(--scroll-lock-top))
+
+    &.platform-ios
+      height: calc(4px + var(--scroll-lock-height) - var(--scroll-lock-top))
+
+  &[dir=ltr] body
+    left: var(--scroll-lock-left)
+    padding-right: calc(-1 * var(--scroll-lock-left))
+
+  &[dir=rtl] body
+    right: var(--scroll-lock-left)
+    padding-left: calc(-1 * var(--scroll-lock-left))
 
 .q-portal__clone
   position: fixed !important
@@ -43,6 +81,12 @@
   flex-shrink: 0 !important
   opacity: 0 !important
   z-index: -1 !important
+
+.q-focus__clone + *
+  position: fixed !important
+  transition: none !important
+  opacity: 0 !important
+  pointer-events: none !important
 
 .q-no-input-spinner
   -moz-appearance: textfield !important

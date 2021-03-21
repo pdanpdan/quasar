@@ -1,5 +1,4 @@
 .q-dialog
-
   &__title
     font-size: 1.25rem
     font-weight: 500
@@ -48,16 +47,16 @@
       padding-left: 0 !important
 
     &--left, &--top
-      &:not([data-q-portal-entering]) > div
+      &:not([data-q-portal-animating]) > div
         border-top-left-radius: 0
     &--right, &--top
-      &:not([data-q-portal-entering]) > div
+      &:not([data-q-portal-animating]) > div
         border-top-right-radius: 0
     &--left, &--bottom
-      &:not([data-q-portal-entering]) > div
+      &:not([data-q-portal-animating]) > div
         border-bottom-left-radius: 0
     &--right, &--bottom
-      &:not([data-q-portal-entering]) > div
+      &:not([data-q-portal-animating]) > div
         border-bottom-right-radius: 0
 
     &--fullwidth
@@ -100,6 +99,3 @@ body.q-ios-padding .q-dialog__inner
 @media (min-width: $breakpoint-sm-min)
   .q-dialog__inner--minimized > div
     max-width: 560px
-
-.q-body--dialog
-  overflow: hidden

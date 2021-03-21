@@ -50,6 +50,10 @@ export default {
     const classes = cfg.screen !== void 0 && cfg.screen.bodyClasses === true
 
     const update = force => {
+      if (document.qScrollPrevented === true) {
+        return
+      }
+
       const
         w = window.innerWidth,
         h = window.innerHeight
@@ -96,7 +100,7 @@ export default {
       }
     }
 
-    let updateEvt, updateSizes = {}, updateDebounce = 16
+    let updateEvt, updateSizes = {}, updateDebounce = 0
 
     this.setSizes = sizes => {
       SIZE_LIST.forEach(name => {

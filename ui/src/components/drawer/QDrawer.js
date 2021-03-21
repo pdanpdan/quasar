@@ -9,8 +9,8 @@ import TouchPan from '../../directives/TouchPan.js'
 
 import { between } from '../../utils/format.js'
 import { slot } from '../../utils/slot.js'
-import cache from '../../utils/cache.js'
 import { ariaHidden } from '../../mixins/attrs'
+import { stopAndPrevent } from '../../utils/event.js'
 
 const duration = 150
 
@@ -115,7 +115,7 @@ export default Vue.extend({
     },
 
     'layout.totalWidth' (val) {
-      this.__updateLocal('belowBreakpoint', (
+      document.qScrollPrevented !== true && this.__updateLocal('belowBreakpoint', (
         this.behavior === 'mobile' ||
         (this.behavior !== 'desktop' && val <= this.breakpoint)
       ))
@@ -314,6 +314,18 @@ export default Vue.extend({
 
         return evt
       }
+    },
+
+    onBackdropEvents () {
+      const events = {
+        click: this.hide
+      }
+
+      if (this.layout.container === true && this.$q.platform.is.ios === true) {
+        events.touchmove = stopAndPrevent
+      }
+
+      return events
     },
 
     hideOnRouteChange () {
@@ -668,7 +680,7 @@ export default Vue.extend({
           style: this.lastBackdropBg !== void 0
             ? { backgroundColor: this.lastBackdropBg }
             : null,
-          on: cache(this, 'bkdrop', { click: this.hide }),
+          on: this.onBackdropEvents,
           directives: this.showing === false
             ? void 0
             : this.backdropCloseDirective
