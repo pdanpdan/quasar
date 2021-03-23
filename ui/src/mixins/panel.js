@@ -11,7 +11,6 @@ import cache, { cacheWithFn } from '../utils/cache.js'
 function getPanelWrapper (h) {
   return h('div', {
     staticClass: 'q-panel scroll',
-    attrs: { role: 'tabpanel' },
     // stop propagation of content emitted @input
     // which would tamper with Panel's model
     on: cache(this, 'stop', { input: stop })
@@ -235,7 +234,6 @@ export const PanelParentMixin = {
           h('div', {
             staticClass: 'q-panel scroll',
             key: this.contentKey,
-            attrs: { role: 'tabpanel' },
             // stop propagation of content emitted @input
             // which would tamper with Panel's model
             on: cache(this, 'stop', { input: stop })
