@@ -702,6 +702,11 @@ const directives = [
     path: 'go-back'
   },
   {
+    name: 'Key Group Navigation',
+    badge: 'new',
+    path: 'key-group-navigation'
+  },
+  {
     name: 'Intersection',
     path: 'intersection'
   },
