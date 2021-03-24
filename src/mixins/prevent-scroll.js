@@ -1,0 +1,215 @@
+import { listenOpts } from '../utils/event.js'
+import { getScrollbarWidth } from '../utils/scroll.js'
+import { EDITABLE_SELECTOR } from '../utils/focus.js'
+import { client } from '../plugins/Platform.js'
+
+const { passive } = listenOpts
+
+let
+  registered = 0,
+  state = {},
+  inScroll = false,
+  cleanupTimer,
+  orientationTimer,
+  closeTimer
+
+function iosScroll () {
+  const { pageTop, height, scale } = window.visualViewport
+
+  if (
+    inScroll === true &&
+    scale === 1 &&
+    Math.ceil(pageTop + height) >= document.documentElement.scrollHeight - 1 &&
+    document.activeElement &&
+    document.activeElement.matches(EDITABLE_SELECTOR) === true
+  ) {
+    document.documentElement.scrollTop -= 1
+    requestAnimationFrame(iosScroll)
+  }
+  else {
+    inScroll = false
+  }
+}
+
+function onMobileScroll () {
+  if (inScroll !== true) {
+    inScroll = true
+    requestAnimationFrame(iosScroll)
+  }
+}
+
+function onMobileRotate () {
+  clearTimeout(orientationTimer)
+
+  orientationTimer = setTimeout(() => {
+    requestAnimationFrame(() => {
+      const { scrollingElement, body } = document
+
+      scrollingElement.style.height = `${innerHeight}px`
+
+      body.style.height = `${scrollingElement.clientHeight + state.scrollTop}px`
+    })
+  }, 200)
+}
+
+function apply (action, rtl) {
+  const
+    { scrollingElement, body } = document,
+    { overflowX, overflowY } = window.getComputedStyle(body),
+    scrollbarSize = getScrollbarWidth()
+
+  clearTimeout(cleanupTimer)
+  clearTimeout(orientationTimer)
+
+  if (action === 'add') {
+    document.qScrollPrevented = true
+
+    requestAnimationFrame(() => {
+      const { innerHeight, innerWidth, visualViewport } = window
+
+      state = {
+        htmlStyle: scrollingElement.style.cssText,
+        bodyStyle: body.style.cssText,
+        scrollLeft: document.scrollingElement.scrollLeft,
+        scrollTop: document.scrollingElement.scrollTop
+      }
+
+      scrollingElement.classList.add('q-body--prevent-scroll')
+
+      body.style.left = `${-state.scrollLeft}px`
+      body.style.top = `${-state.scrollTop}px`
+      body.style['padding' + (rtl === true ? 'Left' : 'Right')] = `${Math.abs(state.scrollLeft)}px`
+
+      if (client.is.mobile === true) {
+        scrollingElement.style.height = `${innerHeight}px`
+
+        body.style.width = `calc(100vw + ${Math.abs(state.scrollLeft)}px)`
+        body.style.height = `${innerHeight + state.scrollTop}px`
+
+        window.addEventListener('orientationchange', onMobileRotate, passive)
+        if (visualViewport !== void 0 && client.is.ios === true) {
+          visualViewport.addEventListener('scroll', onMobileScroll, passive)
+        }
+      }
+      else {
+        const
+          { scrollWidth, scrollHeight } = body,
+          scrollbarSizeHoriz = overflowX !== 'hidden' && (overflowX === 'scroll' || scrollWidth > innerWidth)
+            ? scrollbarSize
+            : 0,
+          scrollbarSizeVert = overflowY !== 'hidden' && (overflowY === 'scroll' || scrollHeight > innerHeight)
+            ? scrollbarSize
+            : 0
+
+        if (scrollbarSizeVert > 0) {
+          scrollingElement.style.width = `calc(100vw - ${scrollbarSizeVert}px)`
+
+          if (rtl === true) {
+            scrollingElement.style.marginRight = `${scrollbarSizeVert}px`
+          }
+        }
+        if (scrollbarSizeHoriz > 0) {
+          scrollingElement.style.height = `calc(100vh - ${scrollbarSizeHoriz}px)`
+        }
+
+        body.style.width = `calc(100vw + ${Math.abs(state.scrollLeft) - scrollbarSizeVert}px)`
+        body.style.height = `calc(100vh + ${state.scrollTop - scrollbarSizeHoriz}px)`
+      }
+
+      scrollingElement.classList.add('q-body--prevent-scroll')
+
+      scrollingElement.style.setProperty('--scroll-lock-left', `${-state.scrollLeft}px`)
+      const els = document.querySelectorAll('.q-menu__container, .q-tooltip__container')
+      for (let i = els.length - 1; i >= 0; i--) {
+        els[i].classList.add('q-body--prevent-scroll-locked')
+      }
+
+      window.scrollTo(0, 0)
+    })
+  }
+
+  if (action === 'remove') {
+    if (client.is.mobile === true) {
+      window.removeEventListener('orientationchange', onMobileRotate, passive)
+      if (visualViewport !== void 0 && client.is.ios === true) {
+        visualViewport.removeEventListener('scroll', onMobileScroll, passive)
+      }
+    }
+
+    requestAnimationFrame(() => {
+      scrollingElement.classList.remove('q-body--prevent-scroll')
+      scrollingElement.style.cssText = state.htmlStyle
+      body.style.cssText = state.bodyStyle
+
+      const els = document.querySelectorAll('.q-body--prevent-scroll-locked')
+      for (let i = els.length - 1; i >= 0; i--) {
+        els[i].classList.remove('q-body--prevent-scroll-locked')
+      }
+
+      window.scrollTo(state.scrollLeft, state.scrollTop)
+    })
+
+    cleanupTimer = setTimeout(() => {
+      document.qScrollPrevented = false
+    }, 100)
+  }
+
+  inScroll = false
+}
+
+export function preventScroll (state, rtl) {
+  let action = 'add'
+
+  if (state === true) {
+    registered++
+
+    if (closeTimer !== void 0) {
+      clearTimeout(closeTimer)
+      closeTimer = void 0
+      return
+    }
+
+    if (registered > 1) {
+      return
+    }
+  }
+  else {
+    if (registered === 0) {
+      return
+    }
+
+    registered--
+
+    if (registered > 0) {
+      return
+    }
+
+    action = 'remove'
+
+    if (client.is.ios === true && client.is.nativeMobile === true) {
+      clearTimeout(closeTimer)
+
+      closeTimer = setTimeout(() => {
+        apply(action, rtl)
+        closeTimer = void 0
+      }, 100)
+      return
+    }
+  }
+
+  apply(action, rtl)
+}
+
+export default {
+  methods: {
+    __preventScroll (state) {
+      if (
+        state !== this.preventedScroll &&
+        (this.preventedScroll !== void 0 || state === true)
+      ) {
+        this.preventedScroll = state
+        preventScroll(state, this.$q.lang.rtl)
+      }
+    }
+  }
+}
