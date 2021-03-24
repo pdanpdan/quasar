@@ -47,6 +47,20 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
         .row.justify-center.q-mt-md.q-mb-sm
           q-btn.doc-layout__main-btn(
             type="a"
+            href="https://github.com/sponsors/pdanpdan"
+            target="_blank"
+            rel="noopener"
+            color="primary"
+            unelevated
+            :icon="mdiHeart"
+            label="Donate to Dan Popescu"
+            padding="12px lg"
+            no-wrap
+          )
+
+        .row.justify-center.q-mt-md.q-mb-sm
+          q-btn.doc-layout__main-btn(
+            type="a"
             href="https://donate.quasar.dev"
             target="_blank"
             rel="noopener"
