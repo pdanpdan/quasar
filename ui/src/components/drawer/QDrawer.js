@@ -9,8 +9,8 @@ import TouchPan from '../../directives/TouchPan.js'
 
 import { between } from '../../utils/format.js'
 import { slot } from '../../utils/slot.js'
-import cache from '../../utils/cache.js'
 import { ariaHidden } from '../../mixins/attrs'
+import { stopAndPrevent } from '../../utils/event.js'
 
 const duration = 150
 
@@ -115,7 +115,7 @@ export default Vue.extend({
     },
 
     'layout.totalWidth' (val) {
-      this.__updateLocal('belowBreakpoint', (
+      document.qScrollPrevented !== true && this.__updateLocal('belowBreakpoint', (
         this.behavior === 'mobile' ||
         (this.behavior !== 'desktop' && val <= this.breakpoint)
       ))
@@ -316,9 +316,28 @@ export default Vue.extend({
       }
     },
 
+    onBackdropEvents () {
+      const events = {
+        click: this.hide,
+        touchmove: stopAndPrevent
+      }
+
+      if (this.layout.container === true && this.$q.platform.is.ios === true) {
+        events.touchmove = stopAndPrevent
+      }
+
+      return events
+    },
+
     hideOnRouteChange () {
       return this.persistent !== true &&
         (this.belowBreakpoint === true || this.onScreenOverlay === true)
+    },
+
+    onOpenerEvents () {
+      return {
+        touchstart: stopAndPrevent
+      }
     },
 
     openDirective () {
@@ -381,6 +400,13 @@ export default Vue.extend({
           (this.belowBreakpoint === true || Math.abs(position) === this.size)
         ) {
           position += this.stateDirection * this.layout.scrollbarWidth
+        }
+        else if (
+          this.layout.container !== true &&
+          this.rightSide === true &&
+          this.belowBreakpoint === true
+        ) {
+          position += (this.$q.lang.rtl === true ? -1 : 1) * this.layout.scrollbarWidth
         }
 
         if (this.__lastPosition !== position) {
@@ -655,7 +681,8 @@ export default Vue.extend({
         h('div', {
           staticClass: `q-drawer__opener fixed-${this.side}`,
           attrs: ariaHidden,
-          directives: this.openDirective
+          directives: this.openDirective,
+          on: this.onOpenerEvents
         })
       )
 
@@ -668,7 +695,7 @@ export default Vue.extend({
           style: this.lastBackdropBg !== void 0
             ? { backgroundColor: this.lastBackdropBg }
             : null,
-          on: cache(this, 'bkdrop', { click: this.hide }),
+          on: this.onBackdropEvents,
           directives: this.showing === false
             ? void 0
             : this.backdropCloseDirective
