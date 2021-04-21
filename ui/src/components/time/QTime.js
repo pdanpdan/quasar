@@ -5,10 +5,14 @@ import TouchPan from '../../directives/TouchPan.js'
 
 import { slot } from '../../utils/slot.js'
 import { formatDate, __splitDate, __safeCreateDate } from '../../utils/date.js'
-import { position } from '../../utils/event.js'
+import { position, prevent } from '../../utils/event.js'
 import { pad } from '../../utils/format.js'
 import cache from '../../utils/cache.js'
 import DateTimeMixin from '../../mixins/datetime.js'
+
+function preventKbdArrows (ev) {
+  [ 37, 38, 39, 40 ].includes(ev.keyCode) === true && prevent(ev)
+}
 
 export default Vue.extend({
   name: 'QTime',
@@ -87,10 +91,14 @@ export default Vue.extend({
         this.innerModel = model
 
         if (model.hour === null) {
-          this.view = 'Hour'
+          this.__goToView('Hour')
         }
         else {
           this.isAM = model.hour < 12
+
+          if (model.minute === null && this.view === 'Second') {
+            this.__goToView('Minute')
+          }
         }
       }
     },
@@ -291,7 +299,7 @@ export default Vue.extend({
         ...this.__getCurrentDate(),
         ...this.__getCurrentTime()
       })
-      this.view = 'Hour'
+      this.__goToView('Hour')
     },
 
     __getValidValues (start, count, testFn) {
@@ -403,12 +411,24 @@ export default Vue.extend({
       }
     },
 
+    __goToView (view) {
+      if (this.view !== view) {
+        this.view = view
+      }
+      if (this.$refs[view] !== void 0 && this.$refs[view] !== document.activeElement) {
+        this.$refs[view].focus()
+      }
+    },
+
     __goToNextView () {
       if (this.view === 'Hour') {
-        this.view = 'Minute'
+        this.__goToView('Minute')
       }
       else if (this.withSeconds && this.view === 'Minute') {
-        this.view = 'Second'
+        this.__goToView('Second')
+      }
+      else {
+        this.__updateValue(void 0, true)
       }
     },
 
@@ -514,10 +534,10 @@ export default Vue.extend({
 
     __onKeyupHour (e) {
       if (e.keyCode === 13) { // ENTER
-        this.view = 'Hour'
+        this.view === 'Hour' && this.__goToNextView()
       }
-      else if ([ 37, 39 ].includes(e.keyCode)) {
-        const payload = e.keyCode === 37 ? -1 : 1
+      else if ([ 37, 38, 39, 40 ].includes(e.keyCode)) {
+        const payload = e.keyCode === 37 || e.keyCode === 40 ? -1 : 1
 
         if (this.validHours !== void 0) {
           const values = this.computedFormat24h === true
@@ -552,10 +572,10 @@ export default Vue.extend({
 
     __onKeyupMinute (e) {
       if (e.keyCode === 13) { // ENTER
-        this.view = 'Minute'
+        this.view === 'Minute' && this.__goToNextView()
       }
-      else if ([ 37, 39 ].includes(e.keyCode)) {
-        const payload = e.keyCode === 37 ? -1 : 1
+      else if ([ 37, 38, 39, 40 ].includes(e.keyCode)) {
+        const payload = e.keyCode === 37 || e.keyCode === 40 ? -1 : 1
 
         if (this.validMinutes !== void 0) {
           const values = this.validMinutes.values
@@ -584,10 +604,10 @@ export default Vue.extend({
 
     __onKeyupSecond (e) {
       if (e.keyCode === 13) { // ENTER
-        this.view = 'Second'
+        this.view === 'Second' && this.__goToNextView()
       }
-      else if ([ 37, 39 ].includes(e.keyCode)) {
-        const payload = e.keyCode === 37 ? -1 : 1
+      else if ([ 37, 38, 39, 40 ].includes(e.keyCode)) {
+        const payload = e.keyCode === 37 || e.keyCode === 40 ? -1 : 1
 
         if (this.validSeconds !== void 0) {
           const values = this.validSeconds.values
@@ -619,9 +639,10 @@ export default Vue.extend({
         h('div', {
           staticClass: 'q-time__link',
           class: this.view === 'Hour' ? 'q-time__link--active' : 'cursor-pointer',
-          attrs: { tabindex: this.computedTabindex },
+          attrs: { tabindex: this.computedTabindex, 'data-autofocus': this.view === 'Hour' },
           on: cache(this, 'vH', {
-            click: () => { this.view = 'Hour' },
+            focus: () => { this.view = 'Hour' },
+            keydown: preventKbdArrows,
             keyup: this.__onKeyupHour
           })
         }, [ this.stringModel.hour ]),
@@ -632,11 +653,13 @@ export default Vue.extend({
           'div',
           this.minLink === true
             ? {
+              ref: 'Minute',
               staticClass: 'q-time__link',
               class: this.view === 'Minute' ? 'q-time__link--active' : 'cursor-pointer',
-              attrs: { tabindex: this.computedTabindex },
+              attrs: { tabindex: this.computedTabindex, 'data-autofocus': this.view === 'Minute' },
               on: cache(this, 'vM', {
-                click: () => { this.view = 'Minute' },
+                focus: () => { this.view = 'Minute' },
+                keydown: preventKbdArrows,
                 keyup: this.__onKeyupMinute
               })
             }
@@ -653,11 +676,13 @@ export default Vue.extend({
             'div',
             this.secLink === true
               ? {
+                ref: 'Second',
                 staticClass: 'q-time__link',
                 class: this.view === 'Second' ? 'q-time__link--active' : 'cursor-pointer',
-                attrs: { tabindex: this.computedTabindex },
+                attrs: { tabindex: this.computedTabindex, 'data-autofocus': this.view === 'Second' },
                 on: cache(this, 'vS', {
-                  click: () => { this.view = 'Second' },
+                  focus: () => { this.view = 'Second' },
+                  keydown: preventKbdArrows,
                   keyup: this.__onKeyupSecond
                 })
               }
@@ -819,20 +844,20 @@ export default Vue.extend({
     __verifyAndUpdate () {
       if (this.hourInSelection !== void 0 && this.hourInSelection(this.innerModel.hour) !== true) {
         this.innerModel = __splitDate()
-        this.view = 'Hour'
+        this.__goToView('Hour')
         return
       }
 
       if (this.minuteInSelection !== void 0 && this.minuteInSelection(this.innerModel.minute) !== true) {
         this.innerModel.minute = null
         this.innerModel.second = null
-        this.view = 'Minute'
+        this.__goToView('Minute')
         return
       }
 
       if (this.withSeconds === true && this.secondInSelection !== void 0 && this.secondInSelection(this.innerModel.second) !== true) {
         this.innerModel.second = null
-        this.view = 'Second'
+        this.__goToView('Second')
         return
       }
 
@@ -843,7 +868,7 @@ export default Vue.extend({
       this.__updateValue()
     },
 
-    __updateValue (obj) {
+    __updateValue (obj, final) {
       const date = Object.assign({ ...this.innerModel }, obj)
 
       const val = this.calendar === 'persian'
@@ -867,7 +892,11 @@ export default Vue.extend({
         )
 
       date.changed = val !== this.value
-      this.$emit('input', val, date)
+
+      if (final !== true || date.changed === true) {
+        this.$emit('input', val, date)
+      }
+      final === true && this.$emit('change', val, date)
     }
   },
 
