@@ -2,7 +2,14 @@ import Vue from 'vue'
 
 import { isSSR } from '../plugins/Platform.js'
 import { getBodyFullscreenElement } from '../utils/dom.js'
-import { addFocusWaitFlag, removeFocusWaitFlag, addFocusFn, FOCUSABLE_SELECTOR, changeFocusedElement } from '../utils/focus-manager.js'
+import {
+  addFocusWaitFlag,
+  removeFocusWaitFlag,
+  addFocusFn,
+  FOCUSABLE_SELECTOR,
+  changeFocusedElement,
+  focusNoScroll
+} from '../utils/focus-manager.js'
 
 export function closePortalMenus (vm, evt) {
   do {
@@ -83,7 +90,7 @@ const Portal = {
           const autofocusNode = node.querySelector('[autofocus], [data-autofocus]')
 
           if (autofocusNode !== null && typeof autofocusNode.focus === 'function') {
-            autofocusNode.focus()
+            focusNoScroll(autofocusNode)
           }
           else {
             const focusableElements = Array.prototype.slice.call(node.querySelectorAll(FOCUSABLE_SELECTOR))

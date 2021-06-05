@@ -12,7 +12,7 @@ import AttrsMixin from '../../mixins/attrs.js'
 import { slot } from '../../utils/slot.js'
 import uid from '../../utils/uid.js'
 import { stop, prevent, stopAndPrevent } from '../../utils/event.js'
-import { addFocusFn, removeFocusFn } from '../../utils/focus-manager.js'
+import { addFocusFn, removeFocusFn, focusNoScroll } from '../../utils/focus-manager.js'
 
 function getTargetUid (val) {
   return val === void 0 ? `f_${uid()}` : val
@@ -273,7 +273,7 @@ export default Vue.extend({
       // IE can have null document.activeElement
       if (target !== void 0 && (el === null || el.id !== this.targetUid)) {
         target.hasAttribute('tabindex') === true || (target = target.querySelector('[tabindex]'))
-        target !== null && target !== el && target.focus()
+        target !== null && focusNoScroll(target)
       }
     },
 

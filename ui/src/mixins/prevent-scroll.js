@@ -1,151 +1,163 @@
-import { getEventPath, listenOpts, stopAndPrevent } from '../utils/event.js'
-import { hasScrollbar, getScrollPosition, getHorizontalScrollPosition } from '../utils/scroll.js'
+import { listenOpts } from '../utils/event.js'
+import { getScrollbarWidth } from '../utils/scroll.js'
+import { EDITABLE_SELECTOR } from '../utils/focus-manager.js'
 import { client } from '../plugins/Platform.js'
+
+const { passive } = listenOpts
 
 let
   registered = 0,
-  scrollPositionX,
-  scrollPositionY,
-  maxScrollTop,
-  vpPendingUpdate = false,
-  bodyLeft,
-  bodyTop,
+  state = {},
+  iosScrollActive = false,
+  applyTimer,
+  orientationTimer,
   closeTimer
 
-function onWheel (e) {
-  if (shouldPreventScroll(e)) {
-    stopAndPrevent(e)
+function iosScroll () {
+  const { pageTop, height, scale } = window.visualViewport
+
+  if (
+    iosScrollActive === true &&
+    scale === 1 &&
+    Math.ceil(pageTop + height) >= document.documentElement.scrollHeight - 1 &&
+    document.activeElement &&
+    document.activeElement.matches(EDITABLE_SELECTOR) === true
+  ) {
+    document.documentElement.scrollTop -= 1
+    requestAnimationFrame(iosScroll)
+  }
+  else {
+    iosScrollActive = false
   }
 }
 
-function shouldPreventScroll (e) {
-  if (e.target === document.body || e.target.classList.contains('q-layout__backdrop')) {
-    return true
+function onIosScroll () {
+  if (iosScrollActive !== true) {
+    iosScrollActive = true
+    requestAnimationFrame(iosScroll)
   }
+}
 
+function onMobileRotate () {
+  clearTimeout(orientationTimer)
+
+  orientationTimer = setTimeout(() => {
+    requestAnimationFrame(() => {
+      const { documentElement, body } = document
+
+      documentElement.style.height = `${innerHeight}px`
+
+      body.style.height = `${documentElement.clientHeight + state.scrollTop}px`
+    })
+  }, 200)
+}
+
+function apply (action, rtl) {
   const
-    path = getEventPath(e),
-    shift = e.shiftKey && !e.deltaX,
-    scrollY = !shift && Math.abs(e.deltaX) <= Math.abs(e.deltaY),
-    delta = shift || scrollY ? e.deltaY : e.deltaX
+    { documentElement, body } = document,
+    { visualViewport } = window
 
-  for (let index = 0; index < path.length; index++) {
-    const el = path[index]
-
-    if (hasScrollbar(el, scrollY)) {
-      return scrollY
-        ? (
-          delta < 0 && el.scrollTop === 0
-            ? true
-            : delta > 0 && el.scrollTop + el.clientHeight === el.scrollHeight
-        )
-        : (
-          delta < 0 && el.scrollLeft === 0
-            ? true
-            : delta > 0 && el.scrollLeft + el.clientWidth === el.scrollWidth
-        )
-    }
-  }
-
-  return true
-}
-
-function onAppleScroll (e) {
-  if (e.target === document) {
-    // required, otherwise iOS blocks further scrolling
-    // until the mobile scrollbar dissappears
-    document.scrollingElement.scrollTop = document.scrollingElement.scrollTop // eslint-disable-line
-  }
-}
-
-function onAppleResize (evt) {
-  if (vpPendingUpdate === true) {
-    return
-  }
-
-  vpPendingUpdate = true
-
-  requestAnimationFrame(() => {
-    vpPendingUpdate = false
-
-    const
-      { height } = evt.target,
-      { clientHeight, scrollTop } = document.scrollingElement
-
-    if (maxScrollTop === void 0 || height !== window.innerHeight) {
-      maxScrollTop = clientHeight - height
-      document.scrollingElement.scrollTop = scrollTop
-    }
-
-    if (scrollTop > maxScrollTop) {
-      document.scrollingElement.scrollTop -= Math.ceil((scrollTop - maxScrollTop) / 8)
-    }
-  })
-}
-
-function apply (action) {
-  const
-    body = document.body,
-    hasViewport = window.visualViewport !== void 0
+  clearTimeout(applyTimer)
+  clearTimeout(orientationTimer)
 
   if (action === 'add') {
-    const overflowY = window.getComputedStyle(body).overflowY
-
-    scrollPositionX = getHorizontalScrollPosition(window)
-    scrollPositionY = getScrollPosition(window)
-    bodyLeft = body.style.left
-    bodyTop = body.style.top
-
-    body.style.left = `-${scrollPositionX}px`
-    body.style.top = `-${scrollPositionY}px`
-    if (overflowY !== 'hidden' && (overflowY === 'scroll' || body.scrollHeight > window.innerHeight)) {
-      body.classList.add('q-body--force-scrollbar')
-    }
-
-    body.classList.add('q-body--prevent-scroll')
     document.qScrollPrevented = true
-    if (client.is.ios === true) {
-      if (hasViewport === true) {
-        window.scrollTo(0, 0)
-        window.visualViewport.addEventListener('resize', onAppleResize, listenOpts.passiveCapture)
-        window.visualViewport.addEventListener('scroll', onAppleResize, listenOpts.passiveCapture)
-        window.scrollTo(0, 0)
+
+    const scrollbarSize = getScrollbarWidth()
+
+    requestAnimationFrame(() => {
+      const { innerHeight, innerWidth } = window
+
+      state = {
+        htmlStyle: documentElement.style.cssText,
+        bodyStyle: body.style.cssText,
+        scrollLeft: documentElement.scrollLeft,
+        scrollTop: documentElement.scrollTop
+      }
+
+      if (client.is.mobile === true) {
+        documentElement.style.height = `${innerHeight}px`
+
+        body.style.width = `calc(100vw + ${Math.abs(state.scrollLeft)}px)`
+        body.style.height = `${innerHeight + state.scrollTop}px`
+
+        window.addEventListener('orientationchange', onMobileRotate, passive)
+        if (visualViewport !== void 0 && client.is.ios === true) {
+          applyTimer = setTimeout(() => {
+            visualViewport.addEventListener('scroll', onIosScroll, passive)
+          }, 500)
+        }
       }
       else {
-        window.addEventListener('scroll', onAppleScroll, listenOpts.passiveCapture)
+        const
+          { scrollWidth, scrollHeight } = body,
+          { overflowX, overflowY } = window.getComputedStyle(body),
+          scrollbarSizeHoriz = overflowX !== 'hidden' && (overflowX === 'scroll' || scrollWidth > innerWidth)
+            ? scrollbarSize
+            : 0,
+          scrollbarSizeVert = overflowY !== 'hidden' && (overflowY === 'scroll' || scrollHeight > innerHeight)
+            ? scrollbarSize
+            : 0
+
+        if (scrollbarSizeVert > 0) {
+          documentElement.style.width = `calc(100vw - ${scrollbarSizeVert}px)`
+
+          if (rtl === true) {
+            documentElement.style.marginRight = `${scrollbarSizeVert}px`
+          }
+        }
+        if (scrollbarSizeHoriz > 0) {
+          documentElement.style.height = `calc(100vh - ${scrollbarSizeHoriz}px)`
+        }
+
+        body.style.width = `calc(100vw + ${Math.abs(state.scrollLeft) - scrollbarSizeVert}px)`
+        body.style.height = `calc(100vh + ${state.scrollTop - scrollbarSizeHoriz}px)`
+      }
+
+      body.style.left = `${-state.scrollLeft}px`
+      body.style.top = `${-state.scrollTop}px`
+      body.style['padding' + (rtl === true ? 'Left' : 'Right')] = `${Math.abs(state.scrollLeft)}px`
+
+      documentElement.classList.add('q-body--prevent-scroll')
+
+      window.scrollTo(0, 0)
+
+      documentElement.style.setProperty('--q-scroll-lock-left', `${-state.scrollLeft}px`)
+      const els = document.querySelectorAll('.q-menu__container, .q-tooltip__container')
+      for (let i = els.length - 1; i >= 0; i--) {
+        els[i].classList.add('q-body--scroll-locked')
+      }
+    })
+  }
+  else {
+    if (client.is.mobile === true) {
+      window.removeEventListener('orientationchange', onMobileRotate, passive)
+      if (visualViewport !== void 0 && client.is.ios === true) {
+        visualViewport.removeEventListener('scroll', onIosScroll, passive)
+        iosScrollActive = false
       }
     }
-  }
 
-  if (client.is.desktop === true && client.is.mac === true) {
-    // ref. https://developers.google.com/web/updates/2017/01/scrolling-intervention
-    window[`${action}EventListener`]('wheel', onWheel, listenOpts.notPassive)
-  }
+    requestAnimationFrame(() => {
+      documentElement.classList.remove('q-body--prevent-scroll')
+      documentElement.style.cssText = state.htmlStyle
+      body.style.cssText = state.bodyStyle
 
-  if (action === 'remove') {
-    if (client.is.ios === true) {
-      if (hasViewport === true) {
-        window.visualViewport.removeEventListener('resize', onAppleResize, listenOpts.passiveCapture)
-        window.visualViewport.removeEventListener('scroll', onAppleResize, listenOpts.passiveCapture)
+      const els = document.querySelectorAll('.q-body--scroll-locked')
+      for (let i = els.length - 1; i >= 0; i--) {
+        els[i].classList.remove('q-body--scroll-locked')
       }
-      else {
-        window.removeEventListener('scroll', onAppleScroll, listenOpts.passiveCapture)
-      }
-    }
 
-    body.classList.remove('q-body--prevent-scroll')
-    body.classList.remove('q-body--force-scrollbar')
-    document.qScrollPrevented = false
+      window.scrollTo(state.scrollLeft, state.scrollTop)
 
-    body.style.left = bodyLeft
-    body.style.top = bodyTop
-
-    window.scrollTo(scrollPositionX, scrollPositionY)
-    maxScrollTop = void 0
+      applyTimer = setTimeout(() => {
+        document.qScrollPrevented = false
+      }, 50)
+    })
   }
 }
 
-export function preventScroll (state) {
+export function preventScroll (state, rtl) {
   let action = 'add'
 
   if (state === true) {
@@ -178,14 +190,14 @@ export function preventScroll (state) {
       clearTimeout(closeTimer)
 
       closeTimer = setTimeout(() => {
-        apply(action)
+        apply(action, rtl)
         closeTimer = void 0
       }, 100)
       return
     }
   }
 
-  apply(action)
+  apply(action, rtl)
 }
 
 export default {
@@ -196,7 +208,7 @@ export default {
         (this.preventedScroll !== void 0 || state === true)
       ) {
         this.preventedScroll = state
-        preventScroll(state)
+        preventScroll(state, this.$q.lang.rtl)
       }
     }
   }

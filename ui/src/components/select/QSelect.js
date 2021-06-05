@@ -1117,7 +1117,7 @@ export default Vue.extend({
           maxlength: this.maxlength, // this is converted to prop by QField
           tabindex: this.tabindex,
           autocomplete: this.autocomplete,
-          'data-autofocus': fromDialog === true ? false : this.autofocus,
+          'data-autofocus': fromDialog === true ? isTarget === true : this.autofocus,
           disabled: this.disable === true,
           readonly: this.readonly === true,
           ...this.comboboxAttrs
@@ -1427,7 +1427,7 @@ export default Vue.extend({
           position: this.useInput === true ? 'top' : void 0,
           contentClass: this.dialogContentClass,
           contentStyle: this.dialogContentStyle,
-          transitionShow: this.transitionShowComputed,
+          transitionShow: this.transitionShow,
           transitionHide: this.transitionHide
         },
         on: cache(this, 'dialog', {
@@ -1564,10 +1564,6 @@ export default Vue.extend({
             ? this.$scopedSlots['no-option'] !== void 0 || this.qListeners.filter !== void 0 || this.noOptions === false
             : true
         )
-
-      this.transitionShowComputed = this.hasDialog === true && this.useInput === true && this.$q.platform.is.ios === true
-        ? 'fade'
-        : this.transitionShow
     },
 
     updateMenuPosition () {
