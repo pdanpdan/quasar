@@ -478,6 +478,7 @@ export default Vue.extend({
     },
 
     __onControlFocusin (e) {
+      clearTimeout(this.focusoutTimer)
       if (this.editable === true && this.focused === false) {
         this.focused = true
         this.$emit('focus', e)
