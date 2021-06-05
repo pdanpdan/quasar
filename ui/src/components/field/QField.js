@@ -545,7 +545,6 @@ export default Vue.extend({
 
   render (h) {
     this.__onPreRender !== void 0 && this.__onPreRender()
-    this.__onPostRender !== void 0 && this.$nextTick(this.__onPostRender)
 
     return h('label', {
       staticClass: 'q-field q-validation-component row no-wrap items-start',

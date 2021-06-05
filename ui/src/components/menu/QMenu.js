@@ -66,7 +66,19 @@ export default Vue.extend({
       default: void 0
     },
 
-    touchPosition: Boolean,
+    touchPosition: {
+      type: Boolean,
+      default: null
+    },
+
+    minHeight: {
+      type: String,
+      default: null
+    },
+    minWidth: {
+      type: String,
+      default: null
+    },
 
     maxHeight: {
       type: String,
@@ -160,7 +172,7 @@ export default Vue.extend({
 
       this.absoluteOffset = void 0
 
-      if (evt !== void 0 && (this.touchPosition || this.contextMenu)) {
+      if (evt !== void 0 && (this.touchPosition === true || (this.touchPosition !== false && this.contextMenu))) {
         const pos = position(evt)
 
         if (pos.left !== void 0) {
@@ -178,15 +190,20 @@ export default Vue.extend({
 
       this.$el.dispatchEvent(create('popup-show', { bubbles: true }))
 
-      // IE can have null document.activeElement
-      if (this.noFocus !== true && document.activeElement !== null) {
-        document.activeElement.blur()
-      }
+      if (this.noFocus !== true) {
+        // IE can have null document.activeElement
+        document.activeElement !== null && document.activeElement.blur()
 
-      this.__nextTick(() => {
-        this.updatePosition()
-        this.noFocus !== true && this.focus()
-      })
+        this.__nextTick(() => {
+          this.focus()
+          this.updatePosition()
+        })
+      }
+      else {
+        this.__nextTick(() => {
+          this.updatePosition()
+        })
+      }
 
       this.__setTimeout(() => {
         // required in order to avoid the "double-tap needed" issue
@@ -197,7 +214,6 @@ export default Vue.extend({
           this.__portal.$el.click()
         }
 
-        this.updatePosition()
         this.__showPortal(true)
         this.$emit('show', evt)
       }, 300)
@@ -243,16 +259,12 @@ export default Vue.extend({
     },
 
     __unconfigureScrollTarget () {
-      if (this.__scrollTarget !== void 0) {
-        this.__changeScrollEvent(this.__scrollTarget)
-        this.__scrollTarget = void 0
-      }
+      this.__changeScrollEvent()
     },
 
     __configureScrollTarget () {
-      if (this.anchorEl !== void 0 || this.scrollTarget !== void 0) {
-        this.__scrollTarget = getScrollTarget(this.anchorEl, this.scrollTarget)
-        this.__changeScrollEvent(this.__scrollTarget, this.updatePosition)
+      if (this.showing && (this.anchorEl !== void 0 || this.scrollTarget !== void 0)) {
+        this.__changeScrollEvent(this.updatePosition, getScrollTarget(this.anchorEl, this.scrollTarget))
       }
     },
 
@@ -280,17 +292,26 @@ export default Vue.extend({
         return
       }
 
-      setPosition({
-        el,
-        offset: this.offset,
-        anchorEl: this.anchorEl,
-        anchorOrigin: this.anchorOrigin,
-        selfOrigin: this.selfOrigin,
-        absoluteOffset: this.absoluteOffset,
-        fit: this.fit,
-        cover: this.cover,
-        maxHeight: this.maxHeight,
-        maxWidth: this.maxWidth
+      this.settingPosition !== void 0 && cancelAnimationFrame(this.settingPosition)
+      this.settingPosition = requestAnimationFrame(() => {
+        const touchPosition = this.touchPosition === true || (this.touchPosition !== false && this.contextMenu)
+
+        setPosition({
+          el,
+          offset: this.offset,
+          anchorEl: this.anchorEl,
+          anchorOrigin: this.anchorOrigin,
+          selfOrigin: this.selfOrigin,
+          absoluteOffset: this.absoluteOffset,
+          fit: touchPosition !== true && this.fit === true,
+          cover: touchPosition !== true && this.cover === true,
+          minHeight: this.minHeight,
+          minWidth: this.minWidth,
+          maxHeight: this.maxHeight,
+          maxWidth: this.maxWidth,
+          rtl: this.$q.lang.rtl
+        })
+        this.settingPosition = void 0
       })
     },
 
@@ -303,7 +324,7 @@ export default Vue.extend({
           // always prevent touch event
           e.type === 'touchstart' ||
           // prevent click if it's on a dialog backdrop
-          targetClassList.contains('q-dialog__backdrop')
+          targetClassList.contains('q-dialog__backdrop') === true
         ) {
           stopAndPrevent(e)
           this.$q.interaction.preventClick(e.target, true)
@@ -317,18 +338,22 @@ export default Vue.extend({
         props: { name: this.transition }
       }, [
         this.showing === true ? h('div', {
-          ref: 'inner',
-          staticClass: 'q-menu q-position-engine scroll' + this.menuClass,
-          class: this.contentClass,
-          style: this.contentStyle,
-          attrs: this.attrs,
-          on: this.onEvents,
+          class: 'q-menu__container column no-pointer-events',
           directives: [{
             name: 'click-outside',
             value: this.__onClickOutside,
             arg: this.anchorEl
           }]
-        }, slot(this, 'default')) : null
+        }, [
+          h('div', {
+            ref: 'inner',
+            staticClass: 'q-menu scroll all-pointer-events' + this.menuClass,
+            class: this.contentClass,
+            style: this.contentStyle,
+            attrs: this.attrs,
+            on: this.onEvents
+          }, slot(this, 'default'))
+        ]) : null
       ])
     }
   },
@@ -338,6 +363,8 @@ export default Vue.extend({
   },
 
   beforeDestroy () {
+    this.settingPosition !== void 0 && cancelAnimationFrame(this.settingPosition)
+
     // When the menu is destroyed while open we can only emit the event on anchorEl
     if (this.showing === true && this.anchorEl !== void 0) {
       this.anchorEl.dispatchEvent(

@@ -876,7 +876,7 @@ export default Vue.extend({
         ? this.$refs.menuContent
         : (
           this.$refs.menu !== void 0 && this.$refs.menu.__portal !== void 0
-            ? this.$refs.menu.__portal.$el
+            ? (this.$refs.menu.__portal.$el.children || [])[0] // fallback [] for IE
             : void 0
         )
     },
@@ -1500,14 +1500,10 @@ export default Vue.extend({
         : this.transitionShow
     },
 
-    __onPostRender () {
+    updateMenuPosition () {
       if (this.dialog === false && this.$refs.menu !== void 0) {
         this.$refs.menu.updatePosition()
       }
-    },
-
-    updateMenuPosition () {
-      this.__onPostRender()
     }
   },
 
