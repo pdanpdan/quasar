@@ -254,11 +254,6 @@ export default Vue.extend({
     focus () {
       this.focusFn !== void 0 && removeFocusFn(this.focusFn)
       this.focusFn = addFocusFn(() => {
-        if (this.showPopup !== void 0) {
-          this.showPopup()
-          return
-        }
-
         this.__focus()
       })
     },
