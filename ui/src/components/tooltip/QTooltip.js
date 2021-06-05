@@ -106,7 +106,6 @@ export default Vue.extend({
       })
 
       this.__setTimeout(() => {
-        this.__showPortal(true)
         this.$emit('show', evt)
       }, 300)
     },

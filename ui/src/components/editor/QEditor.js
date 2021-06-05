@@ -13,7 +13,6 @@ import { isSSR } from '../../plugins/Platform.js'
 import { stopAndPrevent } from '../../utils/event.js'
 import extend from '../../utils/extend.js'
 import { shouldIgnoreKey } from '../../utils/key-composition.js'
-import { addFocusFn } from '../../utils/focus-manager.js'
 
 export default Vue.extend({
   name: 'QEditor',
@@ -437,9 +436,7 @@ export default Vue.extend({
     },
 
     focus () {
-      addFocusFn(() => {
-        this.$refs.content !== void 0 && this.$refs.content.focus()
-      })
+      this.$refs.content !== void 0 && this.$refs.content.focus()
     },
 
     getContentEl () {

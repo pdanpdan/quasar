@@ -8,7 +8,7 @@ import MaskMixin from '../../mixins/mask.js'
 import ListenersMixin from '../../mixins/listeners.js'
 
 import { stop } from '../../utils/event.js'
-import { addFocusFn, focusNoScroll } from '../../utils/focus-manager.js'
+import { focusNoScroll } from '../../utils/focus-manager.js'
 
 export default Vue.extend({
   name: 'QInput',
@@ -161,17 +161,15 @@ export default Vue.extend({
 
   methods: {
     focus () {
-      addFocusFn(() => {
-        const el = document.activeElement
-        if (
-          this.$refs.input !== void 0 &&
-          this.$refs.input !== el &&
-          // IE can have null document.activeElement
-          (el === null || el.id !== this.targetUid)
-        ) {
-          focusNoScroll(this.$refs.input)
-        }
-      })
+      const el = document.activeElement
+      if (
+        this.$refs.input !== void 0 &&
+        this.$refs.input !== el &&
+        // IE can have null document.activeElement
+        (el === null || el.id !== this.targetUid)
+      ) {
+        focusNoScroll(this.$refs.input)
+      }
     },
 
     select () {

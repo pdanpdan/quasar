@@ -2,14 +2,7 @@ import Vue from 'vue'
 
 import { isSSR } from '../plugins/Platform.js'
 import { getBodyFullscreenElement } from '../utils/dom.js'
-import {
-  addFocusWaitFlag,
-  removeFocusWaitFlag,
-  addFocusFn,
-  FOCUSABLE_SELECTOR,
-  changeFocusedElement,
-  focusNoScroll
-} from '../utils/focus-manager.js'
+import { FOCUSABLE_SELECTOR, changeFocusedElement, focusNoScroll } from '../utils/focus-manager.js'
 
 export function closePortalMenus (vm, evt) {
   do {
@@ -83,39 +76,26 @@ const Portal = {
 
   methods: {
     focus () {
-      addFocusFn(() => {
-        const node = this.__getInnerNode()
+      const node = this.__getInnerNode()
 
-        if (node !== void 0 && node.contains(document.activeElement) !== true) {
-          const autofocusNode = node.querySelector('[autofocus], [data-autofocus]')
+      if (node !== void 0 && node.contains(document.activeElement) !== true) {
+        const autofocusNode = node.querySelector('[autofocus], [data-autofocus]')
 
-          if (autofocusNode !== null && typeof autofocusNode.focus === 'function') {
-            focusNoScroll(autofocusNode)
-          }
-          else {
-            const focusableElements = Array.prototype.slice.call(node.querySelectorAll(FOCUSABLE_SELECTOR))
-            focusableElements.length > 0 && changeFocusedElement(
-              focusableElements,
-              focusableElements[0].classList.contains('q-key-group-navigation--ignore-focus') === true ? 1 : 0,
-              1
-            )
-          }
+        if (autofocusNode !== null && typeof autofocusNode.focus === 'function') {
+          focusNoScroll(autofocusNode)
         }
-      })
+        else {
+          const focusableElements = Array.prototype.slice.call(node.querySelectorAll(FOCUSABLE_SELECTOR))
+          focusableElements.length > 0 && changeFocusedElement(
+            focusableElements,
+            focusableElements[0].classList.contains('q-key-group-navigation--ignore-focus') === true ? 1 : 0,
+            1
+          )
+        }
+      }
     },
 
-    __showPortal (isReady) {
-      if (isReady === true) {
-        removeFocusWaitFlag(this.focusObj)
-        return
-      }
-
-      if (this.focusObj === void 0) {
-        this.focusObj = {}
-      }
-
-      addFocusWaitFlag(this.focusObj)
-
+    __showPortal () {
       if (this.$q.fullscreen !== void 0 && this.$q.fullscreen.isCapable === true) {
         const append = isFullscreen => {
           if (this.__portal === void 0) {
@@ -149,8 +129,6 @@ const Portal = {
     },
 
     __hidePortal () {
-      removeFocusWaitFlag(this.focusObj)
-
       if (this.__portal !== void 0) {
         if (this.unwatchFullscreen !== void 0) {
           this.unwatchFullscreen()

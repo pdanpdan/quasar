@@ -248,7 +248,6 @@ export default Vue.extend({
 
       this.__mobileScroll()
 
-      this.__showPortal(true)
       this.$emit('show', { target })
     },
 

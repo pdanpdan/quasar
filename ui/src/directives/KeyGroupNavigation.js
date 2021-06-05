@@ -1,10 +1,6 @@
 import Interaction from '../plugins/Interaction.js'
 import { stop, prevent, addEvt, cleanEvt, getEventPath } from '../utils/event.js'
-import {
-  FOCUSABLE_SELECTOR,
-  KEY_SKIP_SELECTOR,
-  changeFocusedElement
-} from '../utils/focus-manager.js'
+import { FOCUSABLE_SELECTOR, KEY_SKIP_SELECTOR, changeFocusedElement } from '../utils/focus-manager.js'
 
 const keyCodes = {
   horizontal: {

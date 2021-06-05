@@ -214,7 +214,6 @@ export default Vue.extend({
           this.__portal.$el.click()
         }
 
-        this.__showPortal(true)
         this.$emit('show', evt)
       }, 300)
     },

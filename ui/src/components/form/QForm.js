@@ -4,7 +4,7 @@ import ListenersMixin from '../../mixins/listeners.js'
 
 import { stopAndPrevent } from '../../utils/event.js'
 import { slot } from '../../utils/slot.js'
-import { addFocusFn, focusNoScroll } from '../../utils/focus-manager.js'
+import { focusNoScroll } from '../../utils/focus-manager.js'
 
 export default Vue.extend({
   name: 'QForm',
@@ -147,14 +147,12 @@ export default Vue.extend({
     },
 
     focus () {
-      addFocusFn(() => {
-        if (!this.$el) { return }
+      if (!this.$el) { return }
 
-        const target = this.$el.querySelector('[autofocus], [data-autofocus]') ||
-          Array.prototype.find.call(this.$el.querySelectorAll('[tabindex]'), el => el.tabIndex > -1)
+      const target = this.$el.querySelector('[autofocus], [data-autofocus]') ||
+        Array.prototype.find.call(this.$el.querySelectorAll('[tabindex]'), el => el.tabIndex > -1)
 
-        target !== null && target !== void 0 && focusNoScroll(target)
-      })
+      target !== null && target !== void 0 && focusNoScroll(target)
     },
 
     getValidationComponents () {

@@ -12,7 +12,7 @@ import AttrsMixin from '../../mixins/attrs.js'
 import { slot } from '../../utils/slot.js'
 import uid from '../../utils/uid.js'
 import { stop, prevent, stopAndPrevent } from '../../utils/event.js'
-import { addFocusFn, removeFocusFn, focusNoScroll } from '../../utils/focus-manager.js'
+import { focusNoScroll } from '../../utils/focus-manager.js'
 
 function getTargetUid (val) {
   return val === void 0 ? `f_${uid()}` : val
@@ -252,14 +252,10 @@ export default Vue.extend({
 
   methods: {
     focus () {
-      this.focusFn !== void 0 && removeFocusFn(this.focusFn)
-      this.focusFn = addFocusFn(() => {
-        this.__focus()
-      })
+      this.__focus()
     },
 
     blur () {
-      this.focusFn !== void 0 && removeFocusFn(this.focusFn)
       const el = document.activeElement
       // IE can have null document.activeElement
       if (el !== null && this.$el.contains(el)) {
