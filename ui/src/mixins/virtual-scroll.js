@@ -1,5 +1,32 @@
-import debounce from '../utils/debounce.js'
+import throttle from '../utils/throttle.js'
 import { isBuggyRTLScroll } from '../utils/scroll.js'
+
+function scrollDebounce (fn) {
+  let timeoutWait
+
+  const fnThrottled = throttle(() => {
+    fn(true)
+  }, 90)
+
+  const fnDebounced = () => {
+    timeoutWait = void 0
+    fn()
+  }
+
+  function debounced () {
+    fnThrottled()
+
+    clearTimeout(timeoutWait)
+    timeoutWait = setTimeout(fnDebounced, 90)
+  }
+
+  debounced.cancel = () => {
+    clearTimeout(timeoutWait)
+    timeoutWait = void 0
+  }
+
+  return debounced
+}
 
 const aggBucketSize = 1000
 
@@ -105,6 +132,10 @@ function getScrollDetails (
 }
 
 function setScroll (parent, scroll, horizontal, rtl) {
+  if (scroll === 'end') {
+    scroll = (parent === window ? document.body : parent)[horizontal === true ? 'scrollWidth' : 'scrollHeight']
+  }
+
   if (parent === window) {
     if (horizontal === true) {
       if (rtl === true) {
@@ -294,11 +325,24 @@ export default {
       )
     },
 
-    __onVirtualScrollEvt () {
+    __onVirtualScrollEvt (throttled) {
       const scrollEl = this.__getVirtualScrollTarget()
 
       if (scrollEl === void 0 || scrollEl === null || scrollEl.nodeType === 8) {
         return
+      }
+
+      if (this.$q.interaction.isKeyboard === true && this.$q.interaction.event !== null && typeof this.$q.interaction.event.key === 'string') {
+        const key = this.$q.interaction.event.key.toLowerCase()
+
+        if (key === 'home' || key === 'end') {
+          setScroll(
+            scrollEl,
+            key === 'home' ? 0 : 'end',
+            this.virtualScrollHorizontal,
+            this.$q.lang.rtl
+          )
+        }
       }
 
       const
@@ -376,11 +420,13 @@ export default {
         scrollEl,
         scrollDetails,
         toIndex,
-        offset
+        offset,
+        void 0,
+        throttled
       )
     },
 
-    __setVirtualScrollSliceRange (scrollEl, scrollDetails, toIndex, offset, align) {
+    __setVirtualScrollSliceRange (scrollEl, scrollDetails, toIndex, offset, align, throttled) {
       const alignForce = typeof align === 'string' && align.indexOf('-force') > -1
       const alignEnd = alignForce === true ? align.replace('-force', '') : align
       const alignRange = alignEnd !== void 0 ? alignEnd : 'start'
@@ -411,14 +457,10 @@ export default {
         this.$refs.content !== activeElement &&
         this.$refs.content.contains(activeElement) === true
       ) {
-        const onBlurFn = () => {
-          this.$refs.content.focus()
-        }
+        this.$refs.content.addEventListener('focusout', this.__onBlurRefocusFn)
 
-        activeElement.addEventListener('blur', onBlurFn, true)
-
-        requestAnimationFrame(() => {
-          activeElement.removeEventListener('blur', onBlurFn, true)
+        setTimeout(() => {
+          this.$refs.content !== void 0 && this.$refs.content.removeEventListener('focusout', this.__onBlurRefocusFn)
         })
       }
 
@@ -479,12 +521,14 @@ export default {
 
         this.prevScrollStart = scrollPosition
 
-        setScroll(
-          scrollEl,
-          scrollPosition,
-          this.virtualScrollHorizontal,
-          this.$q.lang.rtl
-        )
+        if (throttled !== true || this.$q.platform.is.ios !== true) {
+          setScroll(
+            scrollEl,
+            scrollPosition,
+            this.virtualScrollHorizontal,
+            this.$q.lang.rtl
+          )
+        }
 
         this.__emitScroll(toIndex)
       })
@@ -677,6 +721,10 @@ export default {
 
         this.prevToIndex = index
       }
+    },
+
+    __onBlurRefocusFn () {
+      this.$refs.content !== void 0 && this.$refs.content.focus()
     }
   },
 
@@ -685,7 +733,7 @@ export default {
   },
 
   beforeMount () {
-    this.__onVirtualScrollEvt = debounce(this.__onVirtualScrollEvt, this.$q.platform.is.ios === true ? 120 : 35)
+    this.__onVirtualScrollEvt = scrollDebounce(this.__onVirtualScrollEvt)
     this.__setVirtualScrollSize()
   },
 
