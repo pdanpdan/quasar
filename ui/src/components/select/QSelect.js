@@ -1286,15 +1286,13 @@ export default Vue.extend({
           focusout(e)
         },
         click: e => {
-          if (this.hasDialog !== true) {
-            // label from QField will propagate click on the input (except IE)
-            prevent(e)
+          // label from QField will propagate click on the input (except IE)
+          prevent(e)
 
-            if (this.menu === true) {
-              this.__closeMenu()
-              this.$refs.target !== void 0 && this.$refs.target.focus()
-              return
-            }
+          if (this.hasDialog !== true && this.menu === true) {
+            this.__closeMenu()
+            this.$refs.target !== void 0 && this.$refs.target.focus()
+            return
           }
 
           this.showPopup(e)
