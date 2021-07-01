@@ -64,7 +64,7 @@ Include the Quasar Icon Set tag for your Quasar version and also tell Quasar to 
 
 ```html
 <!-- include this after Quasar JS tag -->
-<script src="https://cdn.jsdelivr.net/npm/quasar@1/dist/icon-set/fontawesome-v5.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-<version>/dist/icon-set/fontawesome-v5.umd.min.js"></script>
 <script>
   Quasar.iconSet.set(Quasar.iconSet.fontawesomeV5)
 </script>
@@ -124,7 +124,7 @@ boot: [
 ```
 
 ::: warning Always constrain a dynamic import
-Notice the use of the [Webpack magic comment](https://webpack.js.org/api/module-methods/#magic-comments) - `webpackInclude`. Otherwise all the available icon set files will be bundled, resulting in an increase in the compilation time and the bundle size. See [Caveat for dynamic imports](https://quasar.dev/quasar-cli/lazy-loading#Caveat-for-dynamic-imports)
+Notice the use of the [Webpack magic comment](https://webpack.js.org/api/module-methods/#magic-comments) - `webpackInclude`. Otherwise all the available icon set files will be bundled, resulting in an increase in the compilation time and the bundle size. See [Caveat for dynamic imports](https://pdanpdan.github.io/quasar-docs/quasar-cli/lazy-loading#Caveat-for-dynamic-imports)
 :::
 
 ### Dynamical (SSR) <q-badge align="top" color="brand-primary" label="v1.11+" />

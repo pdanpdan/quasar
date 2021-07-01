@@ -94,8 +94,8 @@ Connecting a QDate and QTime with same model on a QInput:
 
 The following are **helpers** for QInput `mask` and `rules` props. You can use these for convenience or write the string specifying your [custom needs](/vue-components/input#mask).
 
-* Property `mask` helpers: [full list](https://github.com/quasarframework/quasar/blob/dev/ui/src/mixins/mask.js#L2).
-* Property `rules` helpers: [full list](https://github.com/quasarframework/quasar/blob/dev/ui/src/utils/patterns.js).
+* Property `mask` helpers: [full list](https://github.com/pdanpdan/quasar/blob/dev-pdan/ui/src/mixins/mask.js#L2).
+* Property `rules` helpers: [full list](https://github.com/pdanpdan/quasar/blob/dev-pdan/ui/src/utils/patterns.js).
 
 Examples: "date", "time", "fulltime".
 

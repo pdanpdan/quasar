@@ -6,6 +6,25 @@
       style="height: 65px; width: 250px;"
       no-caps
       type="a"
+      href="https://github.com/sponsors/pdanpdan"
+      target="_blank"
+      rel="sponsored"
+    >
+      <div class="row items-center no-wrap">
+        <q-icon left :name="fabGithub" />
+
+        <div class="text-center">
+          GitHub Sponsorship - Dan Popescu
+        </div>
+      </div>
+    </q-btn>
+
+    <q-btn
+      push
+      color="black"
+      style="height: 65px; width: 250px;"
+      no-caps
+      type="a"
       href="https://donate.quasar.dev"
       target="_blank"
       rel="sponsored"
@@ -14,7 +33,7 @@
         <q-icon left :name="fabGithub" />
 
         <div class="text-center">
-          GitHub Sponsorship
+          GitHub Sponsorship - Quasar
         </div>
       </div>
     </q-btn>
@@ -34,7 +53,7 @@
           <q-icon left :name="fabPaypal" />
 
           <div class="text-center">
-            Paypal<br>(one time)
+            Paypal - Razvan Stoenescu<br>(one time)
           </div>
         </div>
       </q-btn>

@@ -93,7 +93,7 @@ q-page.landing
   section.landing__footer.flex.flex-center
     div.text-center
       div.landing__footer-icons.row.flex-center.q-gutter-md
-        a(href="https://github.quasar.dev", target="_blank", rel="noopener")
+        a(href="https://github.com/pdanpdan/quasar", target="_blank", rel="noopener")
           q-icon(:name="fabGithub")
 
         a(href="https://blog.quasar.dev", target="_blank", rel="noopener")
@@ -110,6 +110,9 @@ q-page.landing
 
         a(href="https://facebook.quasar.dev", target="_blank", rel="noopener")
           q-icon(:name="fabFacebook")
+
+        a(href="https://github.com/sponsors/pdanpdan", rel="sponsored", target="_blank")
+          q-icon(:name="fasMedkit")
 
         a(href="https://donate.quasar.dev", rel="sponsored", target="_blank")
           q-icon(:name="fasMedkit")

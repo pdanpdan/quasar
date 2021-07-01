@@ -159,7 +159,7 @@ export default {
         .map(key => cssMap[key])
 
       css.unshift(this.googleFonts)
-      css.push(`cdn.jsdelivr.net/npm/quasar@${this.version}/dist/quasar.rtl.min.css`)
+      css.push(`cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${this.version}/dist/quasar.rtl.min.css`)
 
       return css.filter(url => url)
         .map(url => this.getCssTag(url))
@@ -224,19 +224,19 @@ export default {
     body () {
       const js = [
         'cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js',
-        `cdn.jsdelivr.net/npm/quasar@${this.version}/dist/quasar.umd.${this.modern === true ? 'modern.' : ''}min.js`
+        `cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${this.version}/dist/quasar.umd.${this.modern === true ? 'modern.' : ''}min.js`
       ]
 
       if (this.ie === true) {
-        js.unshift(`cdn.jsdelivr.net/npm/quasar@${this.version}/dist/quasar.ie.polyfills.umd.min.js`)
+        js.unshift(`cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${this.version}/dist/quasar.ie.polyfills.umd.min.js`)
       }
 
       if (this.lang !== 'en-us') {
-        js.push(`cdn.jsdelivr.net/npm/quasar@${this.version}/dist/lang/${this.lang}.umd.min.js`)
+        js.push(`cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${this.version}/dist/lang/${this.lang}.umd.min.js`)
       }
 
       if (this.iconSet !== 'material-icons') {
-        js.push(`cdn.jsdelivr.net/npm/quasar@${this.version}/dist/icon-set/${this.iconSet}.umd.min.js`)
+        js.push(`cdn.jsdelivr.net/gh/pdanpdan/quasar@quasar-pdan-v${this.version}/dist/icon-set/${this.iconSet}.umd.min.js`)
       }
 
       return js

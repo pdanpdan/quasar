@@ -45,6 +45,20 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
         .row.justify-center.q-my-md
           q-btn.doc-layout__main-btn(
             type="a"
+            href="https://github.com/sponsors/pdanpdan"
+            target="_blank"
+            rel="noopener"
+            color="brand-primary"
+            outline
+            :icon="mdiHeart"
+            label="Donate to Dan Popescu"
+            no-wrap
+            no-caps
+          )
+
+        .row.justify-center.q-mt-md.q-mb-sm
+          q-btn.doc-layout__main-btn(
+            type="a"
             href="https://donate.quasar.dev"
             target="_blank"
             rel="noopener"
@@ -351,7 +365,7 @@ export default {
     background-color: $grey-4
 
 .doc-layout__main-btn
-  width: 200px
+  width: 230px
 
 .q-drawer--mobile
   .doc-toc

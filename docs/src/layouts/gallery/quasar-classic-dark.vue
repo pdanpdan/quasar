@@ -30,16 +30,16 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>Docs</q-item-label>
-            <q-item-label caption>https://quasar.dev</q-item-label>
+            <q-item-label caption>https://pdanpdan.github.io/quasar-docs</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable tag="a" target="_blank" rel="noopener" href="https://github.quasar.dev">
+        <q-item clickable tag="a" target="_blank" rel="noopener" href="https://github.com/pdanpdan/quasar">
           <q-item-section avatar>
             <q-icon name="code" />
           </q-item-section>
           <q-item-section>
             <q-item-label>GitHub</q-item-label>
-            <q-item-label caption>github.com/quasarframework</q-item-label>
+            <q-item-label caption>github.com/pdanpdan/quasar</q-item-label>
           </q-item-section>
         </q-item>
         <q-item clickable tag="a" target="_blank" rel="noopener" href="http://chat.quasar.dev">

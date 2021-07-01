@@ -34,6 +34,7 @@ export default {
       error: false,
 
       packages: {
+        'quasar-pdan': [],
         quasar: [],
         '@quasar/app': [],
         '@quasar/cli': [],
@@ -41,7 +42,7 @@ export default {
         '@quasar/icongenie': []
       },
 
-      currentPackage: 'quasar',
+      currentPackage: 'quasar-pdan',
       versions: {}
     }
   },
@@ -51,7 +52,7 @@ export default {
   },
 
   methods: {
-    queryReleases (page = 1) {
+    queryReleases (page = 1, repoPDan) {
       this.loading = true
       this.error = false
 
@@ -100,7 +101,10 @@ export default {
         }
 
         if (!stopQuery) {
-          self.queryReleases(page + 1)
+          self.queryReleases(page + 1, repoPDan)
+        }
+        else if (repoPDan !== true) {
+          self.queryReleases(1, true)
         }
 
         self.versions = Object.assign(latestVersions, self.versions)
@@ -111,7 +115,12 @@ export default {
         this.error = true
       })
 
-      xhrQuasar.open('GET', `https://api.github.com/repos/quasarframework/quasar/releases?page=${page}&per_page=100`)
+      xhrQuasar.open(
+        'GET',
+        repoPDan === true
+          ? `https://api.github.com/repos/pdanpdan/quasar/releases?page=${page}&per_page=100`
+          : `https://api.github.com/repos/quasarframework/quasar/releases?page=${page}&per_page=100`
+      )
       xhrQuasar.send()
     }
   }

@@ -1,5 +1,3 @@
-/* global gtag */
-
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
@@ -28,12 +26,6 @@ export default function () {
     // quasar.conf.js -> build -> vueRouterMode
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
-  })
-
-  process.env.CLIENT === true && Router.afterEach(to => {
-    gtag('config', 'UA-6317975-6', {
-      page_path: to.path
-    })
   })
 
   return Router

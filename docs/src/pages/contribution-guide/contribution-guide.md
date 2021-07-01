@@ -39,15 +39,15 @@ Apart from answering questions and sharing resources in the forum and chat, ther
 
 ## Reporting an Issue
 
-* [GitHub](https://github.com/quasarframework/quasar/issues): If you have a bug to report or feature to request, that’s what the GitHub issues are for.
+* [GitHub](https://github.com/pdanpdan/quasar/issues): If you have a bug to report or feature to request, that’s what the GitHub issues are for.
 
 ::: danger Reporting a vulnerability
 Please do not report security vulnerabilities with public GitHub issue reports. Follow the [Report a vulnerability](/security/report-a-vulnerability) steps for security issues.
 :::
 
-If you've found a problem in Quasar which is not a security risk, do a search on GitHub under [Issues](https://github.com/quasarframework/quasar/issues) to check if it is already answered or even fixed in the development branch (`v1`).
+If you've found a problem in Quasar which is not a security risk, do a search on GitHub under [Issues](https://github.com/pdanpdan/quasar/issues) to check if it is already answered or even fixed in the development branch (`dev`).
 
-- The issue list of the [main repo](https://github.com/quasarframework/quasar) is **exclusively** for bug reports and feature requests. Non-conforming issues will be closed immediately.
+- The issue list of the [main repo](https://github.com/pdanpdan/quasar) is **exclusively** for bug reports and feature requests. Non-conforming issues will be closed immediately.
 
   - For simple beginner questions, you can get quick answers from the [Quasar Discord chat](https://chat.quasar.dev).
 
@@ -69,7 +69,7 @@ If you've found a problem in Quasar which is not a security risk, do a search on
 
 As a next step beyond reporting issues, you can help the Quasar Team resolve existing ones by providing feedback about them. If you are new to Quasar development, that might be a great way to walk your first steps, you'll get familiar with the code base and the processes.
 
-If you check the issues list in [GitHub Issues](https://github.com/quasarframework/quasar/issues), you'll find lots of issues already requiring attention. What can you do for these? Quite a bit, actually:
+If you check the issues list in [GitHub Issues](https://github.com/pdanpdan/quasar/issues), you'll find lots of issues already requiring attention. What can you do for these? Quite a bit, actually:
 
 #### Verifying Bug Reports
 
@@ -114,7 +114,7 @@ You can help improve the Quasar documentation by making it more coherent, consis
 Use a pencil icon in the top right corner of every documentation page. Edit the source file, preview the changes, add a description of your change and hit `Propose a file change` and on the next screen `Create pull request`.
 :::
 
-For larger edits change the Quasar source files (located [here](https://github.com/quasarframework/quasar/tree/v1/docs/src/pages) on GitHub).
+For larger edits change the Quasar source files (located [here](https://github.com/pdanpdan/quasar/tree/dev-pdan/docs/src/pages) on GitHub).
 
 ### Documentation Best Practices
 
@@ -130,7 +130,7 @@ Over time we consolidated a set of rules which we follow and following them will
 
 #### Fork
 
-Navigate to the Quasar [GitHub repository](https://github.com/quasarframework/quasar) and press "Fork" in the upper right-hand corner.
+Navigate to the Quasar [GitHub repository](https://github.com/pdanpdan/quasar) and press "Fork" in the upper right-hand corner.
 
 ::: warning Select v1 branch
 Make sure you have `v1` branch selected and this is where all the work is done.
@@ -178,20 +178,20 @@ It's pretty likely that other changes to master have happened while you were wor
 1. Add a remote Quasar repository as an upstream
 
 ```bash
-$ git remote add upstream https://github.com/quasarframework/quasar.git
+$ git remote add upstream https://github.com/pdanpdan/quasar.git
 ```
 
-2. Check out your fork's local `v1` branch.
+2. Check out your fork's local `dev-pdan` branch.
 
 ```bash
-$ git checkout v1
-> Switched to branch 'v1'
+$ git checkout dev-pdan
+> Switched to branch 'dev-pdan'
 ```
 
-3. Merge the changes from `upstream/v1` into your local `v1` branch. This brings your fork's `v1` branch into sync with the upstream repository, without losing your local changes.
+3. Merge the changes from `upstream/dev-pdan` into your local `dev-pdan` branch. This brings your fork's `dev-pdan` branch into sync with the upstream repository, without losing your local changes.
 
 ```bash
-$ git merge upstream/dev
+$ git merge upstream/dev-pdan
 ```
 
 No conflicts? Tests still pass? Change still seems reasonable to you? Then move on and open a pull request to apply your changes to the dev branch in main Quasar repository.

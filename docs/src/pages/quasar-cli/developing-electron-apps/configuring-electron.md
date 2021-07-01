@@ -34,7 +34,7 @@ electron: {
   unPackagedInstallParams: [],
 
   // -- @quasar/app v1.3+ --
-  // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
+  // More info: https://pdanpdan.github.io/quasar-docs/quasar-cli/developing-electron-apps/node-integration
   nodeIntegration: true,
 
   // -- @quasar/app v1.9.5+ --
