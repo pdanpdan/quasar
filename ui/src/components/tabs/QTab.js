@@ -217,24 +217,6 @@ export default Vue.extend({
       narrow === false && node.push(indicator)
 
       return node
-    },
-
-    __renderTab (h, tag, props) {
-      const data = {
-        staticClass: 'q-tab relative-position self-stretch flex flex-center text-center no-outline',
-        class: this.classes,
-        attrs: this.attrs,
-        directives: this.ripple === false || this.disable === true ? null : [
-          { name: 'ripple', value: this.computedRipple }
-        ],
-        [ tag === 'div' ? 'on' : 'nativeOn' ]: this.onEvents
-      }
-
-      if (props !== void 0) {
-        data.props = props
-      }
-
-      return h(tag, data, this.__getContent(h))
     }
   },
 
@@ -247,6 +229,14 @@ export default Vue.extend({
   },
 
   render (h) {
-    return this.__renderTab(h, 'div')
+    return h('div', {
+      staticClass: 'q-tab relative-position self-stretch flex flex-center text-center no-outline',
+      class: this.classes,
+      attrs: this.attrs,
+      directives: this.ripple === false || this.disable === true ? null : [
+        { name: 'ripple', value: this.computedRipple }
+      ],
+      on: this.onEvents
+    }, this.__getContent(h))
   }
 })

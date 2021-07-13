@@ -136,7 +136,6 @@ export default Vue.extend({
     }
 
     if (this.hasRouterLink === true) {
-      data.tag = 'a'
       data.props = this.routerLinkProps
 
       return h('router-link', data, this.__getContent(h))
