@@ -120,7 +120,7 @@ export default Vue.extend({
   watch: {
     name (newName, oldName) {
       this.__unregisterTab(oldName)
-      this.__registerTab(newName)
+      this.__registerTab(newName, this.$el)
     }
   },
 
@@ -239,7 +239,7 @@ export default Vue.extend({
   },
 
   mounted () {
-    this.__registerTab(this.name)
+    this.__registerTab(this.name, this.$el)
   },
 
   beforeDestroy () {
