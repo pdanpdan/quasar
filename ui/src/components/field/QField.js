@@ -547,7 +547,7 @@ export default Vue.extend({
     this.__onPreRender !== void 0 && this.__onPreRender()
 
     return h('label', {
-      staticClass: 'q-field q-validation-component row no-wrap items-start',
+      staticClass: 'q-field q-validation-component row no-wrap items-start q-key-group-navigation--ignore-key',
       class: this.classes,
       attrs: this.attrs
     }, [

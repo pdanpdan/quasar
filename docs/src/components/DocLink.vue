@@ -53,6 +53,9 @@ export default {
   &:hover
     opacity: .8
 
+  &:focus-visible
+    border-bottom-style: solid
+
   .q-icon
     margin-top: -3px
     margin-left: 4px

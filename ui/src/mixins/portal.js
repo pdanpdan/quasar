@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 import { isSSR } from '../plugins/Platform.js'
 import { getBodyFullscreenElement } from '../utils/dom.js'
-import { addFocusWaitFlag, removeFocusWaitFlag } from '../utils/focus-manager.js'
+import { addFocusWaitFlag, removeFocusWaitFlag, addFocusFn, FOCUSABLE_SELECTOR, changeFocusedElement } from '../utils/focus-manager.js'
 
 export function closePortalMenus (vm, evt) {
   do {
@@ -75,6 +75,28 @@ const Portal = {
   },
 
   methods: {
+    focus () {
+      addFocusFn(() => {
+        const node = this.__getInnerNode()
+
+        if (node !== void 0 && node.contains(document.activeElement) !== true) {
+          const autofocusNode = node.querySelector('[autofocus], [data-autofocus]')
+
+          if (autofocusNode !== null && typeof autofocusNode.focus === 'function') {
+            autofocusNode.focus()
+          }
+          else {
+            const focusableElements = Array.prototype.slice.call(node.querySelectorAll(FOCUSABLE_SELECTOR))
+            focusableElements.length > 0 && changeFocusedElement(
+              focusableElements,
+              focusableElements[0].classList.contains('q-key-group-navigation--ignore-focus') === true ? 1 : 0,
+              1
+            )
+          }
+        }
+      })
+    },
+
     __showPortal (isReady) {
       if (isReady === true) {
         removeFocusWaitFlag(this.focusObj)
@@ -156,6 +178,12 @@ const Portal = {
             directives: this.$options.directives
           }).$mount()
       }
+    },
+
+    __getInnerNode () {
+      return this.__portal !== void 0 && this.__portal.$refs !== void 0
+        ? this.__portal.$refs.inner
+        : void 0
     }
   },
 
