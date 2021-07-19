@@ -1,6 +1,5 @@
 .q-color-picker
   overflow: hidden
-  background: #fff
   max-width: 350px
   vertical-align: top
 
@@ -38,13 +37,17 @@
 
   &__header-content
     position: relative
-    background: #fff
+    background: $light-page
+    background: var(--q-color-light-page)
 
     &--light
-      color: #000
+      color: $light-text
+      color: var(--q-color-light-text)
 
     &--dark
-      color: #fff
+      color: $dark-text
+      color: var(--q-color-dark-text)
+
       .q-tab--inactive
         &:before
           content: ''
@@ -58,7 +61,8 @@
   &__header-banner
     height: 36px
   &__header-bg
-    background: #fff
+    background: $light-page
+    background: var(--q-color-light-page)
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAH0lEQVQoU2NkYGAwZkAFZ5G5jPRRgOYEVDeB3EBjBQBOZwTVugIGyAAAAABJRU5ErkJggg==') !important
 
   &__footer
@@ -180,9 +184,16 @@
     background: inherit
 
   &--dark
-
     .q-color-picker__tune-tab input
-      border: 1px solid alpha(#fff, .3)
+      border: 1px solid alpha($dark-text, .3)
+
+    .q-slider
+      color: $grey-5
+
+@media (prefers-color-scheme: dark)
+  .q-color-picker--dark-auto
+    .q-color-picker__tune-tab input
+      border: 1px solid alpha($dark-text, .3)
 
     .q-slider
       color: $grey-5

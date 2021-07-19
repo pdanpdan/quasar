@@ -32,7 +32,7 @@
       v-else
       ref="scroll"
       style="width: 400px; height: 500px;"
-      class="bg-dark text-white q-mt-lg"
+      class="bg-dark text-white"
       :horizontal="horizontal"
       :visible="alwaysVisible"
       dark

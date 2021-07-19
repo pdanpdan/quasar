@@ -18,7 +18,8 @@ $checkbox-transition = .22s cubic-bezier(0,0,.2,1) 0ms
     height: 1px
 
   &__svg
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
 
   &__truthy
     stroke: currentColor
@@ -114,3 +115,13 @@ body.desktop
     &:hover
       .q-checkbox__inner:before
         transform: scale3d(1.4, 1.4, 1)
+
+@media (prefers-color-scheme: dark)
+  .q-checkbox--dark-auto
+    .q-checkbox__inner
+      color: rgba(255,255,255,.7)
+      &:before
+        opacity: .32 !important
+      &--truthy, &--indet
+        color: $primary
+        color: var(--q-color-primary)

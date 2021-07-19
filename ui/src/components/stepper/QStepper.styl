@@ -1,7 +1,6 @@
 .q-stepper
   box-shadow: $shadow-2
   border-radius: $generic-border-radius
-  background: #fff
 
   &__title
     font-size: 14px
@@ -20,18 +19,16 @@
     height: 24px
     border-radius: 50%
     background: currentColor
+
     span
-      color: #fff
+      color: $dark-text
+      color: var(--q-color-dark-text)
 
   &__tab
     padding: 8px 24px
     font-size: 14px
     color: $grey
     flex-direction: row
-
-  &--dark
-    .q-stepper__dot span
-      color: #000
 
   &__tab
     &--navigation
@@ -165,6 +162,9 @@
       padding-bottom: 8px
 
   &--dark
+    .q-stepper__dot span
+      color: $light-text
+      color: var(--q-color-light-text)
 
     &.q-stepper--bordered,
     .q-stepper__header--border
@@ -210,3 +210,28 @@
       margin: 0
     .q-stepper__label
       display: none
+
+@media (prefers-color-scheme: dark)
+  .q-stepper--dark-auto
+    .q-stepper__dot span
+      color: $light-text
+      color: var(--q-color-light-text)
+
+    &.q-stepper--bordered,
+    .q-stepper__header--border
+      border-color: $separator-dark-color
+    &.q-stepper--horizontal
+      .q-stepper__line
+        &:before, &:after
+          background: $separator-dark-color
+    &.q-stepper--vertical
+      .q-stepper__dot
+        &:before, &:after
+          background: $separator-dark-color
+    .q-stepper__tab
+      &--disabled
+        color: $separator-dark-color
+        .q-stepper__dot
+          background: $separator-dark-color
+        .q-stepper__label
+          color: rgba(255,255,255,.54)

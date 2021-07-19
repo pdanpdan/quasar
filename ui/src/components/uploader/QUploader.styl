@@ -2,7 +2,6 @@
   box-shadow: $shadow-2
   border-radius: $generic-border-radius
   vertical-align: top
-  background: #fff
   position: relative
 
   width: 320px
@@ -42,7 +41,8 @@
     border-top-right-radius: inherit
     background-color: $primary
     background-color: var(--q-color-primary)
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
     width: 100%
 
   &__spinner
@@ -59,7 +59,8 @@
 
   &__overlay
     font-size: 36px
-    color: #000
+    color: $light-text
+    color: var(--q-color-light-text)
     background-color: rgba(255,255,255,.6)
 
   &__list
@@ -78,7 +79,8 @@
       font-size: 24px
 
     &--img
-      color: #fff
+      color: $dark-text
+      color: var(--q-color-dark-text)
       height: 200px
       min-width: 200px
       background-position: 50% 50%
@@ -89,7 +91,8 @@
         content: none
 
       .q-circular-progress
-        color: #fff
+        color: $dark-text
+        color: var(--q-color-dark-text)
 
       .q-uploader__file-header
         padding-bottom: 24px
@@ -132,4 +135,17 @@
     .q-uploader__dnd, .q-uploader__overlay
       background: rgba(255,255,255,.3)
     .q-uploader__overlay
-      color: #fff
+      color: $dark-text
+      color: var(--q-color-dark-text)
+
+@media (prefers-color-scheme: dark)
+  .q-uploader--dark-auto
+    border-color: $separator-dark-color
+
+    .q-uploader__file
+      border-color: $separator-dark-color
+    .q-uploader__dnd, .q-uploader__overlay
+      background: rgba(255,255,255,.3)
+    .q-uploader__overlay
+      color: $dark-text
+      color: var(--q-color-dark-text)

@@ -2,7 +2,6 @@
   box-shadow: $shadow-2
   border-radius: $generic-border-radius
   vertical-align: top
-  background: #fff
   position: relative
 
   > div,
@@ -94,3 +93,7 @@
     width: 100%
     max-width: 100%
     border: 0
+
+@media (prefers-color-scheme: dark)
+  .q-card--dark-auto
+    border-color: $separator-dark-color

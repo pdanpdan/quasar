@@ -2,7 +2,8 @@
   display: inline-flex
   box-shadow: $shadow-2
   border-radius: $generic-border-radius
-  background: #fff
+  background: $light-page
+  background: var(--q-color-light-page)
   width: 290px
   min-width: 290px
   max-width: 100%
@@ -12,7 +13,8 @@
 
   &__header
     border-top-left-radius: inherit
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
     background-color: $primary
     background-color: var(--q-color-primary)
     padding: 16px
@@ -248,4 +250,8 @@
     width: 310px
 
   &--dark
+    border-color: $separator-dark-color
+
+@media (prefers-color-scheme: dark)
+  .q-date--dark-auto
     border-color: $separator-dark-color

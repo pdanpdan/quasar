@@ -12,7 +12,8 @@
 
   &__header
     border-top-left-radius: inherit
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
     background-color: $primary
     background-color: var(--q-color-primary)
     padding: 16px
@@ -53,7 +54,7 @@
 
   &__container-child
     border-radius: 50%
-    background: rgba(0, 0, 0, .12)
+    background: rgba(0,0,0,.12)
 
   &__clock
     padding: 24px
@@ -122,7 +123,8 @@
     &--active
       background-color: $primary
       background-color: var(--q-color-primary)
-      color: #fff
+      color: $dark-text
+      color: var(--q-color-dark-text)
 
   for $pos in 0..11
     $angle = (270 + 30 * $pos)
@@ -145,7 +147,8 @@
   &__now-button
     background-color: $primary
     background-color: var(--q-color-primary)
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
     top: 12px
     right: 12px
 
@@ -185,4 +188,8 @@
       margin-top: 12px
 
   &--dark
+    border-color: $separator-dark-color
+
+@media (prefers-color-scheme: dark)
+  .q-time--dark-auto
     border-color: $separator-dark-color

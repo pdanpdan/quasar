@@ -28,7 +28,8 @@
 .q-layout__section--marginal
   background-color: $primary
   background-color: var(--q-color-primary)
-  color: #fff
+  color: $dark-text
+  color: var(--q-color-dark-text)
 
 .q-header
 
@@ -59,7 +60,6 @@
   position: absolute
   top: 0
   bottom: 0
-  background: #fff
   z-index: $z-side
 
   &--on-top
@@ -173,6 +173,11 @@ body:not(.q-body--layout-animate)
 body.body--dark
   .q-header, .q-footer, .q-drawer
     border-color: $separator-dark-color
+
+@media (prefers-color-scheme: dark)
+  body.body--dark-auto
+    .q-header, .q-footer, .q-drawer
+      border-color: $separator-dark-color
 
 body.platform-ios
   .q-layout--containerized

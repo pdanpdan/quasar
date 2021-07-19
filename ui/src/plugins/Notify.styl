@@ -33,8 +33,10 @@ body.q-ios-padding .q-notifications__list
 
   max-width: 95vw
 
-  background: #323232
-  color: #fff
+  background: $notify-background
+  background: var(--q-color-notify-background)
+  color: $dark-text
+  color: var(--q-color-dark-text)
 
   font-size: 14px
 
@@ -70,7 +72,8 @@ body.q-ios-padding .q-notifications__list
     box-shadow: $shadow-1
     background-color: $negative
     background-color: var(--q-color-negative)
-    color: #fff
+    color: $dark-text
+    color: var(--q-color-dark-text)
     border-radius: $generic-border-radius
     font-size: 12px
     line-height: 12px

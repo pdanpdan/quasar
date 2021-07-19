@@ -21,7 +21,8 @@
       pointer-events: none
 
   &__thumb
-    background: #000
+    background: $dark-page
+    background: var(--q-color-dark-page)
 
     &:hover
       opacity: .3
@@ -29,4 +30,11 @@
       opacity: .5
 
   &--dark .q-scrollarea__thumb
-    background: #fff
+    background: $dark-text
+    background: var(--q-color-dark-text)
+
+@media (prefers-color-scheme: dark)
+  .q-scrollarea--dark-auto
+    .q-scrollarea__thumb
+      background: $dark-text
+      background: var(--q-color-dark-text)
