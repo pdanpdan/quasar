@@ -1,0 +1,98 @@
+.q-select
+  &--without-input
+    .q-field__control
+      cursor: pointer
+  &--with-input
+    .q-field__control
+      cursor: text
+
+  &--with-chips
+    .q-field__input
+      margin: 7px 0
+
+    &.q-field--labeled
+      .q-field__native
+        margin-top: -6px
+        padding-bottom: 0
+
+    &.q-field--dense
+      .q-chip--dense
+        margin: 1px 4px
+        height: 20px
+
+      .q-field__input
+        margin: 0
+
+      &.q-field--labeled
+        .q-field__native
+          margin-top: 0
+
+  .q-field__input
+    min-width: 50px !important
+
+    &--padding
+      padding-left: 4px
+
+  .q-field__focus-target
+    outline: 0 !important
+    width: 0
+    height: 0
+    padding: 0
+    border: 0
+    opacity: 0
+
+  &__autocomplete-input
+    width: 0
+    height: 0
+    padding: 0
+    border: 0
+    opacity: 0
+
+  &__dropdown-icon
+    cursor: pointer
+    transition: transform .28s
+
+  &__close-icon
+    cursor: pointer
+
+    &:not(:last-child)
+      margin-right: 12px
+
+  &.q-field--readonly
+    .q-field__control, .q-select__dropdown-icon
+      cursor: default
+
+  &__dialog
+    width: 90vw !important
+    max-width: 90vw !important
+    max-height: calc(100vh - 70px) !important
+    display: flex
+    flex-direction: column
+
+    > .scroll
+      position: relative
+      background: inherit
+
+// addressbar always gets shown, so need to slim this down
+body.mobile:not(.native-mobile) .q-select__dialog
+  max-height: calc(100vh - 168px) !important
+
+body.platform-android
+
+  &.native-mobile .q-dialog__inner--top .q-select__dialog
+    max-height: calc(100vh - 24px) !important
+
+  &:not(.native-mobile) .q-dialog__inner--top .q-select__dialog
+    max-height: calc(100vh - 80px) !important
+
+body.platform-ios
+
+  &.native-mobile .q-dialog__inner--top
+    > div
+      border-radius: $generic-border-radius
+
+    .q-select__dialog--focused
+      max-height: 47vh !important
+
+  &:not(.native-mobile) .q-dialog__inner--top .q-select__dialog--focused
+    max-height: 48vh !important
